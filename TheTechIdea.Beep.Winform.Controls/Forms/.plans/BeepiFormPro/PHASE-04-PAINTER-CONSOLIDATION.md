@@ -1,54 +1,92 @@
-# Phase 4 - Painter Consolidation
+# Phase 4 — Painter Consolidation (REVISED)
 
-## Goal
+**Status:** Not started | **Priority:** HIGH | **Depends on:** Phase 1, 2, 3
 
-Reduce painter maintenance cost while preserving the visual identity of each style.
+## Objective
 
-## Evidence From Current Code
+Eliminate ~2,500-3,000 lines of duplicated code across 33 painters by extracting shared helpers without flattening painter identity.
 
-- The painter folder contains a large set of style implementations with repeated background, caption, border, and button-layout patterns.
-- `Painters/IFormPainter.cs` makes each painter responsible for both painting and layout/hit-area registration, which increases duplication quickly.
-- `Painters/Readme.md` explicitly avoids inheritance, which means consolidation must happen through composition, helpers, or shared contracts rather than a deep base class.
-- Documentation and enum mapping details are already drifting from the live file set, which is a maintenance warning for the painter catalog itself.
+## Audit Findings (2026-07-08)
 
-## Scope
+### Massive Code Duplication
 
-- Extract composition-based helpers for repeated geometry, icon rendering, button glyphs, clipping, and border effects.
-- Keep unique visual rendering logic inside each painter.
-- Tighten the painter catalog so docs, enum mappings, and actual files match.
+| Pattern | Copies | Lines Each | Total Duplicated |
+|---|---|---|---|
+| `CreateRoundedRectanglePath` | 33 | ~35 | ~1,155 lines |
+| `DrawShadow` | 33 | ~10 | ~330 lines |
+| `PaintWithEffects` orchestration | ~25 | ~30 | ~750 lines |
+| HSL color conversion (`ShiftLuminance`/`ColorToHsl`/etc.) | 7+ | ~40 | ~280 lines |
+| **TOTAL** | | | **~2,500+ lines** |
 
-## Deliverables
+These 2,500 lines can be reduced to ~200 lines in shared helpers.
 
-- Shared painter helper components for common caption-button families and repeated visual primitives.
-- A reduced duplication matrix for right-aligned, left-aligned, and special-layout painters.
-- Updated painter inventory documentation tied to the real enum and factory mappings.
-- A shared animation primitive layer for hover, press, reveal, and caption transition effects.
-- A decision on whether ToolStrip and menu renderers should be bridged to the active form theme.
+### Missing DPI Scaling
 
-## Task Breakdown
+| Painter | Issue |
+|---|---|
+| `MinimalFormPainter` | `iconSize = 16` hardcoded |
+| `MetroFormPainter` | `iconSize = 16`, button width `46` hardcoded |
+| `FluentFormPainter` | `iconSize = 16` hardcoded |
+| `GlassFormPainter` | `iconSize = 16` hardcoded |
+| `CustomFormPainter` | `iconSize = 18`, no DPI scaling anywhere |
 
-- [ ] Inventory repeated patterns across the current painter set.
-- [ ] Extract shared helper methods or helper objects for common geometry and button rendering.
-- [ ] Keep style-specific surfaces, colors, and effects in each painter file.
-- [ ] Reconcile painter docs with actual files and `PaintersFactory` mappings.
-- [ ] Define a checklist for adding future painters without repeating contract drift.
-- [ ] Introduce a shared animation manager instead of per-painter ad hoc timing logic.
-- [ ] Evaluate optional renderer bridging for hosted menus and toolstrips so the skin feels system-wide instead of caption-only.
+### Inline Layout Duplication (bypasses FormPainterLayoutHelper)
 
-## Consolidation Rules
+| Painter |
+|---|
+| `FluentFormPainter` — complete 100-line inline layout |
+| `BrutalistFormPainter` — complete 100-line inline layout |
+| `GlassFormPainter` — complete 100-line inline layout |
+| `CustomFormPainter` — complete 100-line inline layout |
 
-1. No deep inheritance tree.
-2. Shared behavior lives in helper utilities or small composition objects.
-3. Painter files remain readable in isolation.
-4. Layout ownership stays explicit even when helpers are reused.
+### Missing CompositingMode (paint accumulation bug)
 
-## Risks
+| Painter |
+|---|
+| `MetroFormPainter` — no `SourceCopy`/`SourceOver` management |
+| `CustomFormPainter` — no compositing mode management at all |
 
-- Extracting helpers too aggressively can make painters harder to reason about if behavior becomes hidden.
-- Leaving the current duplication untouched will keep bug fixes expensive across the full catalog.
+### CustomFormPainter Metrics Bypass
 
-## Exit Criteria
+`CustomFormPainter.GetMetrics()` creates a new `FormPainterMetrics` every call instead of using `DefaultForCached()`. No theme integration, no DPI, no caching.
 
-- Shared caption and border patterns are implemented once where practical.
-- Painter docs and factory mappings match the real file set.
-- Adding a new painter no longer requires copying large blocks of layout or interaction code.
+## Tasks
+
+### PC-01: Extract shared `CreateRoundedRectanglePath` helper
+Move one implementation to `FormPainterRenderHelper` (already exists at line 725). Update all 33 painters to call the shared version. Remove all private copies.
+
+### PC-02: Extract shared `DrawShadow` helper
+Move to `FormPainterRenderHelper` with parameters for color, blur, offset. Remove all 33 private copies.
+
+### PC-03: Extract shared HSL color utilities
+Use `FormPainterRenderHelper.Lighten`/`Darken` (already exist). Remove all 7+ private copies.
+
+### PC-04: Consolidate `PaintWithEffects` orchestration
+Create `FormPainterRenderHelper.PaintFormWithEffects(g, owner, painter)` that handles shadow→background→clip→borders→caption orchestration. Update 25 painters to call it.
+
+### PC-05: Fix DPI scaling in 5 painters
+Replace hardcoded `iconSize = 16/18` with `DpiScalingHelper.ScaleValue(16, owner)`. Replace hardcoded button widths with `metrics.ButtonWidth`.
+
+### PC-06: Fix compositing mode in 2 painters
+Add `CompositingMode.SourceCopy` → base fill → `SourceOver` → overlay → restore pattern to MetroFormPainter and CustomFormPainter.
+
+### PC-07: Wire 4 inline-layout painters to FormPainterLayoutHelper
+Convert FluentFormPainter, BrutalistFormPainter, GlassFormPainter, and CustomFormPainter to use `TryBuildStandardRightAlignedCaptionLayout()`.
+
+### PC-08: Fix CustomFormPainter metrics
+Replace `new FormPainterMetrics()` with `FormPainterMetrics.DefaultForCached(style, theme, useTheme)`.
+
+## Files
+
+| File | Change |
+|---|---|
+| `Painters/FormPainterRenderHelper.cs` | Add shared CreateRoundedRect, DrawShadow, PaintWithEffects |
+| `Painters/FormPainterLayoutHelper.cs` | Ensure all inline painters use it |
+| 33 `Painters/*FormPainter.cs` | Remove duplicated methods, call shared helpers |
+| `FormPainterMetrics.cs` | Add missing `MaterialYou` case |
+
+## Verification
+- [ ] `dotnet build` — 0 errors
+- [ ] All 33 painters render identically to before
+- [ ] ~2,500 lines of duplicated code removed
+- [ ] DPI scaling applied to all hardcoded values

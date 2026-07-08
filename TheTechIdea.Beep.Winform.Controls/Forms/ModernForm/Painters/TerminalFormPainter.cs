@@ -112,23 +112,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Draw title text with terminal font Style
             var textRect = owner.CurrentLayout.TitleRect;
             
-            // Use monospace font if possible
-            Font terminalFont = owner.Font;
-            try
-            {
-                terminalFont = new Font("Consolas", owner.Font.Size, FontStyle.Bold);
-            }
-            catch
-            {
-                try
-                {
-                    terminalFont = new Font("Courier New", owner.Font.Size, FontStyle.Bold);
-                }
-                catch
-                {
-                    terminalFont = owner.Font;
-                }
-            }
+            // Use monospace font from theme
+            Font terminalFont = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
             
             // Add terminal prompt prefix to title
             string terminalTitle = $"> {owner.Text ?? string.Empty}";

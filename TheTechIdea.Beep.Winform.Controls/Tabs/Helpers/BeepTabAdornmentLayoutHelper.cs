@@ -1,332 +1,73 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
 {
-    /// <summary>
-    /// Calculates the bounds for all adornment elements inside a single tab header item rectangle.
-    ///
-    /// Allocation order (left-to-right in horizontal headers, with RTL awareness if needed):
-    ///   [icon] [title text] [subtext] [badge] [dirty-dot | busy-spinner] [close button]
-    ///
-    /// The helper respects priority rules when space is constrained:
-    ///   1. Keep selection visible (close button retained for selected/dirty).
-    ///   2. Collapse subtext before main text.
-    ///   3. Collapse labels before icons only when configured.
-    ///   4. Move items into overflow before clipping text.
-    /// </summary>
     public static class BeepTabAdornmentLayoutHelper
     {
-        // ── Sizing constants (logical pixels, DPI-independent) ────────────────
+        private const int IconSize = 16, BadgePaddingH = 4, BadgeMinWidth = 16;
+        private const int BadgeDotSize = 8, DirtyDotSize = 6, BusySize = 12;
+        private const int AdornmentGap = 3, CloseSize = 14, CloseGap = 4, EdgePadding = 6;
 
-        private const int IconSize = 16;
-        private const int BadgePaddingH = 4;
-        private const int BadgePaddingV = 2;
-        private const int BadgeMinWidth = 16;
-        private const int BadgeDotSize = 8;
-        private const int DirtyDotSize = 6;
-        private const int BusySize = 12;
-        private const int AdornmentGap = 3;
-        private const int CloseSize = 14;
-        private const int CloseGap = 4;
-        private const int EdgePadding = 6;
+        private static int S(int v, Control c) => DpiScalingHelper.ScaleValue(v, c);
 
-        // ── Public API ────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Populates all adornment-related bounds on <paramref name="layout"/> given
-        /// the tab's outer bounds, font, and current adornment state.
-        /// The caller is responsible for setting <c>layout.Bounds</c> and
-        /// <c>layout.HasCloseButton</c> before calling this method.
-        /// </summary>
-        public static void Calculate(
-            BeepTabHeaderItemLayout layout,
-            Font font,
-            bool showCloseButton,
-            bool isHorizontal = true)
+        public static void Calculate(BeepTabHeaderItemLayout layout, Font font,
+            bool showCloseButton, bool isHorizontal = true, Control c = null)
         {
-            if (layout == null)
-            {
-                throw new ArgumentNullException(nameof(layout));
-            }
-
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
             font = TabFontHelpers.ResolveSafeFont(font);
 
-            if (layout.Bounds.IsEmpty)
-            {
-                ClearBounds(layout);
-                return;
-            }
+            int iconS = S(IconSize, c), badgePadH = S(BadgePaddingH, c), badgeMinW = S(BadgeMinWidth, c);
+            int badgeDot = S(BadgeDotSize, c), dirtyDot = S(DirtyDotSize, c), busyS = S(BusySize, c);
+            int gap = S(AdornmentGap, c), closeS = S(CloseSize, c), closeG = S(CloseGap, c), edgeP = S(EdgePadding, c);
 
-            BeepTabItem item = layout.Item;
-            BeepTabAdornmentState adornment = item.GetAdornmentState();
+            var st = layout.Item?.GetAdornmentState() ?? BeepTabAdornmentState.Empty;
+            bool hasIcon = layout.Item?.HasIcon == true;
+            bool hasBadge = st.HasBadge;
+            bool isDot = st.BadgeKind == BeepTabBadgeKind.Dot;
+            bool isDirty = st.IsDirty;
+            bool isBusy = st.IsBusy;
+            int textHeight = Math.Max(1, font.Height);
 
             if (isHorizontal)
             {
-                CalculateHorizontal(layout, font, showCloseButton, adornment);
+                int left = layout.Bounds.X + edgeP;
+                int y = layout.Bounds.Y + Math.Max(0, (layout.Bounds.Height - textHeight) / 2);
+                if (hasIcon) { layout.IconBounds = new Rectangle(left, y, iconS, iconS); left += iconS + gap; }
+                layout.TextBounds = new Rectangle(left, y, Math.Max(0, layout.Bounds.Right - left - edgeP), textHeight);
+                if (!string.IsNullOrEmpty(layout.Item?.SubText))
+                { layout.SubTextBounds = new Rectangle(left, y + textHeight, layout.TextBounds.Width, textHeight); }
+                if (hasBadge) { var bw = isDot ? badgeDot : badgeMinW; layout.BadgeBounds = new Rectangle(layout.Bounds.Right - edgeP - bw, y, bw, textHeight); }
+                if (isDirty) layout.DirtyMarkerBounds = new Rectangle(layout.Bounds.Right - edgeP - dirtyDot, y, dirtyDot, dirtyDot);
+                else if (isBusy) layout.BusyIndicatorBounds = new Rectangle(layout.Bounds.Right - edgeP - busyS, y, busyS, busyS);
+                if (showCloseButton) layout.CloseButtonBounds = new Rectangle(layout.Bounds.Right - edgeP - closeS, y, closeS, closeS);
             }
             else
             {
-                CalculateVertical(layout, font, showCloseButton, adornment);
+                int top = layout.Bounds.Y + edgeP;
+                int cx = layout.Bounds.X + layout.Bounds.Width / 2;
+                if (hasIcon) { layout.IconBounds = new Rectangle(cx - iconS / 2, top, iconS, iconS); top += iconS + gap; }
+                layout.TextBounds = new Rectangle(layout.Bounds.X + edgeP, top, Math.Max(0, layout.Bounds.Width - edgeP * 2), textHeight);
+                if (!string.IsNullOrEmpty(layout.Item?.SubText)) { top += textHeight; layout.SubTextBounds = new Rectangle(layout.TextBounds.X, top, layout.TextBounds.Width, textHeight); }
+                if (hasBadge) { var bw = isDot ? badgeDot : badgeMinW; layout.BadgeBounds = new Rectangle(cx - bw / 2, layout.Bounds.Bottom - edgeP - textHeight, bw, textHeight); }
+                if (isDirty) layout.DirtyMarkerBounds = new Rectangle(cx - dirtyDot / 2, layout.Bounds.Bottom - edgeP - dirtyDot, dirtyDot, dirtyDot);
+                else if (isBusy) layout.BusyIndicatorBounds = new Rectangle(cx - busyS / 2, layout.Bounds.Bottom - edgeP - busyS, busyS, busyS);
+                if (showCloseButton) layout.CloseButtonBounds = new Rectangle(cx - closeS / 2, layout.Bounds.Bottom - edgeP - closeS, closeS, closeS);
             }
         }
 
-        /// <summary>
-        /// Returns the minimum width that the adornment set needs in a horizontal header.
-        /// Useful for measuring tabs during overflow calculation.
-        /// </summary>
-        public static int MeasureHorizontalAdornmentWidth(
-            BeepTabAdornmentState adornment,
-            bool showCloseButton)
+        public static int MeasureHorizontalAdornmentWidth(BeepTabAdornmentState adornment, bool showCloseButton, Control c = null)
         {
-            int width = EdgePadding;
-
-            if (adornment.HasIcon)
-            {
-                width += IconSize + AdornmentGap;
-            }
-
-            if (adornment.HasBadge)
-            {
-                width += adornment.BadgeKind == BeepTabBadgeKind.Dot
-                    ? BadgeDotSize + AdornmentGap
-                    : BadgeMinWidth + AdornmentGap;
-            }
-
-            if (adornment.IsDirty)
-            {
-                width += DirtyDotSize + AdornmentGap;
-            }
-            else if (adornment.IsBusy)
-            {
-                width += BusySize + AdornmentGap;
-            }
-
-            if (showCloseButton)
-            {
-                width += CloseSize + CloseGap;
-            }
-
-            width += EdgePadding;
-            return width;
-        }
-
-        // ── Horizontal layout ─────────────────────────────────────────────────
-
-        private static void CalculateHorizontal(
-            BeepTabHeaderItemLayout layout,
-            Font font,
-            bool showCloseButton,
-            BeepTabAdornmentState adornment)
-        {
-            Rectangle bounds = layout.Bounds;
-            int centerY = bounds.Top + bounds.Height / 2;
-
-            // ── Cursor tracks the leading edge ───────────────────────────────
-            int left = bounds.Left + EdgePadding;
-            int right = bounds.Right - EdgePadding;
-
-            // ── Close button – always reserve from the right ─────────────────
-            bool resolvedClose = showCloseButton && layout.HasCloseButton;
-            if (resolvedClose)
-            {
-                int y = centerY - CloseSize / 2;
-                layout.CloseButtonBounds = new Rectangle(right - CloseSize, y, CloseSize, CloseSize);
-                right -= CloseSize + CloseGap;
-            }
-            else
-            {
-                layout.CloseButtonBounds = Rectangle.Empty;
-            }
-
-            // ── Dirty dot / busy – reserve from the right after close ────────
-            if (adornment.IsDirty)
-            {
-                int y = centerY - DirtyDotSize / 2;
-                layout.DirtyMarkerBounds = new Rectangle(right - DirtyDotSize, y, DirtyDotSize, DirtyDotSize);
-                layout.BusyIndicatorBounds = Rectangle.Empty;
-                right -= DirtyDotSize + AdornmentGap;
-            }
-            else if (adornment.IsBusy)
-            {
-                int y = centerY - BusySize / 2;
-                layout.BusyIndicatorBounds = new Rectangle(right - BusySize, y, BusySize, BusySize);
-                layout.DirtyMarkerBounds = Rectangle.Empty;
-                right -= BusySize + AdornmentGap;
-            }
-            else
-            {
-                layout.DirtyMarkerBounds = Rectangle.Empty;
-                layout.BusyIndicatorBounds = Rectangle.Empty;
-            }
-
-            // ── Badge – reserve from the right ───────────────────────────────
-            if (adornment.HasBadge)
-            {
-                int fontHeight = TabFontHelpers.GetSafeFontHeight(font);
-                int badgeW = adornment.BadgeKind == BeepTabBadgeKind.Dot
-                    ? BadgeDotSize
-                    : Math.Max(BadgeMinWidth, MeasureBadgeTextWidth(adornment.BadgeText, font) + BadgePaddingH * 2);
-                int badgeH = Math.Max(BadgeDotSize, fontHeight - 2);
-                int y = centerY - badgeH / 2;
-                layout.BadgeBounds = new Rectangle(right - badgeW, y, badgeW, badgeH);
-                right -= badgeW + AdornmentGap;
-            }
-            else
-            {
-                layout.BadgeBounds = Rectangle.Empty;
-            }
-
-            // ── Icon – leading edge ───────────────────────────────────────────
-            if (adornment.HasIcon)
-            {
-                int y = centerY - IconSize / 2;
-                layout.IconBounds = new Rectangle(left, y, IconSize, IconSize);
-                left += IconSize + AdornmentGap;
-            }
-            else
-            {
-                layout.IconBounds = Rectangle.Empty;
-            }
-
-            // ── Text area (title + optional subtext stacked) ─────────────────
-            int textAreaLeft = left;
-            int textAreaRight = right;
-            int textAreaWidth = Math.Max(0, textAreaRight - textAreaLeft);
-
-            if (adornment.HasSubText)
-            {
-                int fontHeight = TabFontHelpers.GetSafeFontHeight(font);
-                int titleH = fontHeight;
-                int subH = Math.Max(fontHeight - 2, 10);
-                int stackH = titleH + subH + 2;
-                int stackTop = centerY - stackH / 2;
-
-                layout.TextBounds = new Rectangle(textAreaLeft, stackTop, textAreaWidth, titleH);
-                layout.SubTextBounds = new Rectangle(textAreaLeft, stackTop + titleH + 2, textAreaWidth, subH);
-            }
-            else
-            {
-                int titleH = TabFontHelpers.GetSafeFontHeight(font);
-                layout.TextBounds = new Rectangle(textAreaLeft, centerY - titleH / 2, textAreaWidth, titleH);
-                layout.SubTextBounds = Rectangle.Empty;
-            }
-        }
-
-        // ── Vertical layout ───────────────────────────────────────────────────
-
-        private static void CalculateVertical(
-            BeepTabHeaderItemLayout layout,
-            Font font,
-            bool showCloseButton,
-            BeepTabAdornmentState adornment)
-        {
-            Rectangle bounds = layout.Bounds;
-            int centerX = bounds.Left + bounds.Width / 2;
-
-            int top = bounds.Top + EdgePadding;
-            int bottom = bounds.Bottom - EdgePadding;
-
-            // Close button at the very bottom
-            bool resolvedClose = showCloseButton && layout.HasCloseButton;
-            if (resolvedClose)
-            {
-                int x = centerX - CloseSize / 2;
-                layout.CloseButtonBounds = new Rectangle(x, bottom - CloseSize, CloseSize, CloseSize);
-                bottom -= CloseSize + CloseGap;
-            }
-            else
-            {
-                layout.CloseButtonBounds = Rectangle.Empty;
-            }
-
-            // Dirty/busy below text
-            if (adornment.IsDirty)
-            {
-                layout.DirtyMarkerBounds = new Rectangle(centerX - DirtyDotSize / 2, bottom - DirtyDotSize, DirtyDotSize, DirtyDotSize);
-                layout.BusyIndicatorBounds = Rectangle.Empty;
-                bottom -= DirtyDotSize + AdornmentGap;
-            }
-            else if (adornment.IsBusy)
-            {
-                layout.BusyIndicatorBounds = new Rectangle(centerX - BusySize / 2, bottom - BusySize, BusySize, BusySize);
-                layout.DirtyMarkerBounds = Rectangle.Empty;
-                bottom -= BusySize + AdornmentGap;
-            }
-            else
-            {
-                layout.DirtyMarkerBounds = Rectangle.Empty;
-                layout.BusyIndicatorBounds = Rectangle.Empty;
-            }
-
-            // Badge below text
-            if (adornment.HasBadge)
-            {
-                int fontHeight = TabFontHelpers.GetSafeFontHeight(font);
-                int badgeW = adornment.BadgeKind == BeepTabBadgeKind.Dot
-                    ? BadgeDotSize
-                    : Math.Max(BadgeMinWidth, MeasureBadgeTextWidth(adornment.BadgeText, font) + BadgePaddingH * 2);
-                int badgeH = Math.Max(BadgeDotSize, fontHeight - 2);
-                layout.BadgeBounds = new Rectangle(centerX - badgeW / 2, bottom - badgeH, badgeW, badgeH);
-                bottom -= badgeH + AdornmentGap;
-            }
-            else
-            {
-                layout.BadgeBounds = Rectangle.Empty;
-            }
-
-            // Icon at the top
-            if (adornment.HasIcon)
-            {
-                layout.IconBounds = new Rectangle(centerX - IconSize / 2, top, IconSize, IconSize);
-                top += IconSize + AdornmentGap;
-            }
-            else
-            {
-                layout.IconBounds = Rectangle.Empty;
-            }
-
-            // Text
-            int textAreaHeight = Math.Max(0, bottom - top);
-            int titleH = TabFontHelpers.GetSafeFontHeight(font);
-            if (adornment.HasSubText)
-            {
-                int subH = Math.Max(titleH - 2, 10);
-                int stackH = titleH + subH + 2;
-                int stackTop = top + (textAreaHeight - stackH) / 2;
-                layout.TextBounds = new Rectangle(bounds.Left + EdgePadding, stackTop, bounds.Width - EdgePadding * 2, titleH);
-                layout.SubTextBounds = new Rectangle(bounds.Left + EdgePadding, stackTop + titleH + 2, bounds.Width - EdgePadding * 2, subH);
-            }
-            else
-            {
-                int textTop = top + (textAreaHeight - titleH) / 2;
-                layout.TextBounds = new Rectangle(bounds.Left + EdgePadding, textTop, bounds.Width - EdgePadding * 2, titleH);
-                layout.SubTextBounds = Rectangle.Empty;
-            }
-        }
-
-        // ── Private helpers ───────────────────────────────────────────────────
-
-        private static void ClearBounds(BeepTabHeaderItemLayout layout)
-        {
-            layout.TextBounds = Rectangle.Empty;
-            layout.CloseButtonBounds = Rectangle.Empty;
-            layout.IconBounds = Rectangle.Empty;
-            layout.SubTextBounds = Rectangle.Empty;
-            layout.BadgeBounds = Rectangle.Empty;
-            layout.DirtyMarkerBounds = Rectangle.Empty;
-            layout.BusyIndicatorBounds = Rectangle.Empty;
-        }
-
-        private static int MeasureBadgeTextWidth(string text, Font font)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return 0;
-            }
-
-            return TabFontHelpers.MeasureTextWidthSafe(text, font);
+            int w = S(EdgePadding, c);
+            if (adornment.HasIcon) w += S(IconSize, c) + S(AdornmentGap, c);
+            if (adornment.HasBadge) w += (adornment.BadgeKind == BeepTabBadgeKind.Dot ? S(BadgeDotSize, c) : S(BadgeMinWidth, c)) + S(AdornmentGap, c);
+            if (adornment.IsDirty) w += S(DirtyDotSize, c) + S(AdornmentGap, c);
+            else if (adornment.IsBusy) w += S(BusySize, c) + S(AdornmentGap, c);
+            if (showCloseButton) w += S(CloseSize, c) + S(CloseGap, c);
+            return w;
         }
     }
 }

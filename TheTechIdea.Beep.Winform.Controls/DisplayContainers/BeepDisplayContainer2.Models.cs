@@ -51,6 +51,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         /// Null or empty means no group (default appearance).
         /// </summary>
         public string? TabGroup { get; set; }
+
+        /// <summary>
+        /// DC-14: When true, a small filled dot is drawn after the tab title
+        /// to indicate unsaved/modified content (VS Code-style).
+        /// </summary>
+        public bool IsModified { get; set; }
     }
 
     public enum ContainerDisplayMode

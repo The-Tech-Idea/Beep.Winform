@@ -58,6 +58,54 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipCloseRects
             = new System.Collections.Generic.Dictionary<string, Rectangle>();
 
+        // CB-01: Layout caching — avoid per-paint allocations
+        private bool _layoutDirty = true;
+        private ComboBoxRenderState _cachedRenderState;
+        private ComboBoxLayoutSnapshot _cachedLayoutSnapshot;
+        private Rectangle _cachedDrawingRect;
+
+        // CB-06: Clickable overflow chip ("+N more") — set by chip painter
+        internal Rectangle OverflowChipRect;
+
+        // CB-05: Chip remove animation
+        private string _removingChipKey;
+        private float _removingChipProgress = 1f;
+        private System.Windows.Forms.Timer _chipAnimTimer;
+        private Action _chipRemoveCallback;
+
+        internal string RemovingChipKey => _removingChipKey;
+        internal float RemovingChipProgress => _removingChipProgress;
+
+        private void StartChipRemoveAnimation(string chipKey, Action onComplete)
+        {
+            _removingChipKey = chipKey;
+            _removingChipProgress = 1f;
+            _chipRemoveCallback = onComplete;
+
+            if (_chipAnimTimer == null)
+            {
+                _chipAnimTimer = new System.Windows.Forms.Timer { Interval = 16 };
+                var sw = new System.Diagnostics.Stopwatch();
+                _chipAnimTimer.Tick += (s, e) =>
+                {
+                    if (!sw.IsRunning) sw.Start();
+                    float t = Math.Min(1f, (float)sw.ElapsedMilliseconds / 150f);
+                    _removingChipProgress = 1f - t;
+                    Invalidate();
+                    if (t >= 1f)
+                    {
+                        _chipAnimTimer.Stop();
+                        sw.Stop();
+                        _removingChipProgress = 1f;
+                        _removingChipKey = null;
+                        _chipRemoveCallback?.Invoke();
+                        _chipRemoveCallback = null;
+                    }
+                };
+            }
+            _chipAnimTimer.Start();
+        }
+
         // maps SimpleItem identity â†’ full chip body rect (populated by design-system chip painters)
         // Used for chip-click â†’ scroll-to-item in popup.
         internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipBodyRects
@@ -544,8 +592,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void InvalidateLayout()
         {
-            if (DesignMode) return; // Never schedule timer-driven repaints at design time
+            if (DesignMode) return;
             _needsLayoutUpdate = true;
+            _layoutDirty = true; // CB-01: invalidate cached layout
             _delayedInvalidateTimer?.Stop();
             _delayedInvalidateTimer?.Start();
         }

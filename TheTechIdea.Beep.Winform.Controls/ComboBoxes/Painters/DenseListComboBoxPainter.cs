@@ -71,7 +71,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 g.FillEllipse(avatarBrush, avatarRect);
 
                 string initial = !string.IsNullOrEmpty(displayText) ? displayText[0].ToString().ToUpper() : "?";
-                using var initialFont = new Font(SystemFonts.DefaultFont.FontFamily, Math.Max(7, avatarSize * 0.4f), FontStyle.Bold);
+                // CB-08: Use BeepThemesManager, no new Font()
+                Font initialFont = BeepThemesManager.ToFont(_theme?.LabelSmall) ?? SystemFonts.DefaultFont;
                 TextRenderer.DrawText(g, initial, initialFont, avatarRect, Color.White,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
@@ -105,10 +106,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 textColor = _helper.GetTextColor();
             }
 
-            // Dense font (-1pt) matching popup AvatarRow compact text rendering
-            Font baseFont = _owner.TextFont ?? BeepThemesManager.ToFont(_theme?.LabelFont) ?? SystemFonts.DefaultFont;
-            float denseFontSize = Math.Max(7f, baseFont.Size - 1f);
-            using var denseFont = new Font(baseFont.FontFamily, denseFontSize, baseFont.Style);
+            // CB-08: Use BeepThemesManager, no new Font()
+            Font denseFont = _owner.TextFont
+                ?? BeepThemesManager.ToFont(_theme?.LabelFont)
+                ?? BeepThemesManager.ToFont(_theme?.BodySmall)
+                ?? SystemFonts.DefaultFont;
 
             int horizontalInset = ScaleX(_tokens?.TextInset ?? 4);
             var textBounds = new Rectangle(

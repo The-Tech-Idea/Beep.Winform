@@ -36,6 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
         private int _previousStepIndex = -1;
+        private Panel _loadingOverlay;
 
         private readonly Dictionary<int, Control> _cachedPages = new Dictionary<int, Control>();
 
@@ -255,6 +256,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         public void UpdateUI()
         {
             var currentStep = _instance.CurrentStep;
+            // Accessibility
+            _sidePanel.AccessibleName = $"Step {_instance.CurrentStepIndex + 1} of {_instance.Config.Steps.Count}: {currentStep?.Title ?? ""}";
+            AccessibilityNotifyClients(AccessibleEvents.Focus, 0);
 
             _btnBack.Enabled = _instance.Config.AllowBack && !_instance.IsFirstStep;
             
@@ -294,71 +298,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 }
             }
 
-            // Suspend layout to prevent cascading layout passes
+            // INDICATOR-ONLY ANIMATION: Instant page swap + animated step indicator
             _contentPanel.SuspendLayout();
-
             try
             {
-                // Subscribe to validation state changes first
                 if (newControl is IWizardStepContent stepContent)
                 {
                     stepContent.ValidationStateChanged -= StepContent_ValidationStateChanged;
                     stepContent.ValidationStateChanged += StepContent_ValidationStateChanged;
                 }
 
-                // Ensure the new control is parented
                 if (newControl.Parent != _contentPanel)
                 {
                     newControl.Dock = DockStyle.Fill;
                     _contentPanel.Controls.Add(newControl);
                 }
 
-                // Animate transition if enabled
-                bool shouldAnimate = WizardManager.EnableAnimations
-                    && previousControl != null
-                    && newControl != null
-                    && previousControl != newControl
-                    && _previousStepIndex >= 0;
-
-                if (shouldAnimate)
-                {
-                    bool forward = currentIndex > _previousStepIndex;
-
-                    // Ensure both controls fill the panel and old one is DockStyle.None for bitmap capture
-                    previousControl.Dock = DockStyle.None;
-                    previousControl.Size = _contentPanel.ClientSize;
-                    previousControl.Visible = true;
-
-                    WizardHelpers.AnimateStepTransition(previousControl, newControl, forward, () =>
-                    {
-                        _contentPanel.SuspendLayout();
-                        try
-                        {
-                            // Hide all, show only the target
-                            for (int i = 0; i < _contentPanel.Controls.Count; i++)
-                                _contentPanel.Controls[i].Visible = false;
-                            newControl.Dock = DockStyle.Fill;
-                            newControl.Visible = true;
-                        }
-                        finally
-                        {
-                            _contentPanel.ResumeLayout(false);
-                        }
-                    }, _activeAnimationTimers);
-                }
-                else
-                {
-                    // Direct swap — toggle visibility
-                    for (int i = 0; i < _contentPanel.Controls.Count; i++)
-                        _contentPanel.Controls[i].Visible = false;
-                    newControl.Dock = DockStyle.Fill;
-                    newControl.Visible = true;
-                }
+                for (int i = 0; i < _contentPanel.Controls.Count; i++)
+                    _contentPanel.Controls[i].Visible = false;
+                newControl.Visible = true;
             }
-            finally
-            {
-                _contentPanel.ResumeLayout(false);
-            }
+            finally { _contentPanel.ResumeLayout(false); }
+
+            if (_previousStepIndex >= 0)
+                _painter.StartConnectorAnimation(currentIndex, _instance.Config.TransitionDurationMs);
 
             _previousStepIndex = currentIndex;
 
@@ -403,6 +366,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _errorPanel.Visible = false;
         }
 
+        public void ShowLoading(string message = null)
+        {
+            if (_loadingOverlay == null)
+            {
+                _loadingOverlay = new Panel { BackColor = Color.FromArgb(160, BackColor), Dock = DockStyle.Fill, Visible = false };
+                var label = new Label { Text = message ?? "Please wait...", AutoSize = false, TextAlign = ContentAlignment.MiddleCenter, ForeColor = ForeColor, Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 12f, FontStyle.Regular), Dock = DockStyle.Fill };
+                _loadingOverlay.Controls.Add(label);
+                Controls.Add(_loadingOverlay);
+                _loadingOverlay.BringToFront();
+            }
+            _loadingOverlay.Visible = true;
+        }
+
+        public void HideLoading()
+        {
+            if (_loadingOverlay != null) _loadingOverlay.Visible = false;
+        }
+
         public Panel GetContentPanel() => _contentPanel;
 
         #endregion
@@ -424,14 +405,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            var result = MessageBox.Show(this, 
-                "Are you sure you want to cancel?", 
-                "Cancel Wizard",
-                MessageBoxButtons.YesNo, 
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
-                _instance.Cancel();
+            if (_instance.Config.ConfirmOnCancel)
+            {
+                var result = MessageBox.Show(this,
+                    _instance.Config.CancelConfirmationMessage,
+                    "Cancel Wizard", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result != DialogResult.Yes) return;
+            }
+            _instance.Cancel();
         }
 
         private async void BtnSkip_Click(object sender, EventArgs e)
@@ -476,6 +457,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 case Keys.Escape:
                     BtnCancel_Click(sender, e);
                     e.Handled = true;
+                    break;
+                case Keys.Left:
+                    if (ActiveControl is not TextBox && ActiveControl is not BeepTextBox)
+                    { BtnBack_Click(sender, e); e.Handled = true; }
+                    break;
+                case Keys.Right:
+                    if (ActiveControl is not TextBox && ActiveControl is not BeepTextBox)
+                    { BtnNext_Click(sender, e); e.Handled = true; }
+                    break;
+                case Keys.N when e.Control:
+                    BtnNext_Click(sender, e); e.Handled = true; break;
+                case Keys.B when e.Control:
+                    BtnBack_Click(sender, e); e.Handled = true; break;
+                case Keys.Home when e.Control:
+                    if (_instance.Config.Steps.Count > 0)
+                    { _ = _instance.NavigateToAsync(0); e.Handled = true; }
+                    break;
+                case Keys.End when e.Control:
+                    if (_instance.Config.Steps.Count > 0)
+                    { _ = _instance.NavigateToAsync(_instance.Config.Steps.Count - 1); e.Handled = true; }
+                    break;
+                case Keys.F1:
+                    if (_btnHelp != null && _btnHelp.Visible) { BtnHelp_Click(sender, e); e.Handled = true; }
                     break;
             }
         }
@@ -563,6 +567,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         }
 
         #endregion
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                if (_instance?.Config?.EnableCompositedRendering != false)
+                    cp.ExStyle |= 0x02000000;
+                return cp;
+            }
+        }
 
         #region Cleanup
 

@@ -10,13 +10,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
 {
     /// <summary>
     /// Helper class for managing fonts and typography in radio group controls
-    /// Integrates with BeepFontManager and StyleTypography for consistent font usage
+    /// Integrates with BeepThemesManager and StyleTypography for consistent font usage
     /// </summary>
     public static class RadioGroupFontHelpers
     {
         /// <summary>
-        /// Gets the font for radio item text
-        /// Uses BeepFontManager with ControlStyle-aware sizing
+        /// Gets the font for radio item text via BeepThemesManager.ToFont().
         /// </summary>
         public static Font GetItemFont(
             BeepControlStyle controlStyle,

@@ -77,8 +77,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 fontStyle = FontStyle.Regular; // keep regular in field for density; popup uses bold only on selected rows
             }
 
-            Font baseFont = _owner.TextFont ?? BeepThemesManager.ToFont(_theme?.LabelFont) ?? SystemFonts.DefaultFont;
-            using var textFont = new Font(baseFont.FontFamily, baseFont.Size, fontStyle);
+            // CB-08: Use BeepThemesManager.ToFont — no new Font()
+            var baseTypo = fontStyle == FontStyle.Bold ? _theme?.LabelMedium : _theme?.LabelFont;
+            Font textFont = BeepThemesManager.ToFont(baseTypo)
+                ?? _owner.TextFont
+                ?? BeepThemesManager.ToFont(_theme?.LabelFont)
+                ?? SystemFonts.DefaultFont;
             int horizontalInset = ScaleX(_tokens?.TextInset ?? 4);
             var textBounds = new Rectangle(
                 textAreaRect.X + horizontalInset,

@@ -60,13 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
         /// </summary>
         internal int SelectedTabIndex { get; private set; } = -1;
 
-        // ── Layout constants ──────────────────────────────────────────────────
+        // ── Layout constants (DPI-scaled at construction) ─────────────────────
 
-        private const int PopupWidth  = 440;
-        private const int PopupHeight = 340;
-        private const int SearchH     = 36;
-        private const int Pad         = 8;
-        private const int ItemH       = 32;
+        private readonly int PopupWidth;
+        private readonly int PopupHeight;
+        private readonly int SearchH;
+        private readonly int Pad;
+        private readonly int ItemH;
 
         // ═════════════════════════════════════════════════════════════════════
         // Constructor
@@ -86,6 +86,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
         {
             _allEntries   = entries;
             _currentTheme = theme;
+
+            // DPI-scale layout constants using a temporary control for DPI context
+            var dpi = this;
+            PopupWidth  = DpiScalingHelper.ScaleValue(440, dpi);
+            PopupHeight = DpiScalingHelper.ScaleValue(340, dpi);
+            SearchH     = DpiScalingHelper.ScaleValue(36, dpi);
+            Pad         = DpiScalingHelper.ScaleValue(8, dpi);
+            ItemH       = DpiScalingHelper.ScaleValue(32, dpi);
 
             // ── Form setup ────────────────────────────────────────────────────
             FormBorderStyle = FormBorderStyle.None;
@@ -111,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
                 Bounds          = new Rectangle(Pad, Pad, PopupWidth - Pad * 2, SearchH),
                 Anchor          = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 BorderStyle     = BorderStyle.FixedSingle,
-                Font            = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Regular),
+                Font            = BeepThemesManager.ToFont(theme?.BodyMedium) ?? SystemFonts.DefaultFont,
                 PlaceholderText = "Type to filter tabs…",
                 BackColor       = ThemeColor(_currentTheme?.BackgroundColor, SystemColors.Window),
                 ForeColor       = ThemeColor(_currentTheme?.ForeColor,       SystemColors.WindowText),

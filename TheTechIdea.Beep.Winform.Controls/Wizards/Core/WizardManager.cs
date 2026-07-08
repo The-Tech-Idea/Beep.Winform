@@ -24,6 +24,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         public static bool EnableAnimations { get; set; } = true;
 
         /// <summary>
+        /// When true, all wizard transitions are instant (respects OS animation settings).
+        /// Set automatically from SystemInformation or manually overridden.
+        /// </summary>
+        public static bool ReducedMotion { get; set; } = !SystemInformation.IsMenuAnimationEnabled
+            && !SystemInformation.IsToolTipAnimationEnabled;
+
+        /// <summary>
+        /// Last-used theme name. New wizards without an explicit theme inherit this.
+        /// </summary>
+        public static string LastUsedTheme { get; set; }
+
+        /// <summary>
+        /// Store the theme from a completed wizard for reuse.
+        /// </summary>
+        internal static void StoreLastTheme(IBeepTheme theme)
+        {
+            if (theme != null && !string.IsNullOrEmpty(theme.ThemeName))
+                LastUsedTheme = theme.ThemeName;
+        }
+
+        /// <summary>
         /// Create a new wizard instance
         /// </summary>
         public static WizardInstance CreateWizard(WizardConfig config)

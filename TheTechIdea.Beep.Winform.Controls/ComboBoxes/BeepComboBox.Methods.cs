@@ -44,6 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_listItems == null || _listItems.Count == 0)
                 return;
 
+            // CB-04: Batch layout during popup open
+            if (Parent != null) Parent.SuspendLayout();
+
             _isDropdownOpen = true;
             _popupSearchText = string.Empty;
             TriggerChevronAnimation(true);
@@ -137,6 +140,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepContextMenu.RecalculateSize();
             BeepContextMenu.Show(screenLocation, this);
 
+            // CB-04: Resume layout after popup is shown
+            if (Parent != null) Parent.ResumeLayout(false);
+
             AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.StateChange, -1);
             AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.SystemMenuPopupStart, -1);
 
@@ -160,6 +166,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void OnDropdownMenuClosed(object sender, BeepContextMenuClosedEventArgs e)
         {
             _isDropdownOpen = false;
+            // CB-04: Resume layout after popup closes
+            if (Parent != null) Parent.ResumeLayout(true);
             // Clear the type-ahead buffer so a fresh search starts on
             // the next keypress after the dropdown closes.
             _typeAheadBuffer = string.Empty;

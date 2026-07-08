@@ -169,5 +169,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LetterSpacing = s.LetterSpacing
             };
         }
+
+        /// <summary>
+        /// RB-02: Scale layout tokens for the owner control's current DPI.
+        /// Call once after construction with the ribbon control as parameter.
+        /// </summary>
+        public void ScaleForDpi(Control owner)
+        {
+            if (owner == null) return;
+            CornerRadius = Helpers.DpiScalingHelper.ScaleValue(CornerRadius, owner);
+            GroupSpacing = Helpers.DpiScalingHelper.ScaleValue(GroupSpacing, owner);
+            ItemSpacing = Helpers.DpiScalingHelper.ScaleValue(ItemSpacing, owner);
+            ElevationLevel = Helpers.DpiScalingHelper.ScaleValue(ElevationLevel, owner);
+            ElevationStrongLevel = Helpers.DpiScalingHelper.ScaleValue(ElevationStrongLevel, owner);
+        }
+
+        /// <summary>Returns a DPI-scaled copy of this theme for the given control.</summary>
+        public RibbonTheme Scaled(Control owner)
+        {
+            var clone = (RibbonTheme)MemberwiseClone();
+            clone.ScaleForDpi(owner);
+            return clone;
+        }
     }
 }

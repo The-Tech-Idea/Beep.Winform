@@ -46,10 +46,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0) return;
 
-            // 2 — Fresh layout from current DrawingRect (no caching, no stored padding)
-            // 2 — Fresh layout from current DrawingRect via the new Layout Engine
-            var renderState = ComboBoxStateFactory.Build(this);
-            var layout = ComboBoxLayoutEngine.Compute(DrawingRect, renderState, this);
+            // CB-01: Only recompute layout when dirty (property change, resize, theme)
+            if (_layoutDirty || _cachedDrawingRect != DrawingRect || _cachedRenderState == null)
+            {
+                _cachedRenderState = ComboBoxStateFactory.Build(this);
+                _cachedLayoutSnapshot = ComboBoxLayoutEngine.Compute(DrawingRect, _cachedRenderState, this);
+                _cachedDrawingRect = DrawingRect;
+                _layoutDirty = false;
+            }
+            var renderState = _cachedRenderState;
+            var layout = _cachedLayoutSnapshot;
 
             _textAreaRect = layout.TextAreaRect;
             _dropdownButtonRect = layout.DropdownButtonRect;

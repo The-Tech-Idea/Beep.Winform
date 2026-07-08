@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls; // TabStyle enum
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 {
@@ -62,6 +63,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         }
 
         /// <summary>
+        /// DC-17: When true, draws a focus rectangle on the active tab.
+        /// Set by the container when keyboard navigation is active.
+        /// </summary>
+        public bool ShowFocusRing { get; set; }
+
+        /// <summary>
         /// Border radius of the owning container.  Used to shape the outer corners of the
         /// first and last visible tabs so they follow the container's rounded outline.
         /// Set to 0 when the container is not rounded.
@@ -111,8 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         /// <summary>
         /// Full overload that also accepts a <paramref name="groupColor"/> for VS Code-style
-        /// colour-coded tab groups.  When non-empty, a 3 px accent bar is drawn on the
-        /// content-facing edge of the tab.
+        /// colour-coded tab groups and <paramref name="isModified"/> for unsaved indicators.
         /// </summary>
         public void DrawProfessionalTab(Graphics g, Rectangle bounds, string title, Font font,
             bool isActive, bool isHovered, bool showCloseButton, bool isCloseHovered,
@@ -120,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             bool isFirst, bool isLast,
             TabPosition tabPosition,
             string iconPath, string badgeText, Color badgeColor, bool isPinned,
-            Color groupColor)
+            Color groupColor, bool isModified = false)
         {
             // Validate input parameters
             if (g == null || bounds.Width <= 0 || bounds.Height <= 0 || font == null)
@@ -169,6 +175,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // Draw tab border
                 DrawTabBorder(g, bounds, colors.BorderColor, isActive);
 
+                // DC-11: Separator line between inactive tabs
+                if (!isActive && !isLast)
+                {
+                    int sepX = bounds.Right - 1;
+                    int sepH = (int)(bounds.Height * 0.4f);
+                    int sepY = bounds.Y + (bounds.Height - sepH) / 2;
+                    using (var sepPen = new Pen(Color.FromArgb(35, colors.BorderColor), 1f))
+                        g.DrawLine(sepPen, sepX, sepY, sepX, sepY + sepH);
+                }
+
                 // ── Phase 6: Hover shadow lift ───────────────────────────────
                 // For non-active tabs, draw a subtle drop shadow that fades in
                 // with the animation progress for a modern elevation effect.
@@ -196,6 +212,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     }
                 }
 
+                // DC-17: Focus ring for keyboard navigation (WCAG 2.4.7)
+                if (isActive && ShowFocusRing)
+                {
+                    int frInset = DpiScalingHelper.ScaleValue(2, OwnerControl);
+                    var fr = new Rectangle(bounds.X + frInset, bounds.Y + frInset,
+                        bounds.Width - frInset * 2, bounds.Height - frInset * 2);
+                    if (fr.Width > 0 && fr.Height > 0)
+                    {
+                        var focusColor = IndicatorColor();
+                        using (var focusPen = new Pen(focusColor, 1.5f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dot })
+                            g.DrawRectangle(focusPen, fr);
+                    }
+                }
+
                 // ── Tab group colour accent bar (VS Code-style) ─────────────
                 if (groupColor != Color.Empty && groupColor.A > 0)
                 {
@@ -216,6 +246,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     if (textBounds.Width > 10 && textBounds.Height > 10)
                     {
                         DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
+
+                        // DC-14: Modified/unsaved indicator dot (VS Code-style)
+                        if (isModified)
+                        {
+                            int dotSize = Math.Max(3, DpiScalingHelper.ScaleValue(4, OwnerControl));
+                            var dotRect = new Rectangle(
+                                textBounds.Right + DpiScalingHelper.ScaleValue(2, OwnerControl),
+                                textBounds.Y + (textBounds.Height - dotSize) / 2,
+                                dotSize, dotSize);
+                            var dotColor = IndicatorColor();
+                            using (var dotBrush = new SolidBrush(dotColor))
+                                g.FillEllipse(dotBrush, dotRect);
+                        }
                     }
                 }
                 
@@ -303,34 +346,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             if (bg == Color.Empty || bg.A == 0)
                 bg = _theme?.ActiveBorderColor ?? Color.FromArgb(220, 60, 60);
 
-            // Measure badge text at a smaller font size
-            float badgeFontSize = Math.Max(7f, baseFont.Size * 0.72f);
-            var badgeFont = FontListHelper.GetFont(baseFont.FontFamily.Name, badgeFontSize, FontStyle.Bold) ?? baseFont;
-            try
-            {
-                int textWidth = TextRenderer.MeasureText(badgeText, badgeFont,
-                    new Size(int.MaxValue, int.MaxValue),
-                    TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
+            // DC-01/DC-02: Use BeepThemesManager.ToFont — fonts are theme-managed, never dispose
+            var badgeFont = BeepThemesManager.ToFont(_theme?.LabelSmall)
+                ?? BeepThemesManager.ToFont(_theme?.BodySmall)
+                ?? baseFont;
 
-                var badgeRect = TabHeaderMetrics.GetBadgeBounds(tabBounds, textWidth, OwnerControl);
-                if (badgeRect.Width <= 0 || badgeRect.Height <= 0) return;
+            int textWidth = TextRenderer.MeasureText(badgeText, badgeFont,
+                new Size(int.MaxValue, int.MaxValue),
+                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
 
-                int radius = badgeRect.Height / 2;
-                using (var path = CreateRoundedPath(badgeRect, radius))
-                using (var brush = new SolidBrush(bg))
-                {
-                    g.FillPath(brush, path);
-                }
+            var badgeRect = TabHeaderMetrics.GetBadgeBounds(tabBounds, textWidth, OwnerControl);
+            if (badgeRect.Width <= 0 || badgeRect.Height <= 0) return;
 
-                // White text on the badge for contrast
-                TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect, Color.White,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
-                    TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
-            }
-            finally
-            {
-                if (badgeFont != baseFont) badgeFont?.Dispose();
-            }
+            int radius = badgeRect.Height / 2;
+            using (var path = CreateRoundedPath(badgeRect, radius))
+            using (var brush = new SolidBrush(bg))
+                g.FillPath(brush, path);
+
+            TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect, Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
+                TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
         }
 
         private void DrawUnderline(Graphics g, Rectangle bounds, TabColors colors, TabPosition tabPosition = TabPosition.Top)
@@ -478,11 +513,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         private void DrawCapsuleBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,
             bool isFirst = false, bool isLast = false, TabPosition tabPosition = TabPosition.Top)
         {
-            // Normal capsule radius (half-height).
             int radius = Math.Max(6, bounds.Height / 2);
 
-            // BackgroundColor already contains the correct active/inactive/hover color from
-            // GetTabColors() — no additional alpha dimming needed here.
+            // DC-12: Active tab "lifted" shadow
+            if (isActive)
+            {
+                var shadowRect = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width, bounds.Height);
+                int shadowR = Math.Max(6, shadowRect.Height / 2);
+                using (var shadowPath = ContainerBorderRadius > 0
+                    ? CreateTabCornerPath(shadowRect, shadowR, ContainerBorderRadius, isFirst, isLast, tabPosition)
+                    : CreateRoundedPath(shadowRect, shadowR))
+                using (var shadowBrush = new SolidBrush(Color.FromArgb(35, Color.Black)))
+                    g.FillPath(shadowBrush, shadowPath);
+            }
+
             using (var brush = new SolidBrush(colors.BackgroundColor))
             {
                 GraphicsPath path = ContainerBorderRadius > 0
@@ -639,52 +683,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             if (g == null || string.IsNullOrEmpty(title) || font == null || textBounds.Width <= 0 || textBounds.Height <= 0)
                 return;
 
-            try
+            // DC-01/DC-02: Use BeepThemesManager for bold variant, never dispose theme fonts
+            Font textFont = font;
+            if (isActive)
             {
-                // Determine font style for active tabs
-                Font textFont = font;
-                if (isActive)
-                {
-                    try
-                    {
-                        textFont = FontListHelper.GetFont(font.FontFamily.Name, font.Size, FontStyle.Bold) ?? font;
-                    }
-                    catch
-                    {
-                        textFont = font;
-                    }
-                }
-                
-                // Left-align matches commercial tab bars (VS Code, DevExpress, Chrome).
-                // The textBounds already has close-button and padding margins applied.
-                var flags = TextFormatFlags.Left |
-                           TextFormatFlags.VerticalCenter |
-                           TextFormatFlags.EndEllipsis |
-                           TextFormatFlags.SingleLine |
-                           TextFormatFlags.NoPadding;
+                textFont = BeepThemesManager.ToFont(_theme?.LabelMedium)
+                    ?? BeepThemesManager.ToFont(_theme?.BodyMedium)
+                    ?? font;
+            }
 
-                TextRenderer.DrawText(g, title, textFont, textBounds, textColor, flags);
-                
-                // Dispose font if we created it
-                if (!ReferenceEquals(textFont, font) && textFont != null)
-                {
-                    textFont.Dispose();
-                }
-            }
-            catch
-            {
-                // Final fallback to simple text rendering
-                try
-                {
-                    TextRenderer.DrawText(g, title, font, textBounds, textColor, 
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | 
-                        TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
-                }
-                catch
-                {
-                    // If all else fails, skip drawing this text
-                }
-            }
+            var flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
+                       TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine |
+                       TextFormatFlags.NoPadding;
+
+            TextRenderer.DrawText(g, title, textFont, textBounds, textColor, flags);
         }
 
         private void DrawCloseButton(Graphics g, Rectangle closeRect, bool isHovered, Color baseColor)

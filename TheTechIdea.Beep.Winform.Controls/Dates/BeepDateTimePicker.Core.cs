@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             TabStop = true; // Allow tab navigation
 
             // Initialize font (fallback; ApplyTheme sets from theme)
-            _textFont = BeepFontManager.DefaultFont ?? new Font("Segoe UI", 9.75f);
+            _textFont = BeepThemesManager.ToFont(_currentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
 
             // Initialize hit test helper for BaseControl integration
             _hitHelper = new BeepDateTimePickerHitTestHelper(this);

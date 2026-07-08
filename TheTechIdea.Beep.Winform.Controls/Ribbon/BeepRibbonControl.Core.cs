@@ -15,7 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_tabStrip);
             Controls.Add(_contextHeader);
             Controls.Add(_quickAccess);
-            Height = 130;
+            _contextHeader.Height = ContextHeaderHeight;
+            Height = DpiScalingHelper.ScaleValue(130, this);
 
             _commandItems.ListChanged += CommandItems_ListChanged;
             _backstageItems.ListChanged += BackstageItems_ListChanged;
@@ -76,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _backstageRecentItems.ListChanged -= BackstageItems_ListChanged;
                 _backstagePinnedItems.ListChanged -= BackstageItems_ListChanged;
                 _backstageFooterItems.ListChanged -= BackstageFooterItems_ListChanged;
-                _backstageNavList.SelectedIndexChanged -= BackstageNavList_SelectedIndexChanged;
+                _backstageNavList.SelectedItemChanged -= BackstageNavList_SelectedItemChanged;
                 _backstageActions.SizeChanged -= BackstageActions_SizeChanged;
                 _backstageButton.DropDownOpening -= BackstageButton_DropDownOpening;
                 _backstageDropDown.Closed -= BackstageDropDown_Closed;

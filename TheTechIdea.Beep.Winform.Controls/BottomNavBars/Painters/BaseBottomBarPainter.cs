@@ -149,11 +149,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             if (string.IsNullOrEmpty(item.BadgeText)) return;
 
             var badgeText = item.BadgeText;
-            using var badgeFont = new Font("Segoe UI", 8f, FontStyle.Bold);
-            SizeF textSize = g.MeasureString(badgeText, badgeFont);
+            Font badgeFont = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.LabelSmall) ?? SystemFonts.DefaultFont;
+            Size sz = TextRenderer.MeasureText(badgeText, badgeFont);
             int padding = 6;
-            int badgeW = Math.Max((int)textSize.Width + padding, 16);
-            int badgeH = Math.Max((int)textSize.Height + 4, 12);
+            int badgeW = Math.Max(sz.Width + padding, 16);
+            int badgeH = Math.Max(sz.Height + 4, 12);
             int badgeX = iconRect.Right - badgeW / 2;
             int badgeY = iconRect.Top - badgeH / 2;
             var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
@@ -179,22 +179,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     g.FillRectangle(brush, badgeRect);
                 }
             }
-            using var brushFore = new SolidBrush(badgeFore);
-            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(badgeText, badgeFont, brushFore, badgeRect, sf);
+            TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect, badgeFore,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
         }
 
         protected virtual void PaintItemLabel(Graphics g, SimpleItem item, Rectangle textRect, bool isSelected, bool isHovered, BottomBarPainterContext context)
         {
-            using var font = ResolveItemFont(context);
-            using var brush = new SolidBrush(isSelected ? ResolveAccent(context) : (isHovered ? ResolveHoverFore(context) : ResolveBarFore(context)));
-            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
-            g.DrawString(item.Text, font, brush, textRect, sf);
+            Font font = ResolveItemFont(context);
+            Color fg = isSelected ? ResolveAccent(context) : (isHovered ? ResolveHoverFore(context) : ResolveBarFore(context));
+            TextRenderer.DrawText(g, item.Text ?? "", font, textRect, fg,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
         }
 
         protected virtual Font ResolveItemFont(BottomBarPainterContext context)
         {
-            return new Font("Segoe UI", 9f);
+            return BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodySmall) ?? SystemFonts.DefaultFont;
         }
 
         protected void DrawIndicatorPill(Graphics g, RectangleF rect, Color accent, float alpha)

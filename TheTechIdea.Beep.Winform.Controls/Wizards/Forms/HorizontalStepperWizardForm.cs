@@ -6,7 +6,9 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Layout;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
@@ -20,12 +22,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private WizardInstance _instance;
         private HorizontalStepperPainter _painter;
+        private HorizontalStepperLayout _layout;
         
         private Panel _contentPanel;
         private Panel _stepIndicatorPanel;
         private Panel _buttonPanel;
         private Panel _errorPanel;
-        private Label _lblError;
+        private BeepLabel _lblError;
         
         private BeepButton _btnNext;
         private BeepButton _btnBack;
@@ -35,6 +38,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
         private int _previousStepIndex = -1;
+        private Panel _loadingOverlay;
+        private BeepLabel _lblStepCount;
+        private BeepProgressBar _progressBar;
 
         private readonly Dictionary<int, Control> _cachedPages = new Dictionary<int, Control>();
 
@@ -73,8 +79,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         {
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
             _instance.BindFormHost(this);
-            
+
             _painter = new HorizontalStepperPainter();
+            _layout = new HorizontalStepperLayout();
+            _layout.Initialize(this, _instance);
 
             InitializeForm();
             InitializeControls();
@@ -104,6 +112,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             MinimizeBox = false;
             KeyPreview = true;
 
+            // RTL support
+            if (_instance.Config.RightToLeft)
+            {
+                RightToLeft = RightToLeft.Yes;
+                RightToLeftLayout = true;
+            }
+
             // Set double buffering
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
@@ -120,6 +135,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 BackColor = Color.Transparent
             };
             _stepIndicatorPanel.Paint += StepIndicatorPanel_Paint;
+            _stepIndicatorPanel.MouseClick += StepIndicatorPanel_MouseClick;
+
+            // Step count label on the step indicator panel
+            _lblStepCount = new BeepLabel
+            {
+                IsChild = true,
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                ForeColor = ForeColor,
+                Location = new Point(20, 10),
+                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodySmall, 9f, FontStyle.Regular)
+            };
+            _stepIndicatorPanel.Controls.Add(_lblStepCount);
+            _lblStepCount.BringToFront();
+
+            // Progress bar (below step indicator)
+            _progressBar = new BeepProgressBar
+            {
+                IsChild = true,
+                Dock = DockStyle.Top,
+                Height = 4,
+                Visible = _instance.Config.ShowProgressBar,
+                Minimum = 0,
+                Maximum = 100,
+                Value = 0
+            };
 
             // Inline error panel (below step indicator, hidden by default)
             _errorPanel = new Panel
@@ -130,8 +171,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme),
                 Padding = new Padding(16, 0, 16, 0)
             };
-            _lblError = new Label
+            _lblError = new BeepLabel
             {
+                IsChild = true,
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
                 ForeColor = WizardHelpers.GetErrorColor(CurrentTheme),
@@ -233,6 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             // Add panels to form (order matters for Dock layout)
             Controls.Add(_contentPanel);
             Controls.Add(_errorPanel);
+            Controls.Add(_progressBar);
             Controls.Add(_buttonPanel);
             Controls.Add(_stepIndicatorPanel);
         }
@@ -260,6 +303,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             var currentStep = _instance.CurrentStep;
             int currentIndex = _instance.CurrentStepIndex;
             int totalSteps = _instance.Config.Steps.Count;
+
+            // Update step count label
+            if (_lblStepCount != null)
+                _lblStepCount.Text = $"Step {currentIndex + 1} of {totalSteps}";
+
+            // Screen reader accessibility
+            _stepIndicatorPanel.AccessibleName = $"Step {currentIndex + 1} of {totalSteps}: {currentStep?.Title ?? ""}";
+            _stepIndicatorPanel.AccessibleDescription = currentStep?.Description ?? "";
+            _stepIndicatorPanel.AccessibleRole = AccessibleRole.ProgressBar;
+            AccessibilityNotifyClients(AccessibleEvents.Focus, 0);
+
+            // Update progress bar
+            if (_progressBar != null && _instance.Config.ShowProgressBar)
+            {
+                _progressBar.Visible = true;
+                _progressBar.Value = (int)_instance.Context.CompletionPercentage;
+            }
 
             // Update button states
             _btnBack.Enabled = _instance.Config.AllowBack && !_instance.IsFirstStep;
@@ -302,12 +362,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 }
             }
 
-            // Suspend layout to prevent cascading layout passes
+            // INDICATOR-ONLY ANIMATION: Instant page swap + animated step indicator bar
+            // Pattern matches BeepDisplayContainer2 — no bitmap capture, no DrawToBitmap overhead
             _contentPanel.SuspendLayout();
-
             try
             {
-                // Subscribe to validation state changes
                 if (newControl is IWizardStepContent stepContent)
                 {
                     stepContent.ValidationStateChanged -= StepContent_ValidationStateChanged;
@@ -315,55 +374,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                     _btnNext.Enabled = _instance.IsLastStep || stepContent.IsComplete;
                 }
 
-                // Ensure the new control is parented
                 if (newControl.Parent != _contentPanel)
                 {
                     newControl.Dock = DockStyle.Fill;
                     _contentPanel.Controls.Add(newControl);
                 }
 
-                // Animate transition if enabled and we have both controls
-                bool shouldAnimate = WizardManager.EnableAnimations
-                    && previousControl != null
-                    && newControl != null
-                    && previousControl != newControl
-                    && _previousStepIndex >= 0;
-
-                if (shouldAnimate)
-                {
-                    bool forward = currentIndex > _previousStepIndex;
-                    previousControl.Dock = DockStyle.None;
-                    previousControl.Size = _contentPanel.ClientSize;
-                    previousControl.Visible = true;
-
-                    WizardHelpers.AnimateStepTransition(previousControl, newControl, forward, () =>
-                    {
-                        _contentPanel.SuspendLayout();
-                        try
-                        {
-                            for (int i = 0; i < _contentPanel.Controls.Count; i++)
-                                _contentPanel.Controls[i].Visible = false;
-                            newControl.Dock = DockStyle.Fill;
-                            newControl.Visible = true;
-                        }
-                        finally
-                        {
-                            _contentPanel.ResumeLayout(false);
-                        }
-                    }, _activeAnimationTimers);
-                }
-                else
-                {
-                    // No animation - direct visibility toggle
-                    for (int i = 0; i < _contentPanel.Controls.Count; i++)
-                        _contentPanel.Controls[i].Visible = false;
-                    newControl.Dock = DockStyle.Fill;
-                    newControl.Visible = true;
-                }
+                // Instant visibility swap — zero bitmap overhead
+                for (int i = 0; i < _contentPanel.Controls.Count; i++)
+                    _contentPanel.Controls[i].Visible = false;
+                newControl.Visible = true;
             }
-            finally
+            finally { _contentPanel.ResumeLayout(false); }
+
+            // Animate the step indicator connector bar for visual continuity
+            if (_previousStepIndex >= 0)
             {
-                _contentPanel.ResumeLayout(false);
+                _painter.StartConnectorAnimation(currentIndex, _instance.Config.TransitionDurationMs);
             }
 
             _previousStepIndex = currentIndex;
@@ -410,6 +437,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _errorPanel.Visible = false;
         }
 
+        public void ShowLoading(string message = null)
+        {
+            if (_loadingOverlay == null)
+            {
+                _loadingOverlay = new Panel
+                {
+                    BackColor = Color.FromArgb(160, BackColor),
+                    Dock = DockStyle.Fill,
+                    Visible = false
+                };
+                var label = new Label
+                {
+                    Text = message ?? "Please wait...",
+                    AutoSize = false,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    ForeColor = ForeColor,
+                    Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 12f, FontStyle.Regular),
+                    Dock = DockStyle.Fill
+                };
+                _loadingOverlay.Controls.Add(label);
+                Controls.Add(_loadingOverlay);
+                _loadingOverlay.BringToFront();
+            }
+            _loadingOverlay.Visible = true;
+        }
+
+        public void HideLoading()
+        {
+            if (_loadingOverlay != null)
+                _loadingOverlay.Visible = false;
+        }
+
         public Panel GetContentPanel() => _contentPanel;
 
         #endregion
@@ -435,16 +494,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            var result = MessageBox.Show(this, 
-                "Are you sure you want to cancel?", 
-                "Cancel Wizard",
-                MessageBoxButtons.YesNo, 
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
+            if (_instance.Config.ConfirmOnCancel)
             {
-                _instance.Cancel();
+                var result = MessageBox.Show(this,
+                    _instance.Config.CancelConfirmationMessage,
+                    "Cancel Wizard", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result != DialogResult.Yes) return;
             }
+            _instance.Cancel();
         }
 
         private async void BtnSkip_Click(object sender, EventArgs e)
@@ -491,6 +548,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                     BtnCancel_Click(sender, e);
                     e.Handled = true;
                     break;
+                case Keys.Left:
+                    if (ActiveControl is not TextBox && ActiveControl is not BeepTextBox)
+                    { BtnBack_Click(sender, e); e.Handled = true; }
+                    break;
+                case Keys.Right:
+                    if (ActiveControl is not TextBox && ActiveControl is not BeepTextBox)
+                    { BtnNext_Click(sender, e); e.Handled = true; }
+                    break;
+                case Keys.N when e.Control:
+                    BtnNext_Click(sender, e); e.Handled = true; break;
+                case Keys.B when e.Control:
+                    BtnBack_Click(sender, e); e.Handled = true; break;
+                case Keys.Home when e.Control:
+                    if (_instance.Config.Steps.Count > 0)
+                    { _ = _instance.NavigateToAsync(0); e.Handled = true; }
+                    break;
+                case Keys.End when e.Control:
+                    if (_instance.Config.Steps.Count > 0)
+                    { _ = _instance.NavigateToAsync(_instance.Config.Steps.Count - 1); e.Handled = true; }
+                    break;
+                case Keys.F1:
+                    if (_btnHelp != null && _btnHelp.Visible) { BtnHelp_Click(sender, e); e.Handled = true; }
+                    break;
             }
         }
 
@@ -535,6 +615,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _instance.CurrentStepIndex, _instance.Config.Steps.Count, _instance.Config.Steps);
         }
 
+        private async void StepIndicatorPanel_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (_layout == null || _instance.IsNavigating) return;
+            int stepIndex = _layout.HitTestStep(e.Location);
+            if (stepIndex >= 0 && stepIndex < _instance.CurrentStepIndex)
+                await _instance.NavigateToAsync(stepIndex);
+        }
+
         #endregion
 
         #region Theme
@@ -568,11 +656,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _btnSkip?.ApplyTheme();
                 _btnHelp?.ApplyTheme();
 
+                _lblStepCount?.ApplyTheme();
+                _progressBar?.ApplyTheme();
+                _lblError?.ApplyTheme();
+
                 _painter.Initialize(this, CurrentTheme, _instance);
             }
         }
 
         #endregion
+
+        // Phase D: WS_EX_COMPOSITED for system-level double-buffering — eliminates flicker
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                if (_instance?.Config?.EnableCompositedRendering != false)
+                    cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
+                return cp;
+            }
+        }
 
         #region Cleanup
 

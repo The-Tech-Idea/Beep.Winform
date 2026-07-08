@@ -57,15 +57,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (bounds.Width < 4 || bounds.Height < 4)
                 return;
 
-            // Semi-transparent red tint over the full control area
-            using Brush overlayBrush = new SolidBrush(Color.FromArgb(180, 220, 0, 0));
+            // BT-01: Error overlay with theme-derived colors
+            using Brush overlayBrush = new SolidBrush(Color.FromArgb(180, _currentTheme?.ErrorColor ?? Color.FromArgb(220, 0, 0)));
             g.FillRectangle(overlayBrush, bounds);
 
-            // White error text, word-wrapped and padded 4 px
             Rectangle textBounds = Rectangle.Inflate(bounds, -4, -4);
-            using Font errorFont = new Font("Segoe UI", 8f, FontStyle.Regular);
-            g.DrawString(_lastError, errorFont, Brushes.White, textBounds,
-                new StringFormat { Trimming = StringTrimming.EllipsisWord, FormatFlags = StringFormatFlags.LineLimit });
+            Font errorFont = BeepThemesManager.ToFont(_currentTheme?.BodySmall) ?? SystemFonts.DefaultFont;
+            TextRenderer.DrawText(g, _lastError, errorFont, textBounds, Color.White,
+                TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
         }
 
         private void DrawTabHeaders(Graphics graphics)

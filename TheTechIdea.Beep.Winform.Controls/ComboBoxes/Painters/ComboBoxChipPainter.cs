@@ -106,11 +106,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                     }
 
                     // Register hit rect for mouse interaction
-                    string key = chip.Item?.GuidId ?? chip.Item?.Text ?? string.Empty;
-                    if (!string.IsNullOrEmpty(key))
+                    if (chip.IsOverflow)
                     {
-                        owner.ChipCloseRects[key] = chip.CloseButtonRect;
-                        owner.ChipBodyRects[key]  = chip.ChipRect;
+                        owner.OverflowChipRect = chip.ChipRect; // CB-06: clickable overflow
+                    }
+                    else
+                    {
+                        string key = chip.Item?.GuidId ?? chip.Item?.Text ?? string.Empty;
+                        if (!string.IsNullOrEmpty(key))
+                        {
+                            owner.ChipCloseRects[key] = chip.CloseButtonRect;
+                            owner.ChipBodyRects[key]  = chip.ChipRect;
+                        }
                     }
                 }
 

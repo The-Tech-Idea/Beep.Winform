@@ -68,23 +68,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 
         public Rectangle GetContentBounds(Rectangle formBounds)
         {
-            return new Rectangle(
-                formBounds.Left + 40,
-                formBounds.Top + 70,
-                formBounds.Width - 80,
-                formBounds.Height - 140
-            );
+            int l = DpiScalingHelper.ScaleValue(40, _host);
+            int t = DpiScalingHelper.ScaleValue(70, _host);
+            int r = DpiScalingHelper.ScaleValue(80, _host);
+            int b = DpiScalingHelper.ScaleValue(140, _host);
+            return new Rectangle(formBounds.Left + l, formBounds.Top + t, formBounds.Width - r, formBounds.Height - b);
         }
 
         public Rectangle GetStepIndicatorBounds(Rectangle formBounds)
         {
-            return new Rectangle(
-                formBounds.Left,
-                formBounds.Top,
-                formBounds.Width,
-                60
-            );
+            return new Rectangle(formBounds.Left, formBounds.Top, formBounds.Width, DpiScalingHelper.ScaleValue(60, _host));
         }
+
+        public void PaintStepIndicators(Graphics g, Rectangle bounds, int currentIndex, IList<WizardStep> steps)
+            => PaintMinimalProgress(g, bounds, currentIndex, steps.Count, steps);
 
         #endregion
 
@@ -101,58 +98,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            int dotSize = 10;
-            int dotSpacing = 24;
+            int dotSize = DpiScalingHelper.ScaleValue(10, _host);
+            int dotSpacing = DpiScalingHelper.ScaleValue(24, _host);
+            int ringOffset = DpiScalingHelper.ScaleValue(3, _host);
+            int ringExtra = DpiScalingHelper.ScaleValue(6, _host);
+            float ringPenWidth = DpiScalingHelper.ScaleValue(2f, _host);
+            int centerY = bounds.Top + DpiScalingHelper.ScaleValue(25, _host);
+            int titleYOffset = DpiScalingHelper.ScaleValue(15, _host);
+            int titleHeight = DpiScalingHelper.ScaleValue(25, _host);
+            int countYOffset = DpiScalingHelper.ScaleValue(-5, _host);
+            int countWidthPad = DpiScalingHelper.ScaleValue(20, _host);
+            int countHeight = DpiScalingHelper.ScaleValue(20, _host);
+
             int totalWidth = (totalSteps * dotSize) + ((totalSteps - 1) * (dotSpacing - dotSize));
             int startX = bounds.Left + (bounds.Width - totalWidth) / 2;
-            int centerY = bounds.Top + 25;
 
-            // Draw dots
             for (int i = 0; i < totalSteps; i++)
             {
                 int x = startX + (i * dotSpacing);
                 var rect = new Rectangle(x, centerY - dotSize / 2, dotSize, dotSize);
-
-                Color dotColor;
-                if (i < currentIndex)
-                {
-                    dotColor = _completedColor;
-                }
-                else if (i == currentIndex)
-                {
-                    dotColor = _currentColor;
-                }
-                else
-                {
-                    dotColor = _pendingColor;
-                }
-
+                Color dotColor = i < currentIndex ? _completedColor : i == currentIndex ? _currentColor : _pendingColor;
                 using (var brush = new SolidBrush(dotColor))
-                {
                     g.FillEllipse(brush, rect);
-                }
 
-                // Draw larger ring around current
                 if (i == currentIndex)
                 {
-                    var ringRect = new Rectangle(x - 3, centerY - dotSize / 2 - 3, dotSize + 6, dotSize + 6);
-                    using (var pen = new Pen(Color.FromArgb(60, _currentColor), 2f))
-                    {
+                    var ringRect = new Rectangle(x - ringOffset, centerY - dotSize / 2 - ringOffset, dotSize + ringExtra, dotSize + ringExtra);
+                    using (var pen = new Pen(Color.FromArgb(60, _currentColor), ringPenWidth))
                         g.DrawEllipse(pen, ringRect);
-                    }
                 }
             }
 
-            // Draw step title and count
+            // Radial progress arc (when enabled)
+            if (_instance?.Config?.ShowRadialProgress == true)
+            {
+                int arcSize = DpiScalingHelper.ScaleValue(60, _host);
+                int arcX = bounds.Left + (bounds.Width - arcSize) / 2;
+                int arcY = centerY - arcSize / 2;
+                float sweep = totalSteps > 0 ? 360f * (currentIndex + 1) / totalSteps : 0f;
+                using (var arcPen = new Pen(_completedColor, DpiScalingHelper.ScaleValue(4f, _host)))
+                    g.DrawArc(arcPen, arcX, arcY, arcSize, arcSize, -90f, sweep);
+                using (var trackPen = new Pen(_pendingColor, DpiScalingHelper.ScaleValue(4f, _host)))
+                    g.DrawArc(trackPen, arcX, arcY, arcSize, arcSize, -90f + sweep, 360f - sweep);
+            }
+
             var currentStep = currentIndex >= 0 && currentIndex < steps.Count ? steps[currentIndex] : null;
             var titleText = currentStep?.Title ?? $"Step {currentIndex + 1}";
             var countText = $"Step {currentIndex + 1} of {totalSteps}";
 
             TextUtils.DrawText(g, titleText, _titleFont,
-                new Rectangle(bounds.Left, centerY + 15, bounds.Width, 25), _textColor, TextFormatFlags.HorizontalCenter);
+                new Rectangle(bounds.Left, centerY + titleYOffset, bounds.Width, titleHeight), _textColor, TextFormatFlags.HorizontalCenter);
 
             TextUtils.DrawText(g, countText, _stepFont,
-                new Rectangle(bounds.Left, centerY - 5, bounds.Width - 20, 20), _subtextColor, TextFormatFlags.Right);
+                new Rectangle(bounds.Left, centerY + countYOffset, bounds.Width - countWidthPad, countHeight), _subtextColor, TextFormatFlags.Right);
         }
 
         #endregion

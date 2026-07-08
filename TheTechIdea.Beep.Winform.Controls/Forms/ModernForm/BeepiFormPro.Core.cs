@@ -1351,7 +1351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
                     // Draw icon (⚙ gear/settings icon)
                     var fg = m.ForegroundColor;
-                    using var font = new Font("Segoe UI Symbol", Font.Size + 2, FontStyle.Regular);
+                    Font font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
                     TextRenderer.DrawText(g, "⚙", font, r, fg,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
@@ -1377,7 +1377,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
                     // Draw icon (🎨 palette icon)
                     var fg = m.ForegroundColor;
-                    using var font = new Font("Segoe UI Emoji", Font.Size, FontStyle.Regular);
+                    Font font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont; // was: new Font("Segoe UI Emoji", Font.Size, FontStyle.Regular);
                     TextRenderer.DrawText(g, "🎨", font, r, fg,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
@@ -1403,7 +1403,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
                     // Draw icon (◧ layout/Style icon)
                     var fg = m.ForegroundColor;
-                    using var font = new Font("Segoe UI Symbol", Font.Size + 2, FontStyle.Regular);
+                    Font font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont; // was: new Font("Segoe UI Symbol", Font.Size + 2, FontStyle.Regular);
                     TextRenderer.DrawText(g, "◧", font, r, fg,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
@@ -1445,7 +1445,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
                     g.SmoothingMode = oldSmoothing;
 
-                    using var font = new Font("Segoe MDL2 Assets", Font.Size + 1, FontStyle.Regular);
+                    Font font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont; // was: new Font("Segoe MDL2 Assets", Font.Size + 1, FontStyle.Regular);
                     TextRenderer.DrawText(g, "\uE77B", font, r, m.ForegroundColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }

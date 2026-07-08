@@ -35,6 +35,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         Panel GetContentPanel();
 
         /// <summary>
+        /// Show a loading overlay with optional message during async operations.
+        /// </summary>
+        void ShowLoading(string message = null);
+
+        /// <summary>
+        /// Hide the loading overlay.
+        /// </summary>
+        void HideLoading();
+
+        /// <summary>
         /// Show the form as modal dialog
         /// </summary>
         DialogResult ShowDialog();

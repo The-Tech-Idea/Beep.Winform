@@ -36,8 +36,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         /// </summary>
         private void DrawSlidingIndicator(Graphics g)
         {
-            // Use a smooth ease-out curve: square the complement.
-            float t = 1f - (1f - _indicatorProgress) * (1f - _indicatorProgress);
+            // DC-09: Use shared easing engine for consistency
+            float t = TheTechIdea.Beep.Winform.Controls.Wizards.Helpers.WizardAnimationEngine.EaseOutCubic(_indicatorProgress);
 
             // Lerp the bounding rectangle.
             int x = (int)(_indicatorFrom.X + (_indicatorTo.X - _indicatorFrom.X) * t);
@@ -295,6 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _paintHelper.TabStyle                = TabStyle;
             _paintHelper.Theme                   = _currentTheme;
             _paintHelper.OwnerControl            = this;
+            _paintHelper.ShowFocusRing            = _keyboardFocusActive;
             // Keep tab corner radius in sync with the container's overall shape.
             _paintHelper.ContainerBorderRadius   = (IsRounded && BorderRadius > 0) ? BorderRadius : 0;
         }
@@ -529,98 +530,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
         }
 
-        private void DrawTabTransition(Graphics g)
-        {
-            if (_previousTab?.Addin == null || _activeTab?.Addin == null) return;
+        // DC-05: DrawTabTransition and DrawControlWithOpacity removed.
+        // DrawToBitmap-based full-page transitions are fundamentally problematic
+        // for WinForms — same fix applied as wizard page transitions.
+        // Tab switching now uses instant visibility swap + DrawSlidingIndicator animation.
 
-            var previousControl = _previousTab.Addin as Control;
-            var activeControl = _activeTab.Addin as Control;
-
-            if (previousControl == null || activeControl == null) return;
-
-            // Calculate opacity values for cross-fade
-            // transitionProgress: 0 = showing old, 1 = showing new
-            float transitionProgress = _animationHelper.TransitionProgress;
-            float oldOpacity = 1.0f - transitionProgress;
-            float newOpacity = transitionProgress;
-
-            // Draw previous control fading out (controls are hidden during transition, so we draw them)
-            if (oldOpacity > 0.01f)
-            {
-                // Temporarily make control visible for DrawToBitmap, then hide again
-                bool wasVisible = previousControl.Visible;
-                previousControl.Visible = true;
-                DrawControlWithOpacity(g, previousControl, _contentArea, oldOpacity);
-                previousControl.Visible = wasVisible;
-            }
-
-            // Draw active control fading in
-            if (newOpacity > 0.01f)
-            {
-                // Temporarily make control visible for DrawToBitmap, then hide again
-                bool wasVisible = activeControl.Visible;
-                activeControl.Visible = true;
-                DrawControlWithOpacity(g, activeControl, _contentArea, newOpacity);
-                activeControl.Visible = wasVisible;
-            }
-        }
-
-        private void DrawControlWithOpacity(Graphics g, Control control, Rectangle bounds, float opacity)
-        {
-            if (control == null || !control.Visible || opacity <= 0) return;
-
-            try
-            {
-                // Create a bitmap to capture the control's appearance
-                using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
-                {
-                    using (var bitmapGraphics = Graphics.FromImage(bitmap))
-                    {
-                        bitmapGraphics.SmoothingMode = g.SmoothingMode;
-                        bitmapGraphics.InterpolationMode = g.InterpolationMode;
-                        bitmapGraphics.PixelOffsetMode = g.PixelOffsetMode;
-                        bitmapGraphics.TextRenderingHint = g.TextRenderingHint;
-                        
-                        // Capture control rendering using DrawToBitmap
-                        try
-                        {
-                            control.DrawToBitmap(bitmap, new Rectangle(0, 0, bounds.Width, bounds.Height));
-                        }
-                        catch
-                        {
-                            // If DrawToBitmap fails, fall back to simple fill
-                            bitmapGraphics.Clear(control.BackColor);
-                        }
-                    }
-
-                    // Apply opacity and draw
-                    using (var imageAttributes = new System.Drawing.Imaging.ImageAttributes())
-                    {
-                        float[][] colorMatrixElements = {
-                            new float[] {1, 0, 0, 0, 0},
-                            new float[] {0, 1, 0, 0, 0},
-                            new float[] {0, 0, 1, 0, 0},
-                            new float[] {0, 0, 0, opacity, 0},
-                            new float[] {0, 0, 0, 0, 1}
-                        };
-
-                        var colorMatrix = new System.Drawing.Imaging.ColorMatrix(colorMatrixElements);
-                        imageAttributes.SetColorMatrix(colorMatrix, 
-                            System.Drawing.Imaging.ColorMatrixFlag.Default, 
-                            System.Drawing.Imaging.ColorAdjustType.Bitmap);
-
-                        g.DrawImage(bitmap, bounds, 0, 0, bounds.Width, bounds.Height, 
-                            GraphicsUnit.Pixel, imageAttributes);
-                    }
-                }
-            }
-            catch
-            {
-                // If rendering fails, just ensure the control is visible at the right opacity
-                // Fall back to simple approach
-            }
-        }
-        
         private void DrawTabContentSeparator(Graphics g)
         {
             if (_tabArea.IsEmpty || _contentArea.IsEmpty) return;

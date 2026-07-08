@@ -641,6 +641,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private BeepComboBoxSize _sizeVariant = BeepComboBoxSize.Medium;
 
+        // CB-12: Touch-friendly dropdown sizing
+        private bool _touchOptimized = false;
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Increase dropdown item height to 44px minimum for touch. Auto-detected from SystemInformation.TouchEnabled.")]
+        [DefaultValue(false)]
+        public bool TouchOptimized
+        {
+            get => _touchOptimized;
+            set { _touchOptimized = value; InvalidateLayout(); }
+        }
+
         [Browsable(true)]
         [Category("Behavior")]
         [Description("Show a × button inside the control when a value is selected.")]

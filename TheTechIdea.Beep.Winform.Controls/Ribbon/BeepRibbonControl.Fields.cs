@@ -21,9 +21,10 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepRibbonControl
     {
         private readonly BeepRibbonTabStrip _tabStrip = new() { Dock = DockStyle.Top };
-        private readonly Panel _ribbonContentHost = new() { Dock = DockStyle.Fill, BackColor = Color.White };
+        private readonly Panel _ribbonContentHost = new() { Dock = DockStyle.Fill };
         private readonly ToolStrip _quickAccess = new() { Dock = DockStyle.Top, GripStyle = ToolStripGripStyle.Hidden, RenderMode = ToolStripRenderMode.System };
-        private readonly Panel _contextHeader = new() { Dock = DockStyle.Top, Height = 18 };
+        private int ContextHeaderHeight => DpiScalingHelper.ScaleValue(18, this);
+        private readonly Panel _contextHeader = new() { Dock = DockStyle.Top };
 
         private readonly BindingList<SimpleItem> _commandItems = new();
         private readonly Dictionary<ToolStripItem, SimpleItem> _commandMap = new();
@@ -114,9 +115,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Func<SimpleItem, DateTime, string>? _backstageTimestampFormatter;
 
         private readonly SplitContainer _backstageSplit = new() { Dock = DockStyle.Fill, IsSplitterFixed = false, SplitterWidth = 5 };
-        private readonly ListBox _backstageNavList = new() { Dock = DockStyle.Fill, BorderStyle = BorderStyle.None, IntegralHeight = false };
+        private readonly BeepListBox _backstageNavList = new() { IsChild = true, Dock = DockStyle.Fill, BorderStyle = BorderStyle.None };
         private readonly Panel _backstageContentHost = new() { Dock = DockStyle.Fill };
-        private readonly Label _backstageTitle = new() { Dock = DockStyle.Top, Height = 42, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(12, 0, 8, 0) };
+        private readonly BeepLabel _backstageTitle = new() { IsChild = true, Dock = DockStyle.Top, Height = 42, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(12, 0, 8, 0) };
         private readonly FlowLayoutPanel _backstageActions = new() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, Padding = new Padding(8) };
         private readonly FlowLayoutPanel _backstageFooter = new() { Dock = DockStyle.Bottom, Height = 42, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, Padding = new Padding(6, 4, 6, 4) };
         private readonly BindingList<SimpleItem> _backstageFooterItems = new();

@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 UseThemeColors = true,
                 IsFrameless = true,
-                Font = new Font(Font.FontFamily, 12f, FontStyle.Bold)
+                Font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.TitleStyle) ?? SystemFonts.DefaultFont
             };
 
             _messageLabel = new BeepLabel

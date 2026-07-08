@@ -1,52 +1,36 @@
 using TheTechIdea.Beep.Winform.Controls.Rendering;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepRibbonControl
     {
+        // RB-C05: Uses the new BeepRibbonPainter for a real ribbon appearance
         private sealed class BeepRibbonToolStripRenderer(BeepRibbonControl owner) : ToolStripProfessionalRenderer(new ProfessionalColorTable())
         {
+            private BeepRibbonPainter? _painter;
+            private BeepRibbonPainter Painter => _painter ??= new BeepRibbonPainter(owner._theme, owner);
+
             protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
             {
-                BeepRibbonRenderer.DrawToolStripSurface(
-                    e.Graphics,
-                    new Rectangle(Point.Empty, e.ToolStrip.Size),
-                    owner._theme);
+                var r = new Rectangle(Point.Empty, e.ToolStrip.Size);
+                Painter.PaintQatBackground(e.Graphics, r);
             }
 
             protected override void OnRenderButtonBackground(ToolStripItemRenderEventArgs e)
             {
-                var button = e.Item as ToolStripButton;
-                if (button == null && e.Item is not ToolStripDropDownButton)
-                {
-                    base.OnRenderButtonBackground(e);
-                    return;
-                }
-
-                Rectangle bounds = new Rectangle(Point.Empty, e.Item.Size);
-                BeepRibbonRenderer.DrawInteractiveItem(
-                    e.Graphics,
-                    bounds,
-                    owner._theme,
-                    hovered: e.Item.Selected,
-                    pressed: e.Item.Pressed,
-                    enabled: e.Item.Enabled,
-                    selected: (e.Item as ToolStripButton)?.Checked == true);
+                Rectangle r = new Rectangle(Point.Empty, e.Item.Size);
+                string? icon = (e.Item as ToolStripButton)?.Image != null ? null : null; // QAT uses small icons from image
+                if (e.Item is ToolStripButton btn && !string.IsNullOrEmpty(btn.Text))
+                    Painter.PaintSmallButton(e.Graphics, r, null, btn.Text, e.Item.Selected, e.Item.Pressed, e.Item.Enabled);
+                else
+                    Painter.PaintQatButton(e.Graphics, r, null, e.Item.Selected, e.Item.Pressed);
             }
 
             protected override void OnRenderSeparator(ToolStripSeparatorRenderEventArgs e)
             {
-                using var pen = new Pen(owner._theme.Separator);
-                if (e.Vertical)
-                {
-                    int x = e.Item.Width / 2;
-                    e.Graphics.DrawLine(pen, x, 4, x, e.Item.Height - 4);
-                }
-                else
-                {
-                    int y = e.Item.Height / 2;
-                    e.Graphics.DrawLine(pen, 4, y, e.Item.Width - 4, y);
-                }
+                var r = new Rectangle(0, 0, e.Item.Width, e.Item.Height);
+                Painter.PaintDropDownSeparator(e.Graphics, r);
             }
 
             protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)

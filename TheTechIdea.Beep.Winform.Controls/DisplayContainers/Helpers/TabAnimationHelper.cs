@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 {
@@ -60,54 +61,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             bool needsUpdate = false;
             float animSpeed = GetAnimationSpeed(speed);
 
-            // Update tab hover animations with eased curve
+            // DC-08: Tab hover animations with WizardAnimationEngine easing
+            float dt = animSpeed; // per-frame delta
             foreach (var tab in tabs)
             {
-                if (Math.Abs(tab.AnimationProgress - tab.TargetAnimationProgress) > 0.01f)
+                if (Math.Abs(tab.AnimationProgress - tab.TargetAnimationProgress) > 0.005f)
                 {
-                    // Cubic ease-out for smoother hover transitions
-                    float diff = tab.TargetAnimationProgress - tab.AnimationProgress;
-                    float step = diff * Math.Min(1f, animSpeed * 3f); // proportional step
-                    if (Math.Abs(step) < animSpeed * 0.5f)
-                        step = Math.Sign(diff) * animSpeed; // ensure minimum step
+                    // Move progress toward target using eased interpolation
+                    float target = tab.TargetAnimationProgress;
+                    float current = tab.AnimationProgress;
+                    float newProgress = current + (target - current) * dt * 4f;
+                    // Apply ease-out: decelerate as we approach target
+                    float t = Math.Abs(target > 0.01f ? newProgress / target : newProgress);
+                    float eased = WizardAnimationEngine.EaseOutCubic(Math.Min(1f, t));
+                    tab.AnimationProgress = Math.Max(0f, Math.Min(1f, eased * target));
 
-                    tab.AnimationProgress = Math.Max(0f, Math.Min(1f,
-                        tab.AnimationProgress + step));
-
-                    // Snap to target if close enough
-                    if (Math.Abs(tab.AnimationProgress - tab.TargetAnimationProgress) < 0.02f)
+                    if (Math.Abs(tab.AnimationProgress - tab.TargetAnimationProgress) < 0.01f)
                         tab.AnimationProgress = tab.TargetAnimationProgress;
 
                     needsUpdate = true;
                 }
             }
 
-            // Update transition animation (faster than hover animations)
+            // Transition animation with easing
             if (IsTransitioning)
             {
-                float transitionSpeed = animSpeed * 2.0f; // Faster for transitions
-                
-                if (Math.Abs(TransitionProgress - TargetTransitionProgress) > 0.01f)
+                float raw = TransitionProgress + (TargetTransitionProgress - TransitionProgress) * dt * 6f;
+                TransitionProgress = Math.Max(0f, Math.Min(1f, raw));
+
+                if (Math.Abs(TransitionProgress - TargetTransitionProgress) < 0.01f)
                 {
-                    if (TransitionProgress < TargetTransitionProgress)
-                    {
-                        TransitionProgress = Math.Min(TargetTransitionProgress, 
-                            TransitionProgress + transitionSpeed);
-                    }
-                    else
-                    {
-                        TransitionProgress = Math.Max(TargetTransitionProgress, 
-                            TransitionProgress - transitionSpeed);
-                    }
-                    needsUpdate = true;
-                }
-                else
-                {
-                    // Transition complete
                     TransitionProgress = 1.0f;
                     IsTransitioning = false;
-                    needsUpdate = true;
                 }
+                needsUpdate = true;
             }
 
             if (needsUpdate)

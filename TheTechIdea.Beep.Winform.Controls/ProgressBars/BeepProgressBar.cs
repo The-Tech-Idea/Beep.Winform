@@ -527,9 +527,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             // enforce a safe minimum without mutating size during Resize
             MinimumSize = new Size(8, 2);
             _textBrush = new SolidBrush(Color.White);
-            _progressBrush = new SolidBrush(Color.FromArgb(52, 152, 219));
-            _borderPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1);
-            _textFont = new Font("Segoe UI", 10, FontStyle.Regular);
+            _progressBrush = new SolidBrush(_currentTheme?.PrimaryColor ?? SystemColors.Highlight);
+            _borderPen = new Pen(Color.FromArgb(30, Color.Black), 1);
+            _textFont = BeepThemesManager.ToFont(_currentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
             
             // Enable keyboard navigation
             SetStyle(ControlStyles.Selectable, true);

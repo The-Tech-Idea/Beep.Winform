@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         private IWizardFormHost _formHost;
         private int _currentStepIndex = 0;
         private bool _isNavigating = false;
+        private string _autoSavePath;
 
         #endregion
 
@@ -68,6 +70,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// Whether wizard is on first step
         /// </summary>
         public bool IsFirstStep => CurrentStepIndex <= 0;
+
+        /// <summary>
+        /// Whether the wizard is currently navigating between steps.
+        /// Forms should disable navigation buttons while this is true.
+        /// </summary>
+        public bool IsNavigating => _isNavigating;
 
         #endregion
 
@@ -151,6 +159,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 var nextIndex = CurrentStepIndex + 1;
 
+                // Branching: if current step has BranchCondition, resolve the target
+                if (Config.BranchingEnabled && currentStep.BranchCondition != null)
+                {
+                    var targetKey = currentStep.BranchCondition(Context);
+                    if (!string.IsNullOrEmpty(targetKey))
+                    {
+                        var targetIndex = Config.Steps.FindIndex(s => s.Key == targetKey);
+                        if (targetIndex >= 0) nextIndex = targetIndex;
+                    }
+                }
+
                 // Validate current step
                 var validationResult = await ValidateCurrentStepAsync();
                 if (!validationResult.IsValid)
@@ -160,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 }
 
                 // Raise StepChanging event
-                var changingArgs = new StepChangingEventArgs(CurrentStepIndex, nextIndex, Context);
+                var changingArgs = new StepChangingEventArgs(CurrentStepIndex, nextIndex, Context, NavigationDirection.Forward);
                 StepChanging?.Invoke(this, changingArgs);
                 if (changingArgs.Cancel)
                     return false;
@@ -213,8 +232,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 _formHost?.HideValidationError();
 
                 // Raise events
-                StepChanged?.Invoke(this, new StepChangedEventArgs(CurrentStepIndex, Context));
+                StepChanged?.Invoke(this, new StepChangedEventArgs(CurrentStepIndex, Context, NavigationDirection.Forward));
                 Config.OnStepChanged?.Invoke(CurrentStepIndex, Context);
+                AutoSaveIfEnabled();
 
                 return true;
             }
@@ -243,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 var prevIndex = CurrentStepIndex - 1;
 
                 // Raise StepChanging event
-                var changingArgs = new StepChangingEventArgs(CurrentStepIndex, prevIndex, Context);
+                var changingArgs = new StepChangingEventArgs(CurrentStepIndex, prevIndex, Context, NavigationDirection.Backward);
                 StepChanging?.Invoke(this, changingArgs);
                 if (changingArgs.Cancel)
                     return false;
@@ -283,8 +303,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 }
 
                 // Raise events
-                StepChanged?.Invoke(this, new StepChangedEventArgs(CurrentStepIndex, Context));
+                StepChanged?.Invoke(this, new StepChangedEventArgs(CurrentStepIndex, Context, NavigationDirection.Backward));
                 Config.OnStepChanged?.Invoke(CurrentStepIndex, Context);
+                AutoSaveIfEnabled();
 
                 return true;
             }
@@ -323,6 +344,86 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                     return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Undo the last forward navigation, restoring previous step to Pending.
+        /// </summary>
+        public async Task<bool> UndoLastStepAsync()
+        {
+            if (!Config.EnableUndo || _isNavigating) return false;
+            if (Context.NavigationHistory.Count <= 1) return false;
+
+            Context.RedoStack.Push(CurrentStepIndex);
+            RecordStepHistory(CurrentStepIndex, StepState.Pending);
+            Context.NavigationHistory.Pop();
+            var prevStepIndex = Context.NavigationHistory.Peek();
+
+            if (CurrentStep != null)
+                CurrentStep.State = StepState.Pending;
+
+            return await NavigateToAsync(prevStepIndex);
+        }
+
+        /// <summary>Redo the last undone step.</summary>
+        public async Task<bool> RedoLastUndoAsync()
+        {
+            if (!Config.EnableUndo || _isNavigating) return false;
+            if (Context.RedoStack.Count == 0) return false;
+            var redoIndex = Context.RedoStack.Pop();
+            if (redoIndex < 0 || redoIndex >= Config.Steps.Count) return false;
+            Config.Steps[redoIndex].State = StepState.Completed;
+            RecordStepHistory(redoIndex, StepState.Completed);
+            return await NavigateToAsync(redoIndex);
+        }
+
+        private void RecordStepHistory(int stepIndex, StepState state, List<string> errors = null)
+        {
+            if (stepIndex < 0 || stepIndex >= Config.Steps.Count) return;
+            var step = Config.Steps[stepIndex];
+            Context.StepHistory.Add(new StepHistoryEntry
+            {
+                StepKey = step.Key ?? $"step_{stepIndex}",
+                State = state, Timestamp = DateTime.Now,
+                ValidationErrors = errors ?? new List<string>()
+            });
+        }
+
+        /// <summary>
+        /// Auto-save wizard state to disk if enabled.
+        /// </summary>
+        private void AutoSaveIfEnabled()
+        {
+            if (!Config.EnableAutoSave) return;
+            try
+            {
+                if (_autoSavePath == null)
+                    _autoSavePath = string.IsNullOrEmpty(Config.AutoSavePath)
+                        ? Path.Combine(Path.GetTempPath(), "BeepWizards", Config.Key + ".json")
+                        : Config.AutoSavePath;
+                var dir = Path.GetDirectoryName(_autoSavePath);
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir!);
+                File.WriteAllText(_autoSavePath, Context.SaveState());
+            }
+            catch { /* best-effort, never throw from auto-save */ }
+        }
+
+        /// <summary>
+        /// Try to load a previously saved state from auto-save location.
+        /// </summary>
+        public bool TryResumeAutoSave()
+        {
+            if (!Config.EnableAutoSave) return false;
+            try
+            {
+                var path = string.IsNullOrEmpty(Config.AutoSavePath)
+                    ? Path.Combine(Path.GetTempPath(), "BeepWizards", Config.Key + ".json")
+                    : Config.AutoSavePath;
+                if (!File.Exists(path)) return false;
+                Context.RestoreState(File.ReadAllText(path));
+                return true;
+            }
+            catch { return false; }
         }
 
         #endregion
@@ -449,6 +550,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 CurrentStep.State = StepState.Completed;
 
             Result = WizardResult.Completed;
+
+            // Persist theme for future wizards
+            WizardManager.StoreLastTheme(Config.Theme);
 
             // Raise events
             Completed?.Invoke(this, new WizardCompletedEventArgs(Context));
@@ -579,12 +683,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         public int NewStepIndex { get; }
         public WizardContext Context { get; }
         public bool Cancel { get; set; }
+        public NavigationDirection Direction { get; }
 
-        public StepChangingEventArgs(int oldIndex, int newIndex, WizardContext context)
+        public StepChangingEventArgs(int oldIndex, int newIndex, WizardContext context, NavigationDirection direction = NavigationDirection.Forward)
         {
             OldStepIndex = oldIndex;
             NewStepIndex = newIndex;
             Context = context;
+            Direction = direction;
         }
     }
 
@@ -592,11 +698,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     {
         public int StepIndex { get; }
         public WizardContext Context { get; }
+        public NavigationDirection Direction { get; }
 
-        public StepChangedEventArgs(int stepIndex, WizardContext context)
+        public StepChangedEventArgs(int stepIndex, WizardContext context, NavigationDirection direction = NavigationDirection.Forward)
         {
             StepIndex = stepIndex;
             Context = context;
+            Direction = direction;
         }
     }
 

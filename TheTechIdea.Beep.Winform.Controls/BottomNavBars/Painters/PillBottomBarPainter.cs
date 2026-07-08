@@ -136,43 +136,32 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             context.ImagePainter.FillColor = prevFill;
 
             // draw label to the right
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
-            using (var brush = new SolidBrush(ResolveOnAccent(context)))
-            {
-                var textRect = new Rectangle(iconRect.Right + 8, pillRect.Top, pillRect.Right - (iconRect.Right + 12), pillRect.Height);
-                var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(item.Text, font, brush, textRect, sf);
-            }
+            Font labelFont = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodySmall) ?? SystemFonts.DefaultFont;
+            var textRect = new Rectangle(iconRect.Right + 8, pillRect.Top, pillRect.Right - (iconRect.Right + 12), pillRect.Height);
+            TextRenderer.DrawText(g, item.Text ?? "", labelFont, textRect, ResolveOnAccent(context),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
 
             // draw badge if present
             if (!string.IsNullOrEmpty(item.BadgeText))
             {
-                using (var badgeFont = new Font("Segoe UI", 8f, FontStyle.Bold))
-                {
-                    SizeF textSize = g.MeasureString(item.BadgeText, badgeFont);
-                    int padding = 6;
-                    int badgeW = Math.Max((int)textSize.Width + padding, 16);
-                    int badgeH = Math.Max((int)textSize.Height + 4, 12);
-                    int badgeX = iconRect.Right - badgeW / 2;
-                    int badgeY = iconRect.Top - badgeH / 2;
+                Font badgeFont = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.LabelSmall) ?? SystemFonts.DefaultFont;
+                Size sz = TextRenderer.MeasureText(item.BadgeText, badgeFont);
+                int padding = 6;
+                int badgeW = Math.Max(sz.Width + padding, 16);
+                int badgeH = Math.Max(sz.Height + 4, 12);
+                int badgeX = iconRect.Right - badgeW / 2;
+                int badgeY = iconRect.Top - badgeH / 2;
 
-                    var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
-                    var badgeBack = (Color)(item.BadgeBackColor == Color.Empty ? ResolveBadgeBack(context) : (Color)item.BadgeBackColor);
-                    var badgeFore = (Color)(item.BadgeForeColor == Color.Empty ? ResolveBadgeFore(context) : (Color)item.BadgeForeColor);
-                    using (var brush = new SolidBrush(badgeBack))
-                    {
-                        using (var path = new GraphicsPath())
-                        {
-                            path.AddEllipse(badgeRect);
-                            g.FillPath(brush, path);
-                        }
-                    }
-                    using (var brushFore = new SolidBrush(badgeFore))
-                    {
-                        var sf2 = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                        g.DrawString(item.BadgeText, badgeFont, brushFore, badgeRect, sf2);
-                    }
+                var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
+                var badgeBack = (Color)(item.BadgeBackColor == Color.Empty ? ResolveBadgeBack(context) : (Color)item.BadgeBackColor);
+                var badgeFore = (Color)(item.BadgeForeColor == Color.Empty ? ResolveBadgeFore(context) : (Color)item.BadgeForeColor);
+                using (var brush = new SolidBrush(badgeBack))
+                {
+                    using (var path = new GraphicsPath())
+                    { path.AddEllipse(badgeRect); g.FillPath(brush, path); }
                 }
+                TextRenderer.DrawText(g, item.BadgeText, badgeFont, badgeRect, badgeFore,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
             }
         }
     }

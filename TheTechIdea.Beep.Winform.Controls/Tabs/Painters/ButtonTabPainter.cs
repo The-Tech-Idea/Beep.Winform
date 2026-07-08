@@ -44,28 +44,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             
             if (TabControl.ShouldShowTabText(index))
             {
-                // Custom text drawing to handle specific button colors
-                using (Font font = TabFontHelpers.CreateDerivedSafeFont(TextFont ?? TabControl.Font, isSelected ? FontStyle.Bold : FontStyle.Regular, TabControl))
+                // BT-01: Font from theme, TextRenderer instead of DrawString
+                Font font = TabFontHelpers.GetTabFont(Theme, isSelected);
+                string text = TabControl.GetTabTitle(index);
+                var textRect = new Rectangle(
+                    (int)(buttonRect.X + GetScaledTextPadding()),
+                    (int)buttonRect.Y,
+                    (int)(buttonRect.Width - GetScaledTextPadding() * 2),
+                    (int)buttonRect.Height);
+
+                if (!vertical)
                 {
-                    var textBrush = PaintersFactory.GetSolidBrush(foreColor);
-                    string text = TabControl.GetTabTitle(index);
-                    
-                    if (!vertical)
-                    {
-                        SizeF textSize = TextUtils.MeasureText(g, text, font);
-                        PointF textPoint = new PointF(buttonRect.X + GetScaledTextPadding(), buttonRect.Y + (buttonRect.Height - textSize.Height) / 2);
-                        g.DrawString(text, font, textBrush, textPoint);
-                    }
-                    else
-                    {
-                        GraphicsState state = g.Save();
-                        g.TranslateTransform(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2);
-                        g.RotateTransform(90);
-                        SizeF textSize = TextUtils.MeasureText(g, text, font);
-                        PointF textPoint = new PointF(-textSize.Width / 2, -textSize.Height / 2);
-                        g.DrawString(text, font, textBrush, textPoint);
-                        g.Restore(state);
-                    }
+                    TextRenderer.DrawText(g, text, font, textRect, foreColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
+                        TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                }
+                else
+                {
+                    GraphicsState state = g.Save();
+                    g.TranslateTransform(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2);
+                    g.RotateTransform(90);
+                    var vRect = new Rectangle(-textRect.Width / 2, -textRect.Height / 2, textRect.Width, textRect.Height);
+                    TextRenderer.DrawText(g, text, font, vRect, foreColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
+                        TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                    g.Restore(state);
                 }
             }
 

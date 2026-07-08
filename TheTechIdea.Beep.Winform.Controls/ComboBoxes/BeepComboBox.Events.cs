@@ -116,7 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         if (itemToRemove != null)
                         {
                             HideInlineEditor(false);
-                            DeselectItem(itemToRemove);
+                            // CB-05: Animate chip removal with fade-out
+                            StartChipRemoveAnimation(kvp.Key, () => DeselectItem(itemToRemove));
                         }
                         return;
                     }
@@ -142,6 +143,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         return;
                     }
                 }
+            }
+
+            // CB-06: Overflow chip ("+N more") click — show dropdown to reveal hidden items
+            if (!OverflowChipRect.IsEmpty && OverflowChipRect.Contains(e.Location))
+            {
+                ShowDropdown();
+                return;
             }
 
             // ── Dropdown button (▲) ─────────────────────────────────────────

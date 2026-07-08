@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             }
         }
 
-        private static void PaintCloseButtonFeedback(Graphics graphics, BeepTabHeaderItemLayout itemLayout)
+        private void PaintCloseButtonFeedback(Graphics graphics, BeepTabHeaderItemLayout itemLayout)
         {
             if (!itemLayout.HasCloseButton)
             {
@@ -61,9 +61,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
                 return;
             }
 
+            // BT-03: Use theme-derived overlay colors
+            Color baseOverlay = TabsOwner?.CurrentTheme?.ForeColor ?? SystemColors.ControlText;
             Color overlayColor = itemLayout.Item.IsCloseButtonPressed
-                ? Color.FromArgb(72, Color.Black)
-                : Color.FromArgb(36, Color.Black);
+                ? Color.FromArgb(72, baseOverlay)
+                : Color.FromArgb(36, baseOverlay);
 
             Rectangle overlayRect = itemLayout.CloseButtonBounds;
             overlayRect.Inflate(-2, -2);

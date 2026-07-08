@@ -37,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         private readonly List<Panel> _stepCards = new List<Panel>();
         private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
         private int _previousStepIndex = -1;
+        private Panel _loadingOverlay;
         private readonly Dictionary<int, Control> _cachedPages = new Dictionary<int, Control>();
 
         // Card painting
@@ -154,9 +155,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _cardPanel = new Panel
             {
                 Dock = DockStyle.Left,
-                Width = 220,
+                Width = DpiScalingHelper.ScaleValue(220, this),
                 AutoScroll = true,
-                Padding = new Padding(10, 15, 10, 15),
+                Padding = new Padding(DpiScalingHelper.ScaleValue(10, this), DpiScalingHelper.ScaleValue(15, this),
+                    DpiScalingHelper.ScaleValue(10, this), DpiScalingHelper.ScaleValue(15, this)),
                 BackColor = _cardBgColor
             };
 
@@ -164,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _errorPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 40,
+                Height = DpiScalingHelper.ScaleValue(40, this),
                 Visible = false,
                 BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme),
                 Padding = new Padding(16, 0, 16, 0)
@@ -183,8 +185,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _buttonPanel = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 70,
-                Padding = new Padding(20, 15, 20, 15)
+                Height = DpiScalingHelper.ScaleValue(70, this),
+                Padding = new Padding(DpiScalingHelper.ScaleValue(20, this), DpiScalingHelper.ScaleValue(15, this),
+                    DpiScalingHelper.ScaleValue(20, this), DpiScalingHelper.ScaleValue(15, this))
             };
 
             // Content panel (fill) — uses BufferedPanel to eliminate flicker
@@ -252,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             {
                 Text = _instance.Config.Title,
                 Dock = DockStyle.Top,
-                Height = 40,
+                Height = DpiScalingHelper.ScaleValue(40, this),
                 Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.TitleStyle, 13f, FontStyle.Bold),
                 ForeColor = _textColor,
                 Padding = new Padding(5, 0, 0, 10),
@@ -271,12 +274,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private Panel CreateStepCard(WizardStep step, int stepIndex)
         {
+            int p10 = DpiScalingHelper.ScaleValue(10, this);
             var card = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 70,
-                Margin = new Padding(0, 0, 0, 6),
-                Padding = new Padding(10),
+                Height = DpiScalingHelper.ScaleValue(70, this),
+                Margin = new Padding(0, 0, 0, DpiScalingHelper.ScaleValue(6, this)),
+                Padding = new Padding(p10),
                 Tag = stepIndex,
                 Cursor = Cursors.Hand
             };
@@ -361,37 +365,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 g.FillRectangle(bgBrush, bounds);
             }
 
+            // DPI-scaled layout values
+            int circleSize = DpiScalingHelper.ScaleValue(30, this);
+            int circleX = bounds.Left + DpiScalingHelper.ScaleValue(14, this);
+            int circleY = bounds.Top + (bounds.Height - circleSize) / 2;
+            var circleRect = new Rectangle(circleX, circleY, circleSize, circleSize);
+            int textX = circleX + circleSize + DpiScalingHelper.ScaleValue(12, this);
+            int textWidth = bounds.Width - textX - DpiScalingHelper.ScaleValue(10, this);
+            int titleHeight = DpiScalingHelper.ScaleValue(18, this);
+            int descTop = circleY + DpiScalingHelper.ScaleValue(20, this);
+            int descHeight = DpiScalingHelper.ScaleValue(16, this);
+            int badgeTop = circleY + DpiScalingHelper.ScaleValue(36, this);
+            int badgeHeight = DpiScalingHelper.ScaleValue(14, this);
+            float penW = DpiScalingHelper.ScaleValue(2f, this);
+            int checkSize = DpiScalingHelper.ScaleValue(5, this);
+            int accentTop = bounds.Top + DpiScalingHelper.ScaleValue(8, this);
+            int accentH = bounds.Height - DpiScalingHelper.ScaleValue(16, this);
+            int accentW = DpiScalingHelper.ScaleValue(4, this);
+
             // Left accent bar for current step
             if (isCurrent)
             {
                 using var accentBrush = new SolidBrush(_currentColor);
-                g.FillRectangle(accentBrush, bounds.Left, bounds.Top + 8, 4, bounds.Height - 16);
+                g.FillRectangle(accentBrush, bounds.Left, accentTop, accentW, accentH);
             }
-
-            // Step number circle
-            int circleSize = 30;
-            int circleX = bounds.Left + 14;
-            int circleY = bounds.Top + (bounds.Height - circleSize) / 2;
-            var circleRect = new Rectangle(circleX, circleY, circleSize, circleSize);
 
             Color circleColor, innerColor;
             if (isCompleted)
-            {
-                circleColor = _completedColor;
-                innerColor = ColorUtils.GetContrastColor(_completedColor);
-            }
+            { circleColor = _completedColor; innerColor = ColorUtils.GetContrastColor(_completedColor); }
             else if (isCurrent)
-            {
-                circleColor = _currentColor;
-                innerColor = ColorUtils.GetContrastColor(_currentColor);
-            }
+            { circleColor = _currentColor; innerColor = ColorUtils.GetContrastColor(_currentColor); }
             else
-            {
-                circleColor = _pendingColor;
-                innerColor = _pendingColor;
-            }
+            { circleColor = _pendingColor; innerColor = _pendingColor; }
 
-            // Draw circle
             if (isCompleted || isCurrent)
             {
                 using var circleBrush = new SolidBrush(circleColor);
@@ -399,58 +405,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             }
             else
             {
-                using var circlePen = new Pen(circleColor, 2f);
+                using var circlePen = new Pen(circleColor, penW);
                 g.DrawEllipse(circlePen, circleRect);
             }
 
-            // Draw content in circle
             if (isCompleted)
             {
-                // Checkmark
-                using var pen = new Pen(innerColor, 2f);
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-                pen.LineJoin = LineJoin.Round;
-
-                int cx = circleRect.X + circleRect.Width / 2;
-                int cy = circleRect.Y + circleRect.Height / 2;
-                g.DrawLines(pen, new Point[]
-                {
-                    new Point(cx - 5, cy),
-                    new Point(cx - 2, cy + 4),
-                    new Point(cx + 6, cy - 4)
-                });
+                using var pen = new Pen(innerColor, penW);
+                pen.StartCap = LineCap.Round; pen.EndCap = LineCap.Round; pen.LineJoin = LineJoin.Round;
+                int cx = circleRect.X + circleRect.Width / 2, cy = circleRect.Y + circleRect.Height / 2;
+                g.DrawLines(pen, new Point[] { new(cx - checkSize, cy), new(cx - checkSize * 2 / 5, cy + checkSize * 4 / 5), new(cx + checkSize * 6 / 5, cy - checkSize * 4 / 5) });
             }
             else
             {
-                // Step number
                 TextUtils.DrawText(g, (stepIndex + 1).ToString(), _cardNumberFont, circleRect, innerColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
             }
 
-            // Step title and description
-            int textX = circleX + circleSize + 12;
-            int textWidth = bounds.Width - textX - 10;
-
             var titleColor = isCurrent ? _textColor : _subtextColor;
-            {
-                var titleFont = isCurrent ? _cardTitleFont : _cardDescFont;
-                TextUtils.DrawText(g, step.Title ?? $"Step {stepIndex + 1}", titleFont,
-                    new Rectangle(textX, circleY, textWidth, 18), titleColor);
-            }
+            var titleFont = isCurrent ? _cardTitleFont : _cardDescFont;
+            TextUtils.DrawText(g, step.Title ?? $"Step {stepIndex + 1}", titleFont,
+                new Rectangle(textX, circleY, textWidth, titleHeight), titleColor);
 
             if (!string.IsNullOrEmpty(step.Description))
             {
                 TextUtils.DrawText(g, step.Description, _cardDescFont,
-                    new Rectangle(textX, circleY + 20, textWidth, 16), _subtextColor);
+                    new Rectangle(textX, descTop, textWidth, descHeight), _subtextColor);
             }
 
-            // Optional badge
             if (step.IsOptional && !isCompleted)
             {
                 using var optFont = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.CaptionStyle, 7f, FontStyle.Italic);
                 TextUtils.DrawText(g, "Optional", optFont,
-                    new Rectangle(textX, circleY + 36, textWidth, 14), Color.FromArgb(60, _pendingColor));
+                    new Rectangle(textX, badgeTop, textWidth, badgeHeight), Color.FromArgb(60, _pendingColor));
             }
         }
 
@@ -469,6 +456,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         public void UpdateUI()
         {
             var currentStep = _instance.CurrentStep;
+            // Accessibility
+            _cardPanel.AccessibleName = $"Step {_instance.CurrentStepIndex + 1} of {_instance.Config.Steps.Count}: {currentStep?.Title ?? ""}";
+            AccessibilityNotifyClients(AccessibleEvents.Focus, 0);
 
             _btnBack.Enabled = _instance.Config.AllowBack && !_instance.IsFirstStep;
 
@@ -616,6 +606,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _errorPanel.Visible = false;
         }
 
+        public void ShowLoading(string message = null)
+        {
+            if (_loadingOverlay == null)
+            {
+                _loadingOverlay = new Panel { BackColor = Color.FromArgb(160, BackColor), Dock = DockStyle.Fill, Visible = false };
+                var label = new Label { Text = message ?? "Please wait...", AutoSize = false, TextAlign = ContentAlignment.MiddleCenter, ForeColor = ForeColor, Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 12f, FontStyle.Regular), Dock = DockStyle.Fill };
+                _loadingOverlay.Controls.Add(label);
+                Controls.Add(_loadingOverlay);
+                _loadingOverlay.BringToFront();
+            }
+            _loadingOverlay.Visible = true;
+        }
+
+        public void HideLoading()
+        {
+            if (_loadingOverlay != null) _loadingOverlay.Visible = false;
+        }
+
         public Panel GetContentPanel() => _contentPanel;
 
         #endregion
@@ -637,14 +645,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            var result = MessageBox.Show(this,
-                "Are you sure you want to cancel?",
-                "Cancel Wizard",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
-                _instance.Cancel();
+            if (_instance.Config.ConfirmOnCancel)
+            {
+                var result = MessageBox.Show(this,
+                    _instance.Config.CancelConfirmationMessage,
+                    "Cancel Wizard", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result != DialogResult.Yes) return;
+            }
+            _instance.Cancel();
         }
 
         private async void BtnSkip_Click(object sender, EventArgs e)
@@ -720,6 +728,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                     BtnCancel_Click(sender, e);
                     e.Handled = true;
                     break;
+                case Keys.Left:
+                    if (ActiveControl is not TextBox && ActiveControl is not BeepTextBox)
+                    { BtnBack_Click(sender, e); e.Handled = true; }
+                    break;
+                case Keys.Right:
+                    if (ActiveControl is not TextBox && ActiveControl is not BeepTextBox)
+                    { BtnNext_Click(sender, e); e.Handled = true; }
+                    break;
+                case Keys.N when e.Control:
+                    BtnNext_Click(sender, e); e.Handled = true; break;
+                case Keys.B when e.Control:
+                    BtnBack_Click(sender, e); e.Handled = true; break;
+                case Keys.Home when e.Control:
+                    if (_instance.Config.Steps.Count > 0)
+                    { _ = _instance.NavigateToAsync(0); e.Handled = true; }
+                    break;
+                case Keys.End when e.Control:
+                    if (_instance.Config.Steps.Count > 0)
+                    { _ = _instance.NavigateToAsync(_instance.Config.Steps.Count - 1); e.Handled = true; }
+                    break;
+                case Keys.F1:
+                    if (_btnHelp != null && _btnHelp.Visible) { BtnHelp_Click(sender, e); e.Handled = true; }
+                    break;
             }
         }
 
@@ -767,6 +798,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         }
 
         #endregion
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                if (_instance?.Config?.EnableCompositedRendering != false)
+                    cp.ExStyle |= 0x02000000;
+                return cp;
+            }
+        }
 
         #region Cleanup
 

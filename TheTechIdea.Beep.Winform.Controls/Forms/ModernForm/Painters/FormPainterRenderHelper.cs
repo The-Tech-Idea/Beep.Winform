@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 DrawHoverOutlineRect(g, bounds, outlineColor, 2, 6);
             }
 
-            using var font = new Font(baseFont.FontFamily, baseFont.Size + 2, FontStyle.Regular);
+            Font font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
             TextRenderer.DrawText(g, symbol, font, bounds, foregroundColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }

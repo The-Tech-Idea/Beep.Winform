@@ -64,6 +64,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             
             // Force full repaint of container including content area and tabs
             Invalidate(true);
+
+            // DC-16: Screen reader announcement on tab change
+            if (_enableKeyboardNav)
+            {
+                int idx = _tabs.IndexOf(tab);
+                AccessibleName = $"{tab.Title}, tab {idx + 1} of {_tabs.Count}";
+                AccessibleRole = AccessibleRole.List;
+                AccessibilityNotifyClients(AccessibleEvents.Focus, idx);
+            }
         }
 
         private void RemoveTab(AddinTab tab)

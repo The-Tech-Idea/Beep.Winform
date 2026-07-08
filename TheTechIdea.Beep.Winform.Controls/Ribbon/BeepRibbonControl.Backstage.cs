@@ -39,8 +39,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _backstagePanelContent.Controls.Clear();
             _backstagePanelContent.Controls.Add(_backstageSplit);
 
-            _backstageNavList.SelectedIndexChanged -= BackstageNavList_SelectedIndexChanged;
-            _backstageNavList.SelectedIndexChanged += BackstageNavList_SelectedIndexChanged;
+            _backstageNavList.SelectedItemChanged -= BackstageNavList_SelectedItemChanged;
+            _backstageNavList.SelectedItemChanged += BackstageNavList_SelectedItemChanged;
             _backstageActions.SizeChanged -= BackstageActions_SizeChanged;
             _backstageActions.SizeChanged += BackstageActions_SizeChanged;
             BuildBackstageFooterActions();
@@ -273,22 +273,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Tag = action
             };
 
-            var button = new Button
+            var button = new BeepButton
             {
+                IsChild = true,
                 Dock = DockStyle.Fill,
                 Text = GetBackstageActionButtonText(action),
                 TextAlign = ContentAlignment.MiddleLeft,
-                FlatStyle = FlatStyle.Flat,
-                BackColor = _theme.TabActiveBack,
-                ForeColor = _theme.Text,
-                Font = BeepThemesManager.ToFont(_theme.CommandTypography),
+                UseThemeColors = true,
                 AccessibleName = GetDisplayText(action),
                 AccessibleDescription = BuildToolTip(action),
                 Tag = action
             };
-            button.FlatAppearance.BorderColor = _theme.GroupBorder;
-            button.FlatAppearance.MouseDownBackColor = _theme.GroupBack;
-            button.FlatAppearance.MouseOverBackColor = ColorUtils.ShiftLuminance(_theme.GroupBack, .1f);
             button.Click += BackstageActionButton_Click;
             button.MouseUp += BackstageActionButton_MouseUp;
             RibbonAccessibilityHelper.ApplyControlAccessibility(
@@ -333,23 +328,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (!IsBackstageSectionHeader(action))
             {
-                var pinButton = new Button
+                var pinButton = new BeepButton
                 {
+                    IsChild = true,
                     Dock = DockStyle.Right,
                     Width = 30,
-                    FlatStyle = FlatStyle.Flat,
-                    BackColor = _theme.TabActiveBack,
-                    ForeColor = IsPinnedBackstageItem(action) ? _theme.FocusBorder : _theme.Text,
-                    Font = BeepThemesManager.ToFont(_theme.CommandTypography),
-                    Text = IsPinnedBackstageItem(action) ? "*" : "o",
+                    UseThemeColors = true,
+                    Text = IsPinnedBackstageItem(action) ? "★" : "☆",
                     Tag = action,
                     TextAlign = ContentAlignment.MiddleCenter,
                     AccessibleName = $"Pin {GetDisplayText(action)}",
                     AccessibleDescription = "Toggle pinned state for this backstage item"
                 };
-                pinButton.FlatAppearance.BorderColor = _theme.GroupBorder;
-                pinButton.FlatAppearance.MouseDownBackColor = _theme.GroupBack;
-                pinButton.FlatAppearance.MouseOverBackColor = _theme.HoverBack;
                 pinButton.Click += BackstageInlinePinButton_Click;
                 RibbonAccessibilityHelper.ApplyControlAccessibility(
                     pinButton,
@@ -512,7 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackstageCommandInvoked?.Invoke(this, new BackstageCommandInvokedEventArgs(_backstageFooterSection, action));
         }
 
-        private void BackstageNavList_SelectedIndexChanged(object? sender, EventArgs e)
+        private void BackstageNavList_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             if (_backstageNavList.SelectedIndex < 0)
             {

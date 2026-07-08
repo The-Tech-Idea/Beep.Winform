@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
 {
     /// <summary>
     /// Helper class for managing fonts and typography in checkbox controls
-    /// Integrates with BeepFontManager and StyleTypography for consistent font usage
+    /// Integrates with BeepThemesManager and StyleTypography for consistent font usage
     /// </summary>
     public static class CheckBoxFontHelpers
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -47,10 +48,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     itemRect.Left + (itemRect.Width - pillW) / 2,
                     startY,
                     pillW, pillH);
-                using var pillBrush = new SolidBrush(
-                    Color.FromArgb(40, _theme?.PrimaryColor ?? Color.DodgerBlue));
                 using var path = RoundedRect(pillRect, pillH / 2);
-                g.FillPath(pillBrush, path);
+                g.FillPath(GetBrush(
+                    Color.FromArgb(40, _theme?.PrimaryColor ?? Color.DodgerBlue)), path);
             }
 
             // Icon
@@ -64,14 +64,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else
             {
                 // Fallback: initials circle
-                using var circleBrush = new SolidBrush(
-                    Color.FromArgb(120, _theme?.PrimaryColor ?? Color.DodgerBlue));
-                g.FillEllipse(circleBrush, iconRect);
+                g.FillEllipse(GetBrush(
+                    Color.FromArgb(120, _theme?.PrimaryColor ?? Color.DodgerBlue)), iconRect);
                 string initials = item.Text?.Length > 0 ? item.Text.Substring(0, 1).ToUpper() : "?";
-                using var iFnt   = BeepFontManager.GetFont(_owner.TextFont.Name, 14f, FontStyle.Bold);
-                using var iBrush = new SolidBrush(Color.White);
-                var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(initials, iFnt, iBrush, iconRect, sf);
+                var iFnt = GetCachedFont(14f, FontStyle.Bold);
+                TextRenderer.DrawText(g, initials, iFnt, iconRect, Color.White,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
 
             // Label
@@ -79,12 +77,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Color textColor = isSelected
                 ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
                 : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray);
-            using var lFont  = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7.5f, _owner.TextFont.Size - 1.5f),
+            var lFont = GetCachedFont(Math.Max(7.5f, _owner.TextFont.Size - 1.5f),
                 isSelected ? FontStyle.Bold : FontStyle.Regular);
-            using var lBrush = new SolidBrush(textColor);
-            var lsf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near,
-                                         Trimming = StringTrimming.EllipsisCharacter };
-            g.DrawString(item.Text ?? "", lFont, lBrush, labelRect, lsf);
+            TextRenderer.DrawText(g, item.Text ?? "", lFont, labelRect, textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
 
             // Active indicator: 3 px bar on left edge
             if (isSelected)
@@ -93,9 +89,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var barRect = new Rectangle(itemRect.Left,
                     itemRect.Top + (itemRect.Height - barH) / 2,
                     ListBoxTokens.PinnedAccentBarWidth, barH);
-                using var barBrush = new SolidBrush(_theme?.PrimaryColor ?? Color.DodgerBlue);
-                using var barPath  = RoundedRect(barRect, barRect.Width / 2);
-                g.FillPath(barBrush, barPath);
+                using var barPath = RoundedRect(barRect, barRect.Width / 2);
+                g.FillPath(GetBrush(_theme?.PrimaryColor ?? Color.DodgerBlue), barPath);
             }
         }
 

@@ -54,10 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)), path);
                 }
 
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
@@ -98,11 +95,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? _theme?.OnPrimaryColor ?? Color.White
                 : Color.FromArgb(60, 60, 60);
 
-            using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
-            {
-                System.Windows.Forms.TextRenderer.DrawText(g, item.Text, font, textRect, textColor,
-                    System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
-            }
+            var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
+            System.Windows.Forms.TextRenderer.DrawText(g, item.Text, font, textRect, textColor,
+                System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
         }
         
         public override int GetPreferredItemHeight()

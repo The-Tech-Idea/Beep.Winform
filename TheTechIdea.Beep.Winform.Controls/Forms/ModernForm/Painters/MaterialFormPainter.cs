@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public CornerRadius GetCornerRadius(BeepiFormPro owner)
         {
-            return new CornerRadius(12);
+            return new CornerRadius(16); // MD3 spec: 16dp for dialogs
         }
 
         public AntiAliasMode GetAntiAliasMode(BeepiFormPro owner)

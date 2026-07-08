@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Text;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -57,9 +58,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (!string.IsNullOrEmpty(shortcut))
             {
-                kbdFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 1.5f));
+                kbdFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 1.5f));
                 shortcutWidth = DpiScalingHelper.ScaleValue(
-                    (int)g.MeasureString(shortcut, kbdFont).Width + ListBoxTokens.IconTextGap, _owner);
+                    TextRenderer.MeasureText(shortcut, kbdFont).Width + ListBoxTokens.IconTextGap, _owner);
             }
 
             int nameWidth = itemRect.Right - textX - shortcutWidth - pad;
@@ -74,16 +75,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     itemRect.Top + (itemRect.Height - chipH) / 2,
                     shortcutWidth, chipH);
 
-                using var chipBrush = new SolidBrush(Color.FromArgb(alpha / 2,
-                    _theme?.ButtonBackColor ?? Color.LightGray));
                 using var path = RoundedRect(chipRect, DpiScalingHelper.ScaleValue(ListBoxTokens.CornerRadiusSmall, _owner));
-                g.FillPath(chipBrush, path);
+                g.FillPath(GetBrush(Color.FromArgb(alpha / 2,
+                    _theme?.ButtonBackColor ?? Color.LightGray)), path);
 
-                using var kbdBrush = new SolidBrush(Color.FromArgb(alpha,
-                    _theme?.ListForeColor ?? Color.Gray));
-                var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(shortcut, kbdFont, kbdBrush, chipRect, sf);
-                kbdFont.Dispose();
+                Color kbdColor = Color.FromArgb(alpha, _theme?.ListForeColor ?? Color.Gray);
+                TextRenderer.DrawText(g, shortcut, kbdFont, chipRect, kbdColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
 

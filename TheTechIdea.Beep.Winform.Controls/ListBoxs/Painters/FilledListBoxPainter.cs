@@ -56,22 +56,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Filled background with primary color
-                    using (var brush = new SolidBrush(selColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(selColor), path);
 
                     // Selection border
-                    using (var pen = new Pen(Color.FromArgb(200, selColor), Scale(2)))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(Color.FromArgb(200, selColor), Scale(2)), path);
                 }
                 else if (isHovered)
                 {
                     // Hover state: lighter fill with shadow
                     var hoverColor = Color.FromArgb(240, 240, 240);
-                    
+
                     using (var shadowBrush = new LinearGradientBrush(itemRect,
                         Color.FromArgb(20, Color.Black),
                         Color.Transparent,
@@ -80,29 +74,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         g.FillRectangle(shadowBrush, itemRect);
                     }
 
-                    using (var brush = new SolidBrush(hoverColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(hoverColor), path);
 
                     // Hover border
-                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 1.5f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.Gray, 1.5f), path);
                 }
                 else
                 {
                     // Normal filled style
-                    using (var brush = new SolidBrush(Color.FromArgb(250, 250, 250)))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(250, 250, 250)), path);
 
-                    using (var pen = new Pen(Color.FromArgb(220, 220, 220), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(Color.FromArgb(220, 220, 220), 1f), path);
                 }
             }
         }

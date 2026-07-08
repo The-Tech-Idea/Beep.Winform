@@ -37,15 +37,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? Color.White
                 : (_theme?.ListItemForeColor ?? Color.FromArgb(40, 40, 40));
 
-            using (var boldFont = new Font(_owner.TextFont, FontStyle.Bold))
-            {
-                DrawItemText(g, textRect, item.Text, textColor, boldFont);
-            }
+            var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
+            DrawItemText(g, textRect, item.Text, textColor, boldFont);
 
             // Draw description
             if (!string.IsNullOrEmpty(item.Description))
             {
-                using var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+                var smallFont = GetCachedFont(_owner.TextFont.Size - 1);
                 Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - textPad, itemRect.Height / 2 - Scale(8));
                 Color descColor = _owner.IsItemSelected(item)
                     ? Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 1.3f), 255, 255, 255)
@@ -65,10 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)), path);
                 }
 
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
@@ -93,30 +88,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     ? checkColor
                     : (isHovered ? (_theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240)) : (_theme?.BackgroundColor ?? Color.White));
 
-                using (var brush = new SolidBrush(bgColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(bgColor), path);
 
                 // Draw border
-                using (var pen = new Pen(checkColor, 1.5f))
-                {
-                    g.DrawPath(pen, path);
-                }
+                g.DrawPath(GetPen(checkColor, 1.5f), path);
 
                 // Draw checkmark if checked
                 if (isChecked)
                 {
-                    using (var pen = new Pen(Color.White, 2f))
+                    var checkPen = GetPen(Color.White, 2f);
+                    Point[] checkPoints = new Point[]
                     {
-                        Point[] checkPoints = new Point[]
-                        {
-                            new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
-                            new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - Scale(4)),
-                            new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
-                        };
-                        g.DrawLines(pen, checkPoints);
-                    }
+                        new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
+                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - Scale(4)),
+                        new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
+                    };
+                    g.DrawLines(checkPen, checkPoints);
                 }
             }
         }

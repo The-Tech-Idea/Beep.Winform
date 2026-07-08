@@ -31,9 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _menuItemHeight = 32;
         private bool _menuItemHeightLocked = false;
         private bool _heightManuallySet = false;
-        private Size ButtonSize = new Size(60, 32);
 
-        private Font _textFont = new Font("Segoe UI", 8.5f);
+        private Font _textFont = SystemFonts.DefaultFont; // Overridden by ApplyTheme()
         private bool _explicitTextFont = false;
 
         private SimpleItem _selectedItem;
@@ -46,7 +45,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int ScaledMenuItemHeight => DpiScalingHelper.ScaleValue(MenuItemHeight, this);
         private int ScaledImageSize      => DpiScalingHelper.ScaleValue(_imagesize, this);
         private int ScaledMenuItemWidth  => DpiScalingHelper.ScaleValue(_menuItemWidth, this);
-        private Size ScaledButtonSize    => DpiScalingHelper.ScaleSize(ButtonSize, this);
         private int ScaleUi(int value)   => DpiScalingHelper.ScaleValue(value, this);
 
         // ─────────────────────────────────────────────────────────────────

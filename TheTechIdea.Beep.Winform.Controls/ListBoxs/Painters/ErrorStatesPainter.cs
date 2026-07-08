@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(item.Description) || HasError(item))
             {
                 string errorText = HasError(item) ? "Option now prohibited" : item.Description;
-                using var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+                var smallFont = GetCachedFont(_owner.TextFont.Size - 1);
                 Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - Scale(100), itemRect.Height / 2 - Scale(6));
                 Color descColor = HasError(item)
                     ? _theme?.ErrorColor ?? Color.FromArgb(180, 50, 50)
@@ -65,10 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)), path);
                 }
 
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
@@ -99,29 +96,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Color bgColor = isChecked
                     ? checkColor
                     : (isHovered ? (_theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240)) : (_theme?.BackgroundColor ?? Color.White));
-                using (var brush = new SolidBrush(bgColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(bgColor), path);
 
-                using (var pen = new Pen(checkColor, 1.5f))
-                {
-                    g.DrawPath(pen, path);
-                }
+                g.DrawPath(GetPen(checkColor, 1.5f), path);
 
                 // Draw checkmark if checked
                 if (isChecked)
                 {
-                    using (var pen = new Pen(Color.White, 2f))
+                    Point[] checkPoints = new Point[]
                     {
-                        Point[] checkPoints = new Point[]
-                        {
-                            new Point(checkboxRect.Left + Scale(4), checkboxRect.Top + checkboxRect.Height / 2),
-                            new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(5)),
-                            new Point(checkboxRect.Right - Scale(4), checkboxRect.Top + Scale(4))
-                        };
-                        g.DrawLines(pen, checkPoints);
-                    }
+                        new Point(checkboxRect.Left + Scale(4), checkboxRect.Top + checkboxRect.Height / 2),
+                        new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(5)),
+                        new Point(checkboxRect.Right - Scale(4), checkboxRect.Top + Scale(4))
+                    };
+                    g.DrawLines(GetPen(Color.White, 2f), checkPoints);
                 }
             }
         }
@@ -129,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawErrorBadge(Graphics g, Rectangle itemRect, bool isHovered)
         {
             string badgeText = "Error state!";
-            using var badgeFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+            var badgeFont = GetCachedFont(_owner.TextFont.Size - 1);
             SizeF textSizeF = TextUtils.MeasureText(g, badgeText, badgeFont);
             var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
@@ -150,20 +138,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillPath(brush, path);
             }
 
-            using (var pen = new Pen(Color.FromArgb(255, 193, 7), 1f))
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, badgeRadius))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(Color.FromArgb(255, 193, 7), 1f), path);
             }
 
             // Draw hover effect for badge
             if (isHovered)
             {
                 using var hoverPath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, badgeRadius);
-                using (var hoverBrush = new SolidBrush(Color.FromArgb(30, Color.Black)))
-                {
-                    g.FillPath(hoverBrush, hoverPath);
-                }
+                g.FillPath(GetBrush(Color.FromArgb(30, Color.Black)), hoverPath);
             }
 
             Color badgeTextColor = Color.FromArgb(120, 80, 0);

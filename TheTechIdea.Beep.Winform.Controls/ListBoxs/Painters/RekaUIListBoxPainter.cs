@@ -43,10 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     var accentRect = new Rectangle(contentBounds.X, contentBounds.Y, Scale(3), contentBounds.Height);
-                    using (var accentBrush = new SolidBrush(_theme.AccentColor))
-                    {
-                        g.FillRectangle(accentBrush, accentRect);
-                    }
+                    g.FillRectangle(GetBrush(_theme.AccentColor), accentRect);
                 }
 
                 // STEP 3: Draw keyboard focus indicator
@@ -109,10 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     );
 
                     // Simple circular icon background
-                    using (var iconBrush = new SolidBrush(Color.FromArgb(50, _theme.AccentColor)))
-                    {
-                        g.FillEllipse(iconBrush, iconRect);
-                    }
+                    g.FillEllipse(GetBrush(Color.FromArgb(50, _theme.AccentColor)), iconRect);
 
                     // Draw actual icon via StyledImagePainter (clipped to ellipse)
                     using (var clipPath = new GraphicsPath())
@@ -142,19 +136,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 Color textColor = _theme.LabelForeColor;
                 
-                using (var textBrush = new SolidBrush(textColor))
-                using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
-                {
-                    var sf = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    };
-
-                    g.DrawString(item.Text ?? string.Empty, font, textBrush, textRect, sf);
-                }
+                var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
+                TextRenderer.DrawText(g, item.Text ?? string.Empty, font, textRect, textColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
 
                 // STEP 7: Draw description/subtitle if present
                 if (!string.IsNullOrEmpty(item.Description))
@@ -167,18 +151,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     );
 
                     Color descColor = Color.FromArgb(120, textColor);
-                    using (var descBrush = new SolidBrush(descColor))
-                    using (var descFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1.5f, FontStyle.Regular))
-                    {
-                        var sf = new StringFormat
-                        {
-                            Alignment = StringAlignment.Near,
-                            LineAlignment = StringAlignment.Near,
-                            Trimming = StringTrimming.EllipsisCharacter
-                        };
-
-                        g.DrawString(item.Description, descFont, descBrush, descRect, sf);
-                    }
+                    var descFont = GetCachedFont(_owner.TextFont.Size - 1.5f, FontStyle.Regular);
+                    TextRenderer.DrawText(g, item.Description, descFont, descRect, descColor,
+                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
                 }
             }
             finally
@@ -205,10 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle shadow
                 if (isHovered && !isSelected)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme.AccentColor)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(30, _theme.AccentColor)), path);
                 }
             }
         }

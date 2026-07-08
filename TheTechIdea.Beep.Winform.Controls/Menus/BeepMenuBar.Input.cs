@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (SelectedItem.MethodName != null)
                 {
-                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
+                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
                 }
             }
         }

@@ -61,11 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? (_theme?.OnPrimaryColor ?? Color.White)
                 : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(30, 30, 30));
             
-            using (var boldFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold))
-            {
-                DrawItemText(g, primaryTextRect, item.Text ?? item.DisplayField, primaryColor, boldFont);
-            }
-
+            var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
+            DrawItemText(g, primaryTextRect, item.Text ?? item.DisplayField, primaryColor, boldFont);
             // Secondary text (subtext/email/role)
             if (!string.IsNullOrEmpty(item.SubText))
             {
@@ -74,10 +71,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     ? Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White)
                     : (_theme?.DisabledForeColor ?? Color.FromArgb(120, 120, 120));
                 
-                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
-                {
-                    DrawItemText(g, secondaryTextRect, item.SubText, secondaryColor, smallFont);
-                }
+                var smallFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
+                DrawItemText(g, secondaryTextRect, item.SubText, secondaryColor, smallFont);
             }
 
             // Checkbox (right side)
@@ -103,18 +98,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
-                    using (var brush = new SolidBrush(accentColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(accentColor), path);
                 }
                 else if (isHovered)
                 {
                     var hoverColor = _theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.FromArgb(245, 245, 245);
-                    using (var brush = new SolidBrush(hoverColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(hoverColor), path);
                 }
             }
         }
@@ -124,12 +113,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawCircularAvatar(g, avatarRect, item);
 
             // Draw avatar border
-            using (var pen = new Pen(isSelected 
+            g.DrawEllipse(GetPen(isSelected
                 ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                : Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.BorderColor ?? Color.Gray), 2f))
-            {
-                g.DrawEllipse(pen, avatarRect);
-            }
+                : Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.BorderColor ?? Color.Gray), 2f), avatarRect);
         }
 
         private void DrawStatusIndicator(Graphics g, Rectangle avatarRect, Color statusColor)
@@ -142,19 +128,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 dotSize, dotSize);
 
             // White border
-            using (var brush = new SolidBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White))
-            {
-                g.FillEllipse(brush, Rectangle.Inflate(dotRect, 2, 2));
-            }
+            g.FillEllipse(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White),
+                Rectangle.Inflate(dotRect, 2, 2));
 
             // Status color
             Color effectiveStatus = statusColor != Color.Empty
                 ? statusColor
                 : (_theme?.SuccessColor ?? _theme?.AccentColor ?? Color.LimeGreen);
-            using (var brush = new SolidBrush(effectiveStatus))
-            {
-                g.FillEllipse(brush, dotRect);
-            }
+            g.FillEllipse(GetBrush(effectiveStatus), dotRect);
         }
 
         private void DrawModernCheckbox(Graphics g, Rectangle checkRect, bool isChecked, bool isHovered, bool isSelected)
@@ -167,12 +148,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         ? (_theme?.OnPrimaryColor ?? Color.White)
                         : (_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue);
                     
-                    using (var brush = new SolidBrush(isSelected
+                    g.FillPath(GetBrush(isSelected
                         ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                        : accentColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                        : accentColor), path);
 
                     // Checkmark
                     Color checkColor = _theme?.OnPrimaryColor ?? Color.White;
@@ -197,10 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         ? Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White)
                         : (_theme?.BorderColor ?? Color.FromArgb(180, 180, 180));
                     
-                    using (var pen = new Pen(borderColor, 1.5f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(borderColor, 1.5f), path);
                 }
             }
         }

@@ -63,26 +63,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// </summary>
         public bool UseButtonGradients { get; set; } = true;
 
+        // PC-08: Use cached metrics instead of creating new instance every call
         public virtual FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return new FormPainterMetrics
-            {
-                BackgroundColor = DefaultBackgroundColor,
-                BorderColor = DefaultBorderColor,
-                CaptionTextColorActive = DefaultCaptionColor,
-                CaptionTextColorInactive = Color.FromArgb(230, 230, 230),
-                CaptionColor = DefaultTitleColor,
-                BorderWidth = DefaultBorderWidth,
-                ResizeBorderWidth = 4,
-                CaptionHeight = owner.Font.Height + 16,
-                MinimizeButtonColor = DefaultTitleColor,
-                MaximizeButtonColor = DefaultTitleColor,
-                CloseButtonColor = DefaultTitleColor,
-                MinimizeButtonHoverColor = Color.FromArgb(200, 200, 200),
-                MaximizeButtonHoverColor = Color.FromArgb(200, 200, 200),
-                CloseButtonHoverColor = Color.FromArgb(232, 17, 35),
-                AccentBarWidth = 0
-            };
+            var metrics = FormPainterMetrics.DefaultForCached(FormStyle.Custom, owner.UseThemeColors ? owner.CurrentTheme : null);
+            // Apply custom overrides if theme didn't provide specific values
+            if (metrics.BackgroundColor == Color.Empty) metrics.BackgroundColor = DefaultBackgroundColor;
+            if (metrics.BorderColor == Color.Empty) metrics.BorderColor = DefaultBorderColor;
+            if (metrics.CaptionHeight <= 0) metrics.CaptionHeight = owner.Font.Height + 16;
+            return metrics;
         }
 
         public virtual void PaintBackground(Graphics g, BeepiFormPro owner)

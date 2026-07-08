@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
         private float _prevHoverProgress = 0f;
         
         // Font
-        private Font _textFont = new Font("Segoe UI", 9f);
+        private Font _textFont = SystemFonts.DefaultFont; // Overridden by ApplyTheme()
 
         // Scrolling support
         private int _yOffset = 0;
@@ -623,6 +623,13 @@ namespace TheTechIdea.Beep.Winform.Controls;
         /// </summary>
         internal int YOffset => _yOffset;
         internal IReadOnlyCollection<string> CollapsedGroupKeys => _collapsedGroupKeys;
+
+        /// <summary>
+        /// Current virtual (full content) size used for scrollbar calculations.
+        /// Reflects real row heights (including AutoItemHeight / rich rows), unlike
+        /// a PreferredItemHeight * count estimate.
+        /// </summary>
+        internal Size VirtualSize => _virtualSize;
 
         /// <summary>
         /// Update virtual size for scrollbar calculations

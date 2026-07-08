@@ -270,11 +270,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             int iconSize = Helpers.DpiScalingHelper.ScaleValue(ListBoxTokens.EmptyStateIconSize, this);
 
             // Centre the content block
-            using var headlineFont = new Font(_textFont.FontFamily, ListBoxTokens.EmptyStateHeadlinePt, System.Drawing.FontStyle.Bold);
-            using var subFont      = new Font(_textFont.FontFamily, ListBoxTokens.EmptyStateSubTextPt);
+            var headlineFont = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
+            var subFont      = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
 
-            var headlineSize = g.MeasureString(headline, headlineFont);
-            var subTextSize  = g.MeasureString(subText,  subFont);
+            var headlineSize = TextRenderer.MeasureText(headline, headlineFont);
+            var subTextSize  = TextRenderer.MeasureText(subText,  subFont);
 
             int totalH = iconSize + 12 + (int)headlineSize.Height + 4 + (int)subTextSize.Height;
             int startY = bounds.Top + (bounds.Height - totalH) / 2;
@@ -298,15 +298,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             int textY = iconRect.Bottom + 12;
 
             // Headline
-            using var hBrush = new SolidBrush(headlineColor);
-            var hRect = new RectangleF(bounds.Left, textY, bounds.Width, headlineSize.Height + 4);
-            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(headline, headlineFont, hBrush, hRect, sf);
+            var hRect = new Rectangle(bounds.Left, textY, bounds.Width, (int)headlineSize.Height + 4);
+            TextRenderer.DrawText(g, headline, headlineFont, hRect, headlineColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
             // Sub-text
-            using var sBrush = new SolidBrush(subColor);
-            var sRect = new RectangleF(bounds.Left, hRect.Bottom + 4, bounds.Width, subTextSize.Height + 4);
-            g.DrawString(subText, subFont, sBrush, sRect, sf);
+            var sRect = new Rectangle(bounds.Left, hRect.Bottom + 4, bounds.Width, (int)subTextSize.Height + 4);
+            TextRenderer.DrawText(g, subText, subFont, sRect, subColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         private void DrawEmptySearchState(Graphics g, Rectangle bounds)
@@ -316,11 +315,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int iconSize = Helpers.DpiScalingHelper.ScaleValue(ListBoxTokens.EmptyStateIconSize, this);
 
-            using var headlineFont = new Font(_textFont.FontFamily, ListBoxTokens.EmptyStateHeadlinePt, System.Drawing.FontStyle.Bold);
-            using var subFont      = new Font(_textFont.FontFamily, ListBoxTokens.EmptyStateSubTextPt);
+            var headlineFont = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
+            var subFont      = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
 
-            var headlineSize = g.MeasureString(headline, headlineFont);
-            var subTextSize  = g.MeasureString(subText,  subFont);
+            var headlineSize = TextRenderer.MeasureText(headline, headlineFont);
+            var subTextSize  = TextRenderer.MeasureText(subText,  subFont);
 
             int totalH = iconSize + 12 + (int)headlineSize.Height + 4 + (int)subTextSize.Height;
             int startY = bounds.Top + (bounds.Height - totalH) / 2;
@@ -342,14 +341,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int textY = startY + iconSize + 12;
 
-            using var hBrush = new SolidBrush(headlineColor);
-            var hRect = new RectangleF(bounds.Left, textY, bounds.Width, headlineSize.Height + 4);
-            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(headline, headlineFont, hBrush, hRect, sf);
+            var hRect = new Rectangle(bounds.Left, textY, bounds.Width, (int)headlineSize.Height + 4);
+            TextRenderer.DrawText(g, headline, headlineFont, hRect, headlineColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
-            using var sBrush = new SolidBrush(subColor);
-            var sRect = new RectangleF(bounds.Left, hRect.Bottom + 4, bounds.Width, subTextSize.Height + 4);
-            g.DrawString(subText, subFont, sBrush, sRect, sf);
+            var sRect = new Rectangle(bounds.Left, hRect.Bottom + 4, bounds.Width, (int)subTextSize.Height + 4);
+            TextRenderer.DrawText(g, subText, subFont, sRect, subColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         #endregion
@@ -372,21 +370,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (string.IsNullOrEmpty(query) || string.IsNullOrEmpty(text))
             {
-                using var b = new SolidBrush(normalColor);
-                g.DrawString(text ?? "", font, b, rect);
+                TextRenderer.DrawText(g, text ?? "", font, rect, normalColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 return;
             }
 
             string lower      = text.ToLowerInvariant();
             string queryLower = query.ToLowerInvariant();
 
-            int pos = 0;
-            float x = rect.Left;
-            float y = rect.Top + (rect.Height - font.Height) / 2f;
+            // NoPadding keeps TextRenderer run widths consistent so highlight pills line up.
+            const TextFormatFlags flags = TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine;
 
-            using var normalBrush = new SolidBrush(normalColor);
-            using var hlBrush     = new SolidBrush(highlightForeColor);
-            using var hlBackBrush = new SolidBrush(highlightBackColor);
+            int pos = 0;
+            int x = rect.Left;
+            int y = rect.Top + (rect.Height - font.Height) / 2;
 
             while (pos < text.Length)
             {
@@ -394,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (matchIdx < 0)
                 {
                     string rest = text.Substring(pos);
-                    g.DrawString(rest, font, normalBrush, x, y);
+                    TextRenderer.DrawText(g, rest, font, new Point(x, y), normalColor, flags);
                     break;
                 }
 
@@ -402,18 +399,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (matchIdx > pos)
                 {
                     string before = text.Substring(pos, matchIdx - pos);
-                    g.DrawString(before, font, normalBrush, x, y);
-                    x += g.MeasureString(before, font).Width;
+                    TextRenderer.DrawText(g, before, font, new Point(x, y), normalColor, flags);
+                    x += TextRenderer.MeasureText(g, before, font, Size.Empty, flags).Width;
                 }
 
                 // Draw match with background pill
                 string match = text.Substring(matchIdx, queryLower.Length);
-                float matchW = g.MeasureString(match, font).Width;
-                var hlRect = new RectangleF(x, y, matchW, font.Height);
+                int matchW = TextRenderer.MeasureText(g, match, font, Size.Empty, flags).Width;
+                var hlRect = new Rectangle(x, y, matchW, font.Height);
                 int r = Helpers.DpiScalingHelper.ScaleValue(3, this);
                 using (var path = RoundedRectPath(hlRect, r))
+                using (var hlBackBrush = new SolidBrush(highlightBackColor))
                     g.FillPath(hlBackBrush, path);
-                g.DrawString(match, font, hlBrush, x, y);
+                TextRenderer.DrawText(g, match, font, new Point(x, y), highlightForeColor, flags);
                 x += matchW;
 
                 pos = matchIdx + queryLower.Length;

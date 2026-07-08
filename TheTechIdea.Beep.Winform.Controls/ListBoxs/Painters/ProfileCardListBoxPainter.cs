@@ -43,37 +43,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Color tertiaryFg = Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 0.7f),
                 _theme?.ListItemForeColor ?? Color.Gray);
 
-            using var centerSf = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Near,
-                Trimming = StringTrimming.EllipsisCharacter
-            };
-
             // Name (bold, centered)
-            using var boldFont = BeepFontManager.GetFont(
-                _owner.TextFont.Name, _owner.TextFont.Size + 1f, FontStyle.Bold);
-            var nameRect = new RectangleF(textX, curY, textW, Scale(20));
-            using var nameBrush = new SolidBrush(primaryFg);
-            g.DrawString(item.Text ?? item.DisplayField, boldFont, nameBrush, nameRect, centerSf);
+            var boldFont = GetCachedFont(_owner.TextFont.Size + 1f, FontStyle.Bold);
+            var nameRect = new Rectangle(textX, curY, textW, Scale(20));
+            TextRenderer.DrawText(g, item.Text ?? item.DisplayField, boldFont, nameRect, primaryFg,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
+                TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             curY += Scale(20);
 
             // Title / Role (SubText, centered, secondary)
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                using var regFont = BeepFontManager.GetFont(
-                    _owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular);
-                var titleRect = new RectangleF(textX, curY, textW, Scale(16));
-                using var titleBrush = new SolidBrush(secondaryFg);
-                g.DrawString(item.SubText, regFont, titleBrush, titleRect, centerSf);
+                var regFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
+                var titleRect = new Rectangle(textX, curY, textW, Scale(16));
+                TextRenderer.DrawText(g, item.SubText, regFont, titleRect, secondaryFg,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
+                    TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 curY += Scale(16);
             }
 
             // Bio / Description (centered, tertiary, max 2 lines, word-wrapped)
             if (!string.IsNullOrEmpty(item.Description))
             {
-                using var bioFont = BeepFontManager.GetFont(
-                    _owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 1.5f), FontStyle.Regular);
+                var bioFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 1.5f), FontStyle.Regular);
                 var bioRect = new Rectangle(textX, curY, textW, Scale(28));
                 TextRenderer.DrawText(g, item.Description, bioFont, bioRect, tertiaryFg,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |

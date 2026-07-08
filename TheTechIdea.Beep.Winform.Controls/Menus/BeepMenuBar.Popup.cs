@@ -324,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         //OnMenuItemSelected(selectedItem);
                         if (SelectedItem.MethodName != null)
                         {
-                            RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
+                            RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
                         }
                     });
             }

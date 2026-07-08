@@ -65,10 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
-                using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
-                {
-                    DrawItemText(g, subRect, item.SubText, subColor, subFont);
-                }
+                var subFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
+                DrawItemText(g, subRect, item.SubText, subColor, subFont);
             }
         }
 
@@ -105,10 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Glass border
-                    using (var pen = new Pen(Color.FromArgb(120, 255, 255, 255), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(Color.FromArgb(120, 255, 255, 255), 1f), path);
                 }
                 else if (isHovered)
                 {
@@ -122,19 +117,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover border
-                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
-                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.Gray), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
+                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.Gray), 1f), path);
                 }
                 else
                 {
                     // Default: very subtle glass
-                    using (var brush = new SolidBrush(Color.FromArgb(15, 255, 255, 255)))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(15, 255, 255, 255)), path);
                 }
             }
         }
@@ -147,10 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Checked: accent color glass
                     var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
-                    using (var brush = new SolidBrush(Color.FromArgb(200, accentColor)))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(200, accentColor)), path);
 
                     // Checkmark
                     using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
@@ -170,15 +156,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Unchecked: glass border
-                    using (var brush = new SolidBrush(Color.FromArgb(40, 255, 255, 255)))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                    using (var pen = new Pen(Color.FromArgb(100,
-                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(40, 255, 255, 255)), path);
+                    g.DrawPath(GetPen(Color.FromArgb(100,
+                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f), path);
                 }
             }
         }

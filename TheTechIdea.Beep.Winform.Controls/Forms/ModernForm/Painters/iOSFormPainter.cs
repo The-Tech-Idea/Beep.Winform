@@ -122,8 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, centeredRect, metrics.CaptionTextColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            // iOS: Paint circular traffic light buttons (distinct!)
-            PaintiOSButtons(g, owner, captionRect);
+            // iOS uses navigation bar style — no window buttons. System buttons painted below.
 
             // Paint search box if visible (using FormRegion for consistency)
             if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)

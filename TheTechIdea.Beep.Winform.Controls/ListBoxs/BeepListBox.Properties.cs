@@ -908,7 +908,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>Optional consumer-provided context menu used instead of the default one.</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public System.Windows.Forms.ContextMenuStrip? ItemContextMenu { get; set; }
+        public ContextMenus.BeepContextMenu? ItemContextMenu { get; set; }
 
         /// <summary>Allow inline edit of item text via F2 or double-click.</summary>
         [Browsable(true)]
@@ -966,7 +966,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected virtual void OnItemReordered(int oldIdx, int newIdx, SimpleItem item)
             => ItemReordered?.Invoke(this, new ListBoxReorderEventArgs(oldIdx, newIdx, item));
 
-        protected virtual bool OnContextMenuOpening(int index, SimpleItem? item, System.Windows.Forms.ContextMenuStrip menu)
+        protected virtual bool OnContextMenuOpening(int index, SimpleItem? item, ContextMenus.BeepContextMenu menu)
         {
             var args = new ListBoxContextMenuEventArgs(index, item, menu);
             ContextMenuOpening?.Invoke(this, args);

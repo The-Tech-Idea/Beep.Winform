@@ -81,10 +81,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
-                using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
-                {
-                    DrawItemText(g, subRect, item.SubText, subColor, subFont);
-                }
+                var subFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
+                DrawItemText(g, subRect, item.SubText, subColor, subFont);
             }
         }
 
@@ -103,13 +101,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 
                 // Accent indicator
                 var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
-                using (var accentBrush = new SolidBrush(accentColor))
+                var accentBrush = GetBrush(accentColor);
+                var accentRect = new Rectangle(neuRect.Left, neuRect.Top + Scale(4), Scale(4), neuRect.Height - Scale(8));
+                using (var accentPath = GraphicsExtensions.CreateRoundedRectanglePath(accentRect, new CornerRadius(Scale(2))))
                 {
-                    var accentRect = new Rectangle(neuRect.Left, neuRect.Top + Scale(4), Scale(4), neuRect.Height - Scale(8));
-                    using (var accentPath = GraphicsExtensions.CreateRoundedRectanglePath(accentRect, new CornerRadius(Scale(2))))
-                    {
-                        g.FillPath(accentBrush, accentPath);
-                    }
+                    g.FillPath(accentBrush, accentPath);
                 }
             }
             else if (isHovered)
@@ -131,24 +127,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw dark shadow (bottom-right)
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(
                 new Rectangle(rect.X + shadowOffset, rect.Y + shadowOffset, rect.Width, rect.Height), new CornerRadius(Scale(_cornerRadius))))
-            using (var brush = new SolidBrush(Color.FromArgb((int)(40 * intensity), darkShadow)))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(Color.FromArgb((int)(40 * intensity), darkShadow)), path);
             }
 
             // Draw light shadow (top-left)
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(
                 new Rectangle(rect.X - shadowOffset / 2, rect.Y - shadowOffset / 2, rect.Width, rect.Height), new CornerRadius(Scale(_cornerRadius))))
-            using (var brush = new SolidBrush(Color.FromArgb((int)(60 * intensity), lightShadow)))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(Color.FromArgb((int)(60 * intensity), lightShadow)), path);
             }
 
             // Draw main surface
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, new CornerRadius(Scale(_cornerRadius))))
-            using (var brush = new SolidBrush(_baseColor))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(_baseColor), path);
             }
         }
 
@@ -156,9 +149,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Draw main surface first
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, new CornerRadius(Scale(_cornerRadius))))
-            using (var brush = new SolidBrush(DarkenColor(_baseColor, 0.05f)))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(DarkenColor(_baseColor, 0.05f)), path);
             }
 
             // Inner shadow (dark on top-left for inset effect)
@@ -188,10 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Background
                     var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
-                    using (var brush = new SolidBrush(accentColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(accentColor), path);
 
                     // Checkmark
                     using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))

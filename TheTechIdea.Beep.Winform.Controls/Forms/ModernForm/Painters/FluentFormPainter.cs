@@ -98,176 +98,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// Paint Fluent acrylic reveal buttons (UNIQUE SKIN)
         /// Features: shimmer gradient, border glow, frosted edge, reveal effect
         /// </summary>
+        // SA-02: Simplified Fluent caption buttons — plain rounded-rect on hover, no acrylic shimmer
         private void PaintFluentAcrylicButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
             var closeRect = owner.CurrentLayout.CloseButtonRect;
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
-
-            int buttonSize = 18;
-            int padding = (captionRect.Height - buttonSize) / 2;
-
-            // Close button - red with acrylic reveal
+            var closeColor = Color.FromArgb(232, 17, 35);
+            var baseFont = owner.Font;
             bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            PaintAcrylicRevealButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
-
-            // Maximize button - green with acrylic reveal
             bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            PaintAcrylicRevealButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
-
-            // Minimize button - blue with acrylic reveal
             bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            PaintAcrylicRevealButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
 
-            // Theme/Style buttons if shown
-            if (owner.ShowStyleButton)
-            {
-                var styleRect = owner.CurrentLayout.StyleButtonRect;
-                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
-                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, FormHitAreaNames.Style, styleHovered);
-            }
-
-            if (owner.ShowThemeButton)
-            {
-                var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
-                PaintAcrylicRevealButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, FormHitAreaNames.Theme, themeHovered);
-            }
+            FormPainterRenderHelper.DrawSystemButton(g, closeRect, "X", closeHovered, isClose: true, baseFont, metrics.CaptionTextColor, metrics.CloseButtonHoverColor, closeColor);
+            FormPainterRenderHelper.DrawSystemButton(g, maxRect, "□", maxHovered, isClose: false, baseFont, metrics.CaptionTextColor, metrics.MaximizeButtonHoverColor);
+            FormPainterRenderHelper.DrawSystemButton(g, minRect, "—", minHovered, isClose: false, baseFont, metrics.CaptionTextColor, metrics.MinimizeButtonHoverColor);
         }
 
-        private void PaintAcrylicRevealButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered)
-        {
-            int centerX = buttonRect.X + buttonRect.Width / 2;
-            int centerY = buttonRect.Y + buttonRect.Height / 2;
-            var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
-
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-
-            // Frosted acrylic background (semi-transparent)
-            using (var acrylicBrush = new SolidBrush(Color.FromArgb(160, 250, 250, 250)))
-            {
-                g.FillRectangle(acrylicBrush, rect);
-            }
-
-            // Shimmer gradient (diagonal 45°) - intensify on hover
-            int shimmerAlpha = isHovered ? 120 : 80;
-            using (var shimmerBrush = new LinearGradientBrush(
-                new Rectangle(rect.X - 10, rect.Y - 10, rect.Width + 20, rect.Height + 20),
-                Color.FromArgb(shimmerAlpha, 255, 255, 255),
-                Color.FromArgb(0, 255, 255, 255),
-                45f))
-            {
-                g.FillRectangle(shimmerBrush, rect);
-            }
-
-            // Acrylic base color overlay - brighter on hover
-            int colorAlpha = isHovered ? 255 : 200;
-            using (var colorBrush = new SolidBrush(Color.FromArgb(colorAlpha, baseColor)))
-            {
-                g.FillRectangle(colorBrush, rect);
-            }
-
-            // Border glow effect (Fluent reveal) - wider and brighter on hover
-            int glowAlpha = isHovered ? 180 : 120;
-            int glowWidth = isHovered ? 3 : 2;
-            using (var glowPen = new Pen(Color.FromArgb(glowAlpha, baseColor), glowWidth))
-            {
-                g.DrawRectangle(glowPen, rect.X - 1, rect.Y - 1, rect.Width + 1, rect.Height + 1);
-            }
-
-            // Frosted edge highlight (top-left)
-            using (var frostPen = new Pen(Color.FromArgb(100, 255, 255, 255), 1))
-            {
-                g.DrawLine(frostPen, rect.X + 1, rect.Y, rect.Right - 1, rect.Y);
-                g.DrawLine(frostPen, rect.X, rect.Y + 1, rect.X, rect.Bottom - 1);
-            }
-
-            // Draw icon AFTER all acrylic effects for maximum clarity
-            // IMPROVED: Smaller 7px icons, pure white, dark outline for definition
-            int iconSize = 7;
-            int iconCenterX = rect.X + rect.Width / 2;
-            int iconCenterY = rect.Y + rect.Height / 2;
-            
-            // Dark outline for icon definition (Fluent contrast enhancement)
-            using (var outlinePen = new Pen(Color.FromArgb(80, 0, 0, 0), 2.5f))
-            {
-                outlinePen.StartCap = LineCap.Round;
-                outlinePen.EndCap = LineCap.Round;
-                outlinePen.LineJoin = LineJoin.Round;
-                
-                DrawFluentIcon(g, outlinePen, buttonType, iconCenterX + 1, iconCenterY + 1, iconSize);
-            }
-            
-            // Pure white icon for maximum contrast
-            using (var iconPen = new Pen(Color.FromArgb(255, 255, 255, 255), 2f))
-            {
-                iconPen.StartCap = LineCap.Round;
-                iconPen.EndCap = LineCap.Round;
-                iconPen.LineJoin = LineJoin.Round;
-                
-                DrawFluentIcon(g, iconPen, buttonType, iconCenterX, iconCenterY, iconSize);
-            }
-        }
-        
-        /// <summary>
-        /// Draw Fluent Design icon with clean geometry
-        /// </summary>
-        private void DrawFluentIcon(Graphics g, Pen pen, string buttonType, int centerX, int centerY, int iconSize)
-        {
-            switch (buttonType)
-            {
-                case FormHitAreaNames.Close:
-                    // Clean X with 45° angles, 8x8px area
-                    g.DrawLine(pen, centerX - iconSize / 2, centerY - iconSize / 2,
-                        centerX + iconSize / 2, centerY + iconSize / 2);
-                    g.DrawLine(pen, centerX + iconSize / 2, centerY - iconSize / 2,
-                        centerX - iconSize / 2, centerY + iconSize / 2);
-                    break;
-                    
-                case FormHitAreaNames.Maximize:
-                    // Rounded square with 2px corner radius
-                    using (var path = new GraphicsPath())
-                    {
-                        int halfSize = iconSize / 2;
-                        var iconRect = new Rectangle(centerX - halfSize, centerY - halfSize, iconSize, iconSize);
-                        int radius = 2;
-                        
-                        path.AddArc(iconRect.X, iconRect.Y, radius * 2, radius * 2, 180, 90);
-                        path.AddArc(iconRect.Right - radius * 2, iconRect.Y, radius * 2, radius * 2, 270, 90);
-                        path.AddArc(iconRect.Right - radius * 2, iconRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
-                        path.AddArc(iconRect.X, iconRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
-                        path.CloseFigure();
-                        
-                        g.DrawPath(pen, path);
-                    }
-                    break;
-                    
-                case FormHitAreaNames.Minimize:
-                    // Horizontal line with round caps, 9px wide
-                    g.DrawLine(pen, centerX - iconSize / 2 - 1, centerY, centerX + iconSize / 2 + 1, centerY);
-                    break;
-                    
-                case FormHitAreaNames.Style:
-                    // Paint brush icon
-                    // Brush handle
-                    g.DrawLine(pen, centerX - 2, centerY - 2, centerX + 2, centerY + 2);
-                    // Brush bristles
-                    for (int i = -1; i <= 1; i++)
-                    {
-                        g.DrawLine(pen, centerX + 2 + i, centerY + 2, centerX + 3 + i, centerY + 4);
-                    }
-                    break;
-                    
-                case FormHitAreaNames.Theme:
-                    // Color wheel with 4 segments
-                    int wheelRadius = iconSize / 2;
-                    g.DrawEllipse(pen, centerX - wheelRadius, centerY - wheelRadius, iconSize, iconSize);
-                    // Cross dividing into 4 segments
-                    g.DrawLine(pen, centerX - wheelRadius, centerY, centerX + wheelRadius, centerY);
-                    g.DrawLine(pen, centerX, centerY - wheelRadius, centerX, centerY + wheelRadius);
-                    break;
-            }
-        }
+        // SA-02: Removed over-designed acrylic button rendering.
+        // Caption buttons now use shared FormPainterRenderHelper.DrawSystemButton.
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {

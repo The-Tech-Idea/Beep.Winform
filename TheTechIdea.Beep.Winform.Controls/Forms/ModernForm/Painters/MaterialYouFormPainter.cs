@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             return AntiAliasMode.High;
         }
 
-        public bool SupportsAnimations => false;
+        public bool SupportsAnimations => true; // Material You relies on motion
 
         public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {

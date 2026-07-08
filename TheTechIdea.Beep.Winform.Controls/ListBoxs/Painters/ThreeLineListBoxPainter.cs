@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.Restore(state);
 
                 // Subtle border
-                using var borderPen = new Pen(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.BorderColor ?? Color.Black), 1f);
+                var borderPen = GetPen(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.BorderColor ?? Color.Black), 1f);
                 using var borderPath = GraphicsExtensions.CreateRoundedRectanglePath(
                     new RectangleF(imgRect.X, imgRect.Y, imgRect.Width, imgRect.Height), radius);
                 g.DrawPath(borderPen, borderPath);
@@ -80,8 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int curY = startY;
 
             // Line 1: Title (bold)
-            using var boldFont = BeepFontManager.GetFont(
-                _owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold);
+            var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, new Rectangle(textX, curY, textW, lineH),
                 item.Text ?? item.DisplayField, primaryFg, boldFont);
             curY += lineH;
@@ -105,8 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Line 4: SubText3 (tertiary, smaller)
             if (!string.IsNullOrEmpty(item.SubText3))
             {
-                using var smallFont = BeepFontManager.GetFont(
-                    _owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
+                var smallFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
                 DrawItemText(g, new Rectangle(textX, curY, textW, lineH),
                     item.SubText3, tertiaryFg, smallFont);
             }

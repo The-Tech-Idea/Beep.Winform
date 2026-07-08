@@ -532,23 +532,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             menu.Show(this, location);
         }
 
-        private ContextMenuStrip BuildDefaultContextMenu(SimpleItem? item)
+        private ContextMenus.BeepContextMenu BuildDefaultContextMenu(SimpleItem? item)
         {
-            var m = new ContextMenuStrip();
+            var m = new ContextMenus.BeepContextMenu();
             if (item != null)
             {
-                m.Items.Add("Select",  null, (s, e) => SelectedItem = item);
-                m.Items.Add("Copy",    null, (s, e) => { try { Clipboard.SetText(item.Text ?? ""); } catch { } });
+                m.AddItem(new SimpleItem { Name = "select", Text = "Select" });
+                m.AddItem(new SimpleItem { Name = "copy",   Text = "Copy" });
                 if (AllowInlineEdit)
-                    m.Items.Add("Edit F2", null, (s, e) => StartInlineEdit(item));
-                m.Items.Add("-");
-                var del = new ToolStripMenuItem("Delete");
-                del.Click += (s, e) =>
+                    m.AddItem(new SimpleItem { Name = "edit", Text = "Edit", KeyCombination = "F2" });
+                m.AddItem(new SimpleItem { Name = "delete", Text = "Delete" });
+
+                m.ItemClicked += (s, e) =>
                 {
-                    int idx = _listItems.IndexOf(item);
-                    OnItemDeleteRequested(idx, item);
+                    switch (e.Item?.Name)
+                    {
+                        case "select":
+                            SelectedItem = item;
+                            break;
+                        case "copy":
+                            try { Clipboard.SetText(item.Text ?? ""); } catch { }
+                            break;
+                        case "edit":
+                            StartInlineEdit(item);
+                            break;
+                        case "delete":
+                            int idx = _listItems.IndexOf(item);
+                            OnItemDeleteRequested(idx, item);
+                            break;
+                    }
                 };
-                m.Items.Add(del);
             }
             return m;
         }

@@ -18,24 +18,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 // Subtle selection highlight
-                using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 25)))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                g.FillRectangle(GetBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 25)), itemRect);
 
                 // Very subtle selection indicator on left
-                using (var brush = new SolidBrush(_theme?.PrimaryColor ?? Color.Empty))
-                {
-                    g.FillRectangle(brush, itemRect.Left, itemRect.Top, Scale(2), itemRect.Height);
-                }
+                g.FillRectangle(GetBrush(_theme?.PrimaryColor ?? Color.Empty), itemRect.Left, itemRect.Top, Scale(2), itemRect.Height);
             }
             else if (isHovered)
             {
                 // Very subtle hover background
-                using (var brush = new SolidBrush(Color.FromArgb(8, Color.Black)))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                g.FillRectangle(GetBrush(Color.FromArgb(8, Color.Black)), itemRect);
             }
             // No background for normal state - minimal approach
         }

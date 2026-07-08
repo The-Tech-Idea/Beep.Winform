@@ -25,12 +25,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     protected IBeepTheme _theme;
     protected BeepListBoxHelper _helper;
     protected BeepListBoxLayoutHelper _layout;
-    private Font _cachedTrailingMetaFont;
-    private string _cachedTrailingMetaFamily;
-    private float _cachedTrailingMetaSize = -1f;
     public BeepControlStyle Style { get; set; } = BeepControlStyle.Minimal;
 
     public Font TextFont { get; set; }
+
+    // ── Cached GDI resources (Phase 9) ───────────────────────────────────────
+    // All fonts here come from the theme manager (shared cache) and MUST NOT be
+    // disposed by this painter. Brushes/pens are painter-owned single-color
+    // instances reused across rows to avoid per-row allocation.
+    private readonly System.Collections.Generic.Dictionary<(float size, FontStyle style), Font> _fontCache = new();
+    private readonly System.Collections.Generic.Dictionary<int, SolidBrush> _brushCache = new();
+    private readonly System.Collections.Generic.Dictionary<(int argb, float width), Pen> _penCache = new();
 
     public virtual void Initialize(BeepListBox owner, IBeepTheme theme)
     {
@@ -39,34 +44,56 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         _helper = owner.Helper;
         _layout = owner.LayoutHelper;
         TextFont = owner.ListBoxTextFont ?? owner.Font;
-        ResetTrailingMetaFontCache();
+        _fontCache.Clear(); // font families/sizes are relative to the (possibly new) theme font
     }
 
-    private void ResetTrailingMetaFontCache()
+    /// <summary>
+    /// Returns a cached font in the owner's text family at the given point size + style.
+    /// Resolved via the theme manager (shared cache — never disposed here). This is the
+    /// sanctioned replacement for direct font-manager / raw-font allocations in paint paths.
+    /// </summary>
+    protected Font GetCachedFont(float size, FontStyle style = FontStyle.Regular)
     {
-        _cachedTrailingMetaFont?.Dispose();
-        _cachedTrailingMetaFont = null;
-        _cachedTrailingMetaFamily = null;
-        _cachedTrailingMetaSize = -1f;
+        size = Math.Max(6f, size);
+        var key = (size, style);
+        if (_fontCache.TryGetValue(key, out var f) && f != null)
+            return f;
+
+        string family = (TextFont ?? _owner?.TextFont ?? SystemFonts.DefaultFont).FontFamily.Name;
+        var weight = style.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Normal;
+        f = BeepThemesManager.ToFont(family, size, weight, style) ?? SystemFonts.DefaultFont;
+        _fontCache[key] = f;
+        return f;
     }
 
+    /// <summary>Font one point smaller than the base text font — the trailing-metadata role.</summary>
     private Font GetTrailingMetaFont()
     {
-        var sourceFont = TextFont ?? _owner?.TextFont ?? SystemFonts.DefaultFont;
-        float targetSize = Math.Max(8f, sourceFont.Size - 1f);
-        string targetFamily = sourceFont.FontFamily.Name;
+        float baseSize = (TextFont ?? _owner?.TextFont ?? SystemFonts.DefaultFont).Size;
+        return GetCachedFont(Math.Max(8f, baseSize - 1f));
+    }
 
-        if (_cachedTrailingMetaFont == null ||
-            _cachedTrailingMetaSize != targetSize ||
-            !string.Equals(_cachedTrailingMetaFamily, targetFamily, StringComparison.Ordinal))
-        {
-            _cachedTrailingMetaFont?.Dispose();
-            _cachedTrailingMetaFont = BeepFontManager.GetFont(targetFamily, targetSize, FontStyle.Regular);
-            _cachedTrailingMetaFamily = targetFamily;
-            _cachedTrailingMetaSize = targetSize;
-        }
+    /// <summary>Returns a cached solid brush for the given color (mutated in place, never disposed here).</summary>
+    protected SolidBrush GetBrush(Color color)
+    {
+        int argb = color.ToArgb();
+        if (_brushCache.TryGetValue(argb, out var b) && b != null)
+            return b;
+        b = new SolidBrush(color);
+        _brushCache[argb] = b;
+        return b;
+    }
 
-        return _cachedTrailingMetaFont;
+    /// <summary>Returns a cached pen for the given color/width (never disposed here).</summary>
+    protected Pen GetPen(Color color, float width = 1f)
+    {
+        width = Math.Max(0.5f, width);
+        var key = (color.ToArgb(), width);
+        if (_penCache.TryGetValue(key, out var p) && p != null)
+            return p;
+        p = new Pen(color, width);
+        _penCache[key] = p;
+        return p;
     }
         
         public virtual void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
@@ -86,10 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
             // Clear the drawing area with background color
-            using (var clearBrush = new SolidBrush(_theme?.BackgroundColor ?? ColorUtils.MapSystemColor(SystemColors.Window)))
-            {
-                g.FillRectangle(clearBrush, drawingRect);
-            }
+            g.FillRectangle(GetBrush(_theme?.BackgroundColor ?? ColorUtils.MapSystemColor(SystemColors.Window)), drawingRect);
             
             // Get layout and items
             var items = _helper.GetVisibleItems();
@@ -132,21 +156,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillEllipse(brush, iconRect);
             }
 
-            // Draw text (use TextFont from theme, fallback to _owner.TextFont)
+            // Draw text (use TextFont from theme, fallback to a cached derived font)
             var textRect = new Rectangle(rect.Left + v8, iconRect.Bottom + v8, rect.Width - v16, v36);
-            var fontToUse = TextFont ?? BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(10, _owner.TextFont.Size - 1f), FontStyle.Regular);
-            try
-            {
-                using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near })
-                using (var brush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray))
-                {
-                    g.DrawString(text, fontToUse, brush, textRect, sf);
-                }
-            }
-            finally
-            {
-                if (fontToUse != TextFont) fontToUse?.Dispose();
-            }
+            var fontToUse = TextFont ?? GetCachedFont(Math.Max(10f, _owner.TextFont.Size - 1f));
+            TextRenderer.DrawText(g, text, fontToUse, textRect,
+                _theme?.ListForeColor ?? Color.Gray,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.WordEllipsis | TextFormatFlags.NoPrefix);
         }
         
         public virtual int GetPreferredItemHeight()
@@ -278,29 +293,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             try
             {
                 var clientArea = _owner.GetClientArea();
-                var ownerVirt = new Size();
-                ownerVirt = new Size(_owner.Width, _owner.PreferredItemHeight * items.Count);
-                if (clientArea.Height > 0 && ownerVirt.Height > clientArea.Height)
+                // Use the real virtual height (accounts for AutoItemHeight / rich rows),
+                // not an estimate of PreferredItemHeight * count.
+                int virtualHeight = _owner.VirtualSize.Height;
+                if (clientArea.Height > 0 && virtualHeight > clientArea.Height)
                 {
                     int v120 = DpiScalingHelper.ScaleValue(120, _owner);
                     int v26 = DpiScalingHelper.ScaleValue(26, _owner);
                     int v110 = DpiScalingHelper.ScaleValue(110, _owner);
                     int v20 = DpiScalingHelper.ScaleValue(20, _owner);
-                    var hintFont = TextFont ?? BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(8, _owner.TextFont.Size - 2), FontStyle.Regular);
-                    try
-                    {
-                        using (var sf = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far })
-                        using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.ListForeColor ?? Color.Empty, 140)))
-                        {
-                            var hint = "PgUp / PgDn";
-                            var hintRect = new Rectangle(drawingRect.Right - v120, drawingRect.Bottom - v26, v110, v20);
-                            g.DrawString(hint, hintFont, brush, hintRect, sf);
-                        }
-                    }
-                    finally
-                    {
-                        if (hintFont != TextFont) hintFont?.Dispose();
-                    }
+                    var hintFont = TextFont ?? GetCachedFont(Math.Max(8f, _owner.TextFont.Size - 2f));
+                    var hint = "PgUp / PgDn";
+                    var hintRect = new Rectangle(drawingRect.Right - v120, drawingRect.Bottom - v26, v110, v20);
+                    TextRenderer.DrawText(g, hint, hintFont, hintRect,
+                        PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.ListForeColor ?? Color.Empty, 140),
+                        TextFormatFlags.Right | TextFormatFlags.Bottom | TextFormatFlags.NoPrefix);
                 }
             }
             catch { }
@@ -340,49 +347,46 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             catch
             {
-                // Fallback: draw a placeholder
+                // Fallback: draw a placeholder (translucent gray dot — intentional alpha overlay)
                 int inflate = DpiScalingHelper.ScaleValue(4, _owner);
-                using (var brush = new SolidBrush(Color.FromArgb(150, Color.Gray)))
-                {
-                    var smallRect = imageRect;
-                    smallRect.Inflate(-inflate, -inflate);
-                    g.FillEllipse(brush, smallRect);
-                }
+                var smallRect = imageRect;
+                smallRect.Inflate(-inflate, -inflate);
+                g.FillEllipse(GetBrush(Color.FromArgb(150, Color.Gray)), smallRect);
             }
         }
         
         protected virtual void DrawCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isHovered)
         {
-            // Draw checkbox background
-            Color bgColor = isHovered ? Color.FromArgb(240, 240, 240) : Color.White;
-            using (var brush = new SolidBrush(bgColor))
+            // Theme-driven colors with fallback chains (Phase 9: no hardcoded RGB)
+            Color bgColor = isHovered
+                ? (_theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240))
+                : (_theme?.BackgroundColor ?? Color.White);
+            Color accent = _theme?.PrimaryColor ?? Color.Blue;
+            Color borderColor = isChecked ? accent : (_theme?.BorderColor ?? Color.Gray);
+
+            // High-contrast override
+            if (_owner != null && _owner.IsHighContrast)
             {
-                g.FillRectangle(brush, checkboxRect);
+                bgColor = ColorUtils.MapSystemColor(SystemColors.Window);
+                borderColor = ColorUtils.MapSystemColor(SystemColors.WindowText);
+                accent = ColorUtils.MapSystemColor(SystemColors.Highlight);
             }
-            
-            // Draw checkbox border
-            Color borderColor = isChecked ? (_theme?.PrimaryColor ?? Color.Blue) : Color.Gray;
-            using (var pen = new Pen(borderColor, 1.5f))
-            {
-                g.DrawRectangle(pen, checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
-            }
-            
+
+            g.FillRectangle(GetBrush(bgColor), checkboxRect);
+            g.DrawRectangle(GetPen(borderColor, 1.5f), checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
+
             // Draw checkmark if checked
             if (isChecked)
             {
                 int ck3 = DpiScalingHelper.ScaleValue(3, _owner);
                 int ck4 = DpiScalingHelper.ScaleValue(4, _owner);
-                using (var pen = new Pen(_theme?.PrimaryColor ?? Color.Blue, 2f))
+                Point[] checkPoints =
                 {
-                    // Draw checkmark
-                    Point[] checkPoints = new Point[]
-                    {
-                        new Point(checkboxRect.Left + ck3, checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - ck4),
-                        new Point(checkboxRect.Right - ck3, checkboxRect.Top + ck3)
-                    };
-                    g.DrawLines(pen, checkPoints);
-                }
+                    new Point(checkboxRect.Left + ck3, checkboxRect.Top + checkboxRect.Height / 2),
+                    new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - ck4),
+                    new Point(checkboxRect.Right - ck3, checkboxRect.Top + ck3)
+                };
+                g.DrawLines(GetPen(accent, 2f), checkPoints);
             }
         }
         
@@ -398,10 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 Color primary = _theme?.PrimaryColor ?? Color.Empty;
                 backgroundColor = PathPainterHelpers.WithAlphaIfNotEmpty(primary, 20);
-                using (var pen = new Pen(Color.FromArgb(200, primary), 1.5f))
-                {
-                    g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
-                }
+                g.DrawRectangle(GetPen(Color.FromArgb(200, primary), 1.5f), itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
             }
             else if (hoverProgress > 0f)
             {
@@ -409,10 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 backgroundColor = BlendColors(backgroundColor, hoverColor, hoverProgress);
             }
 
-            using (var brush = new SolidBrush(backgroundColor))
-            {
-                g.FillRectangle(brush, itemRect);
-            }
+            g.FillRectangle(GetBrush(backgroundColor), itemRect);
         }
 
         /// <summary>
@@ -426,10 +424,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // CRITICAL: Always clear the specific item's background first to prevent overlap artifacts
             // This ensures that any previous painting in this rect is completely overwritten
-            using (var clearBrush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
-            {
-                g.FillRectangle(clearBrush, itemRect);
-            }
+            g.FillRectangle(GetBrush(_theme?.BackgroundColor ?? Color.White), itemRect);
 
             // Allow painter-specific background customization via DrawItemBackground override.
             // Called BEFORE selection/hover/focus overlays so the painter provides the base
@@ -450,29 +445,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Use owner-defined selection color or fallback to theme
                 var selColor = (_owner.SelectionBackColor != Color.Empty) ? _owner.SelectionBackColor : (_theme?.PrimaryColor ?? Color.LightBlue);
                 int alpha = Math.Max(0, Math.Min(255, _owner.SelectionOverlayAlpha > 0 ? _owner.SelectionOverlayAlpha : 90));
-                using (var fillBrush = new SolidBrush(Color.FromArgb(alpha, selColor.R, selColor.G, selColor.B)))
-                {
-                    g.FillRectangle(fillBrush, itemRect);
-                }
+                g.FillRectangle(GetBrush(Color.FromArgb(alpha, selColor.R, selColor.G, selColor.B)), itemRect);
 
                 // Draw selection border
                 var borderColor = (_owner.SelectionBorderColor != Color.Empty) ? _owner.SelectionBorderColor : (_theme?.AccentColor ?? Color.Empty);
                 int borderThickness = Math.Max(1, _owner.SelectionBorderThickness);
-                using (var pen = new Pen(borderColor, borderThickness))
-                {
-                    g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
-                }
+                g.DrawRectangle(GetPen(borderColor, borderThickness), itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
 
                 // Focus outline for focused item
                 if (_owner.Focused && _owner.SelectedItem == item)
                 {
                     var focusColor = (_owner.FocusOutlineColor != Color.Empty) ? _owner.FocusOutlineColor : (_theme?.PrimaryColor ?? Color.LightBlue);
                     int focusThickness = Math.Max(1, _owner.FocusOutlineThickness);
-                    using (var penFocus = new Pen(focusColor, focusThickness))
-                    {
-                        // draw a rounded or simple rectangle as focus outline
-                        g.DrawRectangle(penFocus, itemRect.X + 2, itemRect.Y + 2, itemRect.Width - 4, itemRect.Height - 4);
-                    }
+                    g.DrawRectangle(GetPen(focusColor, focusThickness), itemRect.X + 2, itemRect.Y + 2, itemRect.Width - 4, itemRect.Height - 4);
                 }
             }
             else if (hoverProgress > 0f)
@@ -480,10 +465,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Only apply hover overlay if not selected
                 var hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(230, 230, 230);
                 var overlayColor = BlendColors(Color.Transparent, hoverColor, hoverProgress);
-                using (var brush = new SolidBrush(Color.FromArgb((int)(hoverProgress * 60), overlayColor.R, overlayColor.G, overlayColor.B)))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                g.FillRectangle(GetBrush(Color.FromArgb((int)(hoverProgress * 60), overlayColor.R, overlayColor.G, overlayColor.B)), itemRect);
             }
 
             // ── High-contrast override ───────────────────────────────────────────
@@ -492,14 +474,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Color hcBg = _owner.HCItemBackground(isHovered, isSelected);
                 if (hcBg != Color.Empty)
                 {
-                    using var hcBrush = new SolidBrush(hcBg);
-                    g.FillRectangle(hcBrush, itemRect);
+                    g.FillRectangle(GetBrush(hcBg), itemRect);
                 }
                 Color hcBorder = _owner.HCBorderColor;
                 if (isSelected && hcBorder != Color.Empty)
                 {
-                    using var hcPen = new Pen(hcBorder, 2f);
-                    g.DrawRectangle(hcPen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
+                    g.DrawRectangle(GetPen(hcBorder, 2f), itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
                 }
             }
 
@@ -507,8 +487,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (item is BeepListItem ri && ri.IsDisabled)
             {
                 var bg = _theme?.BackgroundColor ?? ColorUtils.MapSystemColor(SystemColors.Window);
-                using var dimBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.DisabledAlpha, bg));
-                g.FillRectangle(dimBrush, itemRect);
+                g.FillRectangle(GetBrush(Color.FromArgb(ListBoxTokens.DisabledAlpha, bg)), itemRect);
             }
         }
 
@@ -571,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw text (use TextFont from theme)
-            Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
+            Color textColor = isSelected ? (_theme?.OnPrimaryColor ?? Color.White) : (_theme?.ListItemForeColor ?? Color.Black);
             var primaryRect = new Rectangle(contentRect.Left, contentRect.Top, Math.Max(0, contentRect.Width - trailingReservation), contentRect.Height);
 
             bool hasSubText = item is BeepListItem richItem2 &&
@@ -621,39 +600,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             string groupKey, bool isCollapsed, int itemCount)
         {
             if (g == null || headerRect.IsEmpty) return;
-            // Background
-            using var bg = new SolidBrush(Color.FromArgb(30, _theme?.PrimaryColor ?? Color.Gray));
-            g.FillRectangle(bg, headerRect);
+            Color accent = _theme?.PrimaryColor ?? Color.Gray;
+            Color foreColor = _theme?.ListForeColor ?? Color.Gray;
 
-            // Bottom border line
-            using var pen = new Pen(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.Gray), 1f);
-            g.DrawLine(pen, headerRect.Left, headerRect.Bottom - 1, headerRect.Right, headerRect.Bottom - 1);
+            // Background + bottom border line (alpha overlays of the theme accent)
+            g.FillRectangle(GetBrush(Color.FromArgb(30, accent)), headerRect);
+            g.DrawLine(GetPen(Color.FromArgb(40, accent), 1f), headerRect.Left, headerRect.Bottom - 1, headerRect.Right, headerRect.Bottom - 1);
 
             int pad     = DpiScalingHelper.ScaleValue(8, owner);
             int chevron = DpiScalingHelper.ScaleValue(10, owner);
 
-            // Chevron: ▶ collapsed, ▼ expanded
+            // Chevron glyph: ▶ collapsed, ▼ expanded
             string ch = isCollapsed ? "▶" : "▼";
-            using var chFont  = new Font(Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f);
-            using var chBrush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray);
+            var chFont = GetCachedFont(7f);
             var chRect = new Rectangle(headerRect.Left + pad, headerRect.Top, chevron, headerRect.Height);
-            g.DrawString(ch, chFont, chBrush,
-                new RectangleF(chRect.X, chRect.Y, chRect.Width, chRect.Height),
-                new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            TextRenderer.DrawText(g, ch, chFont, chRect, foreColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
             // Group label + count
             string label = $"{groupKey}  ({itemCount})";
-            using var lFont  = new Font(owner.Font.FontFamily, Math.Max(8f, owner.Font.Size - 1f), FontStyle.Bold);
-            using var lBrush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray);
+            var lFont = GetCachedFont(Math.Max(8f, owner.Font.Size - 1f), FontStyle.Bold);
             var lRect = new Rectangle(headerRect.Left + pad + chevron + 4, headerRect.Top,
                                       headerRect.Width - pad * 2 - chevron - 4, headerRect.Height);
-            g.DrawString(label, lFont, lBrush, lRect,
-                new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center,
-                                   Trimming = StringTrimming.EllipsisCharacter });
+            TextRenderer.DrawText(g, label, lFont, lRect, foreColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
-
-        // The Font helper below lets DrawGroupHeader compile without a direct field ref
-        private static Font? Font => null;  // placeholders resolved via _owner.TextFont above
 
         // ── Sprint 7: shared decoration helpers ─────────────────────────────────
 
@@ -665,8 +636,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (accentColor == Color.Empty || accentColor.A == 0) return;
             int w = DpiScalingHelper.ScaleValue(ListBoxTokens.PinnedAccentBarWidth, _owner);
-            using var brush = new SolidBrush(accentColor);
-            g.FillRectangle(brush, rowRect.X, rowRect.Y, w, rowRect.Height);
+            g.FillRectangle(GetBrush(accentColor), rowRect.X, rowRect.Y, w, rowRect.Height);
         }
 
         /// <summary>
@@ -679,7 +649,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int size = Math.Min(rect.Width, rect.Height) / 2;
 
             var chevronColor = _helper?.GetTextColor() ?? Color.Gray;
-            using var pen = new Pen(Color.FromArgb(ListBoxTokens.SubTextAlpha, chevronColor), 1.5f);
+            var pen = GetPen(Color.FromArgb(ListBoxTokens.SubTextAlpha, chevronColor), 1.5f);
 
             var oldSmoothing = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -719,7 +689,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (string.IsNullOrEmpty(badgeText)) return;
 
-            using var badgeFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 3f), FontStyle.Bold);
+            var badgeFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 3f), FontStyle.Bold);
             var textSize = TextRenderer.MeasureText(badgeText, badgeFont);
             int r = DpiScalingHelper.ScaleValue(ListBoxTokens.BadgePillRadius, _owner);
             int pad = DpiScalingHelper.ScaleValue(6, _owner);
@@ -732,15 +702,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Fill pill
             var fill = badgeColor == Color.Empty ? (_theme?.PrimaryColor ?? Color.DodgerBlue) : badgeColor;
-            using var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r);
-            using var fillBrush = new SolidBrush(fill);
-            g.FillPath(fillBrush, path);
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r))
+                g.FillPath(GetBrush(fill), path);
 
-            // Badge text (white/auto-contrast)
+            // Badge text (auto-contrast on the pill fill)
             Color textColor = fill.GetBrightness() > 0.55f ? Color.Black : Color.White;
-            using var textBrush = new SolidBrush(textColor);
-            g.DrawString(badgeText, badgeFont, textBrush, pillRect,
-                new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            TextRenderer.DrawText(g, badgeText, badgeFont, pillRect, textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>
@@ -749,10 +717,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected void DrawSubText(Graphics g, Rectangle subRect, string subText, Color color, Font? ownerFont)
         {
             if (string.IsNullOrEmpty(subText) || subRect.IsEmpty) return;
-            using var subFont = new Font(
-                (ownerFont ?? _owner.TextFont).FontFamily,
-                Math.Max(7f, (ownerFont ?? _owner.TextFont).Size - 1.5f),
-                FontStyle.Regular);
+            float baseSize = (ownerFont ?? _owner.TextFont).Size;
+            var subFont = GetCachedFont(Math.Max(7f, baseSize - 1.5f));
             TextRenderer.DrawText(g, subText, subFont, subRect,
                 Color.FromArgb(ListBoxTokens.SubTextAlpha, color),
                 TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
@@ -765,7 +731,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             int midY = rowRect.Top + rowRect.Height / 2;
             var lineColor = Color.FromArgb(60, _theme?.ListForeColor ?? Color.Gray);
-            using var pen = new Pen(lineColor, 1f);
+            var pen = GetPen(lineColor, 1f);
 
             if (string.IsNullOrEmpty(label))
             {
@@ -773,7 +739,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else
             {
-                using var lFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
+                var lFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 2f));
                 var lSize  = TextRenderer.MeasureText(label, lFont);
                 int lX     = rowRect.Left + (rowRect.Width - lSize.Width) / 2;
                 int gapPad = DpiScalingHelper.ScaleValue(4, _owner);
@@ -809,7 +775,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 thickness = ListBoxTokens.FocusRingThickness;
             }
 
-            using var pen = new Pen(ringColor, thickness);
+            var pen = GetPen(ringColor, thickness);
             g.DrawRectangle(pen,
                 rowRect.X + thickness, rowRect.Y + thickness,
                 rowRect.Width - thickness * 2 - 1, rowRect.Height - thickness * 2 - 1);
@@ -848,7 +814,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 DrawInitialsFallback(g, avatarRect, item.Text ?? item.DisplayField);
             }
 
-            using var pen = new Pen(Color.FromArgb(40, 0, 0, 0), 1.5f);
+            // Subtle translucent-black hairline ring around the avatar (alpha overlay, intentional)
+            var pen = GetPen(Color.FromArgb(40, 0, 0, 0), 1.5f);
             g.DrawEllipse(pen, avatarRect);
         }
 
@@ -857,6 +824,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         /// </summary>
         protected void DrawInitialsFallback(Graphics g, Rectangle rect, string name)
         {
+            // Deterministic avatar palette (intentional literal colors — decorative, theme-independent)
             Color[] palette =
             {
                 Color.FromArgb(239, 83, 80),
@@ -868,19 +836,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Color.FromArgb(141, 110, 99),
             };
             int idx = Math.Abs((name ?? "").GetHashCode()) % palette.Length;
-            using var bg = new SolidBrush(palette[idx]);
-            g.FillEllipse(bg, rect);
+            g.FillEllipse(GetBrush(palette[idx]), rect);
 
             string initials = GetInitials(name);
-            using var font = BeepFontManager.GetFont(
-                _owner.TextFont.Name, Math.Max(10f, rect.Height * 0.35f), FontStyle.Bold);
-            using var brush = new SolidBrush(Color.White);
-            using var sf = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
-            };
-            g.DrawString(initials, font, brush, rect, sf);
+            var font = GetCachedFont(Math.Max(10f, rect.Height * 0.35f), FontStyle.Bold);
+            TextRenderer.DrawText(g, initials, font, rect, Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         #endregion

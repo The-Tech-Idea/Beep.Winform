@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
@@ -67,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215))
                 : (_theme?.BorderColor ?? Color.FromArgb(200, 200, 200));
 
-            using (var pen = new Pen(lineColor, _lineWidth))
+            var pen = GetPen(lineColor, _lineWidth);
             {
                 // Draw line above node (unless first item)
                 if (!isFirst)
@@ -109,15 +110,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw node circle
-            using (var brush = new SolidBrush(nodeColor))
-            {
-                g.FillEllipse(brush, nodeRect);
-            }
+            g.FillEllipse(GetBrush(nodeColor), nodeRect);
 
-            using (var pen = new Pen(borderColor, 2f))
-            {
-                g.DrawEllipse(pen, nodeRect);
-            }
+            g.DrawEllipse(GetPen(borderColor, 2f), nodeRect);
 
             // Draw icon inside node if available
             if (!string.IsNullOrEmpty(item.ImagePath))
@@ -128,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else if (isSelected)
             {
                 // Draw checkmark for selected items
-                using (var pen = new Pen(Color.White, 2f))
+                using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
                 {
                     pen.StartCap = LineCap.Round;
                     pen.EndCap = LineCap.Round;
@@ -163,18 +158,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     bgColor = _theme?.BackgroundColor ?? Color.White;
                 }
 
-                using (var brush = new SolidBrush(bgColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(bgColor), path);
 
                 // Border
                 if (!isSelected)
                 {
-                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), path);
                 }
 
                 // Arrow pointing to timeline
@@ -192,15 +181,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     ? Color.FromArgb(200, 255, 255, 255) 
                     : (_theme?.DisabledForeColor ?? Color.FromArgb(140, 140, 140));
                 
-                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 2, FontStyle.Regular))
-                {
-                    var timeRect = new Rectangle(contentRect.Right - Scale(80), contentRect.Y + Scale(6), Scale(70), Scale(16));
-                    using (var sf = new StringFormat { Alignment = StringAlignment.Far })
-                    {
-                        using var timeBrush = new SolidBrush(timeColor);
-                        g.DrawString(item.SubText2, smallFont, timeBrush, timeRect, sf);
-                    }
-                }
+                var smallFont = GetCachedFont(_owner.TextFont.Size - 2, FontStyle.Regular);
+                var timeRect = new Rectangle(contentRect.Right - Scale(80), contentRect.Y + Scale(6), Scale(70), Scale(16));
+                TextRenderer.DrawText(g, item.SubText2, smallFont, timeRect, timeColor,
+                    TextFormatFlags.Right | TextFormatFlags.Top | TextFormatFlags.NoPrefix);
                 textWidth -= Scale(80);
             }
 
@@ -210,10 +194,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? Color.White 
                 : (_theme?.ListItemForeColor ?? Color.FromArgb(30, 30, 30));
             
-            using (var boldFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold))
-            {
-                DrawItemText(g, titleRect, item.Text ?? item.DisplayField, titleColor, boldFont);
-            }
+            var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
+            DrawItemText(g, titleRect, item.Text ?? item.DisplayField, titleColor, boldFont);
 
             // Description (SubText)
             if (!string.IsNullOrEmpty(item.SubText))
@@ -223,10 +205,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     ? Color.FromArgb(220, 255, 255, 255) 
                     : (_theme?.DisabledForeColor ?? Color.FromArgb(100, 100, 100));
                 
-                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
-                {
-                    DrawItemText(g, descRect, item.SubText, descColor, smallFont);
-                }
+                var smallFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
+                DrawItemText(g, descRect, item.SubText, descColor, smallFont);
             }
         }
 
@@ -246,19 +226,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215))
                 : (_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White);
 
-            using (var brush = new SolidBrush(arrowColor))
-            {
-                g.FillPolygon(brush, arrowPoints);
-            }
+            g.FillPolygon(GetBrush(arrowColor), arrowPoints);
 
             // Arrow border (only if not selected)
             if (!isSelected)
             {
-                using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
-                {
-                    g.DrawLine(pen, arrowPoints[1], arrowPoints[0]);
-                    g.DrawLine(pen, arrowPoints[0], arrowPoints[2]);
-                }
+                var pen = GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f);
+                g.DrawLine(pen, arrowPoints[1], arrowPoints[0]);
+                g.DrawLine(pen, arrowPoints[0], arrowPoints[2]);
             }
         }
 

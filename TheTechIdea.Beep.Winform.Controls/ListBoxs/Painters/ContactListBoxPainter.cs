@@ -52,8 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Line 1: Name (bold)
             var nameRect = new Rectangle(textX, startY, textW, lineH);
-            using var boldFont = BeepFontManager.GetFont(
-                _owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold);
+            var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, nameRect, item.Text ?? item.DisplayField, primaryFg, boldFont);
 
             // Line 2: Role / Title (SubText, secondary)
@@ -68,8 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 int line3Y = nameRect.Bottom + (string.IsNullOrEmpty(item.SubText) ? 0 : lineH);
                 var emailRect = new Rectangle(textX, line3Y, textW, lineH);
-                using var smallFont = BeepFontManager.GetFont(
-                    _owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
+                var smallFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
                 DrawItemText(g, emailRect, item.SubText2, tertiaryFg, smallFont);
             }
         }

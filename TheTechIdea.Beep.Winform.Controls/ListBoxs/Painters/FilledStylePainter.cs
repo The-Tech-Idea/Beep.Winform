@@ -72,10 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Gray)), path);
                 }
             }
         }
@@ -83,30 +80,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawWhiteCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked)
         {
             // Draw white checkbox on blue background
-            using (var brush = new SolidBrush(Color.White))
-            {
-                g.FillRectangle(brush, checkboxRect);
-            }
-            
+            g.FillRectangle(GetBrush(Color.White), checkboxRect);
+
             // Draw border
-            using (var pen = new Pen(Color.White, 1.5f))
-            {
-                g.DrawRectangle(pen, checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
-            }
-            
+            g.DrawRectangle(GetPen(Color.White, 1.5f), checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
+
             // Draw checkmark if checked
             if (isChecked)
             {
-                using (var pen = new Pen(Color.FromArgb(74, 144, 226), Scale(2)))
+                Point[] checkPoints = new Point[]
                 {
-                    Point[] checkPoints = new Point[]
-                    {
-                        new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - Scale(1), checkboxRect.Bottom - Scale(4)),
-                        new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
-                    };
-                    g.DrawLines(pen, checkPoints);
-                }
+                    new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
+                    new Point(checkboxRect.Left + checkboxRect.Width / 2 - Scale(1), checkboxRect.Bottom - Scale(4)),
+                    new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
+                };
+                g.DrawLines(GetPen(Color.FromArgb(74, 144, 226), Scale(2)), checkPoints);
             }
         }
         

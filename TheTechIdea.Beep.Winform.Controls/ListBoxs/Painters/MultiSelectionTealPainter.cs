@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw description text if available
             if (!string.IsNullOrEmpty(item.Description))
             {
-                Font smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+                Font smallFont = GetCachedFont(_owner.TextFont.Size - 1);
                 Rectangle descRect = new Rectangle(currentX, rect.Y + rect.Height / 2 + Scale(2), rect.Right - currentX - Scale(12), rect.Height / 2 - Scale(4));
                 Color descColor = Color.FromArgb(100, 120, 130);
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
@@ -70,10 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add subtle shadow for selected items
                 if (isSelected)
                 {
-                    using (var shadowBrush = new SolidBrush(Color.FromArgb(50, Color.Black)))
-                    {
-                        g.FillPath(shadowBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Black)), path);
                 }
             }
         }
@@ -84,30 +81,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Draw background
             Color bgColor = isChecked ? tealColor : Color.White;
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, checkboxRect);
-            }
-            
+            g.FillRectangle(GetBrush(bgColor), checkboxRect);
+
             // Draw border
-            using (var pen = new Pen(tealColor, 1.5f))
-            {
-                g.DrawRectangle(pen, checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
-            }
-            
+            g.DrawRectangle(GetPen(tealColor, 1.5f), checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
+
             // Draw checkmark if checked
             if (isChecked)
             {
-                using (var pen = new Pen(Color.White, 2f))
+                var checkPen = GetPen(Color.White, 2f);
+                Point[] checkPoints = new Point[]
                 {
-                    Point[] checkPoints = new Point[]
-                    {
-                        new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - Scale(4)),
-                        new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
-                    };
-                    g.DrawLines(pen, checkPoints);
-                }
+                    new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
+                    new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - Scale(4)),
+                    new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
+                };
+                g.DrawLines(checkPen, checkPoints);
             }
         }
         

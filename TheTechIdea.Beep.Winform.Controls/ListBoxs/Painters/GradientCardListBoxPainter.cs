@@ -85,10 +85,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
-                using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
-                {
-                    DrawItemText(g, subRect, item.SubText, subColor, subFont);
-                }
+                var subFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
+                DrawItemText(g, subRect, item.SubText, subColor, subFont);
             }
         }
 
@@ -126,24 +124,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover border
-                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, palette[0]), 1.5f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, palette[0]), 1.5f), path);
                 }
                 else
                 {
                     // Default: subtle background
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White), path);
 
                     // Subtle border
-                    using (var pen = new Pen(Color.FromArgb(40, 0, 0, 0), 0.5f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(Color.FromArgb(40, 0, 0, 0), 0.5f), path);
                 }
             }
         }
@@ -155,9 +144,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 var glowRect = Rectangle.Inflate(cardRect, i, i);
                 using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glowRect, new CornerRadius(Scale(_cornerRadius) + i)))
-                using (var pen = new Pen(Color.FromArgb(20 * (4 - i), glowColor), 1f))
                 {
-                    g.DrawPath(pen, path);
+                    g.DrawPath(GetPen(Color.FromArgb(20 * (4 - i), glowColor), 1f), path);
                 }
             }
         }
@@ -166,12 +154,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Draw circular background
             var circleRect = iconRect;
-            using (var brush = new SolidBrush(isSelected 
+            g.FillEllipse(GetBrush(isSelected
                 ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)))
-            {
-                g.FillEllipse(brush, circleRect);
-            }
+                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)), circleRect);
 
             // Draw icon using StyledImagePainter circular rendering
             float cx = circleRect.X + circleRect.Width / 2f;
@@ -210,16 +195,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
                 else
                 {
-                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
-                        _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
-                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
+                        _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)), path);
+                    g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
+                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f), path);
                 }
             }
         }

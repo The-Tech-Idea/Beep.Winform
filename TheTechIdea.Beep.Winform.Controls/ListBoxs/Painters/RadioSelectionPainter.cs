@@ -61,33 +61,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Use bold font only when selected; avoid cloning owner's font
             Font mainFont = _owner.TextFont;
-            bool disposeMain = false;
             if (isSelected)
             {
-                mainFont = new Font(_owner.TextFont, FontStyle.Bold);
-                disposeMain = true;
+                mainFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             }
-            try
-            {
-                if (mainRect.Height > 0)
-                    DrawItemText(g, mainRect, item.Text, mainColor, mainFont);
-            }
-            finally
-            {
-                if (disposeMain) mainFont.Dispose();
-            }
+            if (mainRect.Height > 0)
+                DrawItemText(g, mainRect, item.Text, mainColor, mainFont);
 
             if (hasDesc && descRect.Height > 0)
             {
-                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(Scale(6), _owner.TextFont.Size - 1)))
-                {
-                    Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
-                    Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
-                    Color disabledColor = Color.FromArgb(180, 180, 180);
-                    Color descColor = isSelected ? Color.FromArgb(220, onPrimary) : (disabled ? disabledColor : secondary);
-                    System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
-                        System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top | System.Windows.Forms.TextFormatFlags.EndEllipsis);
-                }
+                var smallFont = GetCachedFont(Math.Max(Scale(6), _owner.TextFont.Size - 1));
+                Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
+                Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
+                Color disabledColor = Color.FromArgb(180, 180, 180);
+                Color descColor = isSelected ? Color.FromArgb(220, onPrimary) : (disabled ? disabledColor : secondary);
+                System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
+                    System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top | System.Windows.Forms.TextFormatFlags.EndEllipsis);
             }
 
             // Right-aligned radio control
@@ -106,10 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle shadow
                 if (isHovered && !isSelected)
                 {
-                    using (var hoverBrush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 30)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 30)), path);
                 }
             }
         }
@@ -125,14 +111,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty)
                                              : (_theme?.BorderColor ?? Color.FromArgb(180, 180, 180));
 
-            using (var brush = new SolidBrush(outerFill))
-            {
-                g.FillEllipse(brush, radioRect);
-            }
-            using (var pen = new Pen(borderColor, Scale(2)))
-            {
-                g.DrawEllipse(pen, radioRect.X + Scale(1), radioRect.Y + Scale(1), radioRect.Width - Scale(3), radioRect.Height - Scale(3));
-            }
+            g.FillEllipse(GetBrush(outerFill), radioRect);
+            g.DrawEllipse(GetPen(borderColor, Scale(2)), radioRect.X + Scale(1), radioRect.Y + Scale(1), radioRect.Width - Scale(3), radioRect.Height - Scale(3));
 
             // Inner dot when selected
             if (isSelected)
@@ -143,10 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Color dotColor = isDisabled
                     ? Color.FromArgb(180, 180, 180)
                     : (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty);
-                using (var brush = new SolidBrush(dotColor))
-                {
-                    g.FillEllipse(brush, innerRect);
-                }
+                g.FillEllipse(GetBrush(dotColor), innerRect);
             }
         }
         

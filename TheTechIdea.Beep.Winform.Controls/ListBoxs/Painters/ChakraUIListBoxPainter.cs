@@ -33,11 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
-                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
+                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue)), path);
                 }
 
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
@@ -76,19 +73,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var outerRect = contentBounds;
                     outerRect.Inflate(Scale(3), Scale(3));
                     using (var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(outerRect, new CornerRadius(Scale(9))))
-                    using (var outerPen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
-                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue), Scale(4)))
                     {
-                        g.DrawPath(outerPen, outerPath);
+                        g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
+                            _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue), Scale(4)), outerPath);
                     }
 
                     // Inner ring (focus ring)
                     var innerRect = contentBounds;
                     innerRect.Inflate(Scale(1), Scale(1));
                     using (var innerPath = GraphicsExtensions.CreateRoundedRectanglePath(innerRect, new CornerRadius(Scale(7))))
-                    using (var innerPen = new Pen(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue, 2))
                     {
-                        g.DrawPath(innerPen, innerPath);
+                        g.DrawPath(GetPen(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue, 2), innerPath);
                     }
                 }
 
@@ -126,9 +121,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     // Rounded background for checkmark
                     using (var checkBgPath = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, Scale(4)))
-                    using (var checkBgBrush = new SolidBrush(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue))
                     {
-                        g.FillPath(checkBgBrush, checkBgPath);
+                        g.FillPath(GetBrush(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue), checkBgPath);
                     }
 
                     // Draw checkmark
@@ -163,19 +157,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     ? (_theme?.OnPrimaryColor ?? Color.White)
                     : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
                 
-                using (var textBrush = new SolidBrush(textColor))
-                using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
-                {
-                    var sf = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    };
-
-                    g.DrawString(item.Text ?? string.Empty, font, textBrush, textRect, sf);
-                }
+                var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
+                TextRenderer.DrawText(g, item.Text ?? string.Empty, font, textRect, textColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
 
                 // STEP 6: Draw description with Chakra's muted text
                 if (!string.IsNullOrEmpty(item.Description))
@@ -190,57 +174,36 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     Color descColor = Color.FromArgb(ListBoxTokens.SubTextAlpha,
                         _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Gray);
-                    using (var descBrush = new SolidBrush(descColor))
-                    using (var descFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
-                    {
-                        var sf = new StringFormat
-                        {
-                            Alignment = StringAlignment.Near,
-                            LineAlignment = StringAlignment.Near,
-                            Trimming = StringTrimming.EllipsisCharacter
-                        };
-
-                        g.DrawString(item.Description, descFont, descBrush, descRect, sf);
-                    }
+                    var descFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
+                    TextRenderer.DrawText(g, item.Description, descFont, descRect, descColor,
+                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
                 }
 
                 // STEP 7: Draw keyboard shortcut/badge (right aligned)
                 if (item.Tag != null && item.Tag is string shortcut && !string.IsNullOrEmpty(shortcut))
                 {
-                    using (var badgeFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1.5f, FontStyle.Regular))
+                    var badgeFont = GetCachedFont(_owner.TextFont.Size - 1.5f, FontStyle.Regular);
+                    var badgeSize = TextUtils.MeasureText(g, shortcut, badgeFont);
+                    var badgeRect = new Rectangle(
+                        contentBounds.Right - (int)badgeSize.Width - Scale(24),
+                        contentBounds.Y + (contentBounds.Height - (int)badgeSize.Height - Scale(4)) / 2,
+                        (int)badgeSize.Width + Scale(12),
+                        (int)badgeSize.Height + Scale(4)
+                    );
+
+                    // Chakra badge styling
+                    using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(3)))
                     {
-                        var badgeSize = TextUtils.MeasureText(g, shortcut, badgeFont);
-                        var badgeRect = new Rectangle(
-                            contentBounds.Right - (int)badgeSize.Width - Scale(24),
-                            contentBounds.Y + (contentBounds.Height - (int)badgeSize.Height - Scale(4)) / 2,
-                            (int)badgeSize.Width + Scale(12),
-                            (int)badgeSize.Height + Scale(4)
-                        );
-
-                        // Chakra badge styling
-                        using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(3)))
-                        {
-                            Color badgeBgColor = _theme?.ListItemHoverBackColor
-                                ?? _theme?.BackgroundColor
-                                ?? Color.FromArgb(237, 242, 247);
-                            using (var badgeBgBrush = new SolidBrush(badgeBgColor))
-                            {
-                                g.FillPath(badgeBgBrush, badgePath);
-                            }
-                        }
-
-                        // Badge text
-                        Color badgeTextColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Gray;
-                        using (var badgeTextBrush = new SolidBrush(badgeTextColor))
-                        {
-                            var sf = new StringFormat
-                            {
-                                Alignment = StringAlignment.Center,
-                                LineAlignment = StringAlignment.Center
-                            };
-                            g.DrawString(shortcut, badgeFont, badgeTextBrush, badgeRect, sf);
-                        }
+                        Color badgeBgColor = _theme?.ListItemHoverBackColor
+                            ?? _theme?.BackgroundColor
+                            ?? Color.FromArgb(237, 242, 247);
+                        g.FillPath(GetBrush(badgeBgColor), badgePath);
                     }
+
+                    // Badge text
+                    Color badgeTextColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Gray;
+                    TextRenderer.DrawText(g, shortcut, badgeFont, badgeRect, badgeTextColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally

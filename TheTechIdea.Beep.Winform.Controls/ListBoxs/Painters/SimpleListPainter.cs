@@ -27,11 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw selection indicator on left
             if (isSelected)
             {
-                using (var brush = new SolidBrush(_theme?.PrimaryColor ?? Color.DodgerBlue))
-                {
-                    Rectangle indicator = new Rectangle(itemRect.Left, itemRect.Top, Scale(4), itemRect.Height);
-                    g.FillRectangle(brush, indicator);
-                }
+                Rectangle indicator = new Rectangle(itemRect.Left, itemRect.Top, Scale(4), itemRect.Height);
+                g.FillRectangle(GetBrush(_theme?.PrimaryColor ?? Color.DodgerBlue), indicator);
             }
         }
         
@@ -44,18 +41,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     var selColor = _theme?.PrimaryColor ?? Color.DodgerBlue;
-                    
+
                     // Subtle background fill
-                    using (var brush = new SolidBrush(Color.FromArgb(15, selColor.R, selColor.G, selColor.B)))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(15, selColor.R, selColor.G, selColor.B)), path);
 
                     // Selection border
-                    using (var pen = new Pen(selColor, 2f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(selColor, 2f), path);
                 }
                 else if (isHovered)
                 {
@@ -69,23 +60,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         g.FillPath(hoverBrush, path);
                     }
 
-                    using (var pen = new Pen(_theme?.AccentColor ?? Color.LightGray, 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.LightGray, 1f), path);
                 }
                 else
                 {
                     // Normal state - subtle border only
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? Color.White), path);
 
-                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f), path);
                 }
             }
         }

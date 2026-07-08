@@ -77,10 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add shadow for selected items
                 if (isSelected)
                 {
-                    using (var shadowBrush = new SolidBrush(Color.FromArgb(50, Color.Black)))
-                    {
-                        g.FillPath(shadowBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Black)), path);
                 }
             }
         }

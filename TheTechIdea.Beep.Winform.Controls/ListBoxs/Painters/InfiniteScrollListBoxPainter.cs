@@ -39,25 +39,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int rowH = DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightCompact, owner);
             _sentinelRect = new Rectangle(drawingRect.Left, drawingRect.Bottom - rowH, drawingRect.Width, rowH);
 
-            using var pen = new Pen(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.Gray), 1f);
-            g.DrawLine(pen, _sentinelRect.Left, _sentinelRect.Top, _sentinelRect.Right, _sentinelRect.Top);
+            g.DrawLine(GetPen(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.Gray), 1f), _sentinelRect.Left, _sentinelRect.Top, _sentinelRect.Right, _sentinelRect.Top);
 
             var mp = owner.PointToClient(System.Windows.Forms.Control.MousePosition);
             bool hovered = _sentinelRect.Contains(mp);
             if (hovered)
             {
-                using var hb = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
-                    _theme?.PrimaryColor ?? Color.DodgerBlue));
-                g.FillRectangle(hb, _sentinelRect);
+                g.FillRectangle(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
+                    _theme?.PrimaryColor ?? Color.DodgerBlue)), _sentinelRect);
             }
 
             string text = SentinelText;
-            using var font  = new Font(owner.Font.FontFamily, owner.Font.Size, FontStyle.Regular);
-            using var brush = new SolidBrush(hovered
+            var font = GetCachedFont(owner.Font.Size, FontStyle.Regular);
+            Color textColor = hovered
                 ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
-                : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray));
-            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(text, font, brush, _sentinelRect, sf);
+                : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray);
+            System.Windows.Forms.TextRenderer.DrawText(g, text, font, _sentinelRect, textColor,
+                System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter | System.Windows.Forms.TextFormatFlags.NoPrefix);
         }
 
         public override bool SupportsSearch() => false;

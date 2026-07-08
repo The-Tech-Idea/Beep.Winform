@@ -23,51 +23,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
-                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)), path);
 
                     // Thick selection border
-                    using (var pen = new Pen(selColor, Scale(2)))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(selColor, Scale(2)), path);
                 }
                 else if (isHovered)
                 {
                     var hoverColor = _theme?.AccentColor ?? Color.FromArgb(100, 150, 200);
-                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, hoverColor.R, hoverColor.G, hoverColor.B)))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, hoverColor.R, hoverColor.G, hoverColor.B)), path);
 
                     // Hover border with accent color
-                    using (var pen = new Pen(hoverColor, Scale(1)))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(hoverColor, Scale(1)), path);
                 }
                 else
                 {
                     // Normal outlined style - just border
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? Color.White), path);
 
-                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f), path);
                 }
             }
 
             // Draw subtle divider line at bottom
-            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
-            {
-                g.DrawLine(pen, itemRect.Left + inset, itemRect.Bottom - 1, itemRect.Right - inset, itemRect.Bottom - 1);
-            }
+            g.DrawLine(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), itemRect.Left + inset, itemRect.Bottom - 1, itemRect.Right - inset, itemRect.Bottom - 1);
         }
         
         public override System.Windows.Forms.Padding GetPreferredPadding()

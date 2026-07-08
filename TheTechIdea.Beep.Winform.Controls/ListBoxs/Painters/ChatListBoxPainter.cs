@@ -50,24 +50,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Name (bold)
             int nameY = itemRect.Y + Scale(14);
             var nameRect = new Rectangle(contentX, nameY, contentW, Scale(20));
-            using var boldFont = BeepFontManager.GetFont(
-                _owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold);
+            var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, nameRect, item.Text ?? item.DisplayField, primaryFg, boldFont);
 
             // Message preview (SubText)
             if (!string.IsNullOrEmpty(item.SubText))
             {
                 var msgRect = new Rectangle(contentX, nameRect.Bottom + Scale(2), contentW, Scale(18));
-                using var regFont = BeepFontManager.GetFont(
-                    _owner.TextFont.Name, Math.Max(8f, _owner.TextFont.Size - 1.5f), FontStyle.Regular);
+                var regFont = GetCachedFont(Math.Max(8f, _owner.TextFont.Size - 1.5f), FontStyle.Regular);
                 DrawItemText(g, msgRect, item.SubText, secondaryFg, regFont);
             }
 
             // ── Trailing: Time (ShortcutText) ───────────────────────────
             if (!string.IsNullOrEmpty(item.ShortcutText))
             {
-                using var timeFont = BeepFontManager.GetFont(
-                    _owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
+                var timeFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
                 var timeRect = new Rectangle(trailingX, nameY, trailingW, Scale(16));
                 TextRenderer.DrawText(g, item.ShortcutText, timeFont, timeRect, secondaryFg,
                     TextFormatFlags.Right | TextFormatFlags.VerticalCenter |
@@ -86,8 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawUnreadBadge(Graphics g, int areaX, int y, int areaW,
             string text, Color badgeColor)
         {
-            using var font = BeepFontManager.GetFont(
-                _owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 3f), FontStyle.Bold);
+            var font = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 3f), FontStyle.Bold);
             var textSize = TextRenderer.MeasureText(text, font);
             int pad  = Scale(6);
             int pillW = Math.Max(Scale(ListBoxTokens.BadgeMinWidth), textSize.Width + pad);
@@ -100,17 +96,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 : badgeColor;
             int r = Scale(ListBoxTokens.BadgePillRadius);
             using var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r);
-            using var fillBrush = new SolidBrush(fill);
-            g.FillPath(fillBrush, path);
+            g.FillPath(GetBrush(fill), path);
 
             Color textColor = fill.GetBrightness() > 0.55f ? Color.Black : Color.White;
-            using var textBrush = new SolidBrush(textColor);
-            using var sf = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
-            };
-            g.DrawString(text, font, textBrush, pillRect, sf);
+            TextRenderer.DrawText(g, text, font, Rectangle.Round(pillRect), textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         public override bool SupportsCheckboxes() => false;

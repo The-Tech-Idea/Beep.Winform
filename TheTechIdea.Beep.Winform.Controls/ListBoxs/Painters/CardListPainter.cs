@@ -79,10 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Selection border
-                    using (var pen = new Pen(selColor, Scale(3)))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(selColor, Scale(3)), path);
                 }
                 else if (isHovered)
                 {
@@ -98,16 +95,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover background
-                    using (var brush = new SolidBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White), path);
 
                     // Hover border
-                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Blue, Scale(2)))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.Blue, Scale(2)), path);
                 }
                 else
                 {
@@ -123,16 +114,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Card background
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? Color.White), path);
 
                     // Card border
-                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(225, 225, 225), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(225, 225, 225), 1f), path);
                 }
             }
         }

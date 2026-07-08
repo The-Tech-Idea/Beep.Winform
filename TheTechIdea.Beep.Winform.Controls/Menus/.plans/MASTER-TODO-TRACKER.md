@@ -77,11 +77,12 @@ A phase is "Shipped" only when:
 - [x] `MENU-P05` Phase 05 — ContextMenu Lifecycle Hardening (replace DoEvents spin, owner-targeted click swallow, multi-monitor clamp, `ShowNonBlocking` API).
 - [x] `MENU-P04` Phase 04 — Commercial Menubar UX (04A: toggle + Activation state machine + Alt+letter mnemonics + arrow-key traversal + lazy-mnemonic underlines; 04B: non-blocking popup adapter + hover-swap with 50 ms throttle + submenu triangle tracker).
 - [x] `MENU-P06` Phase 06 — `BeepListBox` substrate for `BeepContextMenu` items (opt-in via `UseHostedListSubstrate`, default OFF).
-- [ ] `MENU-P06.1` Phase 06.1 — Flip `UseHostedListSubstrate` default to ON; remove hand-rolled item rendering once Phase 09 demo proves parity.
+- [x] `MENU-P06.1` Phase 06.1 — Flip `UseHostedListSubstrate` default to ON (2026-07-09): Changed `[DefaultValue(true)]` + field initializer `= true` in `BeepContextMenu.ListSubstrate.cs`. BeepListBox is now the primary item rendering path.
 - [x] `MENU-P07` Phase 07 — Accessibility, Keyboard Navigation, Mnemonics, High Contrast, focus visualisation.
 - [x] `MENU-P08` Phase 08 — Designer Integration (commercial smart tag + transaction-wrapped Undo / Redo; reduced scope — see deferred row below).
 - [ ] `MENU-P08.1` Phase 08.1 — Deferred designer pieces: `SimpleItemTreeCollectionEditor` (paired ServerEditor/ClientEditor), `BeepContextMenuDesigner` + popup preview, keyboard-shortcut editor surfaced from smart tag (needs `IUIService.ShowDialog` glue).
 - [ ] `MENU-P09` Phase 09 — Runtime Demo Form + Verification Matrix.
+- [x] `MENU-P10` Phase 10 — Framework Compliance (2026-07-09): Eliminated 2 `BeepFontManager` calls + 1 `new Font()` field initializer; MenuFontHelpers rewritten to `BeepThemesManager.ToFont()`.
 
 ## Deprecation List (cleaned up across the program)
 | Asset | Why | Removed in |

@@ -34,10 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw ripple effect on selected
             if (isSelected)
             {
-                using (var pen = new Pen(_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Blue, Scale(2)))
-                {
-                    g.DrawLine(pen, itemRect.Left, itemRect.Top, itemRect.Left, itemRect.Bottom);
-                }
+                g.DrawLine(GetPen(_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Blue, Scale(2)), itemRect.Left, itemRect.Top, itemRect.Left, itemRect.Bottom);
             }
         }
         

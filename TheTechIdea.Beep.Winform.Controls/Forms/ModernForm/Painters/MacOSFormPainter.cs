@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public CornerRadius GetCornerRadius(BeepiFormPro owner)
         {
-            return new CornerRadius(10);
+            return new CornerRadius(14); // macOS Ventura+: 12-16dp
         }
 
         public AntiAliasMode GetAntiAliasMode(BeepiFormPro owner)

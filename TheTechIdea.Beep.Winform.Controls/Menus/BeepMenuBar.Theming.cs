@@ -16,17 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         public override void ApplyTheme()
         {
-            // Snapshot the current height so an unexpected re-layout cannot
-            // collapse a developer-set height.
-            int savedHeight = Height;
-
-            // CRITICAL: base.ApplyTheme() handles font safety + DPI scaling.
             base.ApplyTheme();
-
-            if (_currentTheme == null)
-                return;
-
-            MenuFontHelpers.ApplyFontTheme(ControlStyle, _currentTheme);
+            if (_currentTheme == null) return;
 
             ForeColor   = MenuThemeHelpers.GetMenuBarForegroundColor(_currentTheme, UseThemeColors);
             BorderColor = MenuThemeHelpers.GetMenuBarBorderColor(_currentTheme, UseThemeColors);

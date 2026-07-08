@@ -346,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set _textFont from theme (fallback remains in field initializer)
             if (_currentTheme != null)
             {
-                var f = BeepFontManager.ToFont(_currentTheme.ListUnSelectedFont);
+                Font f = BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont) ?? SystemFonts.DefaultFont;
                 if (f != null) _textFont = f;
             }
             

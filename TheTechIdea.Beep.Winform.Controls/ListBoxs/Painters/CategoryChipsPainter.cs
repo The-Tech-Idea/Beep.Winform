@@ -40,10 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 yOffset = chipY + Scale(32);
                 
                 // Draw separator line
-                using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
-                {
-                    g.DrawLine(pen, drawingRect.Left, yOffset, drawingRect.Right, yOffset);
-                }
+                g.DrawLine(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), drawingRect.Left, yOffset, drawingRect.Right, yOffset);
                 
                 yOffset += gap;
             }
@@ -96,18 +93,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int xYOff = Scale(6);
             Rectangle xRect = new Rectangle(chipRect.Right - xInset, y + xYOff, xSize, xSize);
             Color closeColor = chipBg.GetBrightness() > 0.6f ? Color.Black : Color.White;
-            using (var pen = new Pen(closeColor, 1.5f))
             {
+                var pen = GetPen(closeColor, 1.5f);
                 g.DrawLine(pen, xRect.Left, xRect.Top, xRect.Right, xRect.Bottom);
                 g.DrawLine(pen, xRect.Right, xRect.Top, xRect.Left, xRect.Bottom);
             }
 
             if (xRect.Contains(_owner.PointToClient(Control.MousePosition)))
             {
-                using (var hoverBrush = new SolidBrush(Color.FromArgb(100, Color.White)))
-                {
-                    g.FillEllipse(hoverBrush, xRect);
-                }
+                g.FillEllipse(GetBrush(Color.FromArgb(100, Color.White)), xRect);
             }
 
             return new Size(chipWidth, chipHeight);

@@ -56,10 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isHovered)
                 {
                     var hoverColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? _theme?.BorderColor ?? Color.Gray;
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)), path);
                 }
             }
         }
@@ -104,30 +101,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Draw checkbox background
             Color bgColor = isChecked ? stateColor : (_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White);
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, checkboxRect);
-            }
-            
+            g.FillRectangle(GetBrush(bgColor), checkboxRect);
+
             // Draw checkbox border
-            using (var pen = new Pen(stateColor, 1.5f))
-            {
-                g.DrawRectangle(pen, checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
-            }
-            
+            g.DrawRectangle(GetPen(stateColor, 1.5f), checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
+
             // Draw checkmark if checked
             if (isChecked)
             {
-                using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
+                Point[] checkPoints = new Point[]
                 {
-                    Point[] checkPoints = new Point[]
-                    {
-                        new Point(checkboxRect.Left + Scale(4), checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(5)),
-                        new Point(checkboxRect.Right - Scale(4), checkboxRect.Top + Scale(4))
-                    };
-                    g.DrawLines(pen, checkPoints);
-                }
+                    new Point(checkboxRect.Left + Scale(4), checkboxRect.Top + checkboxRect.Height / 2),
+                    new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(5)),
+                    new Point(checkboxRect.Right - Scale(4), checkboxRect.Top + Scale(4))
+                };
+                g.DrawLines(GetPen(_theme?.OnPrimaryColor ?? Color.White, 2f), checkPoints);
             }
         }
         
@@ -147,10 +135,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Draw badge background
             Color bgColor = Color.FromArgb(30, badgeColor);
-            using (var brush = new SolidBrush(bgColor))
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, badgeHeight / 2))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(bgColor), path);
             }
             
             // Draw count text

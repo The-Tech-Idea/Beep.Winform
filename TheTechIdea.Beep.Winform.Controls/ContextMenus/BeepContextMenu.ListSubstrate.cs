@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         #region Substrate Fields
 
         private BeepListBox _hostedList;
-        private bool _useHostedListSubstrate; // default false — opt-in
+        private bool _useHostedListSubstrate = true; // Phase 06.1: default ON
         private bool _hostedListWiring;       // guard against re-entrant sync
         private bool _hostedListEventsBound;
 
@@ -48,8 +48,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// Default <c>false</c> for backwards compatibility. See Phase 06 plan.
         /// </summary>
         [Category("Beep")]
-        [Description("Use a hosted BeepListBox as the popup item substrate (opt-in; see Menus Phase 06).")]
-        [DefaultValue(false)]
+        // Phase 06.1: Default ON — BeepListBox substrate is the primary item rendering path
+        [Description("Use a hosted BeepListBox as the popup item substrate. Default ON per Phase 06.1.")]
+        [DefaultValue(true)]
         [Browsable(true)]
         public bool UseHostedListSubstrate
         {

@@ -43,8 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 int inset = Scale(8);
-                using var pen = new Pen(_theme?.AccentColor ?? Color.Blue, Scale(2));
-                g.DrawLine(pen, itemRect.Left + inset, itemRect.Bottom - Scale(2),
+                g.DrawLine(GetPen(_theme?.AccentColor ?? Color.Blue, Scale(2)), itemRect.Left + inset, itemRect.Bottom - Scale(2),
                                 itemRect.Right - inset, itemRect.Bottom - Scale(2));
             }
         }

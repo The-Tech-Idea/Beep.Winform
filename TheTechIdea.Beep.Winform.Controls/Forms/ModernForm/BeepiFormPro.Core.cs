@@ -81,6 +81,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 // Painters are responsible for registering caption, buttons, etc.
                 ActivePainter.CalculateLayoutAndHitAreas(this);
                 layoutSucceeded = true;
+
+                // DL-01: Set form Padding to match ContentRect so DisplayRectangle
+                // returns only the usable content area. Child controls will NOT overlap
+                // the caption bar or borders.
+                var cr = CurrentLayout.ContentRect;
+                if (!cr.IsEmpty && cr.Width > 0 && cr.Height > 0)
+                {
+                    Padding = new Padding(
+                        cr.Left - ClientRectangle.Left,
+                        cr.Top - ClientRectangle.Top,
+                        ClientRectangle.Right - cr.Right,
+                        ClientRectangle.Bottom - cr.Bottom);
+                }
             }
             catch
             {

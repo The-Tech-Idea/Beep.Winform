@@ -53,9 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     
                     // Draw rounded icon background
                     using (var iconPath = GraphicsExtensions.CreateRoundedRectanglePath(iconRect, Scale(4)))
-                    using (var iconBgBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)))
                     {
-                        g.FillPath(iconBgBrush, iconPath);
+                        g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)), iconPath);
                     }
 
                     // Draw icon using StyledImagePainter
@@ -76,53 +75,33 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     : (_theme?.LabelForeColor ?? _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
                 
                 // Main text
-                using (var textBrush = new SolidBrush(textColor))
-                using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
-                {
-                    var sf = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    };
-
-                    g.DrawString(item.Text ?? string.Empty, font, textBrush, textRect, sf);
-                }
+                var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
+                TextRenderer.DrawText(g, item.Text ?? string.Empty, font, textRect, textColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
 
                 // STEP 6: Draw end content (shortcut/badge)
                 if (!string.IsNullOrEmpty(item.Description))
                 {
                     var badgeText = item.Description;
-                    using (var badgeFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
+                    var badgeFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
+                    var badgeSize = TextUtils.MeasureText(g, badgeText, badgeFont);
+                    var badgeRect = new Rectangle(
+                        contentBounds.Right - (int)badgeSize.Width - Scale(20),
+                        contentBounds.Y + (contentBounds.Height - (int)badgeSize.Height) / 2,
+                        (int)badgeSize.Width + Scale(12),
+                        (int)badgeSize.Height + Scale(4)
+                    );
+
+                    // Badge background
+                    using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(4)))
                     {
-                        var badgeSize = TextUtils.MeasureText(g, badgeText, badgeFont);
-                        var badgeRect = new Rectangle(
-                            contentBounds.Right - (int)badgeSize.Width - Scale(20),
-                            contentBounds.Y + (contentBounds.Height - (int)badgeSize.Height) / 2,
-                            (int)badgeSize.Width + Scale(12),
-                            (int)badgeSize.Height + Scale(4)
-                        );
-
-                        // Badge background
-                        using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(4)))
-                        using (var badgeBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, accentColor)))
-                        {
-                            g.FillPath(badgeBrush, badgePath);
-                        }
-
-                        // Badge text
-                        Color badgeColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
-                        using (var badgeTextBrush = new SolidBrush(badgeColor))
-                        {
-                            var sf = new StringFormat
-                            {
-                                Alignment = StringAlignment.Center,
-                                LineAlignment = StringAlignment.Center
-                            };
-                            g.DrawString(badgeText, badgeFont, badgeTextBrush, badgeRect, sf);
-                        }
+                        g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, accentColor)), badgePath);
                     }
+
+                    // Badge text
+                    Color badgeColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
+                    TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect, badgeColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -147,10 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isHovered)
                 {
                     var hoverColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? _theme?.BorderColor ?? Color.Gray;
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)), path);
                 }
             }
         }

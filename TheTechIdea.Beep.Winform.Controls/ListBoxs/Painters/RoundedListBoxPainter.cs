@@ -72,10 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Border
-                    using (var pen = new Pen(selColor, 2.5f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(selColor, 2.5f), path);
                 }
                 else if (isHovered)
                 {
@@ -89,30 +86,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover background
-                    using (var brush = new SolidBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White), path);
 
                     // Hover border
-                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 1.5f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.Gray, 1.5f), path);
                 }
                 else
                 {
                     // Normal rounded style
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? Color.White), path);
 
                     // Subtle border
-                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(210, 210, 210), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(210, 210, 210), 1f), path);
                 }
             }
         }

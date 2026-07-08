@@ -28,44 +28,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
-                
+
                 // Filled background for selected
-                using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                g.FillRectangle(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)), itemRect);
 
                 // Selection border on left side (compact style)
-                using (var brush = new SolidBrush(selColor))
-                {
-                    g.FillRectangle(brush, itemRect.Left, itemRect.Top, Scale(3), itemRect.Height);
-                }
+                g.FillRectangle(GetBrush(selColor), itemRect.Left, itemRect.Top, Scale(3), itemRect.Height);
 
                 // Right subtle border
-                using (var pen = new Pen(selColor, 1f))
-                {
-                    g.DrawLine(pen, itemRect.Left + 1, itemRect.Top, itemRect.Left + 1, itemRect.Bottom);
-                }
+                g.DrawLine(GetPen(selColor, 1f), itemRect.Left + 1, itemRect.Top, itemRect.Left + 1, itemRect.Bottom);
             }
             else if (isHovered)
             {
-                using (var brush = new SolidBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                g.FillRectangle(GetBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White), itemRect);
 
-                using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 1f))
-                {
-                    g.DrawRectangle(pen, itemRect.X, itemRect.Y, itemRect.Width - 1, itemRect.Height - 1);
-                }
+                g.DrawRectangle(GetPen(_theme?.AccentColor ?? Color.Gray, 1f), itemRect.X, itemRect.Y, itemRect.Width - 1, itemRect.Height - 1);
             }
             else
             {
                 // Normal compact style - minimal background
-                using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                g.FillRectangle(GetBrush(_theme?.BackgroundColor ?? Color.White), itemRect);
             }
         }
     }

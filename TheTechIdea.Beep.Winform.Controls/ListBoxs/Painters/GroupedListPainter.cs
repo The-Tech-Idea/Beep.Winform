@@ -68,18 +68,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             
             // Draw group header text
-            using (Font headerFont = new Font(_owner.TextFont, FontStyle.Bold))
-            {
-                Color headerColor = _theme?.SecondaryTextColor ?? _helper.GetTextColor();
-                Rectangle textRect = new Rectangle(rect.X + Scale(12), rect.Y, rect.Width - Scale(12), rect.Height);
-                DrawItemText(g, textRect, item.Text, headerColor, headerFont);
-            }
-            
+            Font headerFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
+            Color headerColor = _theme?.SecondaryTextColor ?? _helper.GetTextColor();
+            Rectangle textRect = new Rectangle(rect.X + Scale(12), rect.Y, rect.Width - Scale(12), rect.Height);
+            DrawItemText(g, textRect, item.Text, headerColor, headerFont);
+
             // Draw divider line
-            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
-            {
-                g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
-            }
+            g.DrawLine(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
         }
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -91,10 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Gray)), path);
                 }
             }
         }

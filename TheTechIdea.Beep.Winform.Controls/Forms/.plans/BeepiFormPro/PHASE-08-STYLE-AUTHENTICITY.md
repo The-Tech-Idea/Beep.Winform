@@ -78,3 +78,32 @@ Audit Dracula, OneDark, Nord, Tokyo, Solarized, GruvBox for correct palette colo
 - [ ] macOS has traffic-light buttons
 - [ ] Terminal has monospace + scan lines
 - [ ] `dotnet build` — 0 errors
+
+## Audit Results (2026-07-09)
+
+### Category A — AUTHENTIC ✅ (18 painters)
+NeoMorphism, Neon, Cyberpunk, Holographic, Dracula, OneDark, Nord, Tokyo, Ubuntu, GNOME, KDE, Glassmorphism, Brutalist, Minimal, Custom, Cartoon, ChatBubble, Retro, Solarized, GruvBox, Terminal, Paper, ArcLinux, Metro2
+
+### Category B — PARTIALLY AUTHENTIC ⚠️ (5 painters)
+
+| Painter | Key Issues |
+|---|---|
+| **MaterialFormPainter** | Corner radius 12 (should be 16-28). Black elevation overlay instead of tonal primary-color tint. No tonal color roles. 6px vertical accent bar is NOT Material pattern. Shadow doesn't match MD3 elevation levels |
+| **MaterialYouFormPainter** | Same issues as Material. Animations disabled (should be enabled for Material You) |
+| **FluentFormPainter** | Reveal highlight is static (should follow cursor). Acrylic is approximated by noise (GDI+ limitation). Buttons are over-designed. Shadow too subtle. No Segoe UI Variable |
+| **MacOSFormPainter** | Shadow too subtle (blur 18 vs macOS ~40). Corner radius 10 (should be 12-16). Border too visible. Caption gradient is painted, not translucent |
+| **iOSFormPainter** | **Traffic-light buttons are macOS, NOT iOS**. iOS uses navigation bar with back-chevron, not window buttons. No SF typography |
+
+### Category C — COLOR SWAP ONLY ❌ (0 painters)
+All painters have at least some style-specific rendering beyond color changes.
+
+### Critical Fixes
+
+| Priority | Painter | Fix |
+|---|---|---|
+| P0 | **iOSFormPainter** | Remove traffic-light buttons. Add iOS-style navigation bar with back-chevron |
+| P1 | **MaterialFormPainter** | Bump corner radius to 16. Replace black overlay with primary-color tonal elevation. Remove accent bar |
+| P1 | **MaterialYouFormPainter** | Same as Material. Enable animations |
+| P1 | **FluentFormPainter** | Make reveal highlight cursor-following. Simplify buttons. Enlarge shadow |
+| P2 | **MacOSFormPainter** | Enlarge shadow. Reduce border alpha. Bump corner radius |
+| P2 | **GlassFormPainter** | Reuse cached noise from Fluent. Add tint layer |

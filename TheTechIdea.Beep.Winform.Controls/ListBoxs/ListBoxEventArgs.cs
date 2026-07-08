@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
 {
@@ -121,9 +122,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
     {
         public int Index { get; }
         public SimpleItem? Item { get; }
-        public ContextMenuStrip Menu { get; }
+        public BeepContextMenu Menu { get; }
         public bool Cancel { get; set; }
-        public ListBoxContextMenuEventArgs(int index, SimpleItem? item, ContextMenuStrip menu)
+        public ListBoxContextMenuEventArgs(int index, SimpleItem? item, BeepContextMenu menu)
         { Index = index; Item = item; Menu = menu; }
     }
 

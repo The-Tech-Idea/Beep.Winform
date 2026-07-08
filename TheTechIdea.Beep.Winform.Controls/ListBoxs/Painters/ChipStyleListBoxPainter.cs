@@ -72,10 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? (_theme?.OnPrimaryColor ?? Color.White)
                 : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(60, 60, 60));
             
-            using (var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center })
-            {
-                g.DrawString(item.Text ?? item.DisplayField, _owner.TextFont, new SolidBrush(textColor), textRect, sf);
-            }
+            System.Windows.Forms.TextRenderer.DrawText(g, item.Text ?? item.DisplayField, _owner.TextFont, textRect, textColor,
+                System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter | System.Windows.Forms.TextFormatFlags.NoPrefix);
 
             // Close button (X) for selected chips
             if (isSelected && _owner.SelectionMode != SelectionModeEnum.Single)
@@ -93,10 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Selected: solid accent color
                     var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
-                    using (var brush = new SolidBrush(accentColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(accentColor), path);
 
                     // Subtle inner highlight
                     var highlightRect = new Rectangle(chipRect.X, chipRect.Y, chipRect.Width, chipRect.Height / 2);
@@ -113,26 +108,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Hovered: light background with accent border
                     var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
-                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, accentColor), 1.5f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)), path);
+                    g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, accentColor), 1.5f), path);
                 }
                 else
                 {
                     // Default: outlined chip
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White), path);
+                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f), path);
                 }
             }
         }
@@ -141,12 +124,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Draw circular background
             var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
-            using (var brush = new SolidBrush(isSelected 
+            g.FillEllipse(GetBrush(isSelected
                 ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)))
-            {
-                g.FillEllipse(brush, iconRect);
-            }
+                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)), iconRect);
 
             // Draw icon using StyledImagePainter circular rendering
             float cx = iconRect.X + iconRect.Width / 2f;

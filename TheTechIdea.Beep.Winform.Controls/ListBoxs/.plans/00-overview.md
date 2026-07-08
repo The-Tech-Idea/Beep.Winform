@@ -35,6 +35,8 @@
 | 5 | [Phase 5 — Hierarchical List](./05-phase5-hierarchy.md) | Flatten Children tree, indent, expand/collapse chevron, ARIA tree role | **High** |
 | 6 | [Phase 6 — Modern UX Polish](./06-phase6-modern-ux.md) | Tooltips, badges, separators, disabled opacity, focus ring, trailing meta, pinned items, empty-search state | **Medium** |
 | 7 | [Phase 7 — Rich List Types](./07-phase7-rich-list-types.md) | ChatList, ContactList, ThreeLineList, NotificationList, ProfileCard painters using SimpleItem SubText/Description/ImagePath | **High** |
+| 8 | [Phase 8 — Painter Modernization](./08-phase8-enhance-all-painters.md) | Tokenization, theme-safe fallbacks, accessibility/hierarchy parity across all 47 painters | **High** |
+| 9 | [Phase 9 — Framework Compliance & Performance](./09-phase9-framework-compliance-performance.md) | Eliminate g.DrawString/BeepFontManager/new Font/ContextMenuStrip, remove per-paint GDI allocations, audit hardcoded colors, close Phase 8 manual gates | **High** |
 
 ## Key Design Decisions
 

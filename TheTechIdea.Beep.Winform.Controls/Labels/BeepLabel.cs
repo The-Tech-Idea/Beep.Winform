@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Label")]
     [Description("A label control with support for images and multi-line text.")]
   //  [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepLabelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
-    public class BeepLabel : BaseControl
+    public partial class BeepLabel : BaseControl
     {
         #region "Fields"
         private string _imagePath = string.Empty;
@@ -498,6 +498,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponents();
             BoundProperty = "Text";
             ApplyStyleProfile();
+
+            // Accessibility (design-skill compliance)
+            AccessibleRole = AccessibleRole.StaticText;
+            AccessibleName = Text ?? "Label";
+            AccessibleDescription = "A text label control";
+
             UpdateAccessibilitySnapshot();
         }
 
@@ -736,7 +742,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DisabledForeColor = _currentTheme.LabelDisabledForeColor;
                 if (UseThemeFont)
                 {
-                    _textFont = BeepFontManager.ToFont(_currentTheme.LabelFont);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelFont);
                     _subHeaderFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
                 }
                 // SafeApplyFont(TextFont ?? _textFont);

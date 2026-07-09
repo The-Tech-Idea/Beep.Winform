@@ -17,7 +17,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     {
         protected BeepTree _owner;
         protected IBeepTheme _theme;
-        private BeepTreeRowConfig _currentNodeRowConfig; // Temporary storage to avoid O(n) search
+        private BeepTreeRowConfig _currentNodeRowConfig;
+
+        // Process-lifetime caches shared across all painters (UI-thread only). Never dispose.
+        private static readonly System.Collections.Generic.Dictionary<int, SolidBrush> _brushCache = new();
+        private static readonly System.Collections.Generic.Dictionary<(float size, FontStyle style), Font> _fontCache = new();
+
+        /// <summary>Returns a cached solid brush (never dispose).</summary>
+        protected static SolidBrush GetBrush(Color color)
+        {
+            int key = color.ToArgb();
+            if (_brushCache.TryGetValue(key, out var b) && b != null) return b;
+            b = new SolidBrush(color);
+            _brushCache[key] = b;
+            return b;
+        }
+
+        /// <summary>Returns a cached theme-family font (shared cache — never dispose).</summary>
+        protected static Font GetFont(float size, FontStyle style = FontStyle.Regular)
+        {
+            size = Math.Max(6f, size);
+            var key = (size, style);
+            if (_fontCache.TryGetValue(key, out var f) && f != null) return f;
+            f = ThemeManagement.BeepThemesManager.ToFont("Segoe UI", size,
+                style.HasFlag(FontStyle.Bold) ? TheTechIdea.Beep.Vis.Modules.FontWeight.Bold : TheTechIdea.Beep.Vis.Modules.FontWeight.Normal,
+                style) ?? SystemFonts.DefaultFont;
+            _fontCache[key] = f;
+            return f;
+        }
 
         public virtual void Initialize(BeepTree owner, IBeepTheme theme)
         {
@@ -553,7 +580,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             }
             else if (rowConfig?.FontStyle != null && font != null)
             {
-                drawFont = new Font(font, rowConfig.FontStyle.Value);
+                drawFont = GetFont(font.Size, rowConfig.FontStyle.Value);
             }
 
             // Respect TextAlignment property
@@ -738,17 +765,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 return;
 
             var color = GetFilterIndicatorColor(isFiltered);
-            using (var brush = new SolidBrush(color))
+            var brush = GetBrush(color);
+            // Draw a simple funnel/filter icon
+            var points = new Point[]
             {
-                // Draw a simple funnel/filter icon
-                var points = new Point[]
-                {
-                    new Point(rect.Left + 2, rect.Top + 3),
-                    new Point(rect.Right - 2, rect.Top + 3),
-                    new Point(rect.Left + rect.Width / 2, rect.Bottom - 3)
-                };
-                g.FillPolygon(brush, points);
-            }
+                new Point(rect.Left + 2, rect.Top + 3),
+                new Point(rect.Right - 2, rect.Top + 3),
+                new Point(rect.Left + rect.Width / 2, rect.Bottom - 3)
+            };
+            g.FillPolygon(brush, points);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -162,17 +163,11 @@ _titleFont = titleFont;
             // Draw duration badge
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.RatingRect.IsEmpty)
             {
-                using var bgBrush = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
-                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.RatingRect, 4);
-                g.FillPath(bgBrush, bgPath);
-                
-                using var textBrush = new SolidBrush(Color.White);
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Center, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _durationFont, textBrush, ctx.RatingRect, format);
+                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.RatingRect, DpiScalingHelper.ScaleValue(4, _owner));
+                g.FillPath(CardPaintCache.Brush(Color.FromArgb(200, 0, 0, 0)), bgPath);
+
+                TextRenderer.DrawText(g, ctx.StatusText, _durationFont, ctx.RatingRect, Color.White,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
             
             // Draw quality/live badge
@@ -186,29 +181,28 @@ _titleFont = titleFont;
             if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                using var avatarBrush = new SolidBrush(Color.FromArgb(60, ctx.AccentColor));
-                g.FillEllipse(avatarBrush, ctx.StatusRect);
-                
-                using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), 2);
-                g.DrawEllipse(borderPen, ctx.StatusRect);
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(60, ctx.AccentColor)), ctx.StatusRect);
+
+                g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner)), ctx.StatusRect);
             }
 
             // Draw channel name / source
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _channelFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _channelFont, ctx.SubtitleRect,
+                    Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
             
             // Draw gradient overlay on thumbnail bottom
             if (!ctx.ImageRect.IsEmpty)
             {
+                int gradientHeight = DpiScalingHelper.ScaleValue(50, _owner);
                 var gradientRect = new Rectangle(
                     ctx.ImageRect.Left,
-                    ctx.ImageRect.Bottom - 50,
+                    ctx.ImageRect.Bottom - gradientHeight,
                     ctx.ImageRect.Width,
-                    50);
+                    gradientHeight);
                 
                 using var gradientBrush = new LinearGradientBrush(
                     new Point(gradientRect.Left, gradientRect.Top),
@@ -227,8 +221,7 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Semi-transparent circle background
-            using var circleBrush = new SolidBrush(Color.FromArgb(180, 0, 0, 0));
-            g.FillEllipse(circleBrush, ctx.ButtonRect);
+            g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(180, 0, 0, 0)), ctx.ButtonRect);
             
             // Play triangle
             int triangleSize = ctx.ButtonRect.Width / 3;
@@ -236,7 +229,7 @@ _titleFont = titleFont;
             int cy = ctx.ButtonRect.Top + ctx.ButtonRect.Height / 2;
             
             // Offset slightly to the right for visual centering
-            int offsetX = 3;
+            int offsetX = DpiScalingHelper.ScaleValue(3, _owner);
             
             Point[] triangle = new Point[]
             {
@@ -245,8 +238,7 @@ _titleFont = titleFont;
                 new Point(cx + triangleSize / 2 + offsetX, cy)
             };
             
-            using var triangleBrush = new SolidBrush(Color.White);
-            g.FillPolygon(triangleBrush, triangle);
+            g.FillPolygon(CardPaintCache.Brush(Color.White), triangle);
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)

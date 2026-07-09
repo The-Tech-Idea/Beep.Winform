@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -127,9 +129,8 @@ _titleFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _variantFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _variantFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
 
             // Draw quantity controls
@@ -141,13 +142,8 @@ _titleFont = titleFont;
             // Draw total price
             if (!ctx.RatingRect.IsEmpty && !string.IsNullOrEmpty(ctx.StatusText))
             {
-                using var brush = new SolidBrush(ctx.AccentColor);
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Far, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _priceFont, brush, ctx.RatingRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _priceFont, ctx.RatingRect, ctx.AccentColor,
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw remove button
@@ -159,8 +155,8 @@ _titleFont = titleFont;
             // Draw thumbnail border
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
-                using var borderPen = new Pen(Color.FromArgb(30, Color.Black), 1);
-                using var borderPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 4);
+                var borderPen = CardPaintCache.Pen(Color.FromArgb(30, _theme?.CardTextForeColor ?? Color.Black), DpiScalingHelper.ScaleValue(1, _owner));
+                using var borderPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(4, _owner));
                 g.DrawPath(borderPen, borderPath);
             }
         }
@@ -172,29 +168,29 @@ _titleFont = titleFont;
             var rect = ctx.ButtonRect;
             
             // Background
-            using var bgPath = CardRenderingHelpers.CreateRoundedPath(rect, 6);
-            using var bgBrush = new SolidBrush(Color.FromArgb(245, 245, 245));
+            using var bgPath = CardRenderingHelpers.CreateRoundedPath(rect, DpiScalingHelper.ScaleValue(6, _owner));
+            var bgBrush = CardPaintCache.Brush(Color.FromArgb(245, 245, 245));
             g.FillPath(bgBrush, bgPath);
-            
+
             // Border
-            using var borderPen = new Pen(Color.FromArgb(200, 200, 200), 1);
+            var borderPen = CardPaintCache.Pen(Color.FromArgb(200, 200, 200), DpiScalingHelper.ScaleValue(1, _owner));
             g.DrawPath(borderPen, bgPath);
-            
+
+            const TextFormatFlags centerFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix;
+            var buttonColor = Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black);
+
             // Minus button
-            var minusRect = new Rectangle(rect.Left + 2, rect.Top + 2, QuantityButtonSize, rect.Height - 4);
-            using var buttonBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
-            var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString("−", _quantityFont, buttonBrush, minusRect, format);
-            
+            var minusRect = new Rectangle(rect.Left + DpiScalingHelper.ScaleValue(2, _owner), rect.Top + DpiScalingHelper.ScaleValue(2, _owner), QuantityButtonSize, rect.Height - DpiScalingHelper.ScaleValue(4, _owner));
+            TextRenderer.DrawText(g, "−", _quantityFont, minusRect, buttonColor, centerFlags);
+
             // Quantity value (use BadgeText1 for quantity)
             string qty = ctx.BadgeText1 ?? "1";
-            var qtyRect = new Rectangle(minusRect.Right, rect.Top, rect.Width - QuantityButtonSize * 2 - 4, rect.Height);
-            using var qtyBrush = new SolidBrush(Color.Black);
-            g.DrawString(qty, _quantityFont, qtyBrush, qtyRect, format);
-            
+            var qtyRect = new Rectangle(minusRect.Right, rect.Top, rect.Width - QuantityButtonSize * 2 - DpiScalingHelper.ScaleValue(4, _owner), rect.Height);
+            TextRenderer.DrawText(g, qty, _quantityFont, qtyRect, _theme?.CardTextForeColor ?? Color.Black, centerFlags);
+
             // Plus button
-            var plusRect = new Rectangle(rect.Right - QuantityButtonSize - 2, rect.Top + 2, QuantityButtonSize, rect.Height - 4);
-            g.DrawString("+", _quantityFont, buttonBrush, plusRect, format);
+            var plusRect = new Rectangle(rect.Right - QuantityButtonSize - DpiScalingHelper.ScaleValue(2, _owner), rect.Top + DpiScalingHelper.ScaleValue(2, _owner), QuantityButtonSize, rect.Height - DpiScalingHelper.ScaleValue(4, _owner));
+            TextRenderer.DrawText(g, "+", _quantityFont, plusRect, buttonColor, centerFlags);
         }
         
         private void DrawRemoveButton(Graphics g, LayoutContext ctx)
@@ -204,12 +200,12 @@ _titleFont = titleFont;
             var rect = ctx.SecondaryButtonRect;
             
             // Hover background
-            using var bgBrush = new SolidBrush(Color.FromArgb(10, Color.Black));
+            var bgBrush = CardPaintCache.Brush(Color.FromArgb(10, _theme?.CardTextForeColor ?? Color.Black));
             g.FillEllipse(bgBrush, rect);
-            
+
             // X icon
-            int margin = 6;
-            using var pen = new Pen(Color.FromArgb(100, Color.Black), 2);
+            int margin = DpiScalingHelper.ScaleValue(6, _owner);
+            using var pen = new Pen(Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black), DpiScalingHelper.ScaleValue(2, _owner));
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
             

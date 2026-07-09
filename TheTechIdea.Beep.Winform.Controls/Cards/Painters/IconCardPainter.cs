@@ -122,7 +122,7 @@ _titleFont = titleFont;
             g.FillEllipse(gradientBrush, bgRect);
             
             // Subtle border
-            using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
+            var borderPen = CardPaintCache.Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
             g.DrawEllipse(borderPen, bgRect);
         }
         

@@ -26,8 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         public override void Initialize(BeepTree owner, IBeepTheme theme)
         {
             base.Initialize(owner, theme);
-            try { _monoFont?.Dispose(); } catch { }
-            _monoFont = new Font("Consolas", owner?.TextFont?.Size ?? SystemFonts.DefaultFont.Size, FontStyle.Regular);
+            _monoFont = GetFont(owner?.TextFont?.Size ?? SystemFonts.DefaultFont.Size, FontStyle.Regular);
         }
 
         /// <summary>

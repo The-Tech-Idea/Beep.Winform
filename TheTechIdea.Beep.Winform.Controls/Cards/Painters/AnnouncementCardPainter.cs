@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -155,9 +157,8 @@ _titleFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _metaFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw badge
@@ -171,8 +172,8 @@ _titleFont = titleFont;
             DrawDismissButton(g, ctx);
             
             // Draw accent line at left edge
-            using var accentBrush = new SolidBrush(ctx.AccentColor);
-            g.FillRectangle(accentBrush, ctx.DrawingRect.Left, ctx.DrawingRect.Top, 4, ctx.DrawingRect.Height);
+            var accentBrush = CardPaintCache.Brush(ctx.AccentColor);
+            g.FillRectangle(accentBrush, ctx.DrawingRect.Left, ctx.DrawingRect.Top, DpiScalingHelper.ScaleValue(4, _owner), ctx.DrawingRect.Height);
         }
         
         private void DrawAnnouncementIcon(Graphics g, LayoutContext ctx)
@@ -180,35 +181,35 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Draw circular background
-            using var bgBrush = new SolidBrush(Color.FromArgb(25, ctx.AccentColor));
+            var bgBrush = CardPaintCache.Brush(Color.FromArgb(25, ctx.AccentColor));
             g.FillEllipse(bgBrush, ctx.ImageRect);
             
             // Draw megaphone icon (simplified)
             int cx = ctx.ImageRect.Left + ctx.ImageRect.Width / 2;
             int cy = ctx.ImageRect.Top + ctx.ImageRect.Height / 2;
             
-            using var iconPen = new Pen(ctx.AccentColor, 2.5f);
+            using var iconPen = new Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(2.5f, _owner));
             iconPen.StartCap = LineCap.Round;
             iconPen.EndCap = LineCap.Round;
-            
+
             // Megaphone body
             Point[] megaphone = new Point[]
             {
-                new Point(cx - 10, cy - 6),
-                new Point(cx + 8, cy - 12),
-                new Point(cx + 8, cy + 12),
-                new Point(cx - 10, cy + 6)
+                new Point(cx - DpiScalingHelper.ScaleValue(10, _owner), cy - DpiScalingHelper.ScaleValue(6, _owner)),
+                new Point(cx + DpiScalingHelper.ScaleValue(8, _owner), cy - DpiScalingHelper.ScaleValue(12, _owner)),
+                new Point(cx + DpiScalingHelper.ScaleValue(8, _owner), cy + DpiScalingHelper.ScaleValue(12, _owner)),
+                new Point(cx - DpiScalingHelper.ScaleValue(10, _owner), cy + DpiScalingHelper.ScaleValue(6, _owner))
             };
             g.DrawPolygon(iconPen, megaphone);
-            
+
             // Handle
-            g.DrawLine(iconPen, cx - 10, cy - 3, cx - 14, cy - 3);
-            g.DrawLine(iconPen, cx - 10, cy + 3, cx - 14, cy + 3);
-            
+            g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(10, _owner), cy - DpiScalingHelper.ScaleValue(3, _owner), cx - DpiScalingHelper.ScaleValue(14, _owner), cy - DpiScalingHelper.ScaleValue(3, _owner));
+            g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(10, _owner), cy + DpiScalingHelper.ScaleValue(3, _owner), cx - DpiScalingHelper.ScaleValue(14, _owner), cy + DpiScalingHelper.ScaleValue(3, _owner));
+
             // Sound waves
-            using var wavePen = new Pen(Color.FromArgb(150, ctx.AccentColor), 1.5f);
-            g.DrawArc(wavePen, cx + 10, cy - 6, 8, 12, -60, 120);
-            g.DrawArc(wavePen, cx + 14, cy - 9, 10, 18, -60, 120);
+            var wavePen = CardPaintCache.Pen(Color.FromArgb(150, ctx.AccentColor), DpiScalingHelper.ScaleValue(1.5f, _owner));
+            g.DrawArc(wavePen, cx + DpiScalingHelper.ScaleValue(10, _owner), cy - DpiScalingHelper.ScaleValue(6, _owner), DpiScalingHelper.ScaleValue(8, _owner), DpiScalingHelper.ScaleValue(12, _owner), -60, 120);
+            g.DrawArc(wavePen, cx + DpiScalingHelper.ScaleValue(14, _owner), cy - DpiScalingHelper.ScaleValue(9, _owner), DpiScalingHelper.ScaleValue(10, _owner), DpiScalingHelper.ScaleValue(18, _owner), -60, 120);
         }
         
         private void DrawDismissButton(Graphics g, LayoutContext ctx)
@@ -218,10 +219,10 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Draw X
-            int margin = 6;
+            int margin = DpiScalingHelper.ScaleValue(6, _owner);
             var rect = ctx.SecondaryButtonRect;
-            
-            using var pen = new Pen(Color.FromArgb(80, Color.Black), 2);
+
+            using var pen = new Pen(Color.FromArgb(80, _theme?.CardTextForeColor ?? Color.Black), DpiScalingHelper.ScaleValue(2, _owner));
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
             

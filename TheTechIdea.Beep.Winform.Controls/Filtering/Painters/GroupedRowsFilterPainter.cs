@@ -29,6 +29,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         /// <summary>Calculates layout positions for all filter elements.</summary>
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
+            int sPadding = DpiScalingHelper.ScaleValue(8, owner);
+            int sRowHeight = DpiScalingHelper.ScaleValue(RowHeight, owner);
+            int sRowSpacing = DpiScalingHelper.ScaleValue(RowSpacing, owner);
+            int sDragHandleWidth = DpiScalingHelper.ScaleValue(DragHandleWidth, owner);
+            int sConnectorWidth = DpiScalingHelper.ScaleValue(ConnectorWidth, owner);
+            int sConnectorHeight = DpiScalingHelper.ScaleValue(ConnectorHeight, owner);
+            int sButtonWidth = DpiScalingHelper.ScaleValue(150, owner);
+            int sGap8 = DpiScalingHelper.ScaleValue(8, owner);
+            int sConnectorGap4 = DpiScalingHelper.ScaleValue(4, owner);
+            int sDragHandleH16 = DpiScalingHelper.ScaleValue(16, owner);
+
             var layout = new FilterLayoutInfo
             {
                 ContainerRect = availableRect,
@@ -36,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             };
 
             var config = owner.ActiveFilter;
-            int padding = 8;
+            int padding = sPadding;
 
             if (config == null || config.Criteria.Count == 0)
             {
@@ -44,8 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 layout.AddFilterButtonRect = new Rectangle(
                     availableRect.X + padding,
                     availableRect.Y + padding,
-                    150,
-                    RowHeight
+                    sButtonWidth,
+                    sRowHeight
                 );
                 return layout;
             }
@@ -63,13 +74,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 if (i > 0)
                 {
                     var connectorRect = new Rectangle(
-                        availableRect.X + padding + DragHandleWidth,
+                        availableRect.X + padding + sDragHandleWidth,
                         currentY,
-                        ConnectorWidth,
-                        ConnectorHeight
+                        sConnectorWidth,
+                        sConnectorHeight
                     );
                     connectorRects.Add(connectorRect);
-                    currentY += ConnectorHeight + 4;
+                    currentY += sConnectorHeight + sConnectorGap4;
                 }
 
                 // Filter row
@@ -77,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                     availableRect.X + padding,
                     currentY,
                     rowWidth,
-                    RowHeight
+                    sRowHeight
                 );
                 rowRects.Add(rowRect);
 
@@ -86,14 +97,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 {
                     var dragRect = new Rectangle(
                         rowRect.X,
-                        rowRect.Y + (rowRect.Height - 16) / 2,
-                        DragHandleWidth,
-                        16
+                        rowRect.Y + (rowRect.Height - sDragHandleH16) / 2,
+                        sDragHandleWidth,
+                        sDragHandleH16
                     );
                     dragHandleRects.Add(dragRect);
                 }
 
-                currentY += RowHeight + RowSpacing;
+                currentY += sRowHeight + sRowSpacing;
             }
 
             layout.RowRects = rowRects.ToArray();
@@ -104,18 +115,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (owner.ShowActionButtons)
             {
                 layout.AddFilterButtonRect = new Rectangle(
-                    availableRect.X + padding + DragHandleWidth,
+                    availableRect.X + padding + sDragHandleWidth,
                     currentY,
-                    150,
-                    RowHeight
+                    sButtonWidth,
+                    sRowHeight
                 );
 
                 // Add Group button (next to Add Filter)
                 layout.AddGroupButtonRect = new Rectangle(
-                    layout.AddFilterButtonRect.Right + 8,
+                    layout.AddFilterButtonRect.Right + sGap8,
                     currentY,
-                    150,
-                    RowHeight
+                    sButtonWidth,
+                    sRowHeight
                 );
             }
 
@@ -144,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 if (owner.EnableDragDrop && i < layout.DragHandleRects.Length)
                 {
                     var colors = GetStyleColors(owner, owner.ControlStyle);
-                    PaintDragHandle(g, layout.DragHandleRects[i], Color.FromArgb(150, colors.text));
+                    PaintDragHandle(g, layout.DragHandleRects[i], Color.FromArgb(150, colors.text), owner);
                 }
 
                 // Paint filter row
@@ -165,35 +176,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
             {
                 var badgeLocation = new Point(
-                    layout.ContainerRect.Right - 40,
-                    layout.ContainerRect.Top + 8
+                    layout.ContainerRect.Right - DpiScalingHelper.ScaleValue(40, owner),
+                    layout.ContainerRect.Top + DpiScalingHelper.ScaleValue(8, owner)
                 );
                 var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
-                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor, owner);
             }
         }
 
         private void PaintFilterRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
-            int dragOffset = owner.EnableDragDrop ? DragHandleWidth + 8 : 8;
+            int s8 = DpiScalingHelper.ScaleValue(8, owner);
+            int s4 = DpiScalingHelper.ScaleValue(4, owner);
+            int s40 = DpiScalingHelper.ScaleValue(40, owner);
+            int s36 = DpiScalingHelper.ScaleValue(36, owner);
+            int s28 = DpiScalingHelper.ScaleValue(28, owner);
+            int dragOffset = owner.EnableDragDrop ? DpiScalingHelper.ScaleValue(DragHandleWidth, owner) + s8 : s8;
 
             // Calculate areas within row
-            int availableWidth = rect.Width - dragOffset - 40; // 40 for remove button
+            int availableWidth = rect.Width - dragOffset - s40; // 40 for remove button
             int columnWidth = availableWidth / 3;
             int operatorWidth = availableWidth / 3;
             int valueWidth = availableWidth / 3;
 
-            var columnRect = new Rectangle(rect.X + dragOffset, rect.Y + 4, columnWidth - 4, rect.Height - 8);
-            var operatorRect = new Rectangle(columnRect.Right + 4, rect.Y + 4, operatorWidth - 4, rect.Height - 8);
-            var valueRect = new Rectangle(operatorRect.Right + 4, rect.Y + 4, valueWidth - 4, rect.Height - 8);
-            var removeRect = new Rectangle(rect.Right - 36, rect.Y + (rect.Height - 28) / 2, 28, 28);
+            var columnRect = new Rectangle(rect.X + dragOffset, rect.Y + s4, columnWidth - s4, rect.Height - s8);
+            var operatorRect = new Rectangle(columnRect.Right + s4, rect.Y + s4, operatorWidth - s4, rect.Height - s8);
+            var valueRect = new Rectangle(operatorRect.Right + s4, rect.Y + s4, valueWidth - s4, rect.Height - s8);
+            var removeRect = new Rectangle(rect.Right - s36, rect.Y + (rect.Height - s28) / 2, s28, s28);
 
             // Background
-            using (var brush = new SolidBrush(colors.background))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            g.FillRectangle(GetBrush(colors.background), rect);
 
             // Dropdowns
             PaintDropdownField(g, columnRect, criterion.ColumnName, owner);
@@ -207,79 +220,63 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         private void PaintDropdownField(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
+            int s4 = DpiScalingHelper.ScaleValue(4, owner);
+            int s8 = DpiScalingHelper.ScaleValue(8, owner);
+            int s24 = DpiScalingHelper.ScaleValue(24, owner);
+            int s16 = DpiScalingHelper.ScaleValue(16, owner);
+            int sArrow4 = DpiScalingHelper.ScaleValue(4, owner);
 
             // Background
-            using (var brush = new SolidBrush(Color.White))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(colors.background), path);
             }
 
             // Border
-            using (var pen = new Pen(colors.border, 1))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(colors.border, DpiScalingHelper.ScaleValue(1, owner)), path);
             }
 
             // Text
-            var textRect = new Rectangle(rect.X + 8, rect.Y, rect.Width - 24, rect.Height);
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(colors.text))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Near,
-                    Trimming = StringTrimming.EllipsisCharacter
-                };
-                g.DrawString(text, font, brush, textRect, sf);
-            }
+            var textRect = new Rectangle(rect.X + s8, rect.Y, rect.Width - s24, rect.Height);
+            TextRenderer.DrawText(g, text, GetFont(9f), textRect, colors.text,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
 
             // Dropdown arrow
-            int arrowX = rect.Right - 16;
+            int arrowX = rect.Right - s16;
             int arrowY = rect.Y + rect.Height / 2;
-            using (var pen = new Pen(colors.text, 1.5f))
-            {
-                g.DrawLine(pen, arrowX - 4, arrowY - 2, arrowX, arrowY + 2);
-                g.DrawLine(pen, arrowX, arrowY + 2, arrowX + 4, arrowY - 2);
-            }
+            var arrowPen = GetPen(colors.text, 1.5f);
+            g.DrawLine(arrowPen, arrowX - sArrow4, arrowY - 2, arrowX, arrowY + 2);
+            g.DrawLine(arrowPen, arrowX, arrowY + 2, arrowX + sArrow4, arrowY - 2);
         }
 
         private void PaintValueField(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
+            int s4 = DpiScalingHelper.ScaleValue(4, owner);
+            int s8 = DpiScalingHelper.ScaleValue(8, owner);
+            int s16 = DpiScalingHelper.ScaleValue(16, owner);
 
             // Background
-            using (var brush = new SolidBrush(Color.White))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(colors.background), path);
             }
 
             // Border
-            using (var pen = new Pen(colors.border, 1))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(colors.border, DpiScalingHelper.ScaleValue(1, owner)), path);
             }
 
             // Text or placeholder
             var displayText = string.IsNullOrEmpty(text) ? "Enter value..." : text;
             var textColor = string.IsNullOrEmpty(text) ? Color.FromArgb(150, colors.text) : colors.text;
 
-            var textRect = new Rectangle(rect.X + 8, rect.Y, rect.Width - 16, rect.Height);
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(textColor))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Near,
-                    Trimming = StringTrimming.EllipsisCharacter
-                };
-                g.DrawString(displayText, font, brush, textRect, sf);
-            }
+            var textRect = new Rectangle(rect.X + s8, rect.Y, rect.Width - s16, rect.Height);
+            TextRenderer.DrawText(g, displayText, GetFont(9f), textRect, textColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
 
         private void PaintLogicConnectorButton(Graphics g, Rectangle rect, string text, BeepFilter owner)
@@ -287,30 +284,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background (rounded pill)
-            using (var brush = new SolidBrush(Color.FromArgb(245, 245, 245)))
             using (var path = CreateRoundedRectanglePath(rect, rect.Height / 2))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(Color.FromArgb(245, 245, 245)), path);
             }
 
             // Border
-            using (var pen = new Pen(colors.border, 1))
             using (var path = CreateRoundedRectanglePath(rect, rect.Height / 2))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(colors.border, DpiScalingHelper.ScaleValue(1, owner)), path);
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 8f, FontStyle.Bold))
-            using (var brush = new SolidBrush(colors.text))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Center
-                };
-                g.DrawString(text, font, brush, rect, sf);
-            }
+            TextRenderer.DrawText(g, text, GetFont(8f, FontStyle.Bold), rect, colors.text,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         private void PaintRemoveButton(Graphics g, Rectangle rect, BeepFilter owner)
@@ -318,19 +305,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Circle background
-            using (var brush = new SolidBrush(Color.FromArgb(250, 250, 250)))
-            {
-                g.FillEllipse(brush, rect);
-            }
+            g.FillEllipse(GetBrush(Color.FromArgb(250, 250, 250)), rect);
 
             // Border
-            using (var pen = new Pen(colors.border, 1))
-            {
-                g.DrawEllipse(pen, rect);
-            }
+            g.DrawEllipse(GetPen(colors.border, DpiScalingHelper.ScaleValue(1, owner)), rect);
 
             // X
-            int xSize = 8;
+            int xSize = DpiScalingHelper.ScaleValue(8, owner);
             int centerX = rect.X + rect.Width / 2;
             int centerY = rect.Y + rect.Height / 2;
 
@@ -346,33 +327,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         private void PaintAddFilterButton(Graphics g, Rectangle rect, string text, BeepFilter owner, bool isGroup = false)
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
+            int s4 = DpiScalingHelper.ScaleValue(4, owner);
 
             // Background
-            using (var brush = new SolidBrush(Color.FromArgb(248, 248, 248)))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(Color.FromArgb(248, 248, 248)), path);
             }
 
             // Border (dashed)
-            using (var pen = new Pen(colors.border, 1))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var pen = new Pen(colors.border, DpiScalingHelper.ScaleValue(1, owner)))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
                 pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
                 g.DrawPath(pen, path);
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(colors.accent))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Center
-                };
-                g.DrawString(text, font, brush, rect, sf);
-            }
+            TextRenderer.DrawText(g, text, GetFont(9f), rect, colors.accent,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>Hit tests for filter rows, dropdowns, remove buttons, connectors, and drag handles.</summary>

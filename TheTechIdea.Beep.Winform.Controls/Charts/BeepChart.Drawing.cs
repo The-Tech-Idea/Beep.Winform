@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 // Do NOT dispose — PaintersFactory returns cached/shared brushes
                 var titleBrush = PaintersFactory.GetSolidBrush(ChartTitleForeColor);
                 SizeF titleSize = TextUtils.MeasureText(g, ChartTitle, titleFont);
-                g.DrawString(ChartTitle, titleFont, titleBrush, textAreaLeft, currentY);
+                TextRenderer.DrawText(g, ChartTitle, titleFont, new Point(textAreaLeft, currentY), titleBrush.Color, TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
                 currentY += (int)titleSize.Height + 5;
             }
 
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 var valueFont = PaintersFactory.GetFont(ChartValueFont ?? SystemFonts.DefaultFont);
                 var valueBrush = PaintersFactory.GetSolidBrush(ChartTextColor);
                 SizeF valueSize = TextUtils.MeasureText(g, ChartValue, valueFont);
-                g.DrawString(ChartValue, valueFont, valueBrush, textAreaLeft, currentY);
+                TextRenderer.DrawText(g, ChartValue, valueFont, new Point(textAreaLeft, currentY), valueBrush.Color, TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
                 currentY += (int)valueSize.Height + 5;
             }
 
@@ -224,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 var subFont = PaintersFactory.GetFont(ChartSubtitleFont ?? SystemFonts.DefaultFont);
                 var subBrush = PaintersFactory.GetSolidBrush(ChartLineColor);
                 SizeF subSize = TextUtils.MeasureText(g, ChartSubtitle, subFont);
-                g.DrawString(ChartSubtitle, subFont, subBrush, textAreaLeft, currentY);
+                TextRenderer.DrawText(g, ChartSubtitle, subFont, new Point(textAreaLeft, currentY), subBrush.Color, TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
                 currentY += (int)subSize.Height + 10;
             }
 
@@ -739,7 +739,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             // Measure all lines
             foreach (var line in lines)
             {
-                var size = g.MeasureString(line, font);
+                var size = TextRenderer.MeasureText(line, font);
                 maxWidth = Math.Max(maxWidth, size.Width);
                 totalHeight += size.Height + 2;
             }
@@ -765,8 +765,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             foreach (var dp in _trackballDataPoints)
             {
                 var line = $"{dp.SeriesName}: {dp.DisplayValue}";
-                g.DrawString(line, font, textBrush, tooltipX + padding, currentY);
-                var lineHeight = g.MeasureString(line, font).Height;
+                TextRenderer.DrawText(g, line, font, new Point(tooltipX + padding, (int)currentY), textBrush.Color, TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+                var lineHeight = TextRenderer.MeasureText(line, font).Height;
                 currentY += lineHeight + 2;
             }
         }

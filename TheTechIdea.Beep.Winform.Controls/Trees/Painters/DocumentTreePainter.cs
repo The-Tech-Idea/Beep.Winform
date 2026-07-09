@@ -151,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                     // Simulate document type (in real scenario would come from node.Item metadata)
                     string docType = node.Item.IsExpanded ? "PDF" : "DOC";
-                    Color badgeColor = node.Item.IsExpanded ? Color.FromArgb(244, 67, 54) : Color.FromArgb(33, 150, 243);
+                    Color badgeColor = node.Item.IsExpanded ? _theme.ErrorColor : Color.FromArgb(33, 150, 243);
 
                     using (var badgePath = CreateRoundedRectangle(badgeRect, 3))
                     {
@@ -322,11 +322,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (metadataRect.Width <= 0 || metadataRect.Height <= 0) return;
 
             Color metadataColor = Color.FromArgb(150, _theme.TreeForeColor);
-            using (var font = new Font("Segoe UI", 7.5f, FontStyle.Regular))
-            {
-                TextRenderer.DrawText(g, metadata, font, metadataRect, metadataColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-            }
+            var font = GetFont(7.5f);
+            TextRenderer.DrawText(g, metadata, font, metadataRect, metadataColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>
@@ -339,10 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Thumbnail border
             using (var path = CreateRoundedRectangle(thumbRect, 3))
             {
-                using (var brush = new SolidBrush(Color.FromArgb(50, previewColor)))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(Color.FromArgb(50, previewColor)), path);
 
                 using (var pen = new Pen(Color.FromArgb(150, previewColor), 1))
                 {
@@ -372,16 +367,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             switch (docType?.ToLower())
             {
                 case "pdf":
-                    return Color.FromArgb(244, 67, 54); // Red
+                    return _theme.ErrorColor; // Red — theme token
                 case "word":
                 case "doc":
-                    return Color.FromArgb(33, 150, 243); // Blue
+                    return Color.FromArgb(33, 150, 243); // Blue — info (no theme token)
                 case "excel":
                 case "xls":
-                    return Color.FromArgb(76, 175, 80); // Green
+                    return _theme.SuccessColor; // Green — theme token
                 case "ppt":
                 case "pptx":
-                    return Color.FromArgb(255, 152, 0); // Orange
+                    return _theme.WarningColor; // Orange — theme token
                 case "image":
                     return Color.FromArgb(156, 39, 176); // Purple
                 case "video":

@@ -121,15 +121,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             var axisPen = PaintersFactory.GetPen(ctx.AxisColor,1);
             g.DrawLine(axisPen, ctx.PlotRect.Left, ctx.PlotRect.Bottom, ctx.PlotRect.Right, ctx.PlotRect.Bottom);
             g.DrawLine(axisPen, ctx.PlotRect.Left, ctx.PlotRect.Bottom, ctx.PlotRect.Left, ctx.PlotRect.Top);
-            var textBrush = PaintersFactory.GetSolidBrush(ctx.TextColor);
             if (!string.IsNullOrEmpty(ctx.XTitle))
             {
                 var size = TextUtils.MeasureText(g, ctx.XTitle, ctx.TitleFont);
                 var x = ctx.PlotRect.Left + (ctx.PlotRect.Width - size.Width) /2f;
-                g.DrawString(ctx.XTitle, ctx.TitleFont, textBrush, x, ctx.PlotRect.Bottom +8);
+                TextRenderer.DrawText(g, ctx.XTitle, ctx.TitleFont,
+                    new Point((int)x, ctx.PlotRect.Bottom + 8), ctx.TextColor,
+                    TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding);
             }
             if (!string.IsNullOrEmpty(ctx.YTitle))
             {
+                var textBrush = PaintersFactory.GetSolidBrush(ctx.TextColor);
                 var size = TextUtils.MeasureText(g, ctx.YTitle, ctx.TitleFont);
                 float x = ctx.PlotRect.Left - size.Height -12;
                 float y = ctx.PlotRect.Top + (ctx.PlotRect.Height + size.Width) /2f;
@@ -272,12 +274,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             if (angle ==0)
             {
                 var size = TextUtils.MeasureText(g, text, font);
-                g.DrawString(text, font, brush, centerX ? x - size.Width /2 : x - size.Width -4, y);
+                Color color = brush is SolidBrush sb ? sb.Color : SystemColors.ControlText;
+                TextRenderer.DrawText(g, text, font,
+                    new Point((int)(centerX ? x - size.Width /2 : x - size.Width -4), (int)y),
+                    color, TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding);
                 return;
             }
             var size2 = TextUtils.MeasureText(g, text, font);
             g.TranslateTransform(x, y);
             g.RotateTransform(angle);
+            // TextRenderer cannot honour GDI+ transforms, so DrawString is retained for rotated text
             g.DrawString(text, font, brush, centerX ? -size2.Width /2 : -size2.Width,0);
             g.ResetTransform();
         }

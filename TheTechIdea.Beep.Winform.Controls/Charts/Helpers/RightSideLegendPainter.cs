@@ -28,7 +28,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 _ => new Rectangle(chartRect.Right + padding, chartRect.Top, width, (itemHeight + padding) * data.Count)
             };
 
-            var textBrush = PaintersFactory.GetSolidBrush(textColor);
             var backBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, backColor));
             var pen = PaintersFactory.GetPen(shapeColor, 1);
             var useFont = font ?? PaintersFactory.GetFont(SystemFonts.DefaultFont);
@@ -50,7 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 g.DrawRectangle(pen, swatchRect);
 
                 string name = string.IsNullOrEmpty(series.Name) ? $"Series {i + 1}" : series.Name;
-                g.DrawString(name, useFont, textBrush, swatchRect.Right + S(6), itemRect.Top + 2);
+                TextRenderer.DrawText(g, name, useFont,
+                    new Point(swatchRect.Right + S(6), itemRect.Top + 2), textColor,
+                    TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding);
 
                 owner.AddHitArea($"LegendItem_{i}", itemRect, null, () =>
                 {

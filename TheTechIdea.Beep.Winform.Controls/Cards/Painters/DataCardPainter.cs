@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -160,37 +161,34 @@ _titleFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Near };
-                g.DrawString(ctx.SubtitleText, _labelFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _labelFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix);
             }
-            
+
             // Draw divider line between header and data
             int dividerY = ctx.HeaderRect.Bottom + ElementGap;
-            using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), DividerThickness);
-            g.DrawLine(dividerPen, 
-                ctx.DrawingRect.Left + Padding, dividerY, 
+            g.DrawLine(CardPaintCache.Pen(Color.FromArgb(30, ctx.AccentColor), DividerThickness),
+                ctx.DrawingRect.Left + Padding, dividerY,
                 ctx.DrawingRect.Right - Padding, dividerY);
-            
+
             // Draw vertical separator between labels and values
             if (ctx.SubtitleRect.Width > 0 && ctx.ParagraphRect.Width > 0)
             {
                 int separatorX = ctx.SubtitleRect.Right + Padding / 2;
-                using var separatorPen = new Pen(Color.FromArgb(20, ctx.AccentColor), DividerThickness);
-                g.DrawLine(separatorPen, separatorX, ctx.SubtitleRect.Top, separatorX, ctx.SubtitleRect.Bottom);
+                g.DrawLine(CardPaintCache.Pen(Color.FromArgb(20, ctx.AccentColor), DividerThickness), separatorX, ctx.SubtitleRect.Top, separatorX, ctx.SubtitleRect.Bottom);
             }
-            
+
             // Draw horizontal grid lines for structured data appearance
             if (ctx.SubtitleRect.Height > 80)
             {
                 int numRows = Math.Min(4, ctx.SubtitleRect.Height / RowHeight);
-                using var gridPen = new Pen(Color.FromArgb(12, ctx.AccentColor), DividerThickness);
-                
+                var gridPen = CardPaintCache.Pen(Color.FromArgb(12, ctx.AccentColor), DividerThickness);
+
                 for (int i = 1; i < numRows; i++)
                 {
                     int y = ctx.SubtitleRect.Top + (i * RowHeight);
-                    g.DrawLine(gridPen, 
-                        ctx.DrawingRect.Left + Padding, y, 
+                    g.DrawLine(gridPen,
+                        ctx.DrawingRect.Left + Padding, y,
                         ctx.DrawingRect.Right - Padding, y);
                 }
             }

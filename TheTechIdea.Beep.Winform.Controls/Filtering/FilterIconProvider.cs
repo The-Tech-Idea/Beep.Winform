@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Filtering
 {
@@ -105,29 +108,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         private static void DrawTextIcon(Graphics g, Rectangle bounds, Brush brush, Pen pen)
         {
             // Draw "Aa" text icon
-            using (var font = new Font("Segoe UI", bounds.Height * 0.5f, FontStyle.Bold))
-            {
-                var format = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString("Aa", font, brush, bounds, format);
-            }
+            var font = BeepThemesManager.ToFont("Segoe UI", bounds.Height * 0.5f, FontWeight.Bold, FontStyle.Bold);
+            TextRenderer.DrawText(g, "Aa", font, bounds, ((SolidBrush)brush).Color,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
         
         private static void DrawNumberIcon(Graphics g, Rectangle bounds, Brush brush, Pen pen)
         {
             // Draw "123" or "#" icon
-            using (var font = new Font("Segoe UI", bounds.Height * 0.45f, FontStyle.Bold))
-            {
-                var format = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString("#", font, brush, bounds, format);
-            }
+            var font = BeepThemesManager.ToFont("Segoe UI", bounds.Height * 0.45f, FontWeight.Bold, FontStyle.Bold);
+            TextRenderer.DrawText(g, "#", font, bounds, ((SolidBrush)brush).Color,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
         
         private static void DrawDateIcon(Graphics g, Rectangle bounds, Brush brush, Pen pen)

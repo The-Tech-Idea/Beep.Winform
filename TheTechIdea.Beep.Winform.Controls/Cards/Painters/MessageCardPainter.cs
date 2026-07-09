@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -155,23 +156,19 @@ _senderFont = bodyFont;
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                using var bgBrush = new SolidBrush(Color.FromArgb(40, ctx.AccentColor));
+                var bgBrush = CardPaintCache.Brush(Color.FromArgb(40, ctx.AccentColor));
                 g.FillEllipse(bgBrush, ctx.ImageRect);
-                
-            using var borderPen = new Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
+
+            var borderPen = CardPaintCache.Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawEllipse(borderPen, ctx.ImageRect);
             }
-            
+
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(100, Color.Black));
-                var format = new StringFormat 
-                { 
-                    Alignment = isOutgoing ? StringAlignment.Far : StringAlignment.Near,
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _timeFont, brush, ctx.SubtitleRect, format);
+                var timeFlags = (isOutgoing ? TextFormatFlags.Right : TextFormatFlags.Left)
+                    | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis;
+                TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.SubtitleRect, Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black), timeFlags);
             }
             
             // Draw read status checkmarks for outgoing messages
@@ -194,7 +191,7 @@ _senderFont = bodyFont;
             
             // Draw bubble with tail
             using var bubblePath = CreateBubblePath(ctx.ParagraphRect, DpiScalingHelper.ScaleValue(BubbleRadius, _owner), isOutgoing);
-            using var bubbleBrush = new SolidBrush(bubbleColor);
+            var bubbleBrush = CardPaintCache.Brush(bubbleColor);
             g.FillPath(bubbleBrush, bubblePath);
         }
         
@@ -248,7 +245,7 @@ _senderFont = bodyFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Double checkmark for "read"
-            using var pen = new Pen(ctx.StatusColor != Color.Empty ? ctx.StatusColor : Color.FromArgb(52, 168, 83), DpiScalingHelper.ScaleValue(2, _owner));
+            using var pen = new Pen(ctx.StatusColor != Color.Empty ? ctx.StatusColor : (_theme?.SuccessColor ?? Color.FromArgb(52, 168, 83)), DpiScalingHelper.ScaleValue(2, _owner));
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
             

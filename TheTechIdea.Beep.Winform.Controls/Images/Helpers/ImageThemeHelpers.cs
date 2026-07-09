@@ -11,7 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Images.Helpers
     public static class ImageThemeHelpers
     {
         /// <summary>
-        /// Gets the fill color for image based on ImageEmbededin
+        /// Gets the fill color for image based on ImageEmbededin. Falls back to the theme's
+        /// general foreground colour (dark-theme aware) when a context-specific colour is unset.
         /// </summary>
         public static Color GetImageFillColor(
             IBeepTheme theme,
@@ -25,17 +26,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Images.Helpers
             {
                 return imageEmbededin switch
                 {
-                    ImageEmbededin.TabPage => theme.TabForeColor != Color.Empty ? theme.TabForeColor : Color.Black,
-                    ImageEmbededin.AppBar => theme.AppBarForeColor != Color.Empty ? theme.AppBarForeColor : Color.Black,
-                    ImageEmbededin.Menu or ImageEmbededin.MenuBar => theme.MenuForeColor != Color.Empty ? theme.MenuForeColor : Color.Black,
-                    ImageEmbededin.TreeView => theme.TreeForeColor != Color.Empty ? theme.TreeForeColor : Color.Black,
-                    ImageEmbededin.SideBar => theme.SideMenuForeColor != Color.Empty ? theme.SideMenuForeColor : Color.Black,
-                    ImageEmbededin.ListBox or ImageEmbededin.Form or ImageEmbededin.ListView => theme.ListForeColor != Color.Empty ? theme.ListForeColor : Color.Black,
-                    ImageEmbededin.Label => theme.LabelForeColor != Color.Empty ? theme.LabelForeColor : Color.Black,
-                    ImageEmbededin.TextBox => theme.TextBoxForeColor != Color.Empty ? theme.TextBoxForeColor : Color.Black,
-                    ImageEmbededin.ComboBox => theme.ComboBoxForeColor != Color.Empty ? theme.ComboBoxForeColor : Color.Black,
-                    ImageEmbededin.DataGridView => theme.GridHeaderForeColor != Color.Empty ? theme.GridHeaderForeColor : Color.Black,
-                    ImageEmbededin.Button or _ => Color.Black
+                    ImageEmbededin.TabPage => theme.TabForeColor != Color.Empty ? theme.TabForeColor : theme.ForeColor,
+                    ImageEmbededin.AppBar => theme.AppBarForeColor != Color.Empty ? theme.AppBarForeColor : theme.ForeColor,
+                    ImageEmbededin.Menu or ImageEmbededin.MenuBar => theme.MenuForeColor != Color.Empty ? theme.MenuForeColor : theme.ForeColor,
+                    ImageEmbededin.TreeView => theme.TreeForeColor != Color.Empty ? theme.TreeForeColor : theme.ForeColor,
+                    ImageEmbededin.SideBar => theme.SideMenuForeColor != Color.Empty ? theme.SideMenuForeColor : theme.ForeColor,
+                    ImageEmbededin.ListBox or ImageEmbededin.Form or ImageEmbededin.ListView => theme.ListForeColor != Color.Empty ? theme.ListForeColor : theme.ForeColor,
+                    ImageEmbededin.Label => theme.LabelForeColor != Color.Empty ? theme.LabelForeColor : theme.ForeColor,
+                    ImageEmbededin.TextBox => theme.TextBoxForeColor != Color.Empty ? theme.TextBoxForeColor : theme.ForeColor,
+                    ImageEmbededin.ComboBox => theme.ComboBoxForeColor != Color.Empty ? theme.ComboBoxForeColor : theme.ForeColor,
+                    ImageEmbededin.DataGridView => theme.GridHeaderForeColor != Color.Empty ? theme.GridHeaderForeColor : theme.ForeColor,
+                    ImageEmbededin.Button or _ => theme.ForeColor
                 };
             }
 

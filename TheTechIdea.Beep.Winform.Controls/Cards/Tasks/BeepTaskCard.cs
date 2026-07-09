@@ -220,10 +220,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
                 
-                using (var font = TaskCardFontHelpers.GetAvatarLabelFont(this, ControlStyle))
                 using (var brush = new SolidBrush(Color.White))
                 {
-                    TextRenderer.DrawText(g, $"+{_avatarImages.Count - maxVisibleAvatars}", font, plusLabelRect, brush.Color, 
+                    var font = TaskCardFontHelpers.GetAvatarLabelFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, $"+{_avatarImages.Count - maxVisibleAvatars}", font, plusLabelRect, brush.Color,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
                 }
             }
@@ -250,8 +250,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // 3) Draw the title and subtitle - measure text to prevent clipping
             Size titleSize;
-            using (var titleFont = TaskCardFontHelpers.GetTitleFont(this, ControlStyle))
             {
+                var titleFont = TaskCardFontHelpers.GetTitleFont(this, ControlStyle);
                 SizeF titleSizeF = TextUtils.MeasureText(_titleText ?? "", titleFont, int.MaxValue);
                 titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
             }
@@ -260,17 +260,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (!string.IsNullOrEmpty(_titleText))
             {
-                using (var titleFont = TaskCardFontHelpers.GetTitleFont(this, ControlStyle))
                 using (var titleBrush = new SolidBrush(TaskCardThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, _titleText, titleFont, titleRect, titleBrush.Color, 
+                    var titleFont = TaskCardFontHelpers.GetTitleFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, _titleText, titleFont, titleRect, titleBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }
 
             Size subtitleSize;
-            using (var subtitleFont = TaskCardFontHelpers.GetSubtitleFont(this, ControlStyle))
             {
+                var subtitleFont = TaskCardFontHelpers.GetSubtitleFont(this, ControlStyle);
                 SizeF subtitleSizeF = TextUtils.MeasureText(_subtitleText ?? "", subtitleFont, int.MaxValue);
                 subtitleSize = new Size((int)subtitleSizeF.Width, (int)subtitleSizeF.Height);
             }
@@ -279,18 +279,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (!string.IsNullOrEmpty(_subtitleText))
             {
-                using (var subtitleFont = TaskCardFontHelpers.GetSubtitleFont(this, ControlStyle))
                 using (var subtitleBrush = new SolidBrush(TaskCardThemeHelpers.GetSubtitleColor(_currentTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, _subtitleText, subtitleFont, subtitleRect, subtitleBrush.Color, 
+                    var subtitleFont = TaskCardFontHelpers.GetSubtitleFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, _subtitleText, subtitleFont, subtitleRect, subtitleBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }
 
             // 4) Draw the metric text near the bottom - measure to prevent clipping (using cached TextUtils)
             Size metricSize;
-            using (var metricFont = TaskCardFontHelpers.GetMetricFont(this, ControlStyle))
             {
+                var metricFont = TaskCardFontHelpers.GetMetricFont(this, ControlStyle);
                 SizeF metricSizeF = TextUtils.MeasureText(_metricText ?? "", metricFont, int.MaxValue);
                 metricSize = new Size((int)metricSizeF.Width, (int)metricSizeF.Height);
             }
@@ -299,10 +299,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (!string.IsNullOrEmpty(_metricText))
             {
-                using (var metricFont = TaskCardFontHelpers.GetMetricFont(this, ControlStyle))
                 using (var metricBrush = new SolidBrush(TaskCardThemeHelpers.GetMetricTextColor(_currentTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, _metricText, metricFont, metricRect, metricBrush.Color, 
+                    var metricFont = TaskCardFontHelpers.GetMetricFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, _metricText, metricFont, metricRect, metricBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }

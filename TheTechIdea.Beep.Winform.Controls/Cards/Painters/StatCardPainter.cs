@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -123,20 +124,18 @@ _labelFont = captionFont;
             // Draw trend indicator with color coding
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
             {
-                Color trendColor = ctx.StatusText.StartsWith("+") ? Color.FromArgb(76, 175, 80) :
-                                   ctx.StatusText.StartsWith("-") ? Color.FromArgb(244, 67, 54) :
+                Color trendColor = ctx.StatusText.StartsWith("+") ? (_theme?.SuccessColor ?? Color.FromArgb(76, 175, 80)) :
+                                   ctx.StatusText.StartsWith("-") ? (_theme?.ErrorColor ?? Color.FromArgb(244, 67, 54)) :
                                    Color.FromArgb(158, 158, 158);
                 
-                using var brush = new SolidBrush(trendColor);
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _trendFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _trendFont, ctx.SubtitleRect, trendColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
-            
+
             // Draw status accent bar at bottom
             if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.StatusColor);
-                g.FillRectangle(brush, ctx.StatusRect);
+                g.FillRectangle(CardPaintCache.Brush(ctx.StatusColor), ctx.StatusRect);
             }
             
             // Draw badge if present

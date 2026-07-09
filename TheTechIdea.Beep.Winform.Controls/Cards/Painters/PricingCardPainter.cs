@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -141,23 +142,20 @@ _tierFont = bodyFont;
             // Draw price with currency
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.AccentColor);
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _priceFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _priceFont, ctx.SubtitleRect, ctx.AccentColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
-            
+
             // Draw billing period
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(120, ctx.AccentColor));
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _periodFont, brush, ctx.StatusRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _periodFont, ctx.StatusRect, Color.FromArgb(120, ctx.AccentColor),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
-            
+
             // Draw divider line
             int dividerY = ctx.StatusRect.Bottom + DpiScalingHelper.ScaleValue(ElementGap, _owner);
-            using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner));
-            g.DrawLine(dividerPen, 
+            g.DrawLine(CardPaintCache.Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner)),
                 ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner), dividerY,
                 ctx.DrawingRect.Right - DpiScalingHelper.ScaleValue(Padding, _owner), dividerY);
             
@@ -176,10 +174,8 @@ _tierFont = bodyFont;
             int y = ctx.ParagraphRect.Top + elementGap;
             int maxY = ctx.ParagraphRect.Bottom - featureRowHeight;
             
-            using var checkBrush = new SolidBrush(Color.FromArgb(76, 175, 80)); // Green
-            using var textBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
-            var format = new StringFormat { LineAlignment = StringAlignment.Center };
-            
+            var checkBrush = CardPaintCache.Brush(_theme?.SuccessColor ?? Color.FromArgb(76, 175, 80)); // Green
+
             foreach (var feature in ctx.Tags)
             {
                 if (string.IsNullOrWhiteSpace(feature) || y > maxY) break;
@@ -200,17 +196,18 @@ _tierFont = bodyFont;
                 
                 int cx = checkRect.Left + checkRect.Width / 2;
                 int cy = checkRect.Top + checkRect.Height / 2;
-                g.DrawLine(checkPen, cx - 3, cy, cx - 1, cy + 3);
-                g.DrawLine(checkPen, cx - 1, cy + 3, cx + 4, cy - 2);
-                
+                g.DrawLine(checkPen, cx - DpiScalingHelper.ScaleValue(3, _owner), cy, cx - DpiScalingHelper.ScaleValue(1, _owner), cy + DpiScalingHelper.ScaleValue(3, _owner));
+                g.DrawLine(checkPen, cx - DpiScalingHelper.ScaleValue(1, _owner), cy + DpiScalingHelper.ScaleValue(3, _owner), cx + DpiScalingHelper.ScaleValue(4, _owner), cy - DpiScalingHelper.ScaleValue(2, _owner));
+
                 // Draw feature text
                 var textRect = new Rectangle(
-                    checkRect.Right + ElementGap,
+                    checkRect.Right + elementGap,
                     y,
                     ctx.ParagraphRect.Width - checkmarkSize - elementGap,
                     featureRowHeight);
                 
-                g.DrawString(feature, _featureFont, textBrush, textRect, format);
+                TextRenderer.DrawText(g, feature, _featureFont, textRect, Color.FromArgb(180, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
                 
                 y += featureRowHeight + featureGap;
             }

@@ -3,6 +3,8 @@ using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
 {
@@ -18,120 +20,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
     }
 
     /// <summary>
-    /// Centralized font management for TaskCard controls
-    /// Integrates with BeepFontManager and StyleTypography
+    /// Centralized font management for TaskCard controls.
+    /// Fonts are sourced from the theme's TaskCard* TypographyStyle roles via
+    /// <see cref="BeepThemesManager"/>; when a role is unset the control-style
+    /// sizing tables below are used as a fallback. Returned fonts are owned by the
+    /// theme-manager cache — callers must NOT dispose them.
     /// </summary>
     public static class TaskCardFontHelpers
     {
         #region Font Retrieval Methods
 
-        /// <summary>
-        /// Get font for task card title
-        /// </summary>
-        public static Font GetTitleFont(
-            BeepTaskCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 12, FontStyle.Bold);
+        /// <summary>Get font for task card title.</summary>
+        public static Font GetTitleFont(BeepTaskCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.TaskCardTitleStyle)
+               ?? ResolveFallback(card, controlStyle, TaskCardFontElement.Title, 1f);
 
-            Font baseFont = card.Font ?? new Font("Segoe UI", 12, FontStyle.Bold);
+        /// <summary>Get font for task card subtitle.</summary>
+        public static Font GetSubtitleFont(BeepTaskCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.TaskCardSubStyleStyle)
+               ?? ResolveFallback(card, controlStyle, TaskCardFontElement.Subtitle, 1f);
 
-            int fontSize = GetFontSizeForElement(controlStyle, TaskCardFontElement.Title);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TaskCardFontElement.Title);
+        /// <summary>Get font for metric text.</summary>
+        public static Font GetMetricFont(BeepTaskCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.TaskCardMetricTextStyle)
+               ?? ResolveFallback(card, controlStyle, TaskCardFontElement.Metric, 1f);
 
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
+        /// <summary>Get font for avatar label (+X).</summary>
+        public static Font GetAvatarLabelFont(BeepTaskCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.TaskCardSubStyleStyle)
+               ?? ResolveFallback(card, controlStyle, TaskCardFontElement.AvatarLabel, 1f);
 
-        /// <summary>
-        /// Get font for task card subtitle
-        /// </summary>
-        public static Font GetSubtitleFont(
-            BeepTaskCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 10, FontStyle.Regular);
-
-            Font baseFont = card.Font ?? new Font("Segoe UI", 10, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, TaskCardFontElement.Subtitle);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TaskCardFontElement.Subtitle);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for metric text
-        /// </summary>
-        public static Font GetMetricFont(
-            BeepTaskCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 9, FontStyle.Regular);
-
-            Font baseFont = card.Font ?? new Font("Segoe UI", 9, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, TaskCardFontElement.Metric);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TaskCardFontElement.Metric);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for avatar label (+X)
-        /// </summary>
-        public static Font GetAvatarLabelFont(
-            BeepTaskCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 8, FontStyle.Regular);
-
-            Font baseFont = card.Font ?? new Font("Segoe UI", 8, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, TaskCardFontElement.AvatarLabel);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TaskCardFontElement.AvatarLabel);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for task card based on element type
-        /// </summary>
+        /// <summary>Get font for task card based on element type.</summary>
         public static Font GetFontForElement(
             BeepTaskCard card,
             TaskCardFontElement element,
@@ -149,7 +68,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
 
         #endregion
 
-        #region Font Size and Style Helpers
+        #region Typography-role + fallback resolution
+
+        /// <summary>
+        /// Builds a font from a theme TypographyStyle role (shared, cached — never disposed).
+        /// Returns null when the role is unset so callers can fall back to control-style sizing.
+        /// </summary>
+        private static Font FromRole(TypographyStyle role, float scale = 1f)
+        {
+            if (role == null) return null;
+            if (Math.Abs(scale - 1f) < 0.001f)
+                return BeepThemesManager.ToFont(role);
+            float size = (role.FontSize > 0 ? role.FontSize : 9f) * scale;
+            return BeepThemesManager.ToFont(role.FontFamily, size, role.FontWeight, role.FontStyle);
+        }
+
+        /// <summary>
+        /// Control-style-driven fallback used when the matching theme role is unset.
+        /// Routes through BeepThemesManager (shared cache) — no consumer disposal.
+        /// </summary>
+        private static Font ResolveFallback(BeepTaskCard card, BeepControlStyle controlStyle, TaskCardFontElement element, float scale)
+        {
+            var family = (card?.Font ?? SystemFonts.DefaultFont).FontFamily.Name;
+            int fontSize = GetFontSizeForElement(controlStyle, element);
+            if (Math.Abs(scale - 1f) > 0.001f) fontSize = Math.Max(8, (int)(fontSize * scale));
+            FontStyle fontStyle = GetFontStyleForElement(controlStyle, element);
+            var weight = fontStyle.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Normal;
+            return BeepThemesManager.ToFont(family, fontSize, weight, fontStyle);
+        }
+
+        #endregion
+
+        #region Font Size and Style Helpers (fallback tables)
 
         /// <summary>
         /// Get font size for a specific element based on control style
@@ -212,21 +162,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
         #region Bulk Font Application
 
         /// <summary>
-        /// Apply font theme to a task card control
-        /// Updates all font properties based on theme and style
+        /// Apply font theme to a task card control.
+        /// Fonts are resolved per-element in the painters via the Get*Font methods.
         /// </summary>
         public static void ApplyFontTheme(
             BeepTaskCard card,
             BeepControlStyle controlStyle)
         {
-            if (card == null)
-                return;
-
-            // Fonts are applied in DrawContent() method
-            // This method provides the font values that should be used
+            // Fonts are applied in painters via the Get*Font methods above.
         }
 
         #endregion
     }
 }
-

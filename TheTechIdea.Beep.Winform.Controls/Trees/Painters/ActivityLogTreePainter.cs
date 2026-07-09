@@ -82,10 +82,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         }
 
                         // Solid timeline dot
-                        using (var dotBrush = new SolidBrush(dotColor))
-                        {
-                            g.FillEllipse(dotBrush, centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
-                        }
+                        var dotBrush = GetBrush(dotColor);
+                        g.FillEllipse(dotBrush, centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
 
                         // White border for contrast
                         using (var borderPen = new Pen(Color.FromArgb(200, 255, 255, 255), 1.5f))
@@ -112,10 +110,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillRectangle(bgBrush, checkRect);
-                    }
+                    var bgBrush = GetBrush(bgColor);
+                    g.FillRectangle(bgBrush, checkRect);
 
                     using (var borderPen = new Pen(borderColor, 1f))
                     {
@@ -143,11 +139,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
-                    using (var renderFont = FontListHelper.GetFont(_owner.TextFont.FontFamily.Name, _owner.TextFont.Size, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
 
                 // STEP 6: Draw timestamp indicator (right side)
@@ -161,11 +154,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     string timestamp = node.Item.IsExpanded ? "2m ago" : "1h ago";
                     Color timestampColor = Color.FromArgb(150, _theme.TreeForeColor);
 
-                    using (var timestampFont = FontListHelper.GetFont("Segoe UI", 7.5f, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, timestamp, timestampFont, timestampRect, timestampColor,
-                            TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    var timestampFont = GetFont(7.5f);
+                    TextRenderer.DrawText(g, timestamp, timestampFont, timestampRect, timestampColor,
+                        TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -181,19 +172,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: subtle highlight
-                Color selectedColor = GetSelectedBackColor();
-                using (var brush = new SolidBrush(selectedColor))
-                {
-                    g.FillRectangle(brush, nodeBounds);
-                }
+                g.FillRectangle(GetBrush(GetSelectedBackColor()), nodeBounds);
             }
             else if (isHovered)
             {
-                Color hoverColor = GetHoverBackColor();
-                using (var brush = new SolidBrush(hoverColor))
-                {
-                    g.FillRectangle(brush, nodeBounds);
-                }
+                g.FillRectangle(GetBrush(GetHoverBackColor()), nodeBounds);
             }
         }
 
@@ -244,10 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             }
 
             // Solid dot
-            using (var brush = new SolidBrush(dotColor))
-            {
-                g.FillEllipse(brush, centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
-            }
+            g.FillEllipse(GetBrush(dotColor), centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
 
             // Border
             using (var pen = new Pen(Color.FromArgb(200, 255, 255, 255), 1.5f))
@@ -271,10 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            g.FillRectangle(GetBrush(_theme.TreeBackColor), bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -304,11 +281,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (timestampRect.Width <= 0 || timestampRect.Height <= 0) return;
 
             Color timestampColor = Color.FromArgb(150, _theme.TreeForeColor);
-            using (var font = FontListHelper.GetFont("Segoe UI", 7.5f, FontStyle.Regular))
-            {
-                TextRenderer.DrawText(g, timestamp, font, timestampRect, timestampColor,
-                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-            }
+            var font = GetFont(7.5f);
+            TextRenderer.DrawText(g, timestamp, font, timestampRect, timestampColor,
+                TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>

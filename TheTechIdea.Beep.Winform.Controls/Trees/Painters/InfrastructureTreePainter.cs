@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     Rectangle pillRect = new Rectangle(pillX, pillY, 60, PillHeight);
 
                     // Determine status color (simulated - in real scenario would check node.Item properties)
-                    Color statusColor = node.Item.IsExpanded ? Color.FromArgb(76, 175, 80) :  // Green = Running
+                    Color statusColor = node.Item.IsExpanded ? _theme.SuccessColor :  // Green = Running
                                        Color.FromArgb(33, 150, 243);  // Blue = Stopped
                     string statusText = node.Item.IsExpanded ? "ON" : "OFF";
 
@@ -166,10 +166,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 return; // Transparent for normal state
             }
 
-            using (var brush = new SolidBrush(backColor))
-            {
-                g.FillRectangle(brush, nodeBounds);
-            }
+            var brush = GetBrush(backColor);
+            g.FillRectangle(brush, nodeBounds);
         }
 
         public override void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)

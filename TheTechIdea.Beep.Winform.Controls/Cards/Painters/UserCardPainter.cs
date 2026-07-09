@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -158,9 +159,8 @@ _nameFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _roleFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _roleFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
 
             // Draw status badge
@@ -176,13 +176,11 @@ _nameFont = titleFont;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 
                 // Outer glow ring
-                var glowRect = Rectangle.Inflate(ctx.ImageRect, 4, 4);
-                using var glowPen = new Pen(Color.FromArgb(30, ctx.AccentColor), 2);
-                g.DrawEllipse(glowPen, glowRect);
-                
+                var glowRect = Rectangle.Inflate(ctx.ImageRect, DpiScalingHelper.ScaleValue(4, _owner), DpiScalingHelper.ScaleValue(4, _owner));
+                g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner)), glowRect);
+
                 // Main border ring
-                using var borderPen = new Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(AvatarBorderWidth, _owner));
-                g.DrawEllipse(borderPen, ctx.ImageRect);
+                g.DrawEllipse(CardPaintCache.Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(AvatarBorderWidth, _owner)), ctx.ImageRect);
             }
         }
         

@@ -240,10 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Selected: card with accent border
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var brush = new SolidBrush(GetSelectedBackColor()))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(GetSelectedBackColor()), path);
 
                     // Accent border
                     using (var pen = new Pen(_theme.AccentColor, 2f))
@@ -257,10 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle card
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var hoverBrush = new SolidBrush(GetHoverBackColor()))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(GetHoverBackColor()), path);
 
                     using (var pen = new Pen(_theme.BorderColor, 1f))
                     {
@@ -302,37 +296,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Figma triangle
             Color triangleColor = _theme.TreeForeColor;
 
-            using (var brush = new SolidBrush(triangleColor))
+            var brush = GetBrush(triangleColor);
+            int centerX = toggleRect.Left + toggleRect.Width / 2;
+            int centerY = toggleRect.Top + toggleRect.Height / 2;
+            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+            Point[] triangle;
+
+            if (isExpanded)
             {
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                Point[] triangle;
-
-                if (isExpanded)
+                // Triangle down
+                triangle = new Point[]
                 {
-                    // Triangle down
-                    triangle = new Point[]
-                    {
-                        new Point(centerX - size, centerY - size / 2),
-                        new Point(centerX + size, centerY - size / 2),
-                        new Point(centerX, centerY + size / 2)
-                    };
-                }
-                else
-                {
-                    // Triangle right
-                    triangle = new Point[]
-                    {
-                        new Point(centerX - size / 2, centerY - size),
-                        new Point(centerX + size / 2, centerY),
-                        new Point(centerX - size / 2, centerY + size)
-                    };
-                }
-
-                g.FillPolygon(brush, triangle);
+                    new Point(centerX - size, centerY - size / 2),
+                    new Point(centerX + size, centerY - size / 2),
+                    new Point(centerX, centerY + size / 2)
+                };
             }
+            else
+            {
+                // Triangle right
+                triangle = new Point[]
+                {
+                    new Point(centerX - size / 2, centerY - size),
+                    new Point(centerX + size / 2, centerY),
+                    new Point(centerX - size / 2, centerY + size)
+                };
+            }
+
+            g.FillPolygon(brush, triangle);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -402,10 +394,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 g.DrawEllipse(pen, centerX - 2, centerY - 2, 4, 4);
 
                 // Pupil
-                using (var brush = new SolidBrush(eyeColor))
-                {
-                    g.FillEllipse(brush, centerX - 1, centerY - 1, 2, 2);
-                }
+                g.FillEllipse(GetBrush(eyeColor), centerX - 1, centerY - 1, 2, 2);
             }
         }
 
@@ -415,13 +404,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
-            // Figma uses Inter font (Segoe UI fallback)
-            Font renderFont = new Font("Segoe UI", font.Size, FontStyle.Regular);
+            // Figma uses theme font
+            var renderFont = GetFont(font.Size);
 
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-
-            renderFont.Dispose();
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
@@ -429,10 +416,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            g.FillRectangle(GetBrush(_theme.TreeBackColor), bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;

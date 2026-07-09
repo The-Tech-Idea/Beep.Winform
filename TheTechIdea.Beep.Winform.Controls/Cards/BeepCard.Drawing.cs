@@ -42,14 +42,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw error text
-            using (var brush = new SolidBrush(Color.Red))
-            using (var font = new Font("Arial", 8))
+            var errorFont = _captionFont ?? SystemFonts.DefaultFont;
+            TextRenderer.DrawText(g, "Card Error", errorFont, new Point(rect.X + 4, rect.Y + 4), Color.Red,
+                TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
+            if (!string.IsNullOrEmpty(message) && rect.Height > 30)
             {
-                g.DrawString("Card Error", font, brush, rect.X + 4, rect.Y + 4);
-                if (!string.IsNullOrEmpty(message) && rect.Height > 30)
-                {
-                    g.DrawString(message.Substring(0, Math.Min(50, message.Length)), font, brush, rect.X + 4, rect.Y + 18);
-                }
+                TextRenderer.DrawText(g, message.Substring(0, Math.Min(50, message.Length)), errorFont,
+                    new Point(rect.X + 4, rect.Y + 18), Color.Red,
+                    TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
             }
         }
 
@@ -225,16 +225,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             try
             {
-                using (var brush = new SolidBrush(color))
-                using (var format = new StringFormat())
+                TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
+                flags |= hAlign switch
                 {
-                    format.Alignment = hAlign;
-                    format.LineAlignment = vAlign;
-                    format.Trimming = StringTrimming.EllipsisCharacter;
-                    format.FormatFlags = StringFormatFlags.LineLimit;
-                    
-                    g.DrawString(text, font, brush, rect, format);
-                }
+                    StringAlignment.Center => TextFormatFlags.HorizontalCenter,
+                    StringAlignment.Far    => TextFormatFlags.Right,
+                    _                      => TextFormatFlags.Left
+                };
+                flags |= vAlign switch
+                {
+                    StringAlignment.Center => TextFormatFlags.VerticalCenter,
+                    StringAlignment.Far    => TextFormatFlags.Bottom,
+                    _                      => TextFormatFlags.Top
+                };
+                TextRenderer.DrawText(g, text, font, rect, color, flags);
             }
             catch (ArgumentException)
             {
@@ -332,18 +336,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             
             var textFont = _bodyFont ?? _captionFont ?? _headerFont ?? SystemFonts.DefaultFont;
-            
-            using (var format = new StringFormat())
-            {
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-                format.Trimming = StringTrimming.EllipsisCharacter;
-                
-                using (var brush = new SolidBrush(textColor))
-                {
-                    g.DrawString(text, textFont, brush, rect, format);
-                }
-            }
+
+            TextRenderer.DrawText(g, text, textFont, rect, textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
 
         // Create rounded rectangle path for buttons

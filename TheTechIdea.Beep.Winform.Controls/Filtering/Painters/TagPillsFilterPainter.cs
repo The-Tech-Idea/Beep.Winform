@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             };
 
             var config = owner.ActiveFilter;
-            int padding = 8;
+            int padding = Helpers.DpiScalingHelper.ScaleValue(8, owner);
 
             if (config == null || config.Criteria.Count == 0)
             {
@@ -68,10 +68,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 
                 // Measure pill size
                 using (var g = Graphics.FromHwnd(IntPtr.Zero))
-                using (var font = new Font("Segoe UI", 9f))
                 {
-                    var textSize = g.MeasureString(pillText, font);
-                    int pillWidth = (int)textSize.Width + PillHeight + padding * 3 + (owner.EnableDragDrop ? 20 : 0);
+                    var font = GetFont(9f);
+                    var textSize = TextRenderer.MeasureText(pillText, font);
+                    int pillWidth = (int)textSize.Width + PillHeight + padding * 3 + (owner.EnableDragDrop ? Helpers.DpiScalingHelper.ScaleValue(20, owner) : 0);
 
                     // Check if we need to wrap to next row
                     if (currentX + pillWidth > availableRect.Right - padding || pillsInRow >= MaxPillsPerRow)
@@ -155,11 +155,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
             {
                 var badgeLocation = new Point(
-                    layout.ContainerRect.Right - 40,
-                    layout.ContainerRect.Top + 8
+                    layout.ContainerRect.Right - Helpers.DpiScalingHelper.ScaleValue(40, owner),
+                    layout.ContainerRect.Top + Helpers.DpiScalingHelper.ScaleValue(8, owner)
                 );
                 var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
-                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor, owner);
             }
         }
 
@@ -170,34 +170,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
             // Background
             using (var path = CreateRoundedRectanglePath(rect, PillCornerRadius))
-            using (var brush = new SolidBrush(colors.background))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(colors.background), path);
             }
 
             // Border
             using (var path = CreateRoundedRectanglePath(rect, PillCornerRadius))
-            using (var pen = new Pen(colors.border, 1))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(colors.border, Helpers.DpiScalingHelper.ScaleValue(1, owner)), path);
             }
 
             // Drag handle
             if (owner.EnableDragDrop && !dragRect.IsEmpty)
             {
                 var dotColor = Color.FromArgb(150, colors.text);
-                PaintDragHandle(g, dragRect, dotColor);
+                PaintDragHandle(g, dragRect, dotColor, owner);
             }
 
             // Phase 1: Column type icon (if enabled)
-            int textStartX = rect.X + (owner.EnableDragDrop ? 24 : 12);
+            int textStartX = rect.X + (owner.EnableDragDrop ? Helpers.DpiScalingHelper.ScaleValue(24, owner) : Helpers.DpiScalingHelper.ScaleValue(12, owner));
             if (owner.ShowColumnTypeIcons)
             {
-                var iconRect = new Rectangle(textStartX, rect.Y + (rect.Height - 16) / 2, 16, 16);
+                int iconSize = Helpers.DpiScalingHelper.ScaleValue(16, owner);
+                var iconRect = new Rectangle(textStartX, rect.Y + (rect.Height - iconSize) / 2, iconSize, iconSize);
                 // TODO: Get actual column type from EntityStructure
                 var columnType = Utilities.DbFieldCategory.String; // Default
                 PaintColumnTypeIcon(g, iconRect, columnType, colors.accent);
-                textStartX += 20;
+                textStartX += Helpers.DpiScalingHelper.ScaleValue(20, owner);
             }
 
             // Text: "Column Operator Value"
@@ -205,26 +204,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             var textRect = new Rectangle(
                 textStartX,
                 rect.Y,
-                rect.Width - (textStartX - rect.X) - (owner.EnableDragDrop ? 36 : 24),
+                rect.Width - (textStartX - rect.X) - (owner.EnableDragDrop ? Helpers.DpiScalingHelper.ScaleValue(36, owner) : Helpers.DpiScalingHelper.ScaleValue(24, owner)),
                 rect.Height
             );
 
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(criterion.IsEnabled ? colors.text : Color.FromArgb(150, colors.text)))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Near,
-                    Trimming = StringTrimming.EllipsisCharacter
-                };
-                g.DrawString(pillText, font, brush, textRect, sf);
-            }
+            var pillTextColor = criterion.IsEnabled ? colors.text : Color.FromArgb(150, colors.text);
+            TextRenderer.DrawText(g, pillText, GetFont(9f), textRect, pillTextColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
 
             // Remove button (X)
             if (!removeRect.IsEmpty)
             {
-                int xSize = 10;
+                int xSize = Helpers.DpiScalingHelper.ScaleValue(10, owner);
                 int xCenterX = removeRect.X + removeRect.Width / 2;
                 int xCenterY = removeRect.Y + removeRect.Height / 2;
 
@@ -242,32 +233,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
 
+            int cr = Helpers.DpiScalingHelper.ScaleValue(4, owner);
+
             // Background
-            using (var path = CreateRoundedRectanglePath(rect, 4))
-            using (var brush = new SolidBrush(Color.FromArgb(240, 240, 240)))
+            using (var path = CreateRoundedRectanglePath(rect, cr))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(Color.FromArgb(240, 240, 240)), path);
             }
 
             // Border (dashed)
-            using (var path = CreateRoundedRectanglePath(rect, 4))
-            using (var pen = new Pen(colors.border, 1))
+            using (var path = CreateRoundedRectanglePath(rect, cr))
+            using (var pen = new Pen(colors.border, Helpers.DpiScalingHelper.ScaleValue(1, owner)))
             {
                 pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
                 g.DrawPath(pen, path);
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
-            using (var brush = new SolidBrush(colors.accent))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Center
-                };
-                g.DrawString("+ Add Rule", font, brush, rect, sf);
-            }
+            TextRenderer.DrawText(g, "+ Add Rule", GetFont(9f, FontStyle.Bold), rect, colors.accent,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>Hit tests for tag pills, remove buttons, and drag handles.</summary>
@@ -335,9 +319,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 var pillText = $"{criterion.ColumnName} {criterion.Operator.GetSymbol()} {criterion.Value}";
 
                 using (var g = Graphics.FromHwnd(IntPtr.Zero))
-                using (var font = new Font("Segoe UI", 9f))
                 {
-                    var textSize = g.MeasureString(pillText, font);
+                    var font = GetFont(9f);
+                    var textSize = TextRenderer.MeasureText(pillText, font);
                     int pillWidth = (int)textSize.Width + PillHeight + padding * 3 + 20; // Include drag handle space
 
                     if (currentX + pillWidth > availableRect.Right - padding || pillsInRow >= MaxPillsPerRow)
@@ -412,55 +396,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
             // Background
             using (var path = CreateRoundedRectanglePath(rect, PillCornerRadius))
-            using (var brush = new SolidBrush(bgColor))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(bgColor), path);
             }
 
             // Border
             using (var path = CreateRoundedRectanglePath(rect, PillCornerRadius))
-            using (var pen = new Pen(borderColor, 1))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(borderColor, 1), path);
             }
 
             // Drag handle
             if (!dragRect.IsEmpty)
             {
-                using (var pen = new Pen(textColor, 2))
-                {
-                    g.DrawLine(pen, dragRect.X, dragRect.Y + 4, dragRect.X, dragRect.Bottom - 4);
-                    g.DrawLine(pen, dragRect.X + 4, dragRect.Y + 4, dragRect.X + 4, dragRect.Bottom - 4);
-                    g.DrawLine(pen, dragRect.X + 8, dragRect.Y + 4, dragRect.X + 8, dragRect.Bottom - 4);
-                }
+                var pen = GetPen(textColor, 2);
+                g.DrawLine(pen, dragRect.X, dragRect.Y + 4, dragRect.X, dragRect.Bottom - 4);
+                g.DrawLine(pen, dragRect.X + 4, dragRect.Y + 4, dragRect.X + 4, dragRect.Bottom - 4);
+                g.DrawLine(pen, dragRect.X + 8, dragRect.Y + 4, dragRect.X + 8, dragRect.Bottom - 4);
             }
 
             // Text
             var pillText = $"{criterion.ColumnName} {criterion.Operator.GetSymbol()} {criterion.Value}";
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(textColor))
             {
                 var textRect = new Rectangle(rect.X + (!dragRect.IsEmpty ? 24 : 8), rect.Y, rect.Width - 32, rect.Height);
-                var sf = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(pillText, font, brush, textRect, sf);
+                TextRenderer.DrawText(g, pillText, GetFont(9f), textRect, textColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
 
             // X button
             if (!removeRect.IsEmpty)
             {
                 bool xHovered = hoveredArea?.Type == FilterHitAreaType.RemoveButton && hoveredArea?.Tag is int rhIndex && rhIndex == index;
-                using (var brush = new SolidBrush(xHovered ? Color.FromArgb(220, 53, 69) : Color.FromArgb(108, 117, 125)))
-                using (var pen = new Pen(xHovered ? Color.White : Color.FromArgb(173, 181, 189), 2))
+                if (xHovered)
                 {
-                    if (xHovered)
-                    {
-                        g.FillEllipse(brush, removeRect);
-                    }
-                    int cx = removeRect.X + removeRect.Width / 2;
-                    int cy = removeRect.Y + removeRect.Height / 2;
-                    g.DrawLine(pen, cx - 4, cy - 4, cx + 4, cy + 4);
-                    g.DrawLine(pen, cx - 4, cy + 4, cx + 4, cy - 4);
+                    g.FillEllipse(GetBrush(Color.FromArgb(220, 53, 69)), removeRect);
                 }
+                var pen = GetPen(xHovered ? Color.White : Color.FromArgb(173, 181, 189), 2);
+                int cx = removeRect.X + removeRect.Width / 2;
+                int cy = removeRect.Y + removeRect.Height / 2;
+                g.DrawLine(pen, cx - 4, cy - 4, cx + 4, cy + 4);
+                g.DrawLine(pen, cx - 4, cy + 4, cx + 4, cy - 4);
             }
         }
 
@@ -475,12 +450,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 g.DrawPath(pen, path);
             }
 
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
-            using (var brush = new SolidBrush(isHovered ? theme.AccentColor : theme.ForeColor))
-            {
-                var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Center };
-                g.DrawString("+ Add Rule", font, brush, rect, sf);
-            }
+            TextRenderer.DrawText(g, "+ Add Rule", GetFont(9f, FontStyle.Bold), rect, isHovered ? theme.AccentColor : theme.ForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         #endregion

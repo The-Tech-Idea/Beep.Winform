@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -25,8 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             if (data == null) return;
 
             float anim = Math.Clamp(options?.AnimationProgress ?? 1f, 0f, 1f);
-            using var labelFont = new Font(SystemFonts.DefaultFont.FontFamily, 7.5f);
-            using var labelBrush = new SolidBrush(Color.FromArgb(180, textColor));
+            var labelFont = BeepThemesManager.ToFont("Segoe UI", 7.5f, FontWeight.Normal, FontStyle.Regular);
 
             for (int sIdx = 0; sIdx < data.Count; sIdx++)
             {

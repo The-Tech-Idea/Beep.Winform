@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
         protected static void DrawHeader(Graphics g, Rectangle bounds, IBeepTheme theme, BeepStatCard owner, string header)
         {
             if (string.IsNullOrEmpty(header)) return;
-            using var font = StatCardFontHelpers.GetHeaderFont(owner, owner?.Style ?? BeepControlStyle.Material3);
+            var font = StatCardFontHelpers.GetHeaderFont(owner, owner?.Style ?? BeepControlStyle.Material3);
             Color headerColor = StatCardThemeHelpers.GetHeaderColor(theme, owner?.UseThemeColors ?? true, null);
             using var brush = new SolidBrush(headerColor);
             var textRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, (int)(font.Size * 1.6f));
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
         protected static void DrawValue(Graphics g, Rectangle bounds, IBeepTheme theme, BeepStatCard owner, string valueText, float scale = 1.6f)
         {
             if (string.IsNullOrEmpty(valueText)) return;
-            using var font = StatCardFontHelpers.GetValueFont(owner, owner?.Style ?? BeepControlStyle.Material3, scale);
+            var font = StatCardFontHelpers.GetValueFont(owner, owner?.Style ?? BeepControlStyle.Material3, scale);
             Color valueColor = StatCardThemeHelpers.GetValueColor(theme, owner?.UseThemeColors ?? true, null);
             using var brush = new SolidBrush(valueColor);
             // Measure text to ensure it fits (using cached TextUtils)

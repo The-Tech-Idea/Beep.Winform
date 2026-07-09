@@ -77,6 +77,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             
             // BaseControl properties
             this.ApplyThemeToChilds = false;
+
+            // Accessibility
+            this.AccessibleRole = AccessibleRole.Grouping;
+            this.AccessibleName = "Filter";
+            this.AccessibleDescription = "Filter builder with selectable criteria";
         }
 
         private void InitializeFilterControl()

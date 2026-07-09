@@ -14,7 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
     internal sealed class BeepMultiSplitterActionList : DesignerActionList
     {
         private readonly IBeepDesignerActionHost _designer;
-        private BeepMultiSplitter? Splitter => Component as BeepMultiSplitter;
+        private readonly IServiceProvider? _serviceProvider;
+        internal BeepMultiSplitter? Splitter => Component as BeepMultiSplitter;
         private TableLayoutPanel? TableLayoutPanel => Splitter?.TableLayoutPanel;
         private IComponentChangeService? ChangeService;
 
@@ -24,9 +25,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             _designer = designer ?? throw new System.ArgumentNullException(nameof(designer));
             if (designer is IServiceProvider sp)
             {
+                _serviceProvider = sp;
                 ChangeService = sp.GetService(typeof(IComponentChangeService)) as IComponentChangeService;
             }
         }
+
+        /// <summary>Rebuilds the smart-tag panel (used to cascade the Category -> Template dropdowns).</summary>
+        private void RefreshSmartTag()
+            => (_serviceProvider?.GetService(typeof(DesignerActionUIService)) as DesignerActionUIService)?.Refresh(Component);
 
         public int ColumnCount
         {
@@ -71,6 +77,122 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
                     Splitter?.Invalidate();
                 }
             }
+        }
+
+        /// <summary>Applies a built-in layout preset (reconfigures the grid). Rendered as a dropdown.</summary>
+        public MultiSplitterLayout LayoutPreset
+        {
+            get => Splitter?.Layout ?? MultiSplitterLayout.Custom;
+            set
+            {
+                if (Splitter == null) return;
+                var tlp = TableLayoutPanel;
+                if (tlp != null) ChangeService?.OnComponentChanging(tlp, null);
+                ChangeService?.OnComponentChanging(Splitter, TypeDescriptor.GetProperties(Splitter)["Layout"]);
+                Splitter.Layout = value;
+                ChangeService?.OnComponentChanged(Splitter, TypeDescriptor.GetProperties(Splitter)["Layout"], null, null);
+                if (tlp != null) ChangeService?.OnComponentChanged(tlp, null, null, null);
+                Splitter.Invalidate();
+            }
+        }
+
+        /// <summary>Applies a ready-made business template (invoice, product, POS, ...). Rendered as a dropdown.</summary>
+        public BusinessTemplate BusinessTemplate
+        {
+            get => Splitter?.BusinessTemplate ?? BusinessTemplate.None;
+            set
+            {
+                if (Splitter == null) return;
+                var tlp = TableLayoutPanel;
+                if (tlp != null) ChangeService?.OnComponentChanging(tlp, null);
+                ChangeService?.OnComponentChanging(Splitter, TypeDescriptor.GetProperties(Splitter)["BusinessTemplate"]);
+                Splitter.BusinessTemplate = value;
+                ChangeService?.OnComponentChanged(Splitter, TypeDescriptor.GetProperties(Splitter)["BusinessTemplate"], null, null);
+                if (tlp != null) ChangeService?.OnComponentChanged(tlp, null, null, null);
+                Splitter.Invalidate();
+            }
+        }
+
+        private BusinessTemplateCategory _templateCategory = BusinessTemplateCategory.Billing;
+
+        /// <summary>Selected business-template category. Changing it re-filters the Template dropdown.</summary>
+        public BusinessTemplateCategory TemplateCategory
+        {
+            get
+            {
+                // Keep the category in sync with the active template so the dropdown reflects reality.
+                var current = Splitter?.BusinessTemplate ?? BusinessTemplate.None;
+                if (current != BusinessTemplate.None)
+                    _templateCategory = BeepMultiSplitter.GetTemplateCategory(current);
+                return _templateCategory;
+            }
+            set
+            {
+                _templateCategory = value;
+                RefreshSmartTag();
+            }
+        }
+
+        /// <summary>The template within the selected category. Setting it applies the template.</summary>
+        [TypeConverter(typeof(TemplateInCategoryConverter))]
+        public BusinessTemplate Template
+        {
+            get => BusinessTemplate;
+            set => BusinessTemplate = value;
+        }
+
+        /// <summary>The templates available in the currently selected category (used by the converter).</summary>
+        internal BusinessTemplate[] TemplatesInCategory => BeepMultiSplitter.GetTemplates(_templateCategory);
+
+        public bool ShowSplitterGrips
+        {
+            get => Splitter?.ShowSplitterGrips ?? true;
+            set
+            {
+                if (Splitter == null) return;
+                ChangeService?.OnComponentChanging(Splitter, TypeDescriptor.GetProperties(Splitter)["ShowSplitterGrips"]);
+                Splitter.ShowSplitterGrips = value;
+                ChangeService?.OnComponentChanged(Splitter, TypeDescriptor.GetProperties(Splitter)["ShowSplitterGrips"], null, null);
+                Splitter.Invalidate();
+            }
+        }
+
+        public bool ShowCollapseHandles
+        {
+            get => Splitter?.ShowCollapseHandles ?? true;
+            set
+            {
+                if (Splitter == null) return;
+                ChangeService?.OnComponentChanging(Splitter, TypeDescriptor.GetProperties(Splitter)["ShowCollapseHandles"]);
+                Splitter.ShowCollapseHandles = value;
+                ChangeService?.OnComponentChanged(Splitter, TypeDescriptor.GetProperties(Splitter)["ShowCollapseHandles"], null, null);
+                Splitter.Invalidate();
+            }
+        }
+
+        // One-click preset shortcuts
+        public void PresetSidebarLeft() => LayoutPreset = MultiSplitterLayout.SidebarLeft;
+        public void PresetHeaderContentFooter() => LayoutPreset = MultiSplitterLayout.HeaderContentFooter;
+        public void PresetGrid2x2() => LayoutPreset = MultiSplitterLayout.Grid2x2;
+
+        /// <summary>Scaffolds the current layout preset's named zones as labelled tiles.</summary>
+        public void ScaffoldLayoutZones()
+        {
+            if (Splitter == null || TableLayoutPanel == null || Splitter.Layout == MultiSplitterLayout.Custom) return;
+            ChangeService?.OnComponentChanging(TableLayoutPanel, null);
+            Splitter.ApplyLayout(Splitter.Layout, addPlaceholders: true);
+            ChangeService?.OnComponentChanged(TableLayoutPanel, null, null, null);
+            Splitter.Invalidate();
+        }
+
+        /// <summary>Scaffolds the current business template's named zones as labelled tiles.</summary>
+        public void ScaffoldTemplateZones()
+        {
+            if (Splitter == null || TableLayoutPanel == null || Splitter.BusinessTemplate == BusinessTemplate.None) return;
+            ChangeService?.OnComponentChanging(TableLayoutPanel, null);
+            Splitter.ApplyBusinessTemplate(Splitter.BusinessTemplate, addPlaceholders: true);
+            ChangeService?.OnComponentChanged(TableLayoutPanel, null, null, null);
+            Splitter.Invalidate();
         }
 
         public void AddRow()
@@ -169,6 +291,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         {
             var items = new DesignerActionItemCollection();
 
+            items.Add(new DesignerActionHeaderItem("Layout Presets"));
+            items.Add(new DesignerActionPropertyItem("LayoutPreset", "Layout Preset", "Layout Presets", "Apply a built-in grid layout"));
+            items.Add(new DesignerActionMethodItem(this, nameof(PresetSidebarLeft), "Sidebar + Content", "Layout Presets", "Fixed left sidebar with flexible content", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(PresetHeaderContentFooter), "Header / Content / Footer", "Layout Presets", "Fixed header and footer with flexible content", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(PresetGrid2x2), "2 × 2 Grid", "Layout Presets", "A four-cell equal grid", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ScaffoldLayoutZones), "Scaffold Preset Zones", "Layout Presets", "Fill the current preset's zones with labelled tiles", true));
+
+            items.Add(new DesignerActionHeaderItem("Business Templates"));
+            items.Add(new DesignerActionPropertyItem("TemplateCategory", "Category", "Business Templates", "Filter templates by business category"));
+            items.Add(new DesignerActionPropertyItem("Template", "Template", "Business Templates", "Apply a ready-made business template"));
+            items.Add(new DesignerActionMethodItem(this, nameof(ScaffoldTemplateZones), "Scaffold Template Zones", "Business Templates", "Fill the current template's zones with labelled tiles", true));
+
             items.Add(new DesignerActionHeaderItem("Layout"));
             items.Add(new DesignerActionPropertyItem("ColumnCount", "Column Count", "Layout", "Number of columns"));
             items.Add(new DesignerActionPropertyItem("RowCount", "Row Count", "Layout", "Number of rows"));
@@ -179,8 +313,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
 
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem("CellBorderStyle", "Cell Border Style", "Appearance", "Border style for cells"));
+            items.Add(new DesignerActionPropertyItem("ShowSplitterGrips", "Show Splitter Grips", "Appearance", "Draw grip handles on the splitter borders"));
+            items.Add(new DesignerActionPropertyItem("ShowCollapseHandles", "Show Collapse Handles", "Appearance", "Show collapse/expand chevrons on fixed panes"));
 
             return items;
+        }
+
+        /// <summary>
+        /// TypeConverter that filters the <see cref="BusinessTemplate"/> dropdown to show only the
+        /// templates belonging to the action list's currently selected <c>_templateCategory</c>.
+        /// Falls back to the full list when the parent action list is unavailable.
+        /// </summary>
+        private sealed class TemplateInCategoryConverter : EnumConverter
+        {
+            public TemplateInCategoryConverter() : base(typeof(BusinessTemplate)) { }
+
+            public override StandardValuesCollection? GetStandardValues(ITypeDescriptorContext? context)
+            {
+                if (context?.Instance is BeepMultiSplitterActionList actionList)
+                {
+                    var templates = actionList.TemplatesInCategory;
+                    return new StandardValuesCollection(templates);
+                }
+                return base.GetStandardValues(context);
+            }
+
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext? context) => true;
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext? context) => true;
         }
     }
 }

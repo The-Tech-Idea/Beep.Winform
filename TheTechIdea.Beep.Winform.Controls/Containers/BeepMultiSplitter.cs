@@ -5,7 +5,10 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -67,16 +70,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _tableLayoutPanel.MouseUp += TableLayoutPanel_MouseUp;
                         _tableLayoutPanel.DragEnter += TableLayoutPanel_DragEnter;
                         _tableLayoutPanel.DragOver += TableLayoutPanel_DragOver;
-                        _tableLayoutPanel.ContextMenuStrip = contextMenu;
                         _tableLayoutPanel.Dock = DockStyle.Fill;
                         Controls.Add(_tableLayoutPanel);
+                        HookAdornments();
                     }
                 }
             }
         }
 
-        // Context menu for dynamic manipulation
-        private ContextMenuStrip contextMenu = new ContextMenuStrip();
+        // Context menu for dynamic manipulation (Beep control shown on right-click)
+        private BeepContextMenu contextMenu;
 
         public BeepMultiSplitter()
         {
@@ -116,47 +119,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize context menu with row/column management
             InitializeContextMenu();
 
-            
-            // Associate context menu with the TableLayoutPanel (only at runtime)
-            if (!DesignMode)
-            {
-                _tableLayoutPanel.ContextMenuStrip = contextMenu;
-            }
 
             // Add the TableLayoutPanel as a child of this BeepControl
             Controls.Add(_tableLayoutPanel);
             _tableLayoutPanel.Dock = DockStyle.Fill;
+
+            // Overlay splitter grips + collapse handles
+            HookAdornments();
+
+            // Accessibility
+            AccessibleRole = AccessibleRole.Grouping;
+            AccessibleName = "Multi Splitter";
+            AccessibleDescription = "Resizable table layout with add/remove row and column commands";
         }
 
         #region "Context Menu Setup & Handlers"
 
         private void InitializeContextMenu()
         {
-            ToolStripMenuItem addRowItem = new ToolStripMenuItem("Add Row", null, AddRowContextItem_Click);
-            ToolStripMenuItem removeRowItem = new ToolStripMenuItem("Remove Row", null, RemoveRowContextItem_Click);
-            ToolStripMenuItem addColumnItem = new ToolStripMenuItem("Add Column", null, AddColumnContextItem_Click);
-            ToolStripMenuItem removeColumnItem = new ToolStripMenuItem("Remove Column", null, RemoveColumnContextItem_Click);
+            contextMenu = new BeepContextMenu();
+            contextMenu.AddItem(new SimpleItem { Name = "addRow",      Text = "Add Row" });
+            contextMenu.AddItem(new SimpleItem { Name = "removeRow",   Text = "Remove Row" });
+            contextMenu.AddItem(new SimpleItem { Name = "addColumn",   Text = "Add Column" });
+            contextMenu.AddItem(new SimpleItem { Name = "removeColumn", Text = "Remove Column" });
 
-            contextMenu.Items.AddRange(new ToolStripItem[]
+            contextMenu.ItemClicked += (s, e) =>
             {
-                addRowItem,
-                removeRowItem,
-                addColumnItem,
-                removeColumnItem
-            });
+                switch (e.Item?.Name)
+                {
+                    case "addRow":       AddRow();       break;
+                    case "removeRow":    RemoveRow();    break;
+                    case "addColumn":    AddColumn();    break;
+                    case "removeColumn": RemoveColumn(); break;
+                }
+            };
         }
-
-        private void AddRowContextItem_Click(object sender, EventArgs e)
-            => AddRow();
-
-        private void RemoveRowContextItem_Click(object sender, EventArgs e)
-            => RemoveRow();
-
-        private void AddColumnContextItem_Click(object sender, EventArgs e)
-            => AddColumn();
-
-        private void RemoveColumnContextItem_Click(object sender, EventArgs e)
-            => RemoveColumn();
 
         #endregion
 
@@ -171,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Populate the new row with placeholder controls (optional)
             for (int column = 0; column < _tableLayoutPanel.ColumnCount; column++)
             {
-                var newControl = new Label()
+                var newControl = new BeepLabel()
                 {
                     Text = $"Row {_tableLayoutPanel.RowCount}, Col {column + 1}",
                     TextAlign = ContentAlignment.MiddleCenter
@@ -212,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             for (int i = 0; i < _tableLayoutPanel.ColumnCount; i++)
             {
-                var label = new Label()
+                var label = new BeepLabel()
                 {
                     Text = $"New Cell {rowIndex + 1},{i + 1}",
                     TextAlign = ContentAlignment.MiddleCenter
@@ -241,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Populate the new column with placeholder controls (optional)
             for (int row = 0; row < _tableLayoutPanel.RowCount; row++)
             {
-                var newControl = new Label()
+                var newControl = new BeepLabel()
                 {
                     Text = $"Row {row + 1}, Col {newColumnIndex + 1}",
                     TextAlign = ContentAlignment.MiddleCenter
@@ -285,8 +282,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Convert to local coordinates relative to the TableLayoutPanel
             Point localPoint = _tableLayoutPanel.PointToClient(e.Location);
 
-            // Identify if user is near a row or column border
-            rowOrColumnIndex = GetRowOrColumnIndexNearMouse(localPoint, RESIZE_TOLERANCE, out isColumnResize);
+            // Collapse/expand handle click takes priority over resizing.
+            if (e.Button == MouseButtons.Left && TryToggleCollapseAt(localPoint))
+                return;
+
+            // Identify if user is near a row or column border (DPI-scaled tolerance)
+            int tolerance = DpiScalingHelper.ScaleValue(RESIZE_TOLERANCE, this);
+            rowOrColumnIndex = GetRowOrColumnIndexNearMouse(localPoint, tolerance, out isColumnResize);
 
             if (rowOrColumnIndex != -1)
             {
@@ -301,6 +303,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Don't handle resizing at design time
             if (DesignMode) return;
+
+            if (!isResizing)
+            {
+                // Cursor feedback: show a resize cursor when hovering a row/column border.
+                int tolerance = DpiScalingHelper.ScaleValue(RESIZE_TOLERANCE, this);
+                Point localPoint = _tableLayoutPanel.PointToClient(e.Location);
+                int border = GetRowOrColumnIndexNearMouse(localPoint, tolerance, out bool overColumn);
+                _tableLayoutPanel.Cursor = border != -1
+                    ? (overColumn ? Cursors.SizeWE : Cursors.SizeNS)
+                    : Cursors.Default;
+                return;
+            }
 
             if (isResizing && rowOrColumnIndex != -1)
             {
@@ -329,6 +343,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 isResizing = false;
                 rowOrColumnIndex = -1;
                 _tableLayoutPanel.Capture = false;
+            }
+
+            // Show the Beep context menu on right-click (replaces the WinForms auto-show menu)
+            if (e.Button == MouseButtons.Right && !DesignMode && contextMenu != null)
+            {
+                contextMenu.Show(_tableLayoutPanel, e.Location);
             }
         }
 

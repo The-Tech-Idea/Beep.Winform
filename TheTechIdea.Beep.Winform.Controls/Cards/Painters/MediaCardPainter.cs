@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -176,9 +177,8 @@ _captionFont = captionFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _metaFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw play button overlay for video
@@ -187,7 +187,7 @@ _captionFont = captionFont;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 
                 // Semi-transparent circle background
-                using var circleBrush = new SolidBrush(Color.FromArgb(180, 0, 0, 0));
+                var circleBrush = CardPaintCache.Brush(Color.FromArgb(180, 0, 0, 0));
                 g.FillEllipse(circleBrush, ctx.ButtonRect);
                 
                 // Play triangle icon
@@ -202,16 +202,15 @@ _captionFont = captionFont;
                     new Point(iconLeft + iconSize, iconTop + iconSize / 2)
                 };
                 
-                using var iconBrush = new SolidBrush(Color.White);
+                var iconBrush = CardPaintCache.Brush(Color.White);
                 g.FillPolygon(iconBrush, playTriangle);
             }
             
             // Draw media stats
             if (ctx.ShowRating && !string.IsNullOrEmpty(ctx.StatusText) && !ctx.RatingRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(140, ctx.AccentColor));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _statsFont, brush, ctx.RatingRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _statsFont, ctx.RatingRect, Color.FromArgb(140, ctx.AccentColor),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
         }
         

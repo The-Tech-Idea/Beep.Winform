@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -112,7 +114,7 @@ _titleFont = titleFont;
             // Draw timeline line
             if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
-                using var lineBrush = new SolidBrush(Color.FromArgb(40, ctx.AccentColor));
+                var lineBrush = CardPaintCache.Brush(Color.FromArgb(40, ctx.AccentColor));
                 g.FillRectangle(lineBrush, ctx.StatusRect);
             }
             
@@ -125,9 +127,9 @@ _titleFont = titleFont;
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(100, Color.Black));
-                var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _timeFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.SubtitleRect,
+                    Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
         }
         
@@ -139,11 +141,11 @@ _titleFont = titleFont;
             Color iconColor = ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor;
             
             // Draw circular background
-            using var bgBrush = new SolidBrush(Color.FromArgb(20, iconColor));
+            var bgBrush = CardPaintCache.Brush(Color.FromArgb(20, iconColor));
             g.FillEllipse(bgBrush, ctx.ImageRect);
-            
+
             // Draw border
-            using var borderPen = new Pen(Color.FromArgb(60, iconColor), 2);
+            var borderPen = CardPaintCache.Pen(Color.FromArgb(60, iconColor), DpiScalingHelper.ScaleValue(2, _owner));
             g.DrawEllipse(borderPen, ctx.ImageRect);
             
             // Draw icon based on type
@@ -152,39 +154,39 @@ _titleFont = titleFont;
             int cx = ctx.ImageRect.Left + ctx.ImageRect.Width / 2;
             int cy = ctx.ImageRect.Top + ctx.ImageRect.Height / 2;
             
-            using var iconPen = new Pen(iconColor, 2);
+            using var iconPen = new Pen(iconColor, DpiScalingHelper.ScaleValue(2, _owner));
             iconPen.StartCap = LineCap.Round;
             iconPen.EndCap = LineCap.Round;
             
             if (activityType.Contains("add") || activityType.Contains("create") || activityType.Contains("new"))
             {
                 // Plus icon
-                g.DrawLine(iconPen, cx - 6, cy, cx + 6, cy);
-                g.DrawLine(iconPen, cx, cy - 6, cx, cy + 6);
+                g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(6, _owner), cy, cx + DpiScalingHelper.ScaleValue(6, _owner), cy);
+                g.DrawLine(iconPen, cx, cy - DpiScalingHelper.ScaleValue(6, _owner), cx, cy + DpiScalingHelper.ScaleValue(6, _owner));
             }
             else if (activityType.Contains("edit") || activityType.Contains("update") || activityType.Contains("change"))
             {
                 // Pencil icon
-                g.DrawLine(iconPen, cx - 5, cy + 5, cx + 5, cy - 5);
-                g.DrawLine(iconPen, cx + 3, cy - 7, cx + 7, cy - 3);
+                g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(5, _owner), cy + DpiScalingHelper.ScaleValue(5, _owner), cx + DpiScalingHelper.ScaleValue(5, _owner), cy - DpiScalingHelper.ScaleValue(5, _owner));
+                g.DrawLine(iconPen, cx + DpiScalingHelper.ScaleValue(3, _owner), cy - DpiScalingHelper.ScaleValue(7, _owner), cx + DpiScalingHelper.ScaleValue(7, _owner), cy - DpiScalingHelper.ScaleValue(3, _owner));
             }
             else if (activityType.Contains("delete") || activityType.Contains("remove"))
             {
                 // X icon
-                g.DrawLine(iconPen, cx - 5, cy - 5, cx + 5, cy + 5);
-                g.DrawLine(iconPen, cx + 5, cy - 5, cx - 5, cy + 5);
+                g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(5, _owner), cy - DpiScalingHelper.ScaleValue(5, _owner), cx + DpiScalingHelper.ScaleValue(5, _owner), cy + DpiScalingHelper.ScaleValue(5, _owner));
+                g.DrawLine(iconPen, cx + DpiScalingHelper.ScaleValue(5, _owner), cy - DpiScalingHelper.ScaleValue(5, _owner), cx - DpiScalingHelper.ScaleValue(5, _owner), cy + DpiScalingHelper.ScaleValue(5, _owner));
             }
             else if (activityType.Contains("comment") || activityType.Contains("message"))
             {
                 // Speech bubble
-                g.DrawEllipse(iconPen, cx - 6, cy - 5, 12, 10);
-                g.DrawLine(iconPen, cx - 2, cy + 5, cx - 4, cy + 8);
+                g.DrawEllipse(iconPen, cx - DpiScalingHelper.ScaleValue(6, _owner), cy - DpiScalingHelper.ScaleValue(5, _owner), DpiScalingHelper.ScaleValue(12, _owner), DpiScalingHelper.ScaleValue(10, _owner));
+                g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(2, _owner), cy + DpiScalingHelper.ScaleValue(5, _owner), cx - DpiScalingHelper.ScaleValue(4, _owner), cy + DpiScalingHelper.ScaleValue(8, _owner));
             }
             else
             {
                 // Default: circle/dot
-                using var dotBrush = new SolidBrush(iconColor);
-                g.FillEllipse(dotBrush, cx - 4, cy - 4, 8, 8);
+                var dotBrush = CardPaintCache.Brush(iconColor);
+                g.FillEllipse(dotBrush, cx - DpiScalingHelper.ScaleValue(4, _owner), cy - DpiScalingHelper.ScaleValue(4, _owner), DpiScalingHelper.ScaleValue(8, _owner), DpiScalingHelper.ScaleValue(8, _owner));
             }
         }
         

@@ -3,6 +3,8 @@ using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
 {
@@ -18,119 +20,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
     }
 
     /// <summary>
-    /// Centralized font management for Testimonial controls
-    /// Integrates with BeepFontManager and StyleTypography
+    /// Centralized font management for Testimonial controls.
+    /// Fonts are sourced from the theme's Card* TypographyStyle roles via
+    /// <see cref="BeepThemesManager"/>; when a role is unset the control-style
+    /// sizing tables below are used as a fallback. Returned fonts are owned by the
+    /// theme-manager cache — callers must NOT dispose them.
     /// </summary>
     public static class TestimonialFontHelpers
     {
         #region Font Retrieval Methods
 
-        /// <summary>
-        /// Get font for testimonial text
-        /// </summary>
+        /// <summary>Get font for testimonial text.</summary>
         public static Font GetTestimonialFont(
             BeepTestimonial testimonial,
             BeepControlStyle controlStyle,
             object viewType = null) // TestimonialViewType, but using object to avoid dependency
-        {
-            if (testimonial == null)
-                return new Font("Segoe UI", 10, FontStyle.Regular);
+            => FromRole(BeepThemesManager.CurrentTheme?.CardparagraphStyle)
+               ?? ResolveFallback(testimonial, controlStyle, TestimonialFontElement.Testimonial, viewType);
 
-            Font baseFont = testimonial.Font ?? new Font("Segoe UI", 10, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, TestimonialFontElement.Testimonial, viewType);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TestimonialFontElement.Testimonial);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for name text
-        /// </summary>
+        /// <summary>Get font for name text.</summary>
         public static Font GetNameFont(
             BeepTestimonial testimonial,
             BeepControlStyle controlStyle,
             object viewType = null)
-        {
-            if (testimonial == null)
-                return new Font("Segoe UI", 10, FontStyle.Bold);
+            => FromRole(BeepThemesManager.CurrentTheme?.CardTitleFont)
+               ?? ResolveFallback(testimonial, controlStyle, TestimonialFontElement.Name, viewType);
 
-            Font baseFont = testimonial.Font ?? new Font("Segoe UI", 10, FontStyle.Bold);
-
-            int fontSize = GetFontSizeForElement(controlStyle, TestimonialFontElement.Name, viewType);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TestimonialFontElement.Name);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for details text (username, position)
-        /// </summary>
+        /// <summary>Get font for details text (username, position).</summary>
         public static Font GetDetailsFont(
             BeepTestimonial testimonial,
             BeepControlStyle controlStyle,
             object viewType = null)
-        {
-            if (testimonial == null)
-                return new Font("Segoe UI", 9, FontStyle.Regular);
+            => FromRole(BeepThemesManager.CurrentTheme?.CardSubTitleStyle)
+               ?? ResolveFallback(testimonial, controlStyle, TestimonialFontElement.Details, viewType);
 
-            Font baseFont = testimonial.Font ?? new Font("Segoe UI", 9, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, TestimonialFontElement.Details, viewType);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TestimonialFontElement.Details);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for rating stars
-        /// </summary>
+        /// <summary>Get font for rating stars.</summary>
         public static Font GetRatingFont(
             BeepTestimonial testimonial,
             BeepControlStyle controlStyle)
-        {
-            if (testimonial == null)
-                return new Font("Segoe UI", 12, FontStyle.Bold);
-
-            Font baseFont = testimonial.Font ?? new Font("Segoe UI", 12, FontStyle.Bold);
-
-            int fontSize = GetFontSizeForElement(controlStyle, TestimonialFontElement.Rating, null);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, TestimonialFontElement.Rating);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
+            => FromRole(BeepThemesManager.CurrentTheme?.CardSubTitleStyle)
+               ?? ResolveFallback(testimonial, controlStyle, TestimonialFontElement.Rating, null);
 
         /// <summary>
         /// Get font for testimonial based on element type
@@ -149,6 +78,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
                 TestimonialFontElement.Rating => GetRatingFont(testimonial, controlStyle),
                 _ => GetTestimonialFont(testimonial, controlStyle, viewType)
             };
+        }
+
+        #endregion
+
+        #region Typography-role + fallback resolution
+
+        /// <summary>
+        /// Builds a font from a theme TypographyStyle role (shared, cached — never disposed).
+        /// Returns null when the role is unset so callers can fall back to control-style sizing.
+        /// </summary>
+        private static Font FromRole(TypographyStyle role, float scale = 1f)
+        {
+            if (role == null) return null;
+            if (Math.Abs(scale - 1f) < 0.001f)
+                return BeepThemesManager.ToFont(role);
+            float size = (role.FontSize > 0 ? role.FontSize : 9f) * scale;
+            return BeepThemesManager.ToFont(role.FontFamily, size, role.FontWeight, role.FontStyle);
+        }
+
+        /// <summary>
+        /// Control-style-driven fallback used when the matching theme role is unset.
+        /// Routes through BeepThemesManager (shared cache) — no consumer disposal.
+        /// </summary>
+        private static Font ResolveFallback(BeepTestimonial testimonial, BeepControlStyle controlStyle, TestimonialFontElement element, object viewType)
+        {
+            var family = (testimonial?.Font ?? SystemFonts.DefaultFont).FontFamily.Name;
+            int fontSize = GetFontSizeForElement(controlStyle, element, viewType);
+            FontStyle fontStyle = GetFontStyleForElement(controlStyle, element);
+            var weight = fontStyle.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Normal;
+            return BeepThemesManager.ToFont(family, fontSize, weight, fontStyle);
         }
 
         #endregion

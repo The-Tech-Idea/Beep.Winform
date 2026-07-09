@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -115,17 +116,18 @@ _quoteMarkFont = titleFont;
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
             // Draw large decorative quote mark
-            using var quoteBrush = new SolidBrush(Color.FromArgb(25, ctx.AccentColor));
-            g.DrawString("\u201C", _quoteMarkFont, quoteBrush, 
-                ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(5, _owner), 
-                ctx.DrawingRect.Top + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(10, _owner));
+            TextRenderer.DrawText(g, "\u201C", _quoteMarkFont,
+                new Point(
+                    ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(5, _owner),
+                    ctx.DrawingRect.Top + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(10, _owner)),
+                Color.FromArgb(25, ctx.AccentColor),
+                TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
 
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _titleFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _titleFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
             
             // Draw rating stars

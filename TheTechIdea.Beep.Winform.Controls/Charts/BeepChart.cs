@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
@@ -55,6 +56,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 InitializeDefaultSettings();
                 InitializeDesignTimeSampleData();
                 InitializePainter();
+
+                // Accessibility (design-skill compliance)
+                AccessibleRole = AccessibleRole.Chart;
+                AccessibleName = "Chart";
+                AccessibleDescription = "Data chart visualization";
             }
             catch (Exception ex)
             {
@@ -62,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             }
         }
 
-        protected override Size DefaultSize => new Size(400, 300);
+        protected override Size DefaultSize => BeepLayoutMetrics.Chart;
 
         protected override void Dispose(bool disposing)
         {

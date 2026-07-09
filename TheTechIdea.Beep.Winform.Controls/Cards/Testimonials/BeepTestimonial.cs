@@ -291,8 +291,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
             {
                 testimonialRect = layout.TestimonialBounds;
-                using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
+                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
                     SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, int.MaxValue);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
@@ -316,8 +316,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(_name) && !layout.NameBounds.IsEmpty)
             {
                 nameRect = layout.NameBounds;
-                using (var font = TestimonialFontHelpers.GetNameFont(this, ControlStyle, _viewType))
                 {
+                    var font = TestimonialFontHelpers.GetNameFont(this, ControlStyle, _viewType);
                     SizeF textSizeF = TextUtils.MeasureText(_name, font, int.MaxValue);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     nameRect.Width = Math.Min(textSize.Width, nameRect.Width);
@@ -333,8 +333,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(_position) && !layout.PositionBounds.IsEmpty)
             {
                 positionRect = layout.PositionBounds;
-                using (var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType))
                 {
+                    var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType);
                     SizeF textSizeF = TextUtils.MeasureText(_position, font, int.MaxValue);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     positionRect.Width = Math.Min(textSize.Width, positionRect.Width);
@@ -350,8 +350,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(_username) && !layout.UsernameBounds.IsEmpty)
             {
                 usernameRect = layout.UsernameBounds;
-                using (var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType))
                 {
+                    var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType);
                     SizeF textSizeF = TextUtils.MeasureText(_username, font, int.MaxValue);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     usernameRect.Width = Math.Min(textSize.Width, usernameRect.Width);
@@ -377,8 +377,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
             {
                 testimonialRect = layout.TestimonialBounds;
-                using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
+                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
                     SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
@@ -410,8 +410,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
             {
                 testimonialRect = layout.TestimonialBounds;
-                using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
+                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
                     SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
@@ -456,8 +456,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
             {
                 testimonialRect = layout.TestimonialBounds;
-                using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
+                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
                     SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);

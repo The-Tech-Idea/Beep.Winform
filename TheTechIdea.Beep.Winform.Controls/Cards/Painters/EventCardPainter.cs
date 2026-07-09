@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -145,39 +146,30 @@ _titleFont = titleFont;
             // Draw accent bar with rounded corners
             if (!ctx.StatusRect.IsEmpty)
             {
-                using var path = CardRenderingHelpers.CreateRoundedPath(ctx.StatusRect, 2);
-                using var brush = new SolidBrush(ctx.AccentColor);
-                g.FillPath(brush, path);
+                using var path = CardRenderingHelpers.CreateRoundedPath(ctx.StatusRect, DpiScalingHelper.ScaleValue(2, _owner));
+                g.FillPath(CardPaintCache.Brush(ctx.AccentColor), path);
             }
-            
+
             // Draw date/time block
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.ImageRect.IsEmpty)
             {
                 // Background for date block
-                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
-                using var bgBrush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
-                g.FillPath(bgBrush, bgPath);
-                
+                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(8, _owner));
+                g.FillPath(CardPaintCache.Brush(Color.FromArgb(20, ctx.AccentColor)), bgPath);
+
                 // Border
-                using var borderPen = new Pen(Color.FromArgb(50, ctx.AccentColor), 1);
-                g.DrawPath(borderPen, bgPath);
-                
+                g.DrawPath(CardPaintCache.Pen(Color.FromArgb(50, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner)), bgPath);
+
                 // Draw date text centered
-                using var textBrush = new SolidBrush(ctx.AccentColor);
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Center, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _dateFont, textBrush, ctx.ImageRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _dateFont, ctx.ImageRect, ctx.AccentColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
 
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _locationFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _locationFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw event category tags

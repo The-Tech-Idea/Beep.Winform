@@ -126,8 +126,7 @@ _titleFont = titleFont;
                 
                 // Subtle circle behind icon
                 var circleRect = Rectangle.Inflate(ctx.ImageRect, DpiScalingHelper.ScaleValue(8, _owner), DpiScalingHelper.ScaleValue(8, _owner));
-                using var brush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
-                g.FillEllipse(brush, circleRect);
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(15, ctx.AccentColor)), circleRect);
             }
         }
         

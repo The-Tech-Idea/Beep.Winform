@@ -79,6 +79,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         
         // Badge/counter
         public Rectangle CountBadgeRect { get; set; }
+
+        /// <summary>
+        /// DPI scale factor captured during CalculateLayout (owner's DPI). HitTest uses this to
+        /// scale any raw layout constants so hit areas stay aligned with the DPI-scaled painting.
+        /// </summary>
+        public float DpiScale { get; set; } = 1f;
     }
 
     /// <summary>

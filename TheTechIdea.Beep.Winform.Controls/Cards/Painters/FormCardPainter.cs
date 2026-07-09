@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -132,7 +133,7 @@ _titleFont = titleFont;
             
             // Draw section divider
             int dividerY = ctx.SubtitleRect.Bottom + DpiScalingHelper.ScaleValue(ElementGap, _owner) / 2;
-            using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner));
+            var dividerPen = CardPaintCache.Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner));
             g.DrawLine(dividerPen,
                 ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner), dividerY,
                 ctx.DrawingRect.Right - DpiScalingHelper.ScaleValue(Padding, _owner), dividerY);
@@ -159,16 +160,17 @@ _titleFont = titleFont;
                 
                 // Draw label
                 var labelRect = new Rectangle(ctx.ParagraphRect.Left, y, fieldWidth, labelHeight);
-                using var labelBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(label, _labelFont, labelBrush, labelRect, format);
-                
+                TextRenderer.DrawText(g, label, _labelFont, labelRect, Color.FromArgb(140, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+
                 // Draw required asterisk
                 if (isRequired)
                 {
                     var labelSize = g.MeasureString(label, _labelFont);
-                    using var reqBrush = new SolidBrush(Color.FromArgb(220, 53, 69));
-                    g.DrawString("*", _requiredFont, reqBrush, labelRect.Left + labelSize.Width + DpiScalingHelper.ScaleValue(2, _owner), y);
+                    TextRenderer.DrawText(g, "*", _requiredFont,
+                        new Point((int)(labelRect.Left + labelSize.Width + DpiScalingHelper.ScaleValue(2, _owner)), (int)y),
+                        _theme?.ErrorColor ?? Color.FromArgb(220, 53, 69),
+                        TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
                 }
                 
                 // Draw field placeholder
@@ -185,11 +187,11 @@ _titleFont = titleFont;
             
             // Field background
             using var bgPath = CardRenderingHelpers.CreateRoundedPath(rect, DpiScalingHelper.ScaleValue(6, _owner));
-            using var bgBrush = new SolidBrush(Color.FromArgb(250, 250, 250));
+            var bgBrush = CardPaintCache.Brush(Color.FromArgb(250, 250, 250));
             g.FillPath(bgBrush, bgPath);
-            
+
             // Field border
-            using var borderPen = new Pen(Color.FromArgb(200, 200, 200), DpiScalingHelper.ScaleValue(1, _owner));
+            var borderPen = CardPaintCache.Pen(Color.FromArgb(200, 200, 200), DpiScalingHelper.ScaleValue(1, _owner));
             g.DrawPath(borderPen, bgPath);
         }
         

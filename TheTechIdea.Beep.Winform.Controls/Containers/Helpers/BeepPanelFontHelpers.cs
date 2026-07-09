@@ -1,6 +1,5 @@
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
@@ -26,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
 
             if (theme?.LabelFont != null)
             {
-                return BeepFontManager.ToFont(theme.LabelFont);
+                return BeepThemesManager.ToFont(theme.LabelFont);
             }
 
             return SystemFonts.MessageBoxFont;

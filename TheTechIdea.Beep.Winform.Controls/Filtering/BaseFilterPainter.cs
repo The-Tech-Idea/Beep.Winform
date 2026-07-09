@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.GridX.Filtering;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Filtering
 {
@@ -16,6 +18,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
     /// </summary>
     public abstract class BaseFilterPainter : IFilterPainter, IFilterPainterMetricsProvider
     {
+        #region Cached GDI resources (Phase 9 compliance)
+        // Shared, process-lifetime caches so per-paint draw paths don't allocate.
+        // Fonts come from BeepThemesManager (shared cache) and MUST NOT be disposed here.
+        // Brushes/pens are single-color reusable instances (UI-thread only). Callers that
+        // mutate a pen (caps/dash) must allocate their own; use GetPen only for simple strokes.
+        private static readonly Dictionary<(float size, FontStyle style), Font> _fontCache = new();
+        private static readonly Dictionary<int, SolidBrush> _brushCache = new();
+        private static readonly Dictionary<(int argb, float width), Pen> _penCache = new();
+
+        /// <summary>Returns a cached theme-family font (shared — never dispose). Use instead of allocating fonts per paint.</summary>
+        protected static Font GetFont(float size, FontStyle style = FontStyle.Regular)
+        {
+            size = Math.Max(6f, size);
+            var key = (size, style);
+            if (_fontCache.TryGetValue(key, out var f) && f != null) return f;
+            var weight = style.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Normal;
+            f = BeepThemesManager.ToFont("Segoe UI", size, weight, style) ?? SystemFonts.DefaultFont;
+            _fontCache[key] = f;
+            return f;
+        }
+
+        /// <summary>Returns a cached solid brush (shared — never dispose).</summary>
+        protected static SolidBrush GetBrush(Color color)
+        {
+            int key = color.ToArgb();
+            if (_brushCache.TryGetValue(key, out var b) && b != null) return b;
+            b = new SolidBrush(color);
+            _brushCache[key] = b;
+            return b;
+        }
+
+        /// <summary>Returns a cached simple pen (shared — never dispose or mutate).</summary>
+        protected static Pen GetPen(Color color, float width = 1f)
+        {
+            width = Math.Max(0.5f, width);
+            var key = (color.ToArgb(), width);
+            if (_penCache.TryGetValue(key, out var p) && p != null) return p;
+            p = new Pen(color, width);
+            _penCache[key] = p;
+            return p;
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -65,22 +111,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             if (layout == null || config == null || theme == null) return;
             
             // Basic fallback rendering
-            using (var brush = new SolidBrush(theme.BackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
-            
-            using (var pen = new Pen(theme.BorderColor))
-            {
-                g.DrawRectangle(pen, bounds);
-            }
-            
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(theme.ForeColor))
-            {
-                var text = $"{config.Criteria.Count} filter(s) - Override Paint method";
-                g.DrawString(text, font, brush, new PointF(bounds.X + 10, bounds.Y + 10));
-            }
+            g.FillRectangle(GetBrush(theme.BackColor), bounds);
+            g.DrawRectangle(GetPen(theme.BorderColor), bounds);
+
+            var text = $"{config.Criteria.Count} filter(s) - Override Paint method";
+            TextRenderer.DrawText(g, text, GetFont(9f), new Point(bounds.X + 10, bounds.Y + 10), theme.ForeColor,
+                TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
         }
 
         #endregion
@@ -158,60 +194,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             using (var path = CreateRoundedRectanglePath(rect, cornerRadius))
             {
                 // Fill background
-                using (var brush = new SolidBrush(backgroundColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(backgroundColor), path);
 
                 // Draw border
                 if (borderWidth > 0)
                 {
-                    using (var pen = new Pen(borderColor, borderWidth))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(borderColor, borderWidth), path);
                 }
             }
         }
 
         /// <summary>
-        /// Paint a tag/chip pill
+        /// Paint a tag/chip pill. Pass <paramref name="owner"/> for DPI scaling of internal details.
         /// </summary>
-        protected void PaintTagPill(Graphics g, Rectangle rect, string text, Font font, Color backgroundColor, Color textColor, Color borderColor, int cornerRadius, bool showRemove = true)
+        protected void PaintTagPill(Graphics g, Rectangle rect, string text, Font font, Color backgroundColor, Color textColor, Color borderColor, int cornerRadius, bool showRemove = true, Control? owner = null)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             using (var path = CreateRoundedRectanglePath(rect, cornerRadius))
             {
                 // Fill
-                using (var brush = new SolidBrush(backgroundColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(backgroundColor), path);
 
                 // Border
-                using (var pen = new Pen(borderColor, 1))
-                {
-                    g.DrawPath(pen, path);
-                }
+                g.DrawPath(GetPen(borderColor, 1), path);
             }
 
+            int padH = owner != null ? DpiScalingHelper.ScaleValue(8,  owner) : 8;
+            int gapW = owner != null ? DpiScalingHelper.ScaleValue(28, owner) : 28; // space for X button + right pad
+            int padW = owner != null ? DpiScalingHelper.ScaleValue(16, owner) : 16; // no-X right pad
+
             // Text
-            var textRect = new Rectangle(rect.X + 8, rect.Y, rect.Width - (showRemove ? 28 : 16), rect.Height);
+            var textRect = new Rectangle(rect.X + padH, rect.Y, rect.Width - (showRemove ? gapW : padW), rect.Height);
             TextRenderer.DrawText(g, text, font, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
             // Remove button (X)
             if (showRemove)
             {
-                int xSize = 12;
-                int xX = rect.Right - 18;
+                int xSize = owner != null ? DpiScalingHelper.ScaleValue(12, owner) : 12;
+                int xOff  = owner != null ? DpiScalingHelper.ScaleValue(18, owner) : 18;
+                int xX = rect.Right - xOff;
                 int xY = rect.Y + rect.Height / 2;
 
-                using (var pen = new Pen(textColor, 1.5f))
-                {
-                    g.DrawLine(pen, xX - xSize / 2, xY - xSize / 2, xX + xSize / 2, xY + xSize / 2);
-                    g.DrawLine(pen, xX + xSize / 2, xY - xSize / 2, xX - xSize / 2, xY + xSize / 2);
-                }
+                var xPen = GetPen(textColor, 1.5f);
+                g.DrawLine(xPen, xX - xSize / 2, xY - xSize / 2, xX + xSize / 2, xY + xSize / 2);
+                g.DrawLine(xPen, xX + xSize / 2, xY - xSize / 2, xX - xSize / 2, xY + xSize / 2);
             }
         }
 
@@ -223,22 +250,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             // Background circle/pill
-            using (var brush = new SolidBrush(backgroundColor))
-            {
-                if (vertical)
-                    g.FillEllipse(brush, rect);
-                else
-                    g.FillRectangle(brush, rect);
-            }
+            var bgBrush = GetBrush(backgroundColor);
+            if (vertical)
+                g.FillEllipse(bgBrush, rect);
+            else
+                g.FillRectangle(bgBrush, rect);
 
             // Border
-            using (var pen = new Pen(borderColor, 1))
-            {
-                if (vertical)
-                    g.DrawEllipse(pen, rect);
-                else
-                    g.DrawRectangle(pen, rect);
-            }
+            var borderPen = GetPen(borderColor, 1);
+            if (vertical)
+                g.DrawEllipse(borderPen, rect);
+            else
+                g.DrawRectangle(borderPen, rect);
 
             // Text
             TextRenderer.DrawText(g, text, font, rect, textColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
@@ -252,10 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             if (rect.Width <= 0 || rect.Height <= 0 || count <= 0) return;
 
             // Circle background
-            using (var brush = new SolidBrush(backgroundColor))
-            {
-                g.FillEllipse(brush, rect);
-            }
+            g.FillEllipse(GetBrush(backgroundColor), rect);
 
             // Text
             string countText = count > 99 ? "99+" : count.ToString();
@@ -265,23 +285,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// <summary>
         /// Paint a drag handle (6 dots)
         /// </summary>
-        protected void PaintDragHandle(Graphics g, Rectangle rect, Color dotColor)
+        protected void PaintDragHandle(Graphics g, Rectangle rect, Color dotColor, Control? owner = null)
         {
-            int dotSize = 3;
-            int spacing = 4;
+            int dotSize = owner != null ? DpiScalingHelper.ScaleValue(3, owner) : 3;
+            int spacing = owner != null ? DpiScalingHelper.ScaleValue(4, owner) : 4;
             int centerX = rect.X + rect.Width / 2;
             int centerY = rect.Y + rect.Height / 2;
 
-            using (var brush = new SolidBrush(dotColor))
+            var dotBrush = GetBrush(dotColor);
+            for (int row = 0; row < 3; row++)
             {
-                for (int row = 0; row < 3; row++)
+                for (int col = 0; col < 2; col++)
                 {
-                    for (int col = 0; col < 2; col++)
-                    {
-                        int x = centerX - spacing / 2 + col * spacing - dotSize / 2;
-                        int y = centerY - spacing + row * spacing - dotSize / 2;
-                        g.FillEllipse(brush, x, y, dotSize, dotSize);
-                    }
+                    int x = centerX - spacing / 2 + col * spacing - dotSize / 2;
+                    int y = centerY - spacing + row * spacing - dotSize / 2;
+                    g.FillEllipse(dotBrush, x, y, dotSize, dotSize);
                 }
             }
         }
@@ -366,49 +384,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         #region Modern UX Helpers (Phase 1 Enhancements)
 
         /// <summary>
-        /// Paints a modern filter count badge
+        /// Paints a modern filter count badge with DPI-aware sizing.
         /// </summary>
-        protected void PaintFilterCountBadge(Graphics g, int count, Point location, Color accentColor)
+        protected void PaintFilterCountBadge(Graphics g, int count, Point location, Color accentColor, Control? owner = null)
         {
             if (count == 0) return;
 
             string badgeText = count > 99 ? "99+" : count.ToString();
+            var font = GetFont(9f, FontStyle.Bold);
+            var textSize = TextRenderer.MeasureText(badgeText, font);
+            int pad = owner != null ? DpiScalingHelper.ScaleValue(12, owner) : 12;
+            int badgeWidth = Math.Max(owner != null ? DpiScalingHelper.ScaleValue(24, owner) : 24, textSize.Width + pad);
+            int badgeHeight = owner != null ? DpiScalingHelper.ScaleValue(20, owner) : 20;
 
-            // Measure badge
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
+            var badgeRect = new Rectangle(location.X, location.Y, badgeWidth, badgeHeight);
+
+            using (var path = CreateRoundedRectanglePath(badgeRect, badgeHeight / 2))
             {
-                var textSize = g.MeasureString(badgeText, font);
-                int badgeWidth = Math.Max(24, (int)textSize.Width + 12);
-                int badgeHeight = 20;
-
-                var badgeRect = new Rectangle(location.X, location.Y, badgeWidth, badgeHeight);
-
-                // Draw badge background
-                using (var path = CreateRoundedRectanglePath(badgeRect, badgeHeight / 2))
-                {
-                    using (var brush = new SolidBrush(accentColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
-
-                    // Optional: subtle glow
-                    using (var glowPen = new Pen(Color.FromArgb(60, accentColor), 2f))
-                    {
-                        g.DrawPath(glowPen, path);
-                    }
-                }
-
-                // Draw count text
-                using (var brush = new SolidBrush(Color.White))
-                {
-                    var format = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    };
-                    g.DrawString(badgeText, font, brush, badgeRect, format);
-                }
+                g.FillPath(GetBrush(accentColor), path);
+                g.DrawPath(GetPen(Color.FromArgb(60, accentColor), 2f), path);
             }
+
+            TextRenderer.DrawText(g, badgeText, font, badgeRect, Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>
@@ -418,21 +416,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             Color indicatorColor;
             string iconText;
+            var theme = BeepThemesManager.CurrentTheme;
 
             switch (level)
             {
                 case FilterValidationLevel.Error:
-                    indicatorColor = Color.FromArgb(220, 53, 69); // Red
+                    indicatorColor = theme?.ErrorColor ?? Color.FromArgb(220, 53, 69); // Red
                     iconText = "✕";
                     break;
 
                 case FilterValidationLevel.Warning:
-                    indicatorColor = Color.FromArgb(255, 193, 7); // Amber
+                    indicatorColor = theme?.WarningColor ?? Color.FromArgb(255, 193, 7); // Amber
                     iconText = "⚠";
                     break;
 
                 case FilterValidationLevel.Success:
-                    indicatorColor = Color.FromArgb(40, 167, 69); // Green
+                    indicatorColor = theme?.SuccessColor ?? Color.FromArgb(40, 167, 69); // Green
                     iconText = "✓";
                     break;
 
@@ -441,22 +440,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
 
             // Draw circle background
-            using (var brush = new SolidBrush(indicatorColor))
-            {
-                g.FillEllipse(brush, bounds);
-            }
+            g.FillEllipse(GetBrush(indicatorColor), bounds);
 
-            // Draw icon
-            using (var font = new Font("Segoe UI", bounds.Height * 0.6f, FontStyle.Bold))
-            using (var brush = new SolidBrush(Color.White))
-            {
-                var format = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString(iconText, font, brush, bounds, format);
-            }
+            // Draw icon (white on colored fill)
+            TextRenderer.DrawText(g, iconText, GetFont(bounds.Height * 0.6f, FontStyle.Bold), bounds, Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>
@@ -470,43 +458,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// <summary>
         /// Paints a keyboard shortcut hint
         /// </summary>
-        protected void PaintKeyboardHint(Graphics g, Point location, string shortcut, Color backgroundColor, Color textColor)
+        protected void PaintKeyboardHint(Graphics g, Point location, string shortcut, Color backgroundColor, Color textColor, Control? owner = null)
         {
-            using (var font = new Font("Segoe UI", 8f))
+            var font = GetFont(8f);
+            var textSize = TextRenderer.MeasureText(shortcut, font);
+            int padW = owner != null ? DpiScalingHelper.ScaleValue(12, owner) : 12;
+            int padH = owner != null ? DpiScalingHelper.ScaleValue(6,  owner) : 6;
+            var hintRect = new Rectangle(
+                location.X,
+                location.Y,
+                textSize.Width + padW,
+                textSize.Height + padH
+            );
+
+            int radius = owner != null ? DpiScalingHelper.ScaleValue(4, owner) : 4;
+
+            // Draw rounded background
+            using (var path = CreateRoundedRectanglePath(hintRect, radius))
             {
-                var textSize = g.MeasureString(shortcut, font);
-                var hintRect = new Rectangle(
-                    location.X,
-                    location.Y,
-                    (int)textSize.Width + 12,
-                    (int)textSize.Height + 6
-                );
-
-                // Draw rounded background
-                using (var path = CreateRoundedRectanglePath(hintRect, 4))
-                {
-                    using (var brush = new SolidBrush(Color.FromArgb(200, backgroundColor)))
-                    {
-                        g.FillPath(brush, path);
-                    }
-
-                    using (var pen = new Pen(Color.FromArgb(150, textColor), 1f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
-                }
-
-                // Draw text
-                using (var brush = new SolidBrush(textColor))
-                {
-                    var format = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    };
-                    g.DrawString(shortcut, font, brush, hintRect, format);
-                }
+                g.FillPath(GetBrush(Color.FromArgb(200, backgroundColor)), path);
+                g.DrawPath(GetPen(Color.FromArgb(150, textColor), 1f), path);
             }
+
+            // Draw text
+            TextRenderer.DrawText(g, shortcut, font, hintRect, textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>

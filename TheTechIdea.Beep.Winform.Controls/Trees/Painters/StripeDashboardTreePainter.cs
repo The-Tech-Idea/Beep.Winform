@@ -24,11 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  base.Initialize(owner, theme);
  _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
- if (_boldFont == null || _boldFont.Size != _regularFont.Size || !_boldFont.FontFamily.Equals(_regularFont.FontFamily))
- {
- try { _boldFont?.Dispose(); } catch { }
- _boldFont = new Font(_regularFont.FontFamily, _regularFont.Size, FontStyle.Bold);
- }
+ _boldFont = GetFont(_regularFont.Size, FontStyle.Bold);
  }
 
  public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -172,17 +168,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  g.FillPath(brush, badgePath);
  }
 
- using (var textBrush = PaintersFactory.GetSolidBrush(badgeColor))
- {
- StringFormat sf = new StringFormat
- {
- Alignment = StringAlignment.Center,
- LineAlignment = StringAlignment.Center
- };
-
  string metricText = "99+";
- g.DrawString(metricText, new Font("Segoe UI",7f, FontStyle.Regular), textBrush, badgeRect, sf);
- }
+ TextRenderer.DrawText(g, metricText, GetFont(7f, FontStyle.Regular), badgeRect, badgeColor,
+ TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
  }
  }
  }
@@ -252,19 +240,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  g.FillPath(brush, path);
  }
 
- using (var textBrush = PaintersFactory.GetSolidBrush(badgeColor))
- {
- StringFormat sf = new StringFormat
- {
- Alignment = StringAlignment.Center,
- LineAlignment = StringAlignment.Center
- };
-
- using (var metricFont = new Font("Segoe UI",7f, FontStyle.Regular))
- {
- g.DrawString("99+", metricFont, textBrush, badgeRect, sf);
- }
- }
+ TextRenderer.DrawText(g, "99+", GetFont(7f, FontStyle.Regular), badgeRect, badgeColor,
+ TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
  }
  }
 

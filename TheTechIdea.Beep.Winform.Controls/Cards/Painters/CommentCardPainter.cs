@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -135,27 +137,23 @@ _authorFont = bodyFont;
             // Draw thread line for nested comments
             if (ctx.ShowRating && ctx.Rating > 0 && !ctx.StatusRect.IsEmpty)
             {
-                using var lineBrush = new SolidBrush(Color.FromArgb(40, ctx.AccentColor));
-                g.FillRectangle(lineBrush, ctx.StatusRect);
+                g.FillRectangle(CardPaintCache.Brush(Color.FromArgb(40, ctx.AccentColor)), ctx.StatusRect);
             }
-            
+
             // Draw avatar
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                using var bgBrush = new SolidBrush(Color.FromArgb(40, ctx.AccentColor));
-                g.FillEllipse(bgBrush, ctx.ImageRect);
-                
-                using var borderPen = new Pen(Color.FromArgb(30, ctx.AccentColor), 1);
-                g.DrawEllipse(borderPen, ctx.ImageRect);
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(40, ctx.AccentColor)), ctx.ImageRect);
+
+                g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner)), ctx.ImageRect);
             }
-            
+
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(100, Color.Black));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _timeFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.SubtitleRect, Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw action buttons
@@ -167,20 +165,17 @@ _authorFont = bodyFont;
             // Like button
             if (!ctx.ButtonRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(120, Color.Black));
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                
                 // Like count in BadgeText1
                 string likeText = string.IsNullOrEmpty(ctx.BadgeText1) ? "♥ Like" : $"♥ {ctx.BadgeText1}";
-                g.DrawString(likeText, _actionFont, brush, ctx.ButtonRect, format);
+                TextRenderer.DrawText(g, likeText, _actionFont, ctx.ButtonRect, Color.FromArgb(120, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
-            
+
             // Reply button
             if (!ctx.SecondaryButtonRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(120, Color.Black));
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString("↩ Reply", _actionFont, brush, ctx.SecondaryButtonRect, format);
+                TextRenderer.DrawText(g, "↩ Reply", _actionFont, ctx.SecondaryButtonRect, Color.FromArgb(120, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
         

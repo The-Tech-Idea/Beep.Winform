@@ -1,6 +1,5 @@
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
@@ -16,12 +15,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
 
             if (owner?.UseThemeFont == true && theme?.LabelFont != null)
             {
-                return BeepFontManager.ToFont(theme.LabelFont);
+                return BeepThemesManager.ToFont(theme.LabelFont);
             }
 
             if (theme?.LabelFont != null)
             {
-                return BeepFontManager.ToFont(theme.LabelFont);
+                return BeepThemesManager.ToFont(theme.LabelFont);
             }
 
             return SystemFonts.MessageBoxFont;
@@ -45,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
             }
 
             float smallerSize = Math.Max(6f, headerFont.Size - 1.5f);
-            return new Font(headerFont.FontFamily, smallerSize, FontStyle.Regular, headerFont.Unit);
+            return BeepThemesManager.ToFont(headerFont.FontFamily.Name, smallerSize, FontWeight.Normal, FontStyle.Regular);
         }
     }
 }

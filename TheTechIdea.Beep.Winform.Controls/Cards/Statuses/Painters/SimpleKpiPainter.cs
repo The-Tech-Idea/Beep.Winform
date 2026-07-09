@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             var valueArea = new Rectangle(inner.X, inner.Y + headerHeight + 4, inner.Width, (int)(inner.Height * 0.4));
             DrawValue(g, valueArea, theme, owner, valueText, 1.8f);
 
-            using var smallFont = StatCardFontHelpers.GetDeltaFont(owner, owner?.Style ?? BeepControlStyle.Material3);
+            var smallFont = StatCardFontHelpers.GetDeltaFont(owner, owner?.Style ?? BeepControlStyle.Material3);
             Color deltaColor = owner.IsTrendingUp 
                 ? StatCardThemeHelpers.GetTrendUpColor(theme, owner?.UseThemeColors ?? true, null)
                 : StatCardThemeHelpers.GetTrendDownColor(theme, owner?.UseThemeColors ?? true, null);
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             // info bottom line
             if (!string.IsNullOrEmpty(info))
             {
-                using var infoFont = StatCardFontHelpers.GetInfoFont(owner, owner?.Style ?? BeepControlStyle.Material3);
+                var infoFont = StatCardFontHelpers.GetInfoFont(owner, owner?.Style ?? BeepControlStyle.Material3);
                 var infoRect = new Rectangle(inner.X, inner.Bottom - infoFont.Height - 2, inner.Width, infoFont.Height + 2);
                 // Measure text to ensure it fits (using cached TextUtils)
                 SizeF infoSizeF = TextUtils.MeasureText(info, infoFont, int.MaxValue);

@@ -129,9 +129,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             var bgBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(60, iconColor));
                             g.FillPath(bgBrush, iconPath);
 
-                            var textBrush = PaintersFactory.GetSolidBrush(iconColor);
-                            StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                            g.DrawString("#", _symbolFont, textBrush, iconRect, sf);
+                            TextRenderer.DrawText(g, "#", _symbolFont, iconRect, iconColor,
+                                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                         }
                     }
                 }
@@ -213,9 +212,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 var bgBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(60, iconColor));
                 g.FillPath(bgBrush, path);
 
-                var textBrush = PaintersFactory.GetSolidBrush(iconColor);
-                StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString("#", _symbolFont, textBrush, iconRect, sf);
+                TextRenderer.DrawText(g, "#", _symbolFont, iconRect, iconColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
 

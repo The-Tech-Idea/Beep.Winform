@@ -32,6 +32,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
         private BaseControlIconsHelper _iconsHelper;
 
+        // Process-lifetime shared brush/pen cache (UI-thread only). Never dispose.
+        private static readonly System.Collections.Generic.Dictionary<int, SolidBrush> _brushCache = new();
+        private static readonly System.Collections.Generic.Dictionary<(int argb, float width), Pen> _penCache = new();
+
+        private static SolidBrush GetBrush(Color color)
+        {
+            int key = color.ToArgb();
+            if (_brushCache.TryGetValue(key, out var b) && b != null) return b;
+            b = new SolidBrush(color);
+            _brushCache[key] = b;
+            return b;
+        }
+
+        private static Pen GetPen(Color color, float width = 1f)
+        {
+            var key = (color.ToArgb(), width);
+            if (_penCache.TryGetValue(key, out var p) && p != null) return p;
+            p = new Pen(color, width);
+            _penCache[key] = p;
+            return p;
+        }
+
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _borderRect;
         public Rectangle ContentRect => _contentRect;
@@ -204,13 +226,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 if (!owner.IsTransparentBackground)
                 {
                     Color backColor = GetEffectiveBackColor(owner);
-                    using (var brush = new SolidBrush(backColor))
-                    {
-                        if (owner.InnerShape != null)
-                            g.FillPath(brush, owner.InnerShape);
-                        else
-                            g.FillRectangle(brush, _drawingRect);
-                    }
+                    if (owner.InnerShape != null)
+                        g.FillPath(GetBrush(backColor), owner.InnerShape);
+                    else
+                        g.FillRectangle(GetBrush(backColor), _drawingRect);
                 }
 
                 // 2. Borders
@@ -336,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
              int startoffset = 8; // 
             // Measure label text
             float labelSize = Math.Max(8f, owner.Font.Size - 1f);
-            using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+            var lf = TheTechIdea.Beep.Winform.Controls.ThemeManagement.BeepThemesManager.ToFont(owner.Font.FontFamily.Name, labelSize, TheTechIdea.Beep.Vis.Modules.FontWeight.Normal, FontStyle.Regular);
             var actualTextSize = TextRenderer.MeasureText(g, owner.LabelText, lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
             
             int textWidth = actualTextSize.Width;
@@ -374,6 +393,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             
             if (owner.ShowAllBorders && owner.BorderThickness > 0)
             {
+                // Capped/dashed pen must stay as using (mutating a cached pen corrupts it).
                 using var pen = new Pen(borderColor, owner.BorderThickness) { DashStyle = owner.BorderDashStyle, Alignment = PenAlignment.Inset };
                 if (owner.IsRounded && owner.BorderRadius > 0)
                 {
@@ -406,6 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
             else if (owner.BorderThickness > 0)
             {
+                // Capped/dashed pen — mutated, must stay as using.
                 using var pen = new Pen(borderColor, owner.BorderThickness) { DashStyle = owner.BorderDashStyle };
                 
                 if (owner.ShowBottomBorder)
@@ -458,7 +479,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     shadowRect.Width + (spread * 2),
                     shadowRect.Height + (spread * 2));
 
-                using var shadowBrush = new SolidBrush(layerShadowColor);
+                var shadowBrush = GetBrush(layerShadowColor);
                 if (owner.IsRounded && owner.BorderRadius > 0)
                 {
                     int shadowRadius = Math.Max(0, owner.BorderRadius + spread);
@@ -483,7 +504,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (!string.IsNullOrEmpty(owner.LabelText) && _labelWidth > 0)
             {
                 float labelSize = Math.Max(8f, owner.Font.Size - 1f);
-                using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                var lf = TheTechIdea.Beep.Winform.Controls.ThemeManagement.BeepThemesManager.ToFont(owner.Font.FontFamily.Name, labelSize, TheTechIdea.Beep.Vis.Modules.FontWeight.Normal, FontStyle.Regular);
                 
                 int labelTop = owner.ShowLabelAboveBorder ? 2 : Math.Max(0, _borderRect.Top);
                  TextFormatFlags textFormat= TextFormatFlags.Left;

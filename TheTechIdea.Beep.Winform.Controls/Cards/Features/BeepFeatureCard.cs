@@ -413,14 +413,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Title and subtitle - measure text to prevent clipping (using cached TextUtils)
             Size titleSize;
             Size subtitleSize;
-            using (var titleFont = FeatureCardFontHelpers.GetTitleFont(this, ControlStyle))
             {
+                var titleFont = FeatureCardFontHelpers.GetTitleFont(this, ControlStyle);
                 SizeF titleSizeF = TextUtils.MeasureText(titleText ?? "", titleFont, int.MaxValue);
                 titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
             }
             
-            using (var subtitleFont = FeatureCardFontHelpers.GetSubtitleFont(this, ControlStyle))
             {
+                var subtitleFont = FeatureCardFontHelpers.GetSubtitleFont(this, ControlStyle);
                 SizeF subtitleSizeF = TextUtils.MeasureText(subtitleText ?? "", subtitleFont, int.MaxValue);
                 subtitleSize = new Size((int)subtitleSizeF.Width, (int)subtitleSizeF.Height);
             }
@@ -447,10 +447,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw title
             if (!string.IsNullOrEmpty(titleText))
             {
-                using (var titleFont = FeatureCardFontHelpers.GetTitleFont(this, ControlStyle))
                 using (var titleBrush = new SolidBrush(FeatureCardThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, titleText, titleFont, titleRect, titleBrush.Color, 
+                    var titleFont = FeatureCardFontHelpers.GetTitleFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, titleText, titleFont, titleRect, titleBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }
@@ -458,10 +458,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw subtitle
             if (!string.IsNullOrEmpty(subtitleText))
             {
-                using (var subtitleFont = FeatureCardFontHelpers.GetSubtitleFont(this, ControlStyle))
                 using (var subtitleBrush = new SolidBrush(FeatureCardThemeHelpers.GetSubtitleColor(_currentTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, subtitleText, subtitleFont, subtitleRect, subtitleBrush.Color, 
+                    var subtitleFont = FeatureCardFontHelpers.GetSubtitleFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, subtitleText, subtitleFont, subtitleRect, subtitleBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }

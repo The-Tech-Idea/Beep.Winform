@@ -216,10 +216,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            var brush = GetBrush(_theme.TreeBackColor);
+            g.FillRectangle(brush, bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;

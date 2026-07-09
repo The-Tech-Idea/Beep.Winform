@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -156,9 +157,8 @@ _nameFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _roleFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _roleFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
 
             // Draw avatar ring
@@ -198,9 +198,8 @@ _nameFont = titleFont;
                 ctx.ImageRect.Width + DpiScalingHelper.ScaleValue(6, _owner),
                 ctx.ImageRect.Height + DpiScalingHelper.ScaleValue(6, _owner));
             
-            using var ringPen = new Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(3, _owner));
-            g.DrawEllipse(ringPen, ringRect);
-            
+            g.DrawEllipse(CardPaintCache.Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(3, _owner)), ringRect);
+
             // Draw online status dot
             if (ctx.ShowStatus)
             {
@@ -210,12 +209,10 @@ _nameFont = titleFont;
                     ctx.ImageRect.Bottom - dotSize + DpiScalingHelper.ScaleValue(2, _owner),
                     dotSize,
                     dotSize);
-                
-                using var dotBrush = new SolidBrush(ctx.StatusColor != Color.Empty ? ctx.StatusColor : Color.FromArgb(76, 175, 80));
-                g.FillEllipse(dotBrush, dotRect);
-                
-                using var dotBorderPen = new Pen(Color.White, DpiScalingHelper.ScaleValue(2, _owner));
-                g.DrawEllipse(dotBorderPen, dotRect);
+
+                g.FillEllipse(CardPaintCache.Brush(ctx.StatusColor != Color.Empty ? ctx.StatusColor : (_theme?.SuccessColor ?? Color.FromArgb(76, 175, 80))), dotRect);
+
+                g.DrawEllipse(CardPaintCache.Pen(Color.White, DpiScalingHelper.ScaleValue(2, _owner)), dotRect);
             }
         }
         
@@ -242,15 +239,14 @@ _nameFont = titleFont;
                 if (parts.Length >= 2)
                 {
                     // Number
-                    var numberRect = new Rectangle(statRect.X, statRect.Y, statRect.Width, statRect.Height / 2 + 4);
-                    using var numberBrush = new SolidBrush(ctx.AccentColor);
-                    var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(parts[0], _nameFont, numberBrush, numberRect, format);
-                    
+                    var numberRect = new Rectangle(statRect.X, statRect.Y, statRect.Width, statRect.Height / 2 + DpiScalingHelper.ScaleValue(4, _owner));
+                    TextRenderer.DrawText(g, parts[0], _nameFont, numberRect, ctx.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+
                     // Label
                     var labelRect = new Rectangle(statRect.X, statRect.Y + statRect.Height / 2, statRect.Width, statRect.Height / 2);
-                    using var labelBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-                    g.DrawString(string.Join(" ", parts, 1, parts.Length - 1), _statsFont, labelBrush, labelRect, format);
+                    TextRenderer.DrawText(g, string.Join(" ", parts, 1, parts.Length - 1), _statsFont, labelRect, Color.FromArgb(120, _theme?.CardTextForeColor ?? Color.Black),
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 }
             }
         }
@@ -271,13 +267,11 @@ _nameFont = titleFont;
                 var iconRect = new Rectangle(x, ctx.ButtonRect.Top, socialIconSize, socialIconSize);
                 
                 // Circle background
-                using var bgBrush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
-                g.FillEllipse(bgBrush, iconRect);
-                
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(20, ctx.AccentColor)), iconRect);
+
                 // Icon text
-                using var textBrush = new SolidBrush(Color.FromArgb(150, ctx.AccentColor));
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(icon, _statsFont, textBrush, iconRect, format);
+                TextRenderer.DrawText(g, icon, _statsFont, iconRect, Color.FromArgb(150, ctx.AccentColor),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 
                 x += socialIconSize + socialIconGap;
             }

@@ -548,7 +548,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         public Point Location { get; }
         public List<(int SeriesIndex, int PointIndex)> SelectedPoints { get; }
         public List<int> SelectedSeries { get; }
-        public ContextMenuStrip Menu { get; set; }
+        public ContextMenus.BeepContextMenu? Menu { get; set; }
 
         public ChartContextMenuRequestedEventArgs(Point location, List<(int, int)> selectedPoints, List<int> selectedSeries)
         {

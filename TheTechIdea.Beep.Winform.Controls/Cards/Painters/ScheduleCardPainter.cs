@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -145,8 +146,7 @@ _timeFont = captionFont;
             // Draw accent bar
             if (!ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor);
-                g.FillRectangle(brush, ctx.StatusRect);
+                g.FillRectangle(CardPaintCache.Brush(ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor), ctx.StatusRect);
             }
             
             // Draw time block
@@ -179,46 +179,40 @@ _timeFont = captionFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Draw time block background
-            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
-            using var bgBrush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
-            g.FillPath(bgBrush, bgPath);
-            
+            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(8, _owner));
+            g.FillPath(CardPaintCache.Brush(Color.FromArgb(20, ctx.AccentColor)), bgPath);
+
             // Draw border
-            using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), 1);
-            g.DrawPath(borderPen, bgPath);
-            
+            g.DrawPath(CardPaintCache.Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner)), bgPath);
+
             // Draw time text (use StatusText for time range)
             if (!string.IsNullOrEmpty(ctx.StatusText))
             {
                 // Split time into start and end
                 string[] timeParts = ctx.StatusText.Split(new[] { '-', '–', '—' }, StringSplitOptions.RemoveEmptyEntries);
-                
-                using var timeBrush = new SolidBrush(ctx.AccentColor);
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Center, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                
+
                 if (timeParts.Length >= 2)
                 {
                     // Start time
-                    var startRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Y + 8, ctx.ImageRect.Width, 20);
-                    g.DrawString(timeParts[0].Trim(), _timeFont, timeBrush, startRect, format);
-                    
+                    var startRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Y + DpiScalingHelper.ScaleValue(8, _owner), ctx.ImageRect.Width, DpiScalingHelper.ScaleValue(20, _owner));
+                    TextRenderer.DrawText(g, timeParts[0].Trim(), _timeFont, startRect, ctx.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
                     // Separator
-                    using var sepBrush = new SolidBrush(Color.FromArgb(100, ctx.AccentColor));
-                    var sepRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Y + ctx.ImageRect.Height / 2 - 2, ctx.ImageRect.Width, 12);
-                    g.DrawString("—", _descFont, sepBrush, sepRect, format);
-                    
+                    var sepRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Y + ctx.ImageRect.Height / 2 - DpiScalingHelper.ScaleValue(2, _owner), ctx.ImageRect.Width, DpiScalingHelper.ScaleValue(12, _owner));
+                    TextRenderer.DrawText(g, "—", _descFont, sepRect, Color.FromArgb(100, ctx.AccentColor),
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
                     // End time
-                    var endRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Bottom - 28, ctx.ImageRect.Width, 20);
-                    g.DrawString(timeParts[1].Trim(), _timeFont, timeBrush, endRect, format);
+                    var endRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Bottom - DpiScalingHelper.ScaleValue(28, _owner), ctx.ImageRect.Width, DpiScalingHelper.ScaleValue(20, _owner));
+                    TextRenderer.DrawText(g, timeParts[1].Trim(), _timeFont, endRect, ctx.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
                 else
                 {
                     // Single time
-                    g.DrawString(ctx.StatusText, _timeFont, timeBrush, ctx.ImageRect, format);
+                    TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.ImageRect, ctx.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
         }
@@ -226,36 +220,35 @@ _timeFont = captionFont;
         private void DrawLocationInfo(Graphics g, LayoutContext ctx)
         {
             // Location pin icon
-            int iconSize = 14;
-            var iconRect = new Rectangle(ctx.SubtitleRect.Left, ctx.SubtitleRect.Top + 2, iconSize, iconSize);
-            
+            int iconSize = DpiScalingHelper.ScaleValue(14, _owner);
+            var iconRect = new Rectangle(ctx.SubtitleRect.Left, ctx.SubtitleRect.Top + DpiScalingHelper.ScaleValue(2, _owner), iconSize, iconSize);
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            
+
             // Draw pin icon
-            using var iconPen = new Pen(Color.FromArgb(120, ctx.AccentColor), 1.5f);
+            var iconPen = CardPaintCache.Pen(Color.FromArgb(120, ctx.AccentColor), 1.5f);
             int cx = iconRect.Left + iconRect.Width / 2;
             int cy = iconRect.Top + iconRect.Height / 2;
-            
+
             // Pin shape
-            g.DrawEllipse(iconPen, cx - 4, cy - 5, 8, 8);
+            g.DrawEllipse(iconPen, cx - DpiScalingHelper.ScaleValue(4, _owner), cy - DpiScalingHelper.ScaleValue(5, _owner), DpiScalingHelper.ScaleValue(8, _owner), DpiScalingHelper.ScaleValue(8, _owner));
             Point[] pinBottom = new Point[]
             {
-                new Point(cx - 3, cy + 1),
-                new Point(cx, cy + 6),
-                new Point(cx + 3, cy + 1)
+                new Point(cx - DpiScalingHelper.ScaleValue(3, _owner), cy + DpiScalingHelper.ScaleValue(1, _owner)),
+                new Point(cx, cy + DpiScalingHelper.ScaleValue(6, _owner)),
+                new Point(cx + DpiScalingHelper.ScaleValue(3, _owner), cy + DpiScalingHelper.ScaleValue(1, _owner))
             };
             g.DrawLines(iconPen, pinBottom);
-            
+
             // Location text
             var textRect = new Rectangle(
-                iconRect.Right + 4,
+                iconRect.Right + DpiScalingHelper.ScaleValue(4, _owner),
                 ctx.SubtitleRect.Top,
-                ctx.SubtitleRect.Width - iconSize - 4,
+                ctx.SubtitleRect.Width - iconSize - DpiScalingHelper.ScaleValue(4, _owner),
                 ctx.SubtitleRect.Height);
-            
-            using var textBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-            var format = new StringFormat { LineAlignment = StringAlignment.Center };
-            g.DrawString(ctx.SubtitleText, _locationFont, textBrush, textRect, format);
+
+            TextRenderer.DrawText(g, ctx.SubtitleText, _locationFont, textRect, Color.FromArgb(120, _theme?.CardTextForeColor ?? Color.Black),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)

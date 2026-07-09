@@ -175,8 +175,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // 2. Draw the title (top-left) - measure text to prevent clipping
             Size titleSize;
-            using (var titleFont = MetricTileFontHelpers.GetTitleFont(this, ControlStyle))
             {
+                var titleFont = MetricTileFontHelpers.GetTitleFont(this, ControlStyle);
                 SizeF titleSizeF = TextUtils.MeasureText(_titleText ?? "", titleFont, int.MaxValue);
                 titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
             }
@@ -185,10 +185,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (!string.IsNullOrEmpty(_titleText))
             {
-                using (var titleFont = MetricTileFontHelpers.GetTitleFont(this, ControlStyle))
                 using (var titleBrush = new SolidBrush(MetricTileThemeHelpers.GetTitleColor(cardTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, _titleText, titleFont, titleRect, titleBrush.Color, 
+                    var titleFont = MetricTileFontHelpers.GetTitleFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, _titleText, titleFont, titleRect, titleBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }
@@ -216,8 +216,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // 4. Draw the metric value (bottom-left) - measure text to prevent clipping
             Size metricSize;
-            using (var metricFont = MetricTileFontHelpers.GetMetricValueFont(this, ControlStyle))
             {
+                var metricFont = MetricTileFontHelpers.GetMetricValueFont(this, ControlStyle);
                 SizeF metricSizeF = TextUtils.MeasureText(_metricValue ?? "", metricFont, int.MaxValue);
                 metricSize = new Size((int)metricSizeF.Width, (int)metricSizeF.Height);
             }
@@ -226,10 +226,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (!string.IsNullOrEmpty(_metricValue))
             {
-                using (var metricFont = MetricTileFontHelpers.GetMetricValueFont(this, ControlStyle))
                 using (var metricBrush = new SolidBrush(MetricTileThemeHelpers.GetMetricValueColor(cardTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, _metricValue, metricFont, metricRect, metricBrush.Color, 
+                    var metricFont = MetricTileFontHelpers.GetMetricValueFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, _metricValue, metricFont, metricRect, metricBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Bottom | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }
@@ -238,8 +238,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // 5. Draw the delta value (right of metric) - measure text to prevent clipping
             Size deltaSize;
-            using (var deltaFont = MetricTileFontHelpers.GetDeltaFont(this, ControlStyle))
             {
+                var deltaFont = MetricTileFontHelpers.GetDeltaFont(this, ControlStyle);
                 SizeF deltaSizeF = TextUtils.MeasureText(_deltaValue ?? "", deltaFont, int.MaxValue);
                 deltaSize = new Size((int)deltaSizeF.Width, (int)deltaSizeF.Height);
             }
@@ -248,10 +248,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (!string.IsNullOrEmpty(_deltaValue))
             {
-                using (var deltaFont = MetricTileFontHelpers.GetDeltaFont(this, ControlStyle))
                 using (var deltaBrush = new SolidBrush(MetricTileThemeHelpers.GetDeltaColor(cardTheme, UseThemeColors, null)))
                 {
-                    TextRenderer.DrawText(g, _deltaValue, deltaFont, deltaRect, deltaBrush.Color, 
+                    var deltaFont = MetricTileFontHelpers.GetDeltaFont(this, ControlStyle);
+                    TextRenderer.DrawText(g, _deltaValue, deltaFont, deltaRect, deltaBrush.Color,
                         TextFormatFlags.Left | TextFormatFlags.Bottom | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
             }

@@ -1,6 +1,9 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Filtering
 {
@@ -114,22 +117,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// <summary>
         /// Font for filter labels
         /// </summary>
-        public Font LabelFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Regular);
+        public Font LabelFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 9F, FontWeight.Normal, FontStyle.Regular);
 
         /// <summary>
         /// Font for filter values
         /// </summary>
-        public Font ValueFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Regular);
+        public Font ValueFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 9F, FontWeight.Normal, FontStyle.Regular);
 
         /// <summary>
         /// Font for filter count/badge
         /// </summary>
-        public Font BadgeFont { get; set; } = new Font("Segoe UI", 8F, FontStyle.Bold);
+        public Font BadgeFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 8F, FontWeight.Bold, FontStyle.Bold);
 
         /// <summary>
         /// Font for logic connectors (AND/OR)
         /// </summary>
-        public Font ConnectorFont { get; set; } = new Font("Segoe UI", 8F, FontStyle.Regular);
+        public Font ConnectorFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 8F, FontWeight.Normal, FontStyle.Regular);
 
         #endregion
 
@@ -221,6 +224,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         }
 
         /// <summary>
+        /// Returns a copy of these metrics with all dimension properties scaled for the given control's DPI.
+        /// Use this in <c>CalculateLayout</c> so layout and drawing rects are DPI-aware.
+        /// </summary>
+        public FilterPainterMetrics GetScaledFor(Control owner)
+        {
+            return new FilterPainterMetrics
+            {
+                FilterHeight      = DpiScalingHelper.ScaleValue(this.FilterHeight,      owner),
+                FilterWidth       = DpiScalingHelper.ScaleValue(this.FilterWidth,       owner),
+                Padding           = DpiScalingHelper.ScaleValue(this.Padding,            owner),
+                ItemSpacing       = DpiScalingHelper.ScaleValue(this.ItemSpacing,       owner),
+                RowHeight         = DpiScalingHelper.ScaleValue(this.RowHeight,          owner),
+                CornerRadius      = DpiScalingHelper.ScaleValue(this.CornerRadius,      owner),
+                BorderWidth       = DpiScalingHelper.ScaleValue(this.BorderWidth,       owner),
+                GroupIndentation  = DpiScalingHelper.ScaleValue(this.GroupIndentation,  owner),
+                ConnectorHeight   = DpiScalingHelper.ScaleValue(this.ConnectorHeight,   owner),
+                CloseButtonSize   = DpiScalingHelper.ScaleValue(this.CloseButtonSize,   owner),
+                BadgeSize         = DpiScalingHelper.ScaleValue(this.BadgeSize,          owner),
+                ShadowDepth       = DpiScalingHelper.ScaleValue(this.ShadowDepth,       owner),
+                ShowShadow        = this.ShowShadow,
+                EnableAnimations  = this.EnableAnimations,
+                AnimationDuration = this.AnimationDuration,
+                ShowDragHandles   = this.ShowDragHandles,
+                ShowLogicBranches = this.ShowLogicBranches,
+                ShowCountBadges   = this.ShowCountBadges,
+                // Shared cached fonts (no DPI scaling needed — WinForms auto-scales Point fonts)
+                LabelFont    = this.LabelFont,
+                ValueFont    = this.ValueFont,
+                BadgeFont    = this.BadgeFont,
+                ConnectorFont = this.ConnectorFont
+            };
+        }
+
+        /// <summary>
         /// Clones the current metrics
         /// </summary>
         public FilterPainterMetrics Clone()
@@ -245,10 +282,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 ShowDragHandles = this.ShowDragHandles,
                 ShowLogicBranches = this.ShowLogicBranches,
                 ShowCountBadges = this.ShowCountBadges,
-                LabelFont = (Font)this.LabelFont.Clone(),
-                ValueFont = (Font)this.ValueFont.Clone(),
-                BadgeFont = (Font)this.BadgeFont.Clone(),
-                ConnectorFont = (Font)this.ConnectorFont.Clone()
+                // Shared cached fonts from BeepThemesManager - share the reference (do NOT clone/dispose)
+                LabelFont = this.LabelFont,
+                ValueFont = this.ValueFont,
+                BadgeFont = this.BadgeFont,
+                ConnectorFont = this.ConnectorFont
             };
         }
     }

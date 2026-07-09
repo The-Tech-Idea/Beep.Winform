@@ -169,10 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Selected: card with border
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var brush = new SolidBrush(GetSelectedBackColor()))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(GetBrush(GetSelectedBackColor()), path);
 
                     // Bootstrap primary border
                     using (var pen = new Pen(_theme.AccentColor, 1f))
@@ -186,10 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle card
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var hoverBrush = new SolidBrush(GetHoverBackColor()))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillPath(GetBrush(GetHoverBackColor()), path);
 
                     using (var pen = new Pen(_theme.BorderColor, 1f))
                     {
@@ -206,37 +200,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Bootstrap caret
             Color caretColor = _theme.TreeForeColor;
 
-            using (var brush = new SolidBrush(caretColor))
+            var brush = GetBrush(caretColor);
+            int centerX = toggleRect.Left + toggleRect.Width / 2;
+            int centerY = toggleRect.Top + toggleRect.Height / 2;
+            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+            Point[] caret;
+
+            if (isExpanded)
             {
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                Point[] caret;
-
-                if (isExpanded)
+                // Caret down
+                caret = new Point[]
                 {
-                    // Caret down
-                    caret = new Point[]
-                    {
-                        new Point(centerX - size, centerY - size / 2),
-                        new Point(centerX + size, centerY - size / 2),
-                        new Point(centerX, centerY + size / 2)
-                    };
-                }
-                else
-                {
-                    // Caret right
-                    caret = new Point[]
-                    {
-                        new Point(centerX - size / 2, centerY - size),
-                        new Point(centerX + size / 2, centerY),
-                        new Point(centerX - size / 2, centerY + size)
-                    };
-                }
-
-                g.FillPolygon(brush, caret);
+                    new Point(centerX - size, centerY - size / 2),
+                    new Point(centerX + size, centerY - size / 2),
+                    new Point(centerX, centerY + size / 2)
+                };
             }
+            else
+            {
+                // Caret right
+                caret = new Point[]
+                {
+                    new Point(centerX - size / 2, centerY - size),
+                    new Point(centerX + size / 2, centerY),
+                    new Point(centerX - size / 2, centerY + size)
+                };
+            }
+
+            g.FillPolygon(brush, caret);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -264,25 +256,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Bootstrap badge Style
             using (var path = CreateRoundedRectangle(iconRect, 3))
             {
-                using (var brush = new SolidBrush(iconColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(iconColor), path);
 
                 // Icon symbol
-                Font iconFont = new Font("Segoe UI", iconRect.Height * 0.5f, FontStyle.Bold);
-                using (var textBrush = new SolidBrush(Color.White))
-                {
-                    StringFormat sf = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    };
-
-                    g.DrawString("📁", iconFont, textBrush, iconRect, sf);
-                }
-
-                iconFont.Dispose();
+                var iconFont = GetFont(iconRect.Height * 0.5f, FontStyle.Bold);
+                TextRenderer.DrawText(g, "📁", iconFont, iconRect, Color.White,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
 
@@ -292,13 +271,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
-            // Bootstrap uses system fonts
-            Font renderFont = new Font("Segoe UI", font.Size, FontStyle.Regular);
+            // Bootstrap uses theme font
+            var renderFont = GetFont(font.Size);
 
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-
-            renderFont.Dispose();
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
@@ -306,10 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Clean background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            g.FillRectangle(GetBrush(_theme.TreeBackColor), bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;

@@ -1,11 +1,11 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using PaintersFactory = TheTechIdea.Beep.Winform.Controls.Styling.PaintersFactory;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
@@ -68,32 +68,30 @@ _timeFont = captionFont;
         {
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                var handleBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Color.Black));
-                var handleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _timeFont, handleBrush, ctx.SubtitleRect, handleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _timeFont, ctx.SubtitleRect, Color.FromArgb(150, Theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
 
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText))
             {
-                var timeBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Color.Black));
-                var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _timeFont, timeBrush, ctx.StatusRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.StatusRect, Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
-            
+
             // Draw hashtags/mentions
             CardRenderingHelpers.DrawChips(g, Owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _timeFont);
-            
+
             // Draw engagement icons (like, share, etc.)
             if (!ctx.ButtonRect.IsEmpty)
             {
-                var iconBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Color.Black));
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString("♥ Like", _iconFont, iconBrush, ctx.ButtonRect, format);
-                
+                var iconColor = Color.FromArgb(150, Theme?.CardTextForeColor ?? Color.Black);
+                var iconFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
+                TextRenderer.DrawText(g, "♥ Like", _iconFont, ctx.ButtonRect, iconColor, iconFlags);
+
                 if (!ctx.SecondaryButtonRect.IsEmpty)
                 {
-                    g.DrawString("↗ Share", _iconFont, iconBrush, ctx.SecondaryButtonRect, format);
+                    TextRenderer.DrawText(g, "↗ Share", _iconFont, ctx.SecondaryButtonRect, iconColor, iconFlags);
                 }
             }
         }

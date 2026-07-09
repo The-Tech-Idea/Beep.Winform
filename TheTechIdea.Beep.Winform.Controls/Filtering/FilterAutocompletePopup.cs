@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Filtering
 {
@@ -169,50 +170,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             
             if (!string.IsNullOrEmpty(suggestion.Icon))
             {
-                using (var font = new Font("Segoe UI Emoji", 12f))
-                using (var brush = new SolidBrush(Color.FromArgb(100, 100, 100)))
-                {
-                    g.DrawString(suggestion.Icon, font, brush, iconBounds.X, iconBounds.Y);
-                }
+                var iconFont = BeepThemesManager.ToFont("Segoe UI Emoji", 12f, FontWeight.Normal, FontStyle.Regular);
+                TextRenderer.DrawText(g, suggestion.Icon, iconFont,
+                    new Point(iconBounds.X, iconBounds.Y),
+                    Color.FromArgb(100, 100, 100),
+                    TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
             }
-            
+
             // Display text
             int textX = iconBounds.Right + 8;
-            using (var font = new Font("Segoe UI", 9.5f))
-            using (var brush = new SolidBrush(_theme?.ForeColor ?? Color.FromArgb(40, 40, 40)))
             {
-                var textRect = new RectangleF(textX, e.Bounds.Y + 6, e.Bounds.Width - textX - 60, 18);
-                var format = new StringFormat
-                {
-                    Trimming = StringTrimming.EllipsisCharacter,
-                    LineAlignment = StringAlignment.Near
-                };
-                
-                g.DrawString(suggestion.DisplayText, font, brush, textRect, format);
+                var textFont = BeepThemesManager.ToFont("Segoe UI", 9.5f, FontWeight.Normal, FontStyle.Regular);
+                var textRect = new Rectangle(textX, e.Bounds.Y + 6, e.Bounds.Width - textX - 60, 18);
+                TextRenderer.DrawText(g, suggestion.DisplayText, textFont, textRect,
+                    _theme?.ForeColor ?? Color.FromArgb(40, 40, 40),
+                    TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
-            
+
             // Match count (if available)
             if (suggestion.MatchCount > 0)
             {
                 string countText = $"({suggestion.MatchCount})";
-                using (var font = new Font("Segoe UI", 8.5f))
-                using (var brush = new SolidBrush(Color.FromArgb(130, 130, 130)))
-                {
-                    var textSize = g.MeasureString(countText, font);
-                    g.DrawString(countText, font, brush, 
-                        e.Bounds.Right - textSize.Width - 12, 
-                        e.Bounds.Y + 11);
-                }
+                var countFont = BeepThemesManager.ToFont("Segoe UI", 8.5f, FontWeight.Normal, FontStyle.Regular);
+                var textSize = TextRenderer.MeasureText(countText, countFont);
+                TextRenderer.DrawText(g, countText, countFont,
+                    new Point(e.Bounds.Right - textSize.Width - 12, e.Bounds.Y + 11),
+                    Color.FromArgb(130, 130, 130),
+                    TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
             }
-            
+
             // Type badge
             if (!string.IsNullOrEmpty(suggestion.Description))
             {
-                using (var font = new Font("Segoe UI", 7.5f))
-                using (var brush = new SolidBrush(Color.FromArgb(160, 160, 160)))
-                {
-                    g.DrawString(suggestion.Description, font, brush, textX, e.Bounds.Y + 20);
-                }
+                var badgeFont = BeepThemesManager.ToFont("Segoe UI", 7.5f, FontWeight.Normal, FontStyle.Regular);
+                TextRenderer.DrawText(g, suggestion.Description, badgeFont,
+                    new Point(textX, e.Bounds.Y + 20),
+                    Color.FromArgb(160, 160, 160),
+                    TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
             }
             
             // Focus rectangle

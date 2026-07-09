@@ -75,8 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 
                 // Semi-transparent circle background
-                using var circleBrush = new SolidBrush(Color.FromArgb(180, 0, 0, 0));
-                g.FillEllipse(circleBrush, ctx.ButtonRect);
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(180, 0, 0, 0)), ctx.ButtonRect);
                 
                 // Play triangle
                 int triangleSize = ctx.ButtonRect.Width / 3;
@@ -91,8 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                     new Point(cx + triangleSize / 2 + offsetX, cy)
                 };
                 
-                using var triangleBrush = new SolidBrush(Color.White);
-                g.FillPolygon(triangleBrush, triangle);
+                g.FillPolygon(CardPaintCache.Brush(Color.White), triangle);
             }
             
             // Draw gradient overlay at bottom of thumbnail

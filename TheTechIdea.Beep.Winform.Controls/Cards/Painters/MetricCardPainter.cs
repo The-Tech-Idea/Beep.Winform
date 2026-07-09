@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -147,9 +148,8 @@ _labelFont = captionFont;
             // Draw large metric value
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.AccentColor);
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _valueFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _valueFont, ctx.SubtitleRect, ctx.AccentColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw trend indicator with color-coded pill background
@@ -160,29 +160,24 @@ _labelFont = captionFont;
                 
                 if (ctx.StatusText.StartsWith("+") || ctx.StatusText.Contains("↑"))
                 {
-                    trendColor = Color.FromArgb(76, 175, 80); // Green
+                    trendColor = _theme?.SuccessColor ?? Color.FromArgb(76, 175, 80); // Green
                 }
                 else if (ctx.StatusText.StartsWith("-") || ctx.StatusText.Contains("↓"))
                 {
-                    trendColor = Color.FromArgb(244, 67, 54); // Red
+                    trendColor = _theme?.ErrorColor ?? Color.FromArgb(244, 67, 54); // Red
                 }
                 
                 // Draw pill background
                 var pillRect = new Rectangle(ctx.RatingRect.X, ctx.RatingRect.Y, 
                     Math.Min(DpiScalingHelper.ScaleValue(TrendPillWidth, _owner), ctx.RatingRect.Width), ctx.RatingRect.Height);
                 
-                using var pillPath = CardRenderingHelpers.CreateRoundedPath(pillRect, 10);
-                using var pillBrush = new SolidBrush(Color.FromArgb(25, trendColor));
+                using var pillPath = CardRenderingHelpers.CreateRoundedPath(pillRect, DpiScalingHelper.ScaleValue(10, _owner));
+                var pillBrush = CardPaintCache.Brush(Color.FromArgb(25, trendColor));
                 g.FillPath(pillBrush, pillPath);
-                
+
                 // Draw trend text
-                using var textBrush = new SolidBrush(trendColor);
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Center, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _trendFont, textBrush, pillRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _trendFont, pillRect, trendColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw category badge
@@ -195,7 +190,7 @@ _labelFont = captionFont;
             // Draw status/progress bar
             if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.StatusColor);
+                var brush = CardPaintCache.Brush(ctx.StatusColor);
                 g.FillRectangle(brush, ctx.StatusRect);
             }
         }

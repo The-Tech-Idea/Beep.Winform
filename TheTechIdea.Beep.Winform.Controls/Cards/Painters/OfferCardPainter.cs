@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -170,17 +171,11 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Circular badge
-            using var bgBrush = new SolidBrush(Color.FromArgb(220, 53, 69)); // Red
-            g.FillEllipse(bgBrush, ctx.BadgeRect);
-            
+            g.FillEllipse(CardPaintCache.Brush(_theme?.ErrorColor ?? Color.FromArgb(220, 53, 69)), ctx.BadgeRect); // Red
+
             // Discount text
-            using var textBrush = new SolidBrush(Color.White);
-            var format = new StringFormat 
-            { 
-                Alignment = StringAlignment.Center, 
-                LineAlignment = StringAlignment.Center 
-            };
-            g.DrawString(ctx.BadgeText1, _discountFont, textBrush, ctx.BadgeRect, format);
+            TextRenderer.DrawText(g, ctx.BadgeText1, _discountFont, ctx.BadgeRect, Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
         
         private void DrawPrices(Graphics g, LayoutContext ctx)
@@ -191,21 +186,20 @@ _titleFont = titleFont;
             if (prices.Length >= 1)
             {
                 // Sale price (large, accent color)
-                using var saleBrush = new SolidBrush(ctx.AccentColor);
                 var saleRect = new Rectangle(ctx.SubtitleRect.Left, ctx.SubtitleRect.Top, DpiScalingHelper.ScaleValue(100, _owner), ctx.SubtitleRect.Height);
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(prices[0].Trim(), _priceFont, saleBrush, saleRect, format);
-                
+                TextRenderer.DrawText(g, prices[0].Trim(), _priceFont, saleRect, ctx.AccentColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
                 // Original price (strikethrough)
                 if (prices.Length >= 2)
                 {
-                    using var origBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                     var origRect = new Rectangle(
                         saleRect.Right + DpiScalingHelper.ScaleValue(10, _owner),
                         ctx.SubtitleRect.Top + DpiScalingHelper.ScaleValue(8, _owner),
                         DpiScalingHelper.ScaleValue(80, _owner),
                         ctx.SubtitleRect.Height - DpiScalingHelper.ScaleValue(8, _owner));
-                    g.DrawString(prices[1].Trim(), _originalPriceFont, origBrush, origRect, format);
+                    TextRenderer.DrawText(g, prices[1].Trim(), _originalPriceFont, origRect, Color.FromArgb(120, _theme?.CardTextForeColor ?? Color.Black),
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
         }
@@ -217,24 +211,23 @@ _titleFont = titleFont;
             var iconRect = new Rectangle(ctx.StatusRect.Left, ctx.StatusRect.Top + DpiScalingHelper.ScaleValue(3, _owner), iconSize, iconSize);
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            using var iconPen = new Pen(Color.FromArgb(220, 53, 69), DpiScalingHelper.ScaleValue(2, _owner));
+            var iconPen = CardPaintCache.Pen(_theme?.ErrorColor ?? Color.FromArgb(220, 53, 69), DpiScalingHelper.ScaleValue(2, _owner));
             g.DrawEllipse(iconPen, iconRect);
-            
+
             int cx = iconRect.Left + iconRect.Width / 2;
             int cy = iconRect.Top + iconRect.Height / 2;
             g.DrawLine(iconPen, cx, cy - DpiScalingHelper.ScaleValue(3, _owner), cx, cy);
             g.DrawLine(iconPen, cx, cy, cx + DpiScalingHelper.ScaleValue(3, _owner), cy);
-            
+
             // Expiry text
             var textRect = new Rectangle(
-                iconRect.Right + 6,
+                iconRect.Right + DpiScalingHelper.ScaleValue(6, _owner),
                 ctx.StatusRect.Top,
                 ctx.StatusRect.Width - iconSize - DpiScalingHelper.ScaleValue(6, _owner),
                 ctx.StatusRect.Height);
-            
-            using var textBrush = new SolidBrush(Color.FromArgb(220, 53, 69));
-            var format = new StringFormat { LineAlignment = StringAlignment.Center };
-            g.DrawString(ctx.StatusText, _badgeFont, textBrush, textRect, format);
+
+            TextRenderer.DrawText(g, ctx.StatusText, _badgeFont, textRect, _theme?.ErrorColor ?? Color.FromArgb(220, 53, 69),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
         }
         
         private void DrawRibbon(Graphics g, LayoutContext ctx)
@@ -249,17 +242,11 @@ _titleFont = titleFont;
                 ribbonWidth,
                 ribbonHeight);
             
-            using var ribbonBrush = new SolidBrush(ctx.StatusColor != Color.Empty ? ctx.StatusColor : Color.FromArgb(255, 193, 7));
-            g.FillRectangle(ribbonBrush, ribbonRect);
-            
+            g.FillRectangle(CardPaintCache.Brush(ctx.StatusColor != Color.Empty ? ctx.StatusColor : (_theme?.WarningColor ?? Color.FromArgb(255, 193, 7))), ribbonRect);
+
             // Ribbon text
-            using var textBrush = new SolidBrush(Color.Black);
-            var format = new StringFormat 
-            { 
-                Alignment = StringAlignment.Center, 
-                LineAlignment = StringAlignment.Center 
-            };
-            g.DrawString("LIMITED TIME", _badgeFont, textBrush, ribbonRect, format);
+            TextRenderer.DrawText(g, "LIMITED TIME", _badgeFont, ribbonRect, Color.Black,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)

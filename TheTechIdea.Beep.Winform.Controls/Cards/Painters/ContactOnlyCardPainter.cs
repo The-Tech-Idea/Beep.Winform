@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -14,7 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
     internal sealed class ContactOnlyCardPainter : ICardPainter
     {
         #region Fields
-        
+
+        private BaseControl _owner;
         private bool _disposed;
         
         private const int Padding = 16;
@@ -29,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
-            // No custom resources needed
+            _owner = owner;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
@@ -88,25 +90,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             if (!ctx.AvatarRect.IsEmpty)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                
-                using var bgBrush = new SolidBrush(Color.FromArgb(30, ctx.AccentColor));
-                g.FillEllipse(bgBrush, ctx.AvatarRect);
-                
-                using var borderPen = new Pen(Color.FromArgb(60, ctx.AccentColor), 2);
-                g.DrawEllipse(borderPen, ctx.AvatarRect);
-                
+
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(30, ctx.AccentColor)), ctx.AvatarRect);
+
+                g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(60, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner)), ctx.AvatarRect);
+
                 // Draw person silhouette icon
                 int cx = ctx.AvatarRect.Left + ctx.AvatarRect.Width / 2;
                 int cy = ctx.AvatarRect.Top + ctx.AvatarRect.Height / 2;
                 int headSize = AvatarSize / 4;
-                
-                using var iconBrush = new SolidBrush(Color.FromArgb(80, ctx.AccentColor));
+
+                var iconBrush = CardPaintCache.Brush(Color.FromArgb(80, ctx.AccentColor));
                 
                 // Head
                 g.FillEllipse(iconBrush, cx - headSize / 2, cy - headSize, headSize, headSize);
                 
                 // Body (arc)
-                var bodyRect = new Rectangle(cx - headSize, cy + 2, headSize * 2, headSize);
+                var bodyRect = new Rectangle(cx - headSize, cy + DpiScalingHelper.ScaleValue(2, _owner), headSize * 2, headSize);
                 g.FillEllipse(iconBrush, bodyRect);
             }
         }

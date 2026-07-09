@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -138,7 +139,7 @@ _headlineFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {
                 bool isLive = ctx.BadgeText1.ToUpper().Contains("LIVE") || ctx.BadgeText1.ToUpper().Contains("BREAKING");
-                Color badgeBack = isLive ? Color.FromArgb(220, 53, 69) : ctx.Badge1BackColor;
+                Color badgeBack = isLive ? (_theme?.ErrorColor ?? Color.FromArgb(220, 53, 69)) : ctx.Badge1BackColor;
                 Color badgeFore = isLive ? Color.White : ctx.Badge1ForeColor;
                 
                 CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, badgeBack, badgeFore, _badgeFont);
@@ -147,8 +148,8 @@ _headlineFont = titleFont;
                 if (isLive)
                 {
                     g.SmoothingMode = SmoothingMode.AntiAlias;
-                    var dotRect = new Rectangle(ctx.BadgeRect.Left + 6, ctx.BadgeRect.Top + (ctx.BadgeRect.Height - 8) / 2, 8, 8);
-                    using var dotBrush = new SolidBrush(Color.White);
+                    var dotRect = new Rectangle(ctx.BadgeRect.Left + DpiScalingHelper.ScaleValue(6, _owner), ctx.BadgeRect.Top + (ctx.BadgeRect.Height - DpiScalingHelper.ScaleValue(8, _owner)) / 2, DpiScalingHelper.ScaleValue(8, _owner), DpiScalingHelper.ScaleValue(8, _owner));
+                    var dotBrush = CardPaintCache.Brush(Color.White);
                     g.FillEllipse(dotBrush, dotRect);
                 }
             }
@@ -162,9 +163,8 @@ _headlineFont = titleFont;
             // Draw time ago
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(100, Color.Black));
-                var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _timeFont, brush, ctx.StatusRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.StatusRect, Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw category tags
@@ -177,9 +177,9 @@ _headlineFont = titleFont;
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
                 var gradientRect = new Rectangle(
-                    ctx.ImageRect.Right - 30,
+                    ctx.ImageRect.Right - DpiScalingHelper.ScaleValue(30, _owner),
                     ctx.ImageRect.Top,
-                    30,
+                    DpiScalingHelper.ScaleValue(30, _owner),
                     ctx.ImageRect.Height);
                 
                 using var gradientBrush = new LinearGradientBrush(
@@ -195,23 +195,22 @@ _headlineFont = titleFont;
         private void DrawSourceInfo(Graphics g, LayoutContext ctx)
         {
             // Source icon placeholder
-            int iconSize = 14;
-            var iconRect = new Rectangle(ctx.SubtitleRect.Left, ctx.SubtitleRect.Top + 2, iconSize, iconSize);
+            int iconSize = DpiScalingHelper.ScaleValue(14, _owner);
+            var iconRect = new Rectangle(ctx.SubtitleRect.Left, ctx.SubtitleRect.Top + DpiScalingHelper.ScaleValue(2, _owner), iconSize, iconSize);
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            using var iconBrush = new SolidBrush(Color.FromArgb(60, ctx.AccentColor));
+            var iconBrush = CardPaintCache.Brush(Color.FromArgb(60, ctx.AccentColor));
             g.FillEllipse(iconBrush, iconRect);
-            
+
             // Source name
             var textRect = new Rectangle(
-                iconRect.Right + 6,
+                iconRect.Right + DpiScalingHelper.ScaleValue(6, _owner),
                 ctx.SubtitleRect.Top,
-                ctx.SubtitleRect.Width - iconSize - 6,
+                ctx.SubtitleRect.Width - iconSize - DpiScalingHelper.ScaleValue(6, _owner),
                 ctx.SubtitleRect.Height);
-            
-            using var textBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
-            var format = new StringFormat { LineAlignment = StringAlignment.Center };
-            g.DrawString(ctx.SubtitleText, _sourceFont, textBrush, textRect, format);
+
+            TextRenderer.DrawText(g, ctx.SubtitleText, _sourceFont, textRect, Color.FromArgb(140, _theme?.CardTextForeColor ?? Color.Black),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -154,13 +155,8 @@ _nameFont = titleFont;
             // Draw price
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.AccentColor);
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Far, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.SubtitleText, _priceFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _priceFont, ctx.SubtitleRect, ctx.AccentColor,
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
         

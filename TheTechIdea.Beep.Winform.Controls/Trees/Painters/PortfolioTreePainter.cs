@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         {
                             int fillWidth = (int)(progressRect.Width * (progress / 100f));
                             var fillRect = new Rectangle(progressRect.X, progressRect.Y, fillWidth, progressRect.Height);
-                            var fillBrush = PaintersFactory.GetSolidBrush(progress >= 100 ? Color.FromArgb(76, 175, 80) : _theme.AccentColor);
+                            var fillBrush = PaintersFactory.GetSolidBrush(progress >= 100 ? _theme.SuccessColor : _theme.AccentColor);
                             g.FillPath(fillBrush, CreateRoundedRectangle(fillRect, 2));
                         }
                     }
@@ -205,10 +205,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 Color selectedColor = GetSelectedBackColor();
                 using (var path = CreateRoundedRectangle(nodeBounds, 4))
                 {
-                    using (var brush = new SolidBrush(selectedColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var brush = GetBrush(selectedColor);
+                    g.FillPath(brush, path);
 
                     // Left accent bar
                     using (var pen = new Pen(_theme.AccentColor, 3))
@@ -221,8 +219,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             {
                 Color hoverColor = GetHoverBackColor();
                 using (var path = CreateRoundedRectangle(nodeBounds, 4))
-                using (var brush = new SolidBrush(hoverColor))
                 {
+                    var brush = GetBrush(hoverColor);
                     g.FillPath(brush, path);
                 }
             }
@@ -234,36 +232,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Atlassian-Style arrow toggle
             Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
-            using (var brush = new SolidBrush(arrowColor))
+            var brush = GetBrush(arrowColor);
+
+            int centerX = toggleRect.Left + toggleRect.Width / 2;
+            int centerY = toggleRect.Top + toggleRect.Height / 2;
+            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+            Point[] triangle;
+            if (isExpanded)
             {
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                Point[] triangle;
-                if (isExpanded)
+                // Down arrow
+                triangle = new Point[]
                 {
-                    // Down arrow
-                    triangle = new Point[]
-                    {
-                        new Point(centerX - size, centerY - size / 2),
-                        new Point(centerX + size, centerY - size / 2),
-                        new Point(centerX, centerY + size / 2)
-                    };
-                }
-                else
-                {
-                    // Right arrow
-                    triangle = new Point[]
-                    {
-                        new Point(centerX - size / 2, centerY - size),
-                        new Point(centerX + size / 2, centerY),
-                        new Point(centerX - size / 2, centerY + size)
-                    };
-                }
-
-                g.FillPolygon(brush, triangle);
+                    new Point(centerX - size, centerY - size / 2),
+                    new Point(centerX + size, centerY - size / 2),
+                    new Point(centerX, centerY + size / 2)
+                };
             }
+            else
+            {
+                // Right arrow
+                triangle = new Point[]
+                {
+                    new Point(centerX - size / 2, centerY - size),
+                    new Point(centerX + size / 2, centerY),
+                    new Point(centerX - size / 2, centerY + size)
+                };
+            }
+
+            g.FillPolygon(brush, triangle);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -299,10 +296,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            var brush = GetBrush(_theme.TreeBackColor);
+            g.FillRectangle(brush, bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -321,9 +316,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Background track
             Color trackColor = Color.FromArgb(50, _theme.TreeForeColor);
-            using (var brush = new SolidBrush(trackColor))
             using (var path = CreateRoundedRectangle(barRect, 2))
             {
+                var brush = GetBrush(trackColor);
                 g.FillPath(brush, path);
             }
 
@@ -333,10 +328,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 int fillWidth = (int)(barRect.Width * (progress / 100f));
                 Rectangle fillRect = new Rectangle(barRect.X, barRect.Y, fillWidth, barRect.Height);
 
-                Color fillColor = progress >= 100 ? Color.FromArgb(76, 175, 80) : _theme.AccentColor;
-                using (var brush = new SolidBrush(fillColor))
+                Color fillColor = progress >= 100 ? _theme.SuccessColor : _theme.AccentColor;
                 using (var path = CreateRoundedRectangle(fillRect, 2))
                 {
+                    var brush = GetBrush(fillColor);
                     g.FillPath(brush, path);
                 }
             }
@@ -351,10 +346,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Circular badge
             Color badgeColor = Color.FromArgb(150, _theme.AccentColor);
-            using (var brush = new SolidBrush(badgeColor))
-            {
-                g.FillEllipse(brush, badgeRect);
-            }
+            var badgeFill = GetBrush(badgeColor);
+            g.FillEllipse(badgeFill, badgeRect);
 
             // Border
             using (var pen = new Pen(_theme.AccentColor, 1))
@@ -365,11 +358,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Text
             if (!string.IsNullOrEmpty(points))
             {
-                using (var font = new Font("Segoe UI", 7f, FontStyle.Bold))
-                {
-                    TextRenderer.DrawText(g, points, font, badgeRect, GetSelectedForeColor(),
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                }
+                var badgeFont = GetFont(7f, FontStyle.Bold);
+                TextRenderer.DrawText(g, points, badgeFont, badgeRect, GetSelectedForeColor(),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
 

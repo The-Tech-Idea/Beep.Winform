@@ -128,9 +128,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var bgBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(40, _theme.AccentColor));
                     g.FillRectangle(bgBrush, iconRect);
 
-                    var textBrush = PaintersFactory.GetSolidBrush(_theme.TreeForeColor);
-                    StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString("📄", _emojiFont, textBrush, iconRect, sf);
+                    TextRenderer.DrawText(g, "📄", _emojiFont, iconRect, _theme.TreeForeColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
 
                 // STEP 6: Draw text with Notion clean typography

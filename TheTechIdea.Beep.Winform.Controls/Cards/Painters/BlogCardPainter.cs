@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -146,9 +148,8 @@ _titleFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _metaFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
 
             // Draw category badge
@@ -161,19 +162,15 @@ _titleFont = titleFont;
             // Draw engagement stats
             if (ctx.ShowRating && !string.IsNullOrEmpty(ctx.StatusText) && !ctx.RatingRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(128, ctx.AccentColor));
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Far, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _statsFont, brush, ctx.RatingRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _statsFont, ctx.RatingRect,
+                    Color.FromArgb(128, ctx.AccentColor),
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
-            
+
             // Draw subtle divider line between image and content
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
-                using var pen = new Pen(Color.FromArgb(30, ctx.AccentColor), 1);
+                var pen = CardPaintCache.Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner));
                 g.DrawLine(pen, drawingRect.Left, ctx.ImageRect.Bottom,
                     drawingRect.Right, ctx.ImageRect.Bottom);
             }

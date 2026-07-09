@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         [DefaultValue(true)]
         public bool EnableItemHoverEffects { get; set; } = true;
 
-        private Font _textFont = new Font("Arial", 10);
+        private Font _textFont = SystemFonts.DefaultFont;
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
@@ -280,6 +280,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                 Margin = new Padding(0),
                 TextAlign = ContentAlignment.MiddleLeft
             };
+
+            // Accessibility
+            AccessibleRole = AccessibleRole.List;
+            AccessibleName = "Scroll List";
+            AccessibleDescription = "A scrollable list of items";
         }
 
         private void Items_ListChanged(object sender, ListChangedEventArgs e)
@@ -536,10 +541,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                 }
 
                 // Draw the item background
-                using (SolidBrush brush = new SolidBrush(backColor))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                g.FillRectangle(GetBrush(backColor), itemRect);
 
                 // Draw checkbox if enabled
                 int currentX = itemRect.Left + padding;
@@ -615,10 +617,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             float scrollPercentage = _scrollOffset / Math.Max(1, _listItems.Count - _visibleItemsCount);
             float visiblePercentage = Math.Min(1.0f, visibleSize / contentSize);
 
-            using (SolidBrush indicatorBrush = new SolidBrush(ScrollIndicatorColor))
+            var indicatorBrush = GetBrush(ScrollIndicatorColor);
+            if (_orientation == ScrollOrientation.VerticalScroll)
             {
-                if (_orientation == ScrollOrientation.VerticalScroll)
-                {
                     // Vertical indicators - right side
                     int indicatorWidth = 4;
                     int right = DrawingRect.Right - 2;
@@ -657,7 +658,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                         }
                     }
                 }
-            }
+        }
+
+        private static readonly System.Collections.Generic.Dictionary<int, SolidBrush> _brushCache = new();
+
+        private static SolidBrush GetBrush(Color color)
+        {
+            int key = color.ToArgb();
+            if (_brushCache.TryGetValue(key, out var b) && b != null) return b;
+            b = new SolidBrush(color);
+            _brushCache[key] = b;
+            return b;
         }
 
         private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)

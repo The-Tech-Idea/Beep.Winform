@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -142,8 +143,7 @@ _titleFont = titleFont;
             // Draw unread notification background tint
             if (ctx.ShowStatus && !ctx.DrawingRect.IsEmpty)
             {
-                using var bgBrush = new SolidBrush(Color.FromArgb(8, ctx.AccentColor));
-                g.FillRectangle(bgBrush, ctx.DrawingRect);
+                g.FillRectangle(CardPaintCache.Brush(Color.FromArgb(8, ctx.AccentColor)), ctx.DrawingRect);
             }
         }
         
@@ -153,8 +153,7 @@ _titleFont = titleFont;
             if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                using var brush = new SolidBrush(ctx.AccentColor);
-                g.FillEllipse(brush, ctx.StatusRect);
+                g.FillEllipse(CardPaintCache.Brush(ctx.AccentColor), ctx.StatusRect);
             }
             
             // Draw notification icon with category color
@@ -166,13 +165,9 @@ _titleFont = titleFont;
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(100, Color.Black));
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Far, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _timeFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.SubtitleRect,
+                    Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
             
             // Draw badge (notification count)
@@ -185,9 +180,9 @@ _titleFont = titleFont;
             // Draw action time (e.g., "2 hours ago")
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.RatingRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(120, Color.Black));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _timeFont, brush, ctx.RatingRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _timeFont, ctx.RatingRect,
+                    Color.FromArgb(120, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
         
@@ -196,12 +191,10 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Draw circular background
-            using var bgBrush = new SolidBrush(Color.FromArgb(30, ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor));
-            g.FillEllipse(bgBrush, ctx.ImageRect);
-            
+            g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(30, ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor)), ctx.ImageRect);
+
             // Draw icon border
-            using var borderPen = new Pen(Color.FromArgb(50, ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
-            g.DrawEllipse(borderPen, ctx.ImageRect);
+            g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(50, ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner)), ctx.ImageRect);
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)

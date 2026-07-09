@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -131,9 +132,8 @@ _titleFont = titleFont;
             // Draw status text
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(100, Color.Black));
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _statusFont, brush, ctx.StatusRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _statusFont, ctx.StatusRect, Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
         }
         
@@ -142,9 +142,8 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Rounded square background
-            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 10);
-            using var bgBrush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
-            g.FillPath(bgBrush, bgPath);
+            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(10, _owner));
+            g.FillPath(CardPaintCache.Brush(Color.FromArgb(20, ctx.AccentColor)), bgPath);
         }
         
         private void DrawToggleSwitch(Graphics g, LayoutContext ctx)
@@ -156,24 +155,22 @@ _titleFont = titleFont;
             
             var rect = ctx.ButtonRect;
             int trackRadius = rect.Height / 2;
-            int thumbSize = rect.Height - 4;
+            int thumbSize = rect.Height - DpiScalingHelper.ScaleValue(4, _owner);
             
             // Track background
             Color trackColor = isOn ? ctx.AccentColor : Color.FromArgb(180, 180, 180);
             using var trackPath = CardRenderingHelpers.CreateRoundedPath(rect, trackRadius);
-            using var trackBrush = new SolidBrush(trackColor);
-            g.FillPath(trackBrush, trackPath);
-            
+            g.FillPath(CardPaintCache.Brush(trackColor), trackPath);
+
             // Thumb
-            int thumbX = isOn ? rect.Right - thumbSize - 2 : rect.Left + 2;
-            var thumbRect = new Rectangle(thumbX, rect.Top + 2, thumbSize, thumbSize);
-            
-            using var thumbBrush = new SolidBrush(Color.White);
-            g.FillEllipse(thumbBrush, thumbRect);
-            
+            int thumbInset = DpiScalingHelper.ScaleValue(2, _owner);
+            int thumbX = isOn ? rect.Right - thumbSize - thumbInset : rect.Left + thumbInset;
+            var thumbRect = new Rectangle(thumbX, rect.Top + thumbInset, thumbSize, thumbSize);
+
+            g.FillEllipse(CardPaintCache.Brush(Color.White), thumbRect);
+
             // Thumb shadow
-            using var shadowPen = new Pen(Color.FromArgb(30, Color.Black), 1);
-            g.DrawEllipse(shadowPen, thumbRect);
+            g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(30, _theme?.CardTextForeColor ?? Color.Black), DpiScalingHelper.ScaleValue(1, _owner)), thumbRect);
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)

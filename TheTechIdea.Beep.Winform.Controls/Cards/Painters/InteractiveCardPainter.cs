@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -174,39 +175,33 @@ _titleFont = titleFont;
             // Draw hover state overlay
             if (ctx.ShowStatus && ctx.StatusColor != Color.Empty && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(6, ctx.AccentColor));
+                var brush = CardPaintCache.Brush(Color.FromArgb(6, ctx.AccentColor));
                 g.FillRectangle(brush, ctx.StatusRect);
             }
-            
+
             // Draw icon background (for download/file cards)
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
-                using var bgBrush = new SolidBrush(Color.FromArgb(25, ctx.AccentColor));
-                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
+                var bgBrush = CardPaintCache.Brush(Color.FromArgb(25, ctx.AccentColor));
+                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(8, _owner));
                 g.FillPath(bgBrush, bgPath);
-                
-                using var borderPen = new Pen(Color.FromArgb(50, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
+
+                var borderPen = CardPaintCache.Pen(Color.FromArgb(50, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawPath(borderPen, bgPath);
             }
-            
+
             // Draw metadata
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(140, ctx.AccentColor));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _metaFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _metaFont, ctx.SubtitleRect, Color.FromArgb(140, ctx.AccentColor),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
-            
+
             // Draw stats (downloads, views)
             if (ctx.ShowRating && !string.IsNullOrEmpty(ctx.StatusText) && !ctx.RatingRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(110, ctx.AccentColor));
-                var format = new StringFormat 
-                { 
-                    Alignment = StringAlignment.Far, 
-                    LineAlignment = StringAlignment.Center 
-                };
-                g.DrawString(ctx.StatusText, _statsFont, brush, ctx.RatingRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _statsFont, ctx.RatingRect, Color.FromArgb(110, ctx.AccentColor),
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw chevron indicator (right side)

@@ -40,6 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 ContentRect = availableRect
             };
 
+            layout.DpiScale = Helpers.DpiScalingHelper.GetDpiScaleFactor(owner);
+
             var config = owner.ActiveFilter;
             int currentY = availableRect.Y + Padding;
             int panelWidth = availableRect.Width - Padding * 2;
@@ -60,10 +62,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                         availableRect.X + Padding,
                         currentY,
                         panelWidth,
-                        SectionHeaderHeight
+                        Helpers.DpiScalingHelper.ScaleValue(SectionHeaderHeight, owner)
                     );
                     rowRects.Add(headerRect);
-                    currentY += SectionHeaderHeight + SectionSpacing;
+                    currentY += Helpers.DpiScalingHelper.ScaleValue(SectionHeaderHeight, owner) + SectionSpacing;
 
                     // Section items (filter values)
                     foreach (var criterion in section)
@@ -72,10 +74,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                             availableRect.X + Padding + IndentWidth,
                             currentY,
                             panelWidth - IndentWidth,
-                            SectionItemHeight
+                            Helpers.DpiScalingHelper.ScaleValue(SectionItemHeight, owner)
                         );
                         rowRects.Add(itemRect);
-                        currentY += SectionItemHeight + 2;
+                        currentY += Helpers.DpiScalingHelper.ScaleValue(SectionItemHeight, owner) + 2;
                     }
 
                     currentY += SectionSpacing;
@@ -113,16 +115,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             var config = owner.ActiveFilter;
 
             // Panel background
-            using (var brush = new SolidBrush(Color.FromArgb(250, colors.background)))
-            {
-                g.FillRectangle(brush, layout.ContainerRect);
-            }
+            g.FillRectangle(GetBrush(Color.FromArgb(250, colors.background)), layout.ContainerRect);
 
             // Panel border
-            using (var pen = new Pen(colors.border, 1f))
-            {
-                g.DrawRectangle(pen, layout.ContainerRect);
-            }
+            g.DrawRectangle(GetPen(colors.border, Helpers.DpiScalingHelper.ScaleValue(1, owner)), layout.ContainerRect);
 
             // Paint sections and items
             if (config != null && config.Criteria.Count > 0)
@@ -138,14 +134,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
                     // Paint section header
                     int selectedCount = section.Count(c => c.IsEnabled);
-                    PaintSectionHeader(g, layout.RowRects[rectIndex], section.Key, selectedCount, section.Count(), true, colors);
+                    PaintSectionHeader(g, layout.RowRects[rectIndex], section.Key, selectedCount, section.Count(), true, colors, owner);
                     rectIndex++;
 
                     // Paint section items
                     foreach (var criterion in section)
                     {
                         if (rectIndex >= layout.RowRects.Length) break;
-                        PaintSectionItem(g, layout.RowRects[rectIndex], criterion.Value?.ToString() ?? "", criterion.IsEnabled, colors);
+                        PaintSectionItem(g, layout.RowRects[rectIndex], criterion.Value?.ToString() ?? "", criterion.IsEnabled, colors, owner);
                         rectIndex++;
                     }
                 }
@@ -156,12 +152,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             {
                 if (layout.AddFilterButtonRect != Rectangle.Empty)
                 {
-                    PaintActionButton(g, layout.AddFilterButtonRect, "Apply Filters", colors, true);
+                    PaintActionButton(g, layout.AddFilterButtonRect, "Apply Filters", colors, true, owner);
                 }
 
                 if (layout.AddGroupButtonRect != Rectangle.Empty)
                 {
-                    PaintActionButton(g, layout.AddGroupButtonRect, "Clear All", colors, false);
+                    PaintActionButton(g, layout.AddGroupButtonRect, "Clear All", colors, false, owner);
                 }
             }
 
@@ -169,11 +165,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (owner.ShowFilterCountBadge && config != null && config.Criteria.Count > 0)
             {
                 var badgeLocation = new Point(
-                    layout.ContainerRect.Right - 40,
-                    layout.ContainerRect.Top + 12
+                    layout.ContainerRect.Right - Helpers.DpiScalingHelper.ScaleValue(40, owner),
+                    layout.ContainerRect.Top + Helpers.DpiScalingHelper.ScaleValue(12, owner)
                 );
                 var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
-                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor, owner);
             }
         }
 
@@ -184,28 +180,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             int selectedCount,
             int totalCount,
             bool isExpanded,
-            (Color background, Color border, Color text, Color accent) colors)
+            (Color background, Color border, Color text, Color accent) colors,
+            BeepFilter owner)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             // Background
-            using (var brush = new SolidBrush(Color.FromArgb(245, colors.background)))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            g.FillRectangle(GetBrush(Color.FromArgb(245, colors.background)), rect);
 
             // Expand/collapse toggle
             int toggleX = rect.X + 8;
-            int toggleY = rect.Y + (rect.Height - ExpandToggleSize) / 2;
-            PaintExpandToggle(g, new Rectangle(toggleX, toggleY, ExpandToggleSize, ExpandToggleSize), isExpanded, colors);
+            int toggleY = rect.Y + (rect.Height - Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, owner)) / 2;
+            PaintExpandToggle(g, new Rectangle(toggleX, toggleY, Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, owner), Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, owner)), isExpanded, colors, owner);
 
             // Title text
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
             {
+                var font = GetFont(9f, FontStyle.Bold);
                 Rectangle textRect = new Rectangle(
-                    toggleX + ExpandToggleSize + 8,
+                    toggleX + Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, owner) + 8,
                     rect.Y,
-                    rect.Width - ExpandToggleSize - 70,
+                    rect.Width - Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, owner) - 70,
                     rect.Height
                 );
                 TextRenderer.DrawText(g, title, font, textRect, colors.text,
@@ -217,16 +211,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             {
                 string badgeText = selectedCount.ToString();
                 Rectangle badgeRect = new Rectangle(
-                    rect.Right - BadgeSize - 8,
-                    rect.Y + (rect.Height - BadgeSize) / 2,
-                    BadgeSize,
-                    BadgeSize
+                    rect.Right - Helpers.DpiScalingHelper.ScaleValue(BadgeSize, owner) - 8,
+                    rect.Y + (rect.Height - Helpers.DpiScalingHelper.ScaleValue(BadgeSize, owner)) / 2,
+                    Helpers.DpiScalingHelper.ScaleValue(BadgeSize, owner),
+                    Helpers.DpiScalingHelper.ScaleValue(BadgeSize, owner)
                 );
                 PaintCountBadge(g, badgeRect, badgeText, colors);
             }
         }
 
-        private void PaintExpandToggle(Graphics g, Rectangle rect, bool isExpanded, (Color background, Color border, Color text, Color accent) colors)
+        private void PaintExpandToggle(Graphics g, Rectangle rect, bool isExpanded, (Color background, Color border, Color text, Color accent) colors, BeepFilter owner)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
@@ -238,17 +232,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 int centerX = rect.X + rect.Width / 2;
                 int centerY = rect.Y + rect.Height / 2;
 
+                int a = Helpers.DpiScalingHelper.ScaleValue(4, owner);
+                int b = Helpers.DpiScalingHelper.ScaleValue(2, owner);
+
                 if (isExpanded)
                 {
                     // Down arrow
-                    g.DrawLine(pen, centerX - 4, centerY - 2, centerX, centerY + 2);
-                    g.DrawLine(pen, centerX, centerY + 2, centerX + 4, centerY - 2);
+                    g.DrawLine(pen, centerX - a, centerY - b, centerX, centerY + b);
+                    g.DrawLine(pen, centerX, centerY + b, centerX + a, centerY - b);
                 }
                 else
                 {
                     // Right arrow
-                    g.DrawLine(pen, centerX - 2, centerY - 4, centerX + 2, centerY);
-                    g.DrawLine(pen, centerX + 2, centerY, centerX - 2, centerY + 4);
+                    g.DrawLine(pen, centerX - b, centerY - a, centerX + b, centerY);
+                    g.DrawLine(pen, centerX + b, centerY, centerX - b, centerY + a);
                 }
             }
         }
@@ -258,53 +255,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             Rectangle rect,
             string label,
             bool isChecked,
-            (Color background, Color border, Color text, Color accent) colors)
+            (Color background, Color border, Color text, Color accent) colors,
+            BeepFilter owner)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             // Checkbox
             Rectangle checkRect = new Rectangle(
                 rect.X,
-                rect.Y + (rect.Height - CheckboxSize) / 2,
-                CheckboxSize,
-                CheckboxSize
+                rect.Y + (rect.Height - Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, owner)) / 2,
+                Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, owner),
+                Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, owner)
             );
 
             // Checkbox background
             Color checkBgColor = isChecked ? colors.accent : colors.background;
-            using (var brush = new SolidBrush(checkBgColor))
-            {
-                g.FillRectangle(brush, checkRect);
-            }
+            g.FillRectangle(GetBrush(checkBgColor), checkRect);
 
             // Checkbox border
-            using (var pen = new Pen(isChecked ? colors.accent : colors.border, 1f))
-            {
-                g.DrawRectangle(pen, checkRect);
-            }
+            g.DrawRectangle(GetPen(isChecked ? colors.accent : colors.border, Helpers.DpiScalingHelper.ScaleValue(1, owner)), checkRect);
 
             // Checkmark
             if (isChecked)
             {
-                using (var pen = new Pen(Color.White, 1.5f))
+                var points = new Point[]
                 {
-                    var points = new Point[]
-                    {
-                        new Point(checkRect.X + 3, checkRect.Y + CheckboxSize / 2),
-                        new Point(checkRect.X + CheckboxSize / 2 - 1, checkRect.Y + CheckboxSize - 4),
-                        new Point(checkRect.Right - 3, checkRect.Y + 3)
-                    };
-                    g.DrawLines(pen, points);
-                }
+                    new Point(checkRect.X + 3, checkRect.Y + Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, owner) / 2),
+                    new Point(checkRect.X + Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, owner) / 2 - 1, checkRect.Y + Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, owner) - 4),
+                    new Point(checkRect.Right - 3, checkRect.Y + 3)
+                };
+                g.DrawLines(GetPen(Color.White, 1.5f), points);
             }
 
             // Label text
-            using (var font = new Font("Segoe UI", 8.5f))
             {
+                var font = GetFont(8.5f);
+                int labelGap = Helpers.DpiScalingHelper.ScaleValue(8, owner);
                 Rectangle textRect = new Rectangle(
-                    checkRect.Right + 8,
+                    checkRect.Right + labelGap,
                     rect.Y,
-                    rect.Width - CheckboxSize - 8,
+                    rect.Width - Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, owner) - labelGap,
                     rect.Height
                 );
                 TextRenderer.DrawText(g, label, font, textRect, colors.text,
@@ -317,14 +307,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             // Circle background
-            using (var brush = new SolidBrush(colors.accent))
-            {
-                g.FillEllipse(brush, rect);
-            }
+            g.FillEllipse(GetBrush(colors.accent), rect);
 
             // Count text
-            using (var font = new Font("Segoe UI", 7.5f, FontStyle.Bold))
             {
+                var font = GetFont(7.5f, FontStyle.Bold);
                 TextRenderer.DrawText(g, count, font, rect, Color.White,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
@@ -335,37 +322,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             Rectangle rect,
             string text,
             (Color background, Color border, Color text, Color accent) colors,
-            bool isPrimary)
+            bool isPrimary,
+            BeepFilter owner)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             Color bgColor = isPrimary ? colors.accent : Color.FromArgb(240, colors.background);
             Color textColor = isPrimary ? Color.White : colors.text;
 
+            int cr = Helpers.DpiScalingHelper.ScaleValue(4, owner);
+
             // Background
-            using (var brush = new SolidBrush(bgColor))
+            using (var path = CreateRoundedRectanglePath(rect, cr))
             {
-                using (var path = CreateRoundedRectanglePath(rect, 4))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(bgColor), path);
             }
 
             // Border
             if (!isPrimary)
             {
-                using (var pen = new Pen(colors.border, 1f))
+                using (var path = CreateRoundedRectanglePath(rect, cr))
                 {
-                    using (var path = CreateRoundedRectanglePath(rect, 4))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(colors.border, Helpers.DpiScalingHelper.ScaleValue(1, owner)), path);
                 }
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
             {
+                var font = GetFont(9f, FontStyle.Bold);
                 TextRenderer.DrawText(g, text, font, rect, textColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
@@ -389,15 +373,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             {
                 Rectangle rowRect = layout.RowRects[i];
                 
-                if (rowRect.Height == SectionHeaderHeight)
+                if (rowRect.Height == Helpers.DpiScalingHelper.ScaleValue(SectionHeaderHeight, layout.DpiScale))
                 {
                     // Section header - check expand toggle
-                    Rectangle toggleRect = new Rectangle(rowRect.X + 8, rowRect.Y + (rowRect.Height - ExpandToggleSize) / 2, ExpandToggleSize, ExpandToggleSize);
+                    Rectangle toggleRect = new Rectangle(rowRect.X + 8, rowRect.Y + (rowRect.Height - Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, layout.DpiScale)) / 2, Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, layout.DpiScale), Helpers.DpiScalingHelper.ScaleValue(ExpandToggleSize, layout.DpiScale));
                     if (toggleRect.Contains(point))
                         return new FilterHitArea { Name = $"SectionToggle_{i}", Bounds = toggleRect, Type = FilterHitAreaType.CollapseButton, Tag = i };
 
                     // Check count badge
-                    Rectangle badgeRect = new Rectangle(rowRect.Right - BadgeSize - 8, rowRect.Y + (rowRect.Height - BadgeSize) / 2, BadgeSize, BadgeSize);
+                    Rectangle badgeRect = new Rectangle(rowRect.Right - Helpers.DpiScalingHelper.ScaleValue(BadgeSize, layout.DpiScale) - 8, rowRect.Y + (rowRect.Height - Helpers.DpiScalingHelper.ScaleValue(BadgeSize, layout.DpiScale)) / 2, Helpers.DpiScalingHelper.ScaleValue(BadgeSize, layout.DpiScale), Helpers.DpiScalingHelper.ScaleValue(BadgeSize, layout.DpiScale));
                     if (badgeRect.Contains(point))
                         return new FilterHitArea { Name = $"SectionBadge_{i}", Bounds = badgeRect, Type = FilterHitAreaType.FilterTag, Tag = i };
 
@@ -405,10 +389,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                     if (rowRect.Contains(point))
                         return new FilterHitArea { Name = $"SectionHeader_{i}", Bounds = rowRect, Type = FilterHitAreaType.CollapseButton, Tag = i };
                 }
-                else if (rowRect.Height == SectionItemHeight)
+                else if (rowRect.Height == Helpers.DpiScalingHelper.ScaleValue(SectionItemHeight, layout.DpiScale))
                 {
                     // Section item - check checkbox
-                    Rectangle checkRect = new Rectangle(rowRect.X, rowRect.Y + (rowRect.Height - CheckboxSize) / 2, CheckboxSize, CheckboxSize);
+                    Rectangle checkRect = new Rectangle(rowRect.X, rowRect.Y + (rowRect.Height - Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, layout.DpiScale)) / 2, Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, layout.DpiScale), Helpers.DpiScalingHelper.ScaleValue(CheckboxSize, layout.DpiScale));
                     if (checkRect.Contains(point))
                         return new FilterHitArea { Name = $"Checkbox_{i}", Bounds = checkRect, Type = FilterHitAreaType.ValueInput, Tag = i };
 

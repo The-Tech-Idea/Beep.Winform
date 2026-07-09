@@ -107,9 +107,8 @@ _titleFont = titleFont;
                     circleSize,
                     circleSize);
                 
-                using var brush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.FillEllipse(brush, circleRect);
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(20, ctx.AccentColor)), circleRect);
             }
             
             // Draw badge if present

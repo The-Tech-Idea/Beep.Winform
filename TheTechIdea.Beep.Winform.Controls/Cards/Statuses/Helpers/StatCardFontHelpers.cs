@@ -3,6 +3,8 @@ using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
 {
@@ -19,148 +21,42 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
     }
 
     /// <summary>
-    /// Centralized font management for StatCard controls
-    /// Integrates with BeepFontManager and StyleTypography
+    /// Centralized font management for StatCard controls.
+    /// Fonts are sourced from the theme's StatsCard* TypographyStyle roles via
+    /// <see cref="BeepThemesManager"/>; when a role is unset the control-style
+    /// sizing tables below are used as a fallback. Returned fonts are owned by the
+    /// theme-manager cache — callers must NOT dispose them.
     /// </summary>
     public static class StatCardFontHelpers
     {
         #region Font Retrieval Methods
 
-        /// <summary>
-        /// Get font for card header
-        /// </summary>
-        public static Font GetHeaderFont(
-            BeepStatCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 10, FontStyle.Bold);
+        /// <summary>Get font for card header.</summary>
+        public static Font GetHeaderFont(BeepStatCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.StatsCardTitleStyle)
+               ?? ResolveFallback(card, controlStyle, StatCardFontElement.Header, 1f);
 
-            Font baseFont = card.Font ?? new Font("Segoe UI", 10, FontStyle.Bold);
+        /// <summary>Get font for value text (large, bold).</summary>
+        public static Font GetValueFont(BeepStatCard card, BeepControlStyle controlStyle, float scale = 1.6f)
+            => FromRole(BeepThemesManager.CurrentTheme?.StatsCardValueStyle, scale)
+               ?? ResolveFallback(card, controlStyle, StatCardFontElement.Value, scale);
 
-            int fontSize = GetFontSizeForElement(controlStyle, StatCardFontElement.Header);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, StatCardFontElement.Header);
+        /// <summary>Get font for delta text.</summary>
+        public static Font GetDeltaFont(BeepStatCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.StatsCardTrendStyle)
+               ?? ResolveFallback(card, controlStyle, StatCardFontElement.Delta, 1f);
 
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
+        /// <summary>Get font for info text.</summary>
+        public static Font GetInfoFont(BeepStatCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.StatsCardInfoStyle)
+               ?? ResolveFallback(card, controlStyle, StatCardFontElement.Info, 1f);
 
-        /// <summary>
-        /// Get font for value text (large, bold)
-        /// </summary>
-        public static Font GetValueFont(
-            BeepStatCard card,
-            BeepControlStyle controlStyle,
-            float scale = 1.6f)
-        {
-            if (card == null)
-                return new Font("Segoe UI", (int)(12 * scale), FontStyle.Bold);
+        /// <summary>Get font for label text.</summary>
+        public static Font GetLabelFont(BeepStatCard card, BeepControlStyle controlStyle)
+            => FromRole(BeepThemesManager.CurrentTheme?.StatsCardSubStyleStyle)
+               ?? ResolveFallback(card, controlStyle, StatCardFontElement.Label, 1f);
 
-            Font baseFont = card.Font ?? new Font("Segoe UI", (int)(12 * scale), FontStyle.Bold);
-
-            int fontSize = GetFontSizeForElement(controlStyle, StatCardFontElement.Value);
-            fontSize = (int)(fontSize * scale);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, StatCardFontElement.Value);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for delta text
-        /// </summary>
-        public static Font GetDeltaFont(
-            BeepStatCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 10, FontStyle.Regular);
-
-            Font baseFont = card.Font ?? new Font("Segoe UI", 10, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, StatCardFontElement.Delta);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, StatCardFontElement.Delta);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for info text
-        /// </summary>
-        public static Font GetInfoFont(
-            BeepStatCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 9, FontStyle.Regular);
-
-            Font baseFont = card.Font ?? new Font("Segoe UI", 9, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, StatCardFontElement.Info);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, StatCardFontElement.Info);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for label text
-        /// </summary>
-        public static Font GetLabelFont(
-            BeepStatCard card,
-            BeepControlStyle controlStyle)
-        {
-            if (card == null)
-                return new Font("Segoe UI", 8, FontStyle.Regular);
-
-            Font baseFont = card.Font ?? new Font("Segoe UI", 8, FontStyle.Regular);
-
-            int fontSize = GetFontSizeForElement(controlStyle, StatCardFontElement.Label);
-            FontStyle fontStyle = GetFontStyleForElement(controlStyle, StatCardFontElement.Label);
-
-            try
-            {
-                var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
-                return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
-            }
-            catch
-            {
-                return new Font(baseFont.FontFamily, fontSize, fontStyle);
-            }
-        }
-
-        /// <summary>
-        /// Get font for stat card based on element type
-        /// </summary>
+        /// <summary>Get font for stat card based on element type.</summary>
         public static Font GetFontForElement(
             BeepStatCard card,
             StatCardFontElement element,
@@ -180,11 +76,40 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
 
         #endregion
 
-        #region Font Size and Style Helpers
+        #region Typography-role + fallback resolution
 
         /// <summary>
-        /// Get font size for a specific element based on control style
+        /// Builds a font from a theme TypographyStyle role (shared, cached — never disposed).
+        /// Returns null when the role is unset so callers can fall back to control-style sizing.
         /// </summary>
+        private static Font FromRole(TypographyStyle role, float scale = 1f)
+        {
+            if (role == null) return null;
+            if (Math.Abs(scale - 1f) < 0.001f)
+                return BeepThemesManager.ToFont(role);
+            float size = (role.FontSize > 0 ? role.FontSize : 9f) * scale;
+            return BeepThemesManager.ToFont(role.FontFamily, size, role.FontWeight, role.FontStyle);
+        }
+
+        /// <summary>
+        /// Control-style-driven fallback used when the matching theme role is unset.
+        /// Routes through BeepThemesManager (shared cache) — no consumer disposal.
+        /// </summary>
+        private static Font ResolveFallback(BeepStatCard card, BeepControlStyle controlStyle, StatCardFontElement element, float scale)
+        {
+            var family = (card?.Font ?? SystemFonts.DefaultFont).FontFamily.Name;
+            int fontSize = GetFontSizeForElement(controlStyle, element);
+            if (Math.Abs(scale - 1f) > 0.001f) fontSize = Math.Max(8, (int)(fontSize * scale));
+            FontStyle fontStyle = GetFontStyleForElement(controlStyle, element);
+            var weight = fontStyle.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Normal;
+            return BeepThemesManager.ToFont(family, fontSize, weight, fontStyle);
+        }
+
+        #endregion
+
+        #region Font Size and Style Helpers (fallback tables)
+
+        /// <summary>Get font size for a specific element based on control style.</summary>
         public static int GetFontSizeForElement(BeepControlStyle controlStyle, StatCardFontElement element)
         {
             float baseSize = StyleTypography.GetFontSize(controlStyle);
@@ -204,29 +129,16 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
             return Math.Max(8, (int)Math.Round(elementSize));
         }
 
-        /// <summary>
-        /// Get font style for a specific element based on control style
-        /// </summary>
+        /// <summary>Get font style for a specific element based on control style.</summary>
         public static FontStyle GetFontStyleForElement(BeepControlStyle controlStyle, StatCardFontElement element)
         {
             if (element == StatCardFontElement.Header || element == StatCardFontElement.Value)
-            {
-                return controlStyle switch
-                {
-                    BeepControlStyle.Modern => FontStyle.Bold,
-                    BeepControlStyle.Material => FontStyle.Bold,
-                    BeepControlStyle.Fluent => FontStyle.Bold,
-                    BeepControlStyle.Minimal => FontStyle.Bold,
-                    _ => FontStyle.Bold
-                };
-            }
+                return FontStyle.Bold;
 
             return FontStyle.Regular;
         }
 
-        /// <summary>
-        /// Adjust font size based on control style
-        /// </summary>
+        /// <summary>Adjust font size based on control style.</summary>
         private static float AdjustSizeForControlStyle(float baseSize, BeepControlStyle controlStyle)
         {
             return controlStyle switch
@@ -244,18 +156,12 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
         #region Bulk Font Application
 
         /// <summary>
-        /// Apply font theme to a stat card control
-        /// Updates all font properties based on theme and style
+        /// Apply font theme to a stat card control.
+        /// Fonts are resolved per-element in the painters via the Get*Font methods.
         /// </summary>
-        public static void ApplyFontTheme(
-            BeepStatCard card,
-            BeepControlStyle controlStyle)
+        public static void ApplyFontTheme(BeepStatCard card, BeepControlStyle controlStyle)
         {
-            if (card == null)
-                return;
-
-            // Fonts are applied in painters
-            // This method provides the font values that should be used
+            // Fonts are applied in painters via the Get*Font methods above.
         }
 
         #endregion

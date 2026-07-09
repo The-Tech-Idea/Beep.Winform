@@ -26,11 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             base.Initialize(owner, theme);
             _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
-            if (_boldFont == null || _boldFont.Size != _regularFont.Size || !_boldFont.FontFamily.Equals(_regularFont.FontFamily))
-            {
-                try { _boldFont?.Dispose(); } catch { }
-                _boldFont = new Font(_regularFont.FontFamily, _regularFont.Size, FontStyle.Bold);
-            }
+            _boldFont = GetFont(_regularFont.Size, FontStyle.Bold);
         }
 
         /// <summary>
@@ -240,10 +236,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         g.FillPath(shadowBrush, shadowPath);
                     }
 
-                    using (var hoverBrush = new SolidBrush(GetHoverBackColor()))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    var hoverBrush = GetBrush(GetHoverBackColor());
+                    g.FillPath(hoverBrush, path);
                 }
             }
         }

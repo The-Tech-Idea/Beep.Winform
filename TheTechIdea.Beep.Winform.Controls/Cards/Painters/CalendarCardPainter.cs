@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -144,7 +146,7 @@ _monthFont = bodyFont;
             // Draw status accent bar
             if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.StatusColor);
+                var brush = CardPaintCache.Brush(ctx.StatusColor);
                 g.FillRectangle(brush, ctx.StatusRect);
             }
             
@@ -152,45 +154,42 @@ _monthFont = bodyFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.ImageRect.IsEmpty)
             {
                 // Draw date block background
-                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
-                using var bgBrush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
+                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(8, _owner));
+                var bgBrush = CardPaintCache.Brush(Color.FromArgb(15, ctx.AccentColor));
                 g.FillPath(bgBrush, bgPath);
-                
+
                 // Draw border
-                using var borderPen = new Pen(ctx.AccentColor, 2);
+                var borderPen = CardPaintCache.Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawPath(borderPen, bgPath);
-                
+
                 // Parse date (expecting format like "MAR 15" or "MAR/15" or "15")
                 var dateParts = ctx.SubtitleText.Split(new[] { '\n', ' ', '/' }, StringSplitOptions.RemoveEmptyEntries);
-                
-                using var textBrush = new SolidBrush(ctx.AccentColor);
-                
+
                 if (dateParts.Length >= 2)
                 {
                     // Month at top
-                    var monthRect = new RectangleF(ctx.ImageRect.X, ctx.ImageRect.Y + 10, ctx.ImageRect.Width, 14);
-                    var monthFormat = new StringFormat { Alignment = StringAlignment.Center };
-                    g.DrawString(dateParts[0].ToUpper(), _monthFont, textBrush, monthRect, monthFormat);
-                    
+                    var monthRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Y + DpiScalingHelper.ScaleValue(10, _owner), ctx.ImageRect.Width, DpiScalingHelper.ScaleValue(14, _owner));
+                    TextRenderer.DrawText(g, dateParts[0].ToUpper(), _monthFont, monthRect, ctx.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.NoPrefix);
+
                     // Day number below
-                    var dayRect = new RectangleF(ctx.ImageRect.X, ctx.ImageRect.Y + 24, ctx.ImageRect.Width, 32);
-                    var dayFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(dateParts[1], _dayFont, textBrush, dayRect, dayFormat);
+                    var dayRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Y + DpiScalingHelper.ScaleValue(24, _owner), ctx.ImageRect.Width, DpiScalingHelper.ScaleValue(32, _owner));
+                    TextRenderer.DrawText(g, dateParts[1], _dayFont, dayRect, ctx.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
                 else
                 {
                     // Single value - draw centered
-                    var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(ctx.SubtitleText, _dayFont, textBrush, ctx.ImageRect, format);
+                    TextRenderer.DrawText(g, ctx.SubtitleText, _dayFont, ctx.ImageRect, ctx.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
 
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var timeColor = Color.FromArgb(170, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var timeBrush = new SolidBrush(timeColor);
-                var timeFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _timeFont, timeBrush, ctx.SubtitleRect, timeFormat);
+                TextRenderer.DrawText(g, ctx.StatusText, _timeFont, ctx.SubtitleRect, timeColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw location/category badge

@@ -3,6 +3,8 @@ using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Numerics;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -21,6 +23,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepQueryandFilter()
         {
             InitializeLayout();
+
+            // Accessibility
+            AccessibleRole = AccessibleRole.Grouping;
+            AccessibleName = "Query and Filter";
+            AccessibleDescription = "Builds query filters for data fields";
         }
         private void InitializeLayout()
         {
@@ -37,8 +44,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50)); // For Ranges (optional)
             Controls.Add(tableLayoutPanel);
 
-            // Add Submit Button
-            var submitButton = new Button
+            // Add Submit Button (Beep control)
+            var submitButton = new BeepButton
             {
                 Text = "Submit",
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
@@ -56,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var field in entityStructure.Fields)
             {
                 // Create Label
-                var label = new Label
+                var label = new BeepLabel
                 {
                     Text = field.FieldName,
                     AutoSize = true,
@@ -91,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Add Submit Button
-            var submitButton = new Button
+            var submitButton = new BeepButton
             {
                 Text = "Submit",
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
@@ -106,25 +113,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (Type.GetType(field.Fieldtype))
             {
                 case Type type when type == typeof(DateTime):
-                    return new DateTimePicker
+                    return new BeepDatePicker
                     {
-                        Format = DateTimePickerFormat.Short,
+                        DateFormat = "Short",
                         Width = 100,
                         Anchor = AnchorStyles.Left
                     };
 
                 case Type type when type == typeof(int) || type == typeof(decimal) || type == typeof(double) || type == typeof(float):
-                    return new NumericUpDown
+                    return new BeepNumericUpDown
                     {
-                        Minimum = decimal.MinValue,
-                        Maximum = decimal.MaxValue,
+                        MinimumValue = decimal.MinValue,
+                        MaximumValue = decimal.MaxValue,
                         DecimalPlaces = (type == typeof(decimal) || type == typeof(double) || type == typeof(float)) ? 2 : 0,
                         Width = 100,
                         Anchor = AnchorStyles.Left
                     };
 
                 case Type type when type == typeof(bool):
-                    return new CheckBox
+                    return new BeepCheckBoxBool
                     {
                         Text = "",
                         Width = 50,
@@ -132,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     };
 
                 default:
-                    return new TextBox
+                    return new BeepTextBox
                     {
                         Width = 150,
                         Anchor = AnchorStyles.Left
@@ -153,26 +160,33 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     var (filter, isFrom) = tagInfo;
 
-                    if (control is TextBox textBox)
+                    if (control is BeepTextBox textBox)
                     {
                         if (isFrom)
                             filter.FilterValue = textBox.Text;
                         else
                             filter.FilterValue1 = textBox.Text;
                     }
-                    else if (control is NumericUpDown numericUpDown)
+                    else if (control is BeepNumericUpDown numericUpDown)
                     {
                         if (isFrom)
                             filter.FilterValue = numericUpDown.Value.ToString(); // Convert decimal to string
                         else
                             filter.FilterValue1 = numericUpDown.Value.ToString(); // Convert decimal to string
                     }
-                    else if (control is DateTimePicker dateTimePicker)
+                    else if (control is BeepDatePicker dateTimePicker)
                     {
                         if (isFrom)
                             filter.FilterValue = dateTimePicker.Value.ToString("yyyy-MM-dd"); // Convert DateTime to string
                         else
                             filter.FilterValue1 = dateTimePicker.Value.ToString("yyyy-MM-dd"); // Convert DateTime to string
+                    }
+                    else if (control is BeepCheckBoxBool checkBox)
+                    {
+                        if (isFrom)
+                            filter.FilterValue = checkBox.Checked.ToString();
+                        else
+                            filter.FilterValue1 = checkBox.Checked.ToString();
                     }
                 }
             }

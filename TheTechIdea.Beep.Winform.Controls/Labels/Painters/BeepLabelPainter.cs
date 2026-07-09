@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Labels.Helpers;
@@ -8,6 +9,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Painters
 {
     internal static class BeepLabelPainter
     {
+        // Process-lifetime shared brush cache (UI-thread only). Never dispose these.
+        private static readonly Dictionary<int, SolidBrush> _brushCache = new();
+
+        private static SolidBrush GetBrush(Color color)
+        {
+            int key = color.ToArgb();
+            if (_brushCache.TryGetValue(key, out var b) && b != null) return b;
+            b = new SolidBrush(color);
+            _brushCache[key] = b;
+            return b;
+        }
+
         public static void Paint(
             Graphics g,
             BeepLabel owner,
@@ -24,17 +37,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Painters
 
             if (state.IsPressed && owner.SelectedBackColor != Color.Empty)
             {
-                using var bgBrush = new SolidBrush(owner.SelectedBackColor);
-                g.FillRectangle(bgBrush, bounds);
+                g.FillRectangle(GetBrush(owner.SelectedBackColor), bounds);
             }
             else if (state.IsHovered && owner.HoverBackColor != Color.Empty)
             {
-                using var bgBrush = new SolidBrush(owner.HoverBackColor);
-                g.FillRectangle(bgBrush, bounds);
+                g.FillRectangle(GetBrush(owner.HoverBackColor), bounds);
             }
 
-            Color effectiveHeaderColor = headerColor;
-            Color effectiveSubHeaderColor = subHeaderColor;
+            // Style variant shape background (rounded, pill, badge, chip, code block)
+            owner.DrawStyleShape(g, bounds);
+
+            // Visual effect overlay (glow, raised, gradient, accent bar, shimmer)
+            owner.DrawStyleEffect(g, bounds);
+
+            Color effectiveHeaderColor = owner.ApplyAutoContrast(headerColor);
+            Color effectiveSubHeaderColor = owner.ApplyAutoContrast(subHeaderColor);
 
             if (state.IsPressed && owner.SelectedForeColor != Color.Empty)
             {

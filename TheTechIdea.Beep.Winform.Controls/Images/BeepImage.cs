@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Images.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Images
 {
@@ -631,16 +632,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
             this.MinimumSize = new Size(16, 16);
 
             BoundProperty = "ImagePath";
-            fillColor = Color.Black;
-            strokeColor = Color.Black;
+            fillColor = _currentTheme?.ForeColor ?? Color.Black;
+            strokeColor = _currentTheme?.ForeColor ?? Color.Black;
             this.Visible = true;
             // Enable tab stop for proper focus behavior
             TabStop = true;
+
+            // Accessibility
+            AccessibleRole = AccessibleRole.Graphic;
+            AccessibleName = "Image";
+            AccessibleDescription = "An image or icon";
         }
 
-        protected override Size DefaultSize
-        {
-            get { return new Size(100, 100); }
-        }
+        protected override Size DefaultSize => BeepLayoutMetrics.Image;
     }
 }

@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                         layout.SearchInputRect.Y + (layout.SearchInputRect.Height - 20) / 2
                     );
                     var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
-                    PaintFilterCountBadge(g, count, badgeLocation, accentColor);
+                    PaintFilterCountBadge(g, count, badgeLocation, accentColor, owner);
                 }
             }
         }
@@ -127,100 +127,84 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
 
+            int crColSel = Helpers.DpiScalingHelper.ScaleValue(4, owner);
+
             // Background
-            using (var brush = new SolidBrush(Color.White))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, crColSel))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(Color.White), path);
             }
 
             // Border
-            using (var pen = new Pen(colors.border, 1))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, crColSel))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(colors.border, Helpers.DpiScalingHelper.ScaleValue(1, owner)), path);
             }
 
             // Text
-            var textRect = new Rectangle(rect.X + 10, rect.Y, rect.Width - 28, rect.Height);
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(colors.text))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Near,
-                    Trimming = StringTrimming.EllipsisCharacter
-                };
-                g.DrawString(text, font, brush, textRect, sf);
-            }
+            int textPad = Helpers.DpiScalingHelper.ScaleValue(10, owner);
+            int textRight = Helpers.DpiScalingHelper.ScaleValue(28, owner);
+            var textRect = new Rectangle(rect.X + textPad, rect.Y, rect.Width - textRight, rect.Height);
+            TextRenderer.DrawText(g, text, GetFont(9f), textRect, colors.text,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
 
             // Dropdown arrow
-            int arrowX = rect.Right - 14;
+            int arrowX = rect.Right - Helpers.DpiScalingHelper.ScaleValue(14, owner);
             int arrowY = rect.Y + rect.Height / 2;
-            using (var pen = new Pen(colors.text, 1.5f))
-            {
-                g.DrawLine(pen, arrowX - 4, arrowY - 2, arrowX, arrowY + 2);
-                g.DrawLine(pen, arrowX, arrowY + 2, arrowX + 4, arrowY - 2);
-            }
+            var arrowPen = GetPen(colors.text, 1.5f);
+            int arrowHalf = Helpers.DpiScalingHelper.ScaleValue(4, owner);
+            g.DrawLine(arrowPen, arrowX - arrowHalf, arrowY - 2, arrowX, arrowY + 2);
+            g.DrawLine(arrowPen, arrowX, arrowY + 2, arrowX + arrowHalf, arrowY - 2);
         }
 
         private void PaintSearchInput(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
 
+            int crSrch = Helpers.DpiScalingHelper.ScaleValue(4, owner);
+
             // Background
-            using (var brush = new SolidBrush(Color.White))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, crSrch))
             {
-                g.FillPath(brush, path);
+                g.FillPath(GetBrush(Color.White), path);
             }
 
             // Border
-            using (var pen = new Pen(colors.border, 1))
-            using (var path = CreateRoundedRectanglePath(rect, 4))
+            using (var path = CreateRoundedRectanglePath(rect, crSrch))
             {
-                g.DrawPath(pen, path);
+                g.DrawPath(GetPen(colors.border, Helpers.DpiScalingHelper.ScaleValue(1, owner)), path);
             }
 
             // Search icon (left)
-            int iconX = rect.X + 12;
+            int iconInset = Helpers.DpiScalingHelper.ScaleValue(12, owner);
+            int iconX = rect.X + iconInset;
             int iconY = rect.Y + rect.Height / 2;
-            int iconSize = 14;
-            
-            using (var pen = new Pen(Color.FromArgb(150, colors.text), 1.5f))
-            {
-                // Circle
-                g.DrawEllipse(pen, iconX - iconSize / 2 + 2, iconY - iconSize / 2 + 2, iconSize - 4, iconSize - 4);
-                // Handle
-                g.DrawLine(pen, iconX + iconSize / 2 - 2, iconY + iconSize / 2 - 2, iconX + iconSize / 2 + 1, iconY + iconSize / 2 + 1);
-            }
+            int iconSize = Helpers.DpiScalingHelper.ScaleValue(14, owner);
+
+            var iconPen = GetPen(Color.FromArgb(150, colors.text), 1.5f);
+            // Circle
+            g.DrawEllipse(iconPen, iconX - iconSize / 2 + 2, iconY - iconSize / 2 + 2, iconSize - 4, iconSize - 4);
+            // Handle
+            g.DrawLine(iconPen, iconX + iconSize / 2 - 2, iconY + iconSize / 2 - 2, iconX + iconSize / 2 + 1, iconY + iconSize / 2 + 1);
 
             // Text or placeholder
             var displayText = string.IsNullOrEmpty(text) ? "Search..." : text;
-            var textColor = string.IsNullOrEmpty(text) 
-                ? Color.FromArgb(150, colors.text) 
+            var textColor = string.IsNullOrEmpty(text)
+                ? Color.FromArgb(150, colors.text)
                 : colors.text;
 
-            var textRect = new Rectangle(rect.X + 32, rect.Y, rect.Width - 48, rect.Height);
-            using (var font = new Font("Segoe UI", 10f))
-            using (var brush = new SolidBrush(textColor))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Near,
-                    Trimming = StringTrimming.EllipsisCharacter
-                };
-                g.DrawString(displayText, font, brush, textRect, sf);
-            }
+            int textLeft = Helpers.DpiScalingHelper.ScaleValue(32, owner);
+            int textRight = Helpers.DpiScalingHelper.ScaleValue(48, owner);
+            var textRect = new Rectangle(rect.X + textLeft, rect.Y, rect.Width - textRight, rect.Height);
+            TextRenderer.DrawText(g, displayText, GetFont(10f), textRect, textColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
 
             // Clear button (X) if there's text
             if (!string.IsNullOrEmpty(text))
             {
-                int clearX = rect.Right - 20;
+                int clearX = rect.Right - Helpers.DpiScalingHelper.ScaleValue(20, owner);
                 int clearY = rect.Y + rect.Height / 2;
-                int clearSize = 12;
+                int clearSize = Helpers.DpiScalingHelper.ScaleValue(12, owner);
 
                 using (var pen = new Pen(Color.FromArgb(150, colors.text), 1.5f))
                 {
@@ -237,23 +221,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background circle
-            using (var brush = new SolidBrush(colors.accent))
-            {
-                g.FillEllipse(brush, rect);
-            }
+            g.FillEllipse(GetBrush(colors.accent), rect);
 
             // Text
             string countText = count > 99 ? "99+" : count.ToString();
-            using (var font = new Font("Segoe UI", 8f, FontStyle.Bold))
-            using (var brush = new SolidBrush(Color.White))
-            {
-                var sf = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Center
-                };
-                g.DrawString(countText, font, brush, rect, sf);
-            }
+            TextRenderer.DrawText(g, countText, GetFont(8f, FontStyle.Bold), rect, Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>Hit tests for search input, column selector, clear button, and badge.</summary>

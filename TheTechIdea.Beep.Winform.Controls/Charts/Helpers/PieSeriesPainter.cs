@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -90,8 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         private static void DrawSliceLabels(Graphics g, ChartDataSeries series,
             Rectangle pieRect, float totalValue, Color textColor)
         {
-            using var labelFont = new Font(SystemFonts.DefaultFont.FontFamily, 8f);
-            using var labelBrush = new SolidBrush(textColor);
+            var labelFont = BeepThemesManager.ToFont("Segoe UI", 8f, FontWeight.Normal, FontStyle.Regular);
 
             float cx = pieRect.Left + pieRect.Width / 2f;
             float cy = pieRect.Top + pieRect.Height / 2f;

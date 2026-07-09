@@ -187,6 +187,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             set { _thumbColorActive = value; Refresh(); }
         }
 
+        // Cached GDI resources (UI-thread only, never dispose)
+        private static readonly System.Collections.Generic.Dictionary<int, SolidBrush> _brushes = new();
+        private static SolidBrush GetBrush(Color c)
+        {
+            int k = c.ToArgb();
+            if (_brushes.TryGetValue(k, out var b) && b != null) return b;
+            b = new SolidBrush(c);
+            _brushes[k] = b;
+            return b;
+        }
+
         // CONSTRUCTOR
         public BeepScrollBar()
         {
@@ -202,6 +213,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                 Size = new Size(GetScaledScrollbarWidth(), GetScaledScrollbarHeight());
             else
                 Size = new Size(GetScaledScrollbarHeight(), GetScaledScrollbarWidth());
+
+            // Accessibility
+            AccessibleRole = AccessibleRole.ScrollBar;
+            AccessibleName = "Scroll Bar";
+            AccessibleDescription = "A custom scrollbar control";
         }
 
         // THEMING
@@ -223,20 +239,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             if (r.Width <= 0 || r.Height <= 0) return;
 
             // Background
-            using (var backBrush = new SolidBrush(BackColor))
-                g.FillRectangle(backBrush, r);
+            g.FillRectangle(GetBrush(BackColor), r);
 
             // Track
-            using (var trackBrush = new SolidBrush(TrackColor))
-                g.FillRectangle(trackBrush, r);
+            g.FillRectangle(GetBrush(TrackColor), r);
 
             // Thumb
             var thumbRect = GetThumbRectangle();
             Color thumbCol = _dragging ? ThumbColorActive :
                              _isHovering ? ThumbColorHover :
                                            ThumbColor;
-            using (var thumbBrush = new SolidBrush(thumbCol))
-                g.FillRectangle(thumbBrush, thumbRect);
+            g.FillRectangle(GetBrush(thumbCol), thumbRect);
         }
         // ADD: Override DPI change handling
         protected override void OnDpiChangedAfterParent(EventArgs e)

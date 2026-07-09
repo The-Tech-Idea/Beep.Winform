@@ -1,11 +1,11 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using PaintersFactory = TheTechIdea.Beep.Winform.Controls.Styling.PaintersFactory;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
@@ -70,9 +70,8 @@ _priceFont = titleFont;
             // Draw price
             if (!string.IsNullOrEmpty(ctx.SubtitleText)) // Price in SubtitleText
             {
-                var priceBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
-                var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _priceFont, priceBrush, ctx.ParagraphRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _priceFont, ctx.ParagraphRect, ctx.AccentColor,
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
             
             // Draw rating stars (compact)

@@ -1,10 +1,12 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -20,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
         {
             if (tags == null || !tags.Any()) return;
 
-            int x = area.Left, y = area.Top, h = Math.Min(24, area.Height);
+            int x = area.Left, y = area.Top, h = Math.Min(DpiScalingHelper.ScaleValue(24, owner), area.Height);
             var chipFont = font ?? SystemFonts.DefaultFont;
 
             foreach (var tag in tags)
@@ -28,23 +30,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
                 if (string.IsNullOrWhiteSpace(tag)) continue;
 
                 var textSize = TextUtils.MeasureText(g, tag, chipFont);
-                int w = Math.Min(120, (int)(textSize.Width +16));
-                if (x + w > area.Right -8) break;
+                int w = Math.Min(DpiScalingHelper.ScaleValue(120, owner), (int)(textSize.Width + DpiScalingHelper.ScaleValue(16, owner)));
+                if (x + w > area.Right - DpiScalingHelper.ScaleValue(8, owner)) break;
 
                 var chipRect = new Rectangle(x, y, w, h);
                 using var chipPath = CreateRoundedPath(chipRect, h /2);
                 var chipBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, accent));
-                var chipPen = PaintersFactory.GetPen(Color.FromArgb(60, accent),1);
-                var textBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, Color.Black));
+                var chipPen = PaintersFactory.GetPen(Color.FromArgb(60, accent), DpiScalingHelper.ScaleValue(1, owner));
 
                 g.FillPath(chipBrush, chipPath);
                 g.DrawPath(chipPen, chipPath);
 
-                var textRect = new Rectangle(chipRect.X +8, chipRect.Y, chipRect.Width -16, chipRect.Height);
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(tag, chipFont, textBrush, textRect, format);
+                var textRect = new Rectangle(chipRect.X + DpiScalingHelper.ScaleValue(8, owner), chipRect.Y, chipRect.Width - DpiScalingHelper.ScaleValue(16, owner), chipRect.Height);
+                TextRenderer.DrawText(g, tag, chipFont, textRect, Color.FromArgb(180, Color.Black),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
 
-                x += w +8;
+                x += w + DpiScalingHelper.ScaleValue(8, owner);
             }
         }
 
@@ -57,12 +58,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
             using var badgePath = CreateRoundedPath(rect, rect.Height /2);
             var badgeBrush = PaintersFactory.GetSolidBrush(backColor);
-            var textBrush = PaintersFactory.GetSolidBrush(foreColor);
 
             g.FillPath(badgeBrush, badgePath);
 
-            var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(text, font, textBrush, rect, format);
+            TextRenderer.DrawText(g, text, font, rect, foreColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>
@@ -123,9 +123,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
             // Draw status text
             var textRect = new Rectangle(dotRect.Right +6, rect.Y, rect.Width - dotSize -6, rect.Height);
-            var textBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Color.Black));
-            var format = new StringFormat { LineAlignment = StringAlignment.Center };
-            g.DrawString(text, font, textBrush, textRect, format);
+            TextRenderer.DrawText(g, text, font, textRect, Color.FromArgb(120, Color.Black),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
 
         /// <summary>
@@ -154,9 +153,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             using var clipPath = CreateRoundedPath(rect, radius);
             var oldClip = g.Clip;
             g.SetClip(clipPath);
-            using var brush = new SolidBrush(Color.FromArgb(Math.Min(255, rippleAlpha), rippleColor));
             g.FillEllipse(
-                brush,
+                CardPaintCache.Brush(Color.FromArgb(Math.Min(255, rippleAlpha), rippleColor)),
                 center.X - rippleRadius,
                 center.Y - rippleRadius,
                 rippleRadius * 2f,
@@ -172,8 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             if (bounds.IsEmpty) return;
 
             using var cardPath = CreateRoundedPath(bounds, radius);
-            using var baseBrush = new SolidBrush(baseColor);
-            g.FillPath(baseBrush, cardPath);
+            g.FillPath(CardPaintCache.Brush(baseColor), cardPath);
 
             int shimmerWidth = Math.Max(12, bounds.Width / 3);
             int shimmerX = bounds.X - shimmerWidth + (int)((bounds.Width + shimmerWidth * 2) * phase);

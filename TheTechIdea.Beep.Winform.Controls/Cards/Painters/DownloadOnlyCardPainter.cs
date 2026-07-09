@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -13,7 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
     internal sealed class DownloadOnlyCardPainter : ICardPainter
     {
         #region Fields
-        
+
+        private BaseControl _owner;
         private bool _disposed;
         
         private const int IconSize = 48;
@@ -27,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
+            _owner = owner;
             // No custom resources needed
         }
         
@@ -82,16 +85,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 
                 // Draw circular background
                 var bgRect = new Rectangle(
-                    ctx.ImageRect.X - 8,
-                    ctx.ImageRect.Y - 8,
-                    ctx.ImageRect.Width + 16,
-                    ctx.ImageRect.Height + 16);
-                
-                using var bgBrush = new SolidBrush(Color.FromArgb(25, ctx.AccentColor));
-                g.FillEllipse(bgBrush, bgRect);
-                
-                using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), 2);
-                g.DrawEllipse(borderPen, bgRect);
+                    ctx.ImageRect.X - DpiScalingHelper.ScaleValue(8, _owner),
+                    ctx.ImageRect.Y - DpiScalingHelper.ScaleValue(8, _owner),
+                    ctx.ImageRect.Width + DpiScalingHelper.ScaleValue(16, _owner),
+                    ctx.ImageRect.Height + DpiScalingHelper.ScaleValue(16, _owner));
+
+                g.FillEllipse(CardPaintCache.Brush(Color.FromArgb(25, ctx.AccentColor)), bgRect);
+
+                g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner)), bgRect);
                 
                 // Draw download arrow
                 int cx = ctx.ImageRect.Left + ctx.ImageRect.Width / 2;

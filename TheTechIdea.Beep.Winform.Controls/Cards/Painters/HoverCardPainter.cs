@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -126,7 +127,7 @@ _titleFont = titleFont;
             }
             
             // Draw subtle top accent line
-            using var accentPen = new Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(3, _owner));
+            var accentPen = CardPaintCache.Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(3, _owner));
             g.DrawLine(accentPen,
                 ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner), ctx.DrawingRect.Top,
                 ctx.DrawingRect.Right - DpiScalingHelper.ScaleValue(Padding, _owner), ctx.DrawingRect.Top);
@@ -152,7 +153,7 @@ _titleFont = titleFont;
             g.FillEllipse(gradientBrush, bgRect);
             
             // Inner circle
-            using var innerBrush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
+            var innerBrush = CardPaintCache.Brush(Color.FromArgb(15, ctx.AccentColor));
             g.FillEllipse(innerBrush, ctx.ImageRect);
         }
         
@@ -160,17 +161,15 @@ _titleFont = titleFont;
         {
             // Draw action text with arrow
             string actionText = ctx.BadgeText1 ?? "Learn more";
-            
-            using var textBrush = new SolidBrush(ctx.AccentColor);
-            var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            
+
             // Measure text to position arrow
             var textSize = g.MeasureString(actionText, _actionFont);
             float textLeft = ctx.ButtonRect.Left + (ctx.ButtonRect.Width - textSize.Width - DpiScalingHelper.ScaleValue(20, _owner)) / 2;
-            
+
             // Draw text
             var textRect = new RectangleF(textLeft, ctx.ButtonRect.Top, textSize.Width, ctx.ButtonRect.Height);
-            g.DrawString(actionText, _actionFont, textBrush, textRect, format);
+            TextRenderer.DrawText(g, actionText, _actionFont, Rectangle.Round(textRect), ctx.AccentColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             
             // Draw arrow
             g.SmoothingMode = SmoothingMode.AntiAlias;

@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -117,8 +119,8 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Rounded square background
-            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 12);
-            using var bgBrush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
+            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(12, _owner));
+            var bgBrush = CardPaintCache.Brush(Color.FromArgb(20, ctx.AccentColor));
             g.FillPath(bgBrush, bgPath);
         }
         
@@ -146,10 +148,9 @@ _titleFont = titleFont;
                     y,
                     ctx.ParagraphRect.Width - CheckmarkSize - ElementGap,
                     BenefitRowHeight);
-                
-                using var textBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(benefit, _benefitFont, textBrush, textRect, format);
+
+                TextRenderer.DrawText(g, benefit, _benefitFont, textRect, Color.FromArgb(180, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
                 
                 y += BenefitRowHeight + BenefitGap;
             }
@@ -160,19 +161,19 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Circle background
-            using var bgBrush = new SolidBrush(Color.FromArgb(76, 175, 80)); // Green
+            var bgBrush = CardPaintCache.Brush(_theme?.SuccessColor ?? Color.FromArgb(76, 175, 80)); // Green
             g.FillEllipse(bgBrush, rect);
-            
+
             // Checkmark
-            using var checkPen = new Pen(Color.White, 2.5f);
+            using var checkPen = new Pen(Color.White, DpiScalingHelper.ScaleValue(2.5f, _owner));
             checkPen.StartCap = LineCap.Round;
             checkPen.EndCap = LineCap.Round;
-            
+
             int cx = rect.Left + rect.Width / 2;
             int cy = rect.Top + rect.Height / 2;
-            
-            g.DrawLine(checkPen, cx - 4, cy, cx - 1, cy + 3);
-            g.DrawLine(checkPen, cx - 1, cy + 3, cx + 5, cy - 3);
+
+            g.DrawLine(checkPen, cx - DpiScalingHelper.ScaleValue(4, _owner), cy, cx - DpiScalingHelper.ScaleValue(1, _owner), cy + DpiScalingHelper.ScaleValue(3, _owner));
+            g.DrawLine(checkPen, cx - DpiScalingHelper.ScaleValue(1, _owner), cy + DpiScalingHelper.ScaleValue(3, _owner), cx + DpiScalingHelper.ScaleValue(5, _owner), cy - DpiScalingHelper.ScaleValue(3, _owner));
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)

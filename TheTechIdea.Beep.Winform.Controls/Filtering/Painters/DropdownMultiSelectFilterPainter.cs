@@ -40,14 +40,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             };
 
             var config = owner.ActiveFilter;
-            int padding = 8;
+            int padding = DpiScalingHelper.ScaleValue(8, owner);
 
             // Collapsed dropdown button
             layout.AddFilterButtonRect = new Rectangle(
                 availableRect.X + padding,
                 availableRect.Y + padding,
-                DropdownWidth,
-                DropdownButtonHeight
+                DpiScalingHelper.ScaleValue(DropdownWidth, owner),
+                DpiScalingHelper.ScaleValue(DropdownButtonHeight, owner)
             );
 
             // If expanded, show the dropdown panel
@@ -78,11 +78,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
             {
                 var badgeLocation = new Point(
-                    layout.AddFilterButtonRect.Right - 35,
-                    layout.AddFilterButtonRect.Y + (layout.AddFilterButtonRect.Height - 20) / 2
+                    layout.AddFilterButtonRect.Right - DpiScalingHelper.ScaleValue(35, owner),
+                    layout.AddFilterButtonRect.Y + (layout.AddFilterButtonRect.Height - DpiScalingHelper.ScaleValue(20, owner)) / 2
                 );
                 var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
-                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor, owner);
             }
         }
 
@@ -95,43 +95,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
+            int s4 = DpiScalingHelper.ScaleValue(4, owner);
+            int sItemPadding = DpiScalingHelper.ScaleValue(ItemPadding, owner);
+
             // Background
-            using (var brush = new SolidBrush(colors.BackColor))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
-                using (var path = CreateRoundedRectanglePath(rect, 4))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(colors.BackColor), path);
             }
 
             // Border
-            using (var pen = new Pen(colors.BorderColor, 1f))
+            using (var path = CreateRoundedRectanglePath(rect, s4))
             {
-                using (var path = CreateRoundedRectanglePath(rect, 4))
-                {
-                    g.DrawPath(pen, path);
-                }
+                g.DrawPath(GetPen(colors.BorderColor, DpiScalingHelper.ScaleValue(1, owner)), path);
             }
 
             // Text showing selected count
             string displayText = GetDisplayText(config);
-            using (var font = new Font("Segoe UI", 9f))
-            {
-                Rectangle textRect = new Rectangle(rect.X + ItemPadding, rect.Y, rect.Width - 40, rect.Height);
-                TextRenderer.DrawText(g, displayText, font, textRect, colors.ForeColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-            }
+            var font = GetFont(9f);
+            Rectangle textRect = new Rectangle(rect.X + sItemPadding, rect.Y, rect.Width - DpiScalingHelper.ScaleValue(40, owner), rect.Height);
+            TextRenderer.DrawText(g, displayText, font, textRect, colors.ForeColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
             // Dropdown arrow
-            int arrowSize = 8;
-            int arrowX = rect.Right - arrowSize - 12;
+            int arrowSize = DpiScalingHelper.ScaleValue(8, owner);
+            int arrowX = rect.Right - arrowSize - DpiScalingHelper.ScaleValue(12, owner);
             int arrowY = rect.Y + rect.Height / 2;
-            
-            using (var pen = new Pen(colors.ForeColor, 1.5f))
-            {
-                g.DrawLine(pen, arrowX - arrowSize / 2, arrowY - 2, arrowX, arrowY + 3);
-                g.DrawLine(pen, arrowX, arrowY + 3, arrowX + arrowSize / 2, arrowY - 2);
-            }
+
+            var arrowPen = GetPen(colors.ForeColor, 1.5f);
+            g.DrawLine(arrowPen, arrowX - arrowSize / 2, arrowY - 2, arrowX, arrowY + 3);
+            g.DrawLine(arrowPen, arrowX, arrowY + 3, arrowX + arrowSize / 2, arrowY - 2);
         }
 
         /// <summary>
@@ -150,24 +143,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (g == null || panelRect.Width <= 0 || panelRect.Height <= 0) return;
 
             // Panel background with shadow
-            using (var shadowBrush = new SolidBrush(Color.FromArgb(50, 0, 0, 0)))
-            {
-                Rectangle shadowRect = panelRect;
-                shadowRect.Offset(2, 2);
-                g.FillRectangle(shadowBrush, shadowRect);
-            }
+            Rectangle shadowRect = panelRect;
+            shadowRect.Offset(2, 2);
+            g.FillRectangle(GetBrush(Color.FromArgb(50, 0, 0, 0)), shadowRect);
 
             // Panel background
-            using (var brush = new SolidBrush(colors.BackColor))
-            {
-                g.FillRectangle(brush, panelRect);
-            }
+            g.FillRectangle(GetBrush(colors.BackColor), panelRect);
 
             // Panel border
-            using (var pen = new Pen(colors.BorderColor, 1f))
-            {
-                g.DrawRectangle(pen, panelRect);
-            }
+            g.DrawRectangle(GetPen(colors.BorderColor, 1f), panelRect);
 
             int currentY = panelRect.Y + ItemPadding;
 
@@ -193,10 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             currentY += CheckboxItemHeight + 2;
 
             // Separator
-            using (var pen = new Pen(Color.FromArgb(200, colors.BorderColor), 1f))
-            {
-                g.DrawLine(pen, panelRect.X + ItemPadding, currentY, panelRect.Right - ItemPadding, currentY);
-            }
+            g.DrawLine(GetPen(Color.FromArgb(200, colors.BorderColor), 1f), panelRect.X + ItemPadding, currentY, panelRect.Right - ItemPadding, currentY);
             currentY += ItemPadding;
 
             // Filter values based on search
@@ -224,12 +205,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             {
                 currentY += 4;
                 string moreText = $"+ {filteredValues.Length - MaxVisibleItems} more items...";
-                using (var font = new Font("Segoe UI", 8f, FontStyle.Italic))
-                {
-                    Rectangle moreRect = new Rectangle(panelRect.X + ItemPadding, currentY, panelRect.Width - ItemPadding * 2, 20);
-                    TextRenderer.DrawText(g, moreText, font, moreRect, Color.FromArgb(150, colors.ForeColor),
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-                }
+                var moreFont = GetFont(8f, FontStyle.Italic);
+                Rectangle moreRect = new Rectangle(panelRect.X + ItemPadding, currentY, panelRect.Width - ItemPadding * 2, 20);
+                TextRenderer.DrawText(g, moreText, moreFont, moreRect, Color.FromArgb(150, colors.ForeColor),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
                 currentY += 20 + ItemPadding;
             }
             else
@@ -261,38 +240,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             // Background
-            using (var brush = new SolidBrush(Color.FromArgb(250, colors.BackColor)))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            g.FillRectangle(GetBrush(Color.FromArgb(250, colors.BackColor)), rect);
 
             // Border
-            using (var pen = new Pen(colors.BorderColor, 1f))
-            {
-                g.DrawRectangle(pen, rect);
-            }
+            g.DrawRectangle(GetPen(colors.BorderColor, 1f), rect);
 
             // Search icon
             int iconSize = 14;
             Rectangle iconRect = new Rectangle(rect.X + 8, rect.Y + (rect.Height - iconSize) / 2, iconSize, iconSize);
-            using (var pen = new Pen(Color.FromArgb(150, colors.ForeColor), 1.5f))
-            {
-                // Circle
-                g.DrawEllipse(pen, iconRect.X, iconRect.Y, iconSize - 4, iconSize - 4);
-                // Handle
-                g.DrawLine(pen, iconRect.Right - 3, iconRect.Bottom - 3, iconRect.Right, iconRect.Bottom);
-            }
+            var iconPen = GetPen(Color.FromArgb(150, colors.ForeColor), 1.5f);
+            // Circle
+            g.DrawEllipse(iconPen, iconRect.X, iconRect.Y, iconSize - 4, iconSize - 4);
+            // Handle
+            g.DrawLine(iconPen, iconRect.Right - 3, iconRect.Bottom - 3, iconRect.Right, iconRect.Bottom);
 
             // Text
             string displayText = string.IsNullOrEmpty(searchText) ? "Search..." : searchText;
             Color textColor = string.IsNullOrEmpty(searchText) ? Color.FromArgb(150, colors.ForeColor) : colors.ForeColor;
-            
-            using (var font = new Font("Segoe UI", 8.5f))
-            {
-                Rectangle textRect = new Rectangle(rect.X + iconSize + 16, rect.Y, rect.Width - iconSize - 24, rect.Height);
-                TextRenderer.DrawText(g, displayText, font, textRect, textColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-            }
+
+            var font = GetFont(8.5f);
+            Rectangle textRect = new Rectangle(rect.X + iconSize + 16, rect.Y, rect.Width - iconSize - 24, rect.Height);
+            TextRenderer.DrawText(g, displayText, font, textRect, textColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         private void PaintCheckboxItem(Graphics g, Rectangle rect, string text, bool isChecked, (Color BackColor, Color ForeColor, Color BorderColor, Color AccentColor) colors, bool isBold)
@@ -309,40 +278,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
             // Checkbox background
             Color checkBgColor = isChecked ? colors.AccentColor : colors.BackColor;
-            using (var brush = new SolidBrush(checkBgColor))
-            {
-                g.FillRectangle(brush, checkRect);
-            }
+            g.FillRectangle(GetBrush(checkBgColor), checkRect);
 
             // Checkbox border
-            using (var pen = new Pen(isChecked ? colors.AccentColor : colors.BorderColor, 1f))
-            {
-                g.DrawRectangle(pen, checkRect);
-            }
+            g.DrawRectangle(GetPen(isChecked ? colors.AccentColor : colors.BorderColor, 1f), checkRect);
 
             // Checkmark
             if (isChecked)
             {
-                using (var pen = new Pen(Color.White, 1.5f))
+                var points = new Point[]
                 {
-                    var points = new Point[]
-                    {
-                        new Point(checkRect.X + 3, checkRect.Y + CheckboxSize / 2),
-                        new Point(checkRect.X + CheckboxSize / 2 - 1, checkRect.Y + CheckboxSize - 4),
-                        new Point(checkRect.Right - 3, checkRect.Y + 3)
-                    };
-                    g.DrawLines(pen, points);
-                }
+                    new Point(checkRect.X + 3, checkRect.Y + CheckboxSize / 2),
+                    new Point(checkRect.X + CheckboxSize / 2 - 1, checkRect.Y + CheckboxSize - 4),
+                    new Point(checkRect.Right - 3, checkRect.Y + 3)
+                };
+                g.DrawLines(GetPen(Color.White, 1.5f), points);
             }
 
             // Text label
             FontStyle fontStyle = isBold ? FontStyle.Bold : FontStyle.Regular;
-            using (var font = new Font("Segoe UI", 8.5f, fontStyle))
-            {
-                Rectangle textRect = new Rectangle(checkRect.Right + 8, rect.Y, rect.Width - CheckboxSize - 8, rect.Height);
-                TextRenderer.DrawText(g, text, font, textRect, colors.ForeColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-            }
+            var font = GetFont(8.5f, fontStyle);
+            Rectangle textRect = new Rectangle(checkRect.Right + 8, rect.Y, rect.Width - CheckboxSize - 8, rect.Height);
+            TextRenderer.DrawText(g, text, font, textRect, colors.ForeColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         private void PaintButton(Graphics g, Rectangle rect, string text, (Color BackColor, Color ForeColor, Color BorderColor, Color AccentColor) colors, bool isPrimary)
@@ -353,32 +311,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             Color textColor = isPrimary ? Color.White : colors.ForeColor;
 
             // Background
-            using (var brush = new SolidBrush(bgColor))
+            using (var path = CreateRoundedRectanglePath(rect, 4))
             {
-                using (var path = CreateRoundedRectanglePath(rect, 4))
-                {
-                    g.FillPath(brush, path);
-                }
+                g.FillPath(GetBrush(bgColor), path);
             }
 
             // Border
             if (!isPrimary)
             {
-                using (var pen = new Pen(colors.BorderColor, 1f))
+                using (var path = CreateRoundedRectanglePath(rect, 4))
                 {
-                    using (var path = CreateRoundedRectanglePath(rect, 4))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    g.DrawPath(GetPen(colors.BorderColor, 1f), path);
                 }
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 8.5f, FontStyle.Regular))
-            {
-                TextRenderer.DrawText(g, text, font, rect, textColor,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-            }
+            var font = GetFont(8.5f, FontStyle.Regular);
+            TextRenderer.DrawText(g, text, font, rect, textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         private string GetDisplayText(FilterConfiguration config)

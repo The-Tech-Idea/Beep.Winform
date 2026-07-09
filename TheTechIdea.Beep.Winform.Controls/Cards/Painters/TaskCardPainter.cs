@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -149,8 +150,7 @@ _titleFont = titleFont;
             // Draw priority indicator bar
             if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.StatusColor);
-                g.FillRectangle(brush, ctx.StatusRect);
+                g.FillRectangle(CardPaintCache.Brush(ctx.StatusColor), ctx.StatusRect);
             }
             
             // Draw checkbox
@@ -167,22 +167,20 @@ _titleFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
             {
                 // Calendar icon placeholder
-                int iconSize = 14;
-                var iconRect = new Rectangle(ctx.SubtitleRect.Left, ctx.SubtitleRect.Top + 2, iconSize, iconSize);
-                
-                using var iconBrush = new SolidBrush(Color.FromArgb(100, ctx.AccentColor));
-                g.FillRectangle(iconBrush, iconRect);
-                
+                int iconSize = DpiScalingHelper.ScaleValue(14, _owner);
+                var iconRect = new Rectangle(ctx.SubtitleRect.Left, ctx.SubtitleRect.Top + DpiScalingHelper.ScaleValue(2, _owner), iconSize, iconSize);
+
+                g.FillRectangle(CardPaintCache.Brush(Color.FromArgb(100, ctx.AccentColor)), iconRect);
+
                 // Due date text
                 var textRect = new Rectangle(
-                    iconRect.Right + 4,
+                    iconRect.Right + DpiScalingHelper.ScaleValue(4, _owner),
                     ctx.SubtitleRect.Top,
-                    ctx.SubtitleRect.Width - iconSize - 4,
+                    ctx.SubtitleRect.Width - iconSize - DpiScalingHelper.ScaleValue(4, _owner),
                     ctx.SubtitleRect.Height);
-                
-                using var textBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _dueDateFont, textBrush, textRect, format);
+
+                TextRenderer.DrawText(g, ctx.StatusText, _dueDateFont, textRect, Color.FromArgb(140, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
             
             // Draw tags/labels
@@ -202,29 +200,27 @@ _titleFont = titleFont;
             bool isChecked = ctx.ShowRating;
             
             // Draw checkbox background
-            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 4);
-            
+            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(4, _owner));
+
             if (isChecked)
             {
                 // Filled checkbox
-                using var fillBrush = new SolidBrush(ctx.AccentColor);
-                g.FillPath(fillBrush, bgPath);
-                
+                g.FillPath(CardPaintCache.Brush(ctx.AccentColor), bgPath);
+
                 // Draw checkmark
                 using var checkPen = new Pen(Color.White, 2.5f);
                 checkPen.StartCap = LineCap.Round;
                 checkPen.EndCap = LineCap.Round;
-                
+
                 int cx = ctx.ImageRect.Left + ctx.ImageRect.Width / 2;
                 int cy = ctx.ImageRect.Top + ctx.ImageRect.Height / 2;
-                g.DrawLine(checkPen, cx - 5, cy, cx - 1, cy + 4);
-                g.DrawLine(checkPen, cx - 1, cy + 4, cx + 6, cy - 4);
+                g.DrawLine(checkPen, cx - DpiScalingHelper.ScaleValue(5, _owner), cy, cx - DpiScalingHelper.ScaleValue(1, _owner), cy + DpiScalingHelper.ScaleValue(4, _owner));
+                g.DrawLine(checkPen, cx - DpiScalingHelper.ScaleValue(1, _owner), cy + DpiScalingHelper.ScaleValue(4, _owner), cx + DpiScalingHelper.ScaleValue(6, _owner), cy - DpiScalingHelper.ScaleValue(4, _owner));
             }
             else
             {
                 // Empty checkbox with border
-                using var borderPen = new Pen(Color.FromArgb(100, ctx.AccentColor), 2);
-                g.DrawPath(borderPen, bgPath);
+                g.DrawPath(CardPaintCache.Pen(Color.FromArgb(100, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner)), bgPath);
             }
         }
         

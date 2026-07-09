@@ -175,14 +175,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             }
 
                             var pen = PaintersFactory.GetPen(badgeColor, 1f);
-                            using (var sfBrush = PaintersFactory.GetSolidBrush(badgeColor))
-                            {
-                                var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                                using (var badgeFont = new Font("Segoe UI", 6.5f, FontStyle.Bold))
-                                {
-                                    g.DrawString(extension.TrimStart('.').ToUpper(), badgeFont, sfBrush, badgeRect, sf);
-                                }
-                            }
+                            var badgeFont = GetFont(6.5f, FontStyle.Bold);
+                            TextRenderer.DrawText(g, extension.TrimStart('.').ToUpper(), badgeFont, badgeRect, badgeColor,
+                                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                         }
                     }
                 }
@@ -372,10 +367,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             if (!string.IsNullOrEmpty(extension))
             {
-                using (var font = new Font("Segoe UI", 6.5f, FontStyle.Bold))
-                {
-                    TextRenderer.DrawText(g, extension.TrimStart('.').ToUpper(), font, badgeRect, GetSelectedForeColor(), TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                }
+                var font = GetFont(6.5f, FontStyle.Bold);
+                TextRenderer.DrawText(g, extension.TrimStart('.').ToUpper(), font, badgeRect, GetSelectedForeColor(), TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
 
@@ -387,10 +380,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (sizeRect.Width <= 0 || sizeRect.Height <= 0) return;
 
             Color sizeColor = Color.FromArgb(150, _theme.TreeForeColor);
-            using (var font = new Font("Segoe UI", 7f, FontStyle.Regular))
-            {
-                TextRenderer.DrawText(g, sizeText, font, sizeRect, sizeColor, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-            }
+            var font = GetFont(7f, FontStyle.Regular);
+            TextRenderer.DrawText(g, sizeText, font, sizeRect, sizeColor, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         public override int GetPreferredRowHeight(SimpleItem item, Font font)

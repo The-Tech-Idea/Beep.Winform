@@ -7,6 +7,8 @@ using System.Drawing.Printing;
 using System.IO;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
@@ -401,8 +403,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             ChartGridLineColor = Color.FromArgb(230, 230, 230);
             ShowLegend = true;
             LegendPlacement = LegendPlacement.InsideTopRight;
-            ChartTitleFont = new Font("Segoe UI", 14f, FontStyle.Bold);
-            ChartValueFont = new Font("Segoe UI", 11f);
+            ChartTitleFont = BeepThemesManager.ToFont("Segoe UI", 14f, FontWeight.Bold, FontStyle.Bold);
+            ChartValueFont = BeepThemesManager.ToFont("Segoe UI", 11f, FontWeight.Normal, FontStyle.Regular);
             ChartLineColor = Color.FromArgb(200, 200, 200);
             ChartTextColor = Color.FromArgb(80, 80, 80);
         }
@@ -414,8 +416,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             ChartGridLineColor = Color.FromArgb(200, 200, 200);
             ShowLegend = true;
             LegendPlacement = LegendPlacement.Right;
-            ChartTitleFont = new Font("Segoe UI", 12f, FontStyle.Bold);
-            ChartValueFont = new Font("Segoe UI", 10f);
+            ChartTitleFont = BeepThemesManager.ToFont("Segoe UI", 12f, FontWeight.Bold, FontStyle.Bold);
+            ChartValueFont = BeepThemesManager.ToFont("Segoe UI", 10f, FontWeight.Normal, FontStyle.Regular);
             ChartLineColor = Color.FromArgb(150, 150, 150);
             ChartTextColor = Color.Black;
         }
@@ -427,8 +429,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             ChartGridLineColor = Color.Black;
             ShowLegend = true;
             LegendPlacement = LegendPlacement.Bottom;
-            ChartTitleFont = new Font("Segoe UI", 14f, FontStyle.Bold);
-            ChartValueFont = new Font("Segoe UI", 12f, FontStyle.Bold);
+            ChartTitleFont = BeepThemesManager.ToFont("Segoe UI", 14f, FontWeight.Bold, FontStyle.Bold);
+            ChartValueFont = BeepThemesManager.ToFont("Segoe UI", 12f, FontWeight.Bold, FontStyle.Bold);
             ChartLineColor = Color.Black;
             ChartTextColor = Color.Black;
             // Update series colors to high-contrast palette
@@ -450,8 +452,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             ChartGridLineColor = Color.FromArgb(180, 180, 180);
             ShowLegend = true;
             LegendPlacement = LegendPlacement.Bottom;
-            ChartTitleFont = new Font("Segoe UI", 13f, FontStyle.Bold);
-            ChartValueFont = new Font("Segoe UI", 10f);
+            ChartTitleFont = BeepThemesManager.ToFont("Segoe UI", 13f, FontWeight.Bold, FontStyle.Bold);
+            ChartValueFont = BeepThemesManager.ToFont("Segoe UI", 10f, FontWeight.Normal, FontStyle.Regular);
             ChartLineColor = Color.FromArgb(100, 100, 100);
             ChartTextColor = Color.Black;
             // Use grayscale for better B&W printing
@@ -473,8 +475,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             ChartGridLineColor = Color.FromArgb(240, 240, 240);
             ShowLegend = true;
             LegendPlacement = LegendPlacement.Bottom;
-            ChartTitleFont = new Font("Segoe UI", 18f, FontStyle.Bold);
-            ChartValueFont = new Font("Segoe UI", 14f, FontStyle.Bold);
+            ChartTitleFont = BeepThemesManager.ToFont("Segoe UI", 18f, FontWeight.Bold, FontStyle.Bold);
+            ChartValueFont = BeepThemesManager.ToFont("Segoe UI", 14f, FontWeight.Bold, FontStyle.Bold);
             ChartLineColor = Color.FromArgb(220, 220, 220);
             ChartTextColor = Color.FromArgb(60, 60, 60);
             // Use vibrant colors for presentation
@@ -1047,108 +1049,104 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 _selectedPoints.ToList(),
                 _selectedSeries.ToList());
 
-            // Create default menu if host didn't provide one
-            if (args.Menu == null && EnableContextMenu)
+            // Create default BeepContextMenu
+            BeepContextMenu? beepMenu = null;
+            if (EnableContextMenu)
             {
-                args.Menu = CreateDefaultContextMenu();
+                beepMenu = CreateDefaultContextMenu();
             }
 
-            // Raise event for host customization
+            // Raise event for host customization (host may provide args.Menu)
             ContextMenuRequested?.Invoke(this, args);
 
-            // Show menu if it was created/provided
+            // Show menu — prefer host-provided, fall back to default BeepContextMenu
             if (args.Menu != null)
             {
                 args.Menu.Show(this, location);
             }
+            else if (beepMenu != null)
+            {
+                beepMenu.Show(this, location);
+            }
         }
 
-        private ContextMenuStrip CreateDefaultContextMenu()
+        private BeepContextMenu CreateDefaultContextMenu()
         {
-            var menu = new ContextMenuStrip();
+            var menu = new BeepContextMenu();
 
             if (HasSelection)
             {
-                var copyCSVItem = new ToolStripMenuItem("Copy as CSV");
-                copyCSVItem.Click += (s, e) =>
-                {
-                    var csv = GetSelectionAsCSV();
-                    if (!string.IsNullOrEmpty(csv))
-                    {
-                        Clipboard.SetText(csv);
-                    }
-                };
-                menu.Items.Add(copyCSVItem);
-
-                var copyJSONItem = new ToolStripMenuItem("Copy as JSON");
-                copyJSONItem.Click += (s, e) =>
-                {
-                    var json = GetSelectionAsJSON();
-                    if (!string.IsNullOrEmpty(json))
-                    {
-                        Clipboard.SetText(json);
-                    }
-                };
-                menu.Items.Add(copyJSONItem);
-
-                menu.Items.Add(new ToolStripSeparator());
-
-                var clearSelectionItem = new ToolStripMenuItem("Clear Selection");
-                clearSelectionItem.Click += (s, e) => ClearSelection();
-                menu.Items.Add(clearSelectionItem);
+                menu.AddItem(new SimpleItem { Name = "CopyCSV", Text = "Copy as CSV" });
+                menu.AddItem(new SimpleItem { Name = "CopyJSON", Text = "Copy as JSON" });
+                menu.AddSeparator();
+                menu.AddItem(new SimpleItem { Name = "ClearSelection", Text = "Clear Selection" });
             }
             else
             {
-                var noSelectionItem = new ToolStripMenuItem("(No selection)") { Enabled = false };
-                menu.Items.Add(noSelectionItem);
+                menu.AddItem(new SimpleItem { Name = "NoSelection", Text = "(No selection)", IsEnabled = false });
             }
 
-            menu.Items.Add(new ToolStripSeparator());
+            menu.AddSeparator();
+            menu.AddItem(new SimpleItem { Name = "CopyAllCSV", Text = "Copy All Visible Data as CSV" });
+            menu.AddItem(new SimpleItem { Name = "CopyAllJSON", Text = "Copy All Visible Data as JSON" });
+            menu.AddItem(new SimpleItem { Name = "CopyImage", Text = "Copy Chart Image" });
+            menu.AddItem(new SimpleItem { Name = "PrintChart", Text = "Print Chart..." });
+            menu.AddItem(new SimpleItem { Name = "CopyState", Text = "Copy Chart State as JSON" });
 
-            var copyAllCSVItem = new ToolStripMenuItem("Copy All Visible Data as CSV");
-            copyAllCSVItem.Click += (s, e) =>
+            // Single ItemClicked dispatch replaces all the individual Click handlers
+            menu.ItemClicked += (s, e) =>
             {
-                var csv = ExportAllDataAsCSV(onlyVisibleSeries: true);
-                if (!string.IsNullOrEmpty(csv))
+                switch (e.Item?.Name)
                 {
-                    Clipboard.SetText(csv);
+                    case "CopyCSV":
+                        {
+                            var csv = GetSelectionAsCSV();
+                            if (!string.IsNullOrEmpty(csv))
+                                Clipboard.SetText(csv);
+                        }
+                        break;
+                    case "CopyJSON":
+                        {
+                            var json = GetSelectionAsJSON();
+                            if (!string.IsNullOrEmpty(json))
+                                Clipboard.SetText(json);
+                        }
+                        break;
+                    case "ClearSelection":
+                        ClearSelection();
+                        break;
+                    case "CopyAllCSV":
+                        {
+                            var csv = ExportAllDataAsCSV(onlyVisibleSeries: true);
+                            if (!string.IsNullOrEmpty(csv))
+                                Clipboard.SetText(csv);
+                        }
+                        break;
+                    case "CopyAllJSON":
+                        {
+                            var json = ExportAllDataAsJSON(onlyVisibleSeries: true, indented: true);
+                            if (!string.IsNullOrEmpty(json))
+                                Clipboard.SetText(json);
+                        }
+                        break;
+                    case "CopyImage":
+                        {
+                            using var bmp = CaptureChartBitmap();
+                            Clipboard.SetImage(new Bitmap(bmp));
+                        }
+                        break;
+                    case "PrintChart":
+                        PrintChart(showPrintDialog: true, fitToPage: true);
+                        break;
+                    case "CopyState":
+                        {
+                            var state = ExportChartStateAsJSON(indented: true);
+                            if (!string.IsNullOrEmpty(state))
+                                Clipboard.SetText(state);
+                        }
+                        break;
                 }
             };
-            menu.Items.Add(copyAllCSVItem);
-
-            var copyAllJSONItem = new ToolStripMenuItem("Copy All Visible Data as JSON");
-            copyAllJSONItem.Click += (s, e) =>
-            {
-                var json = ExportAllDataAsJSON(onlyVisibleSeries: true, indented: true);
-                if (!string.IsNullOrEmpty(json))
-                {
-                    Clipboard.SetText(json);
-                }
-            };
-            menu.Items.Add(copyAllJSONItem);
-
-            var copyImageItem = new ToolStripMenuItem("Copy Chart Image");
-            copyImageItem.Click += (s, e) =>
-            {
-                using var bmp = CaptureChartBitmap();
-                Clipboard.SetImage(new Bitmap(bmp));
-            };
-            menu.Items.Add(copyImageItem);
-
-            var printItem = new ToolStripMenuItem("Print Chart...");
-            printItem.Click += (s, e) => PrintChart(showPrintDialog: true, fitToPage: true);
-            menu.Items.Add(printItem);
-
-            var copyStateItem = new ToolStripMenuItem("Copy Chart State as JSON");
-            copyStateItem.Click += (s, e) =>
-            {
-                var state = ExportChartStateAsJSON(indented: true);
-                if (!string.IsNullOrEmpty(state))
-                {
-                    Clipboard.SetText(state);
-                }
-            };
-            menu.Items.Add(copyStateItem);
 
             return menu;
         }

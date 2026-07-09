@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -134,7 +136,7 @@ _titleFont = titleFont;
             // Draw subtle tinted background based on alert type
             if (!ctx.DrawingRect.IsEmpty)
             {
-                using var bgBrush = new SolidBrush(Color.FromArgb(8, ctx.StatusColor));
+                var bgBrush = CardPaintCache.Brush(Color.FromArgb(8, ctx.StatusColor));
                 g.FillRectangle(bgBrush, ctx.DrawingRect);
             }
         }
@@ -144,16 +146,15 @@ _titleFont = titleFont;
             // Draw accent bar
             if (!ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.StatusColor);
+                var brush = CardPaintCache.Brush(ctx.StatusColor);
                 g.FillRectangle(brush, ctx.StatusRect);
             }
 
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _metaFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw alert icon
@@ -170,7 +171,7 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Draw icon background circle
-            using var bgBrush = new SolidBrush(Color.FromArgb(25, ctx.StatusColor));
+            var bgBrush = CardPaintCache.Brush(Color.FromArgb(25, ctx.StatusColor));
             g.FillEllipse(bgBrush, ctx.ImageRect);
             
             // Draw icon based on alert type (using StatusText as type indicator)
@@ -179,44 +180,44 @@ _titleFont = titleFont;
             int cx = ctx.ImageRect.Left + ctx.ImageRect.Width / 2;
             int cy = ctx.ImageRect.Top + ctx.ImageRect.Height / 2;
             
-            using var iconPen = new Pen(ctx.StatusColor, 2.5f);
+            using var iconPen = new Pen(ctx.StatusColor, DpiScalingHelper.ScaleValue(2.5f, _owner));
             iconPen.StartCap = LineCap.Round;
             iconPen.EndCap = LineCap.Round;
-            
+
             if (alertType.Contains("error") || alertType.Contains("danger"))
             {
                 // X icon
-                int offset = 7;
+                int offset = DpiScalingHelper.ScaleValue(7, _owner);
                 g.DrawLine(iconPen, cx - offset, cy - offset, cx + offset, cy + offset);
                 g.DrawLine(iconPen, cx + offset, cy - offset, cx - offset, cy + offset);
             }
             else if (alertType.Contains("warning"))
             {
                 // Triangle with exclamation
-                int size = 12;
+                int size = DpiScalingHelper.ScaleValue(12, _owner);
                 Point[] triangle = new Point[]
                 {
                     new Point(cx, cy - size),
-                    new Point(cx - size, cy + size - 4),
-                    new Point(cx + size, cy + size - 4)
+                    new Point(cx - size, cy + size - DpiScalingHelper.ScaleValue(4, _owner)),
+                    new Point(cx + size, cy + size - DpiScalingHelper.ScaleValue(4, _owner))
                 };
                 g.DrawPolygon(iconPen, triangle);
-                g.DrawLine(iconPen, cx, cy - 4, cx, cy + 2);
-                using var dotBrush = new SolidBrush(ctx.StatusColor);
-                g.FillEllipse(dotBrush, cx - 2, cy + 5, 4, 4);
+                g.DrawLine(iconPen, cx, cy - DpiScalingHelper.ScaleValue(4, _owner), cx, cy + DpiScalingHelper.ScaleValue(2, _owner));
+                var dotBrush = CardPaintCache.Brush(ctx.StatusColor);
+                g.FillEllipse(dotBrush, cx - DpiScalingHelper.ScaleValue(2, _owner), cy + DpiScalingHelper.ScaleValue(5, _owner), DpiScalingHelper.ScaleValue(4, _owner), DpiScalingHelper.ScaleValue(4, _owner));
             }
             else if (alertType.Contains("success"))
             {
                 // Checkmark
-                g.DrawLine(iconPen, cx - 7, cy, cx - 2, cy + 5);
-                g.DrawLine(iconPen, cx - 2, cy + 5, cx + 8, cy - 5);
+                g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(7, _owner), cy, cx - DpiScalingHelper.ScaleValue(2, _owner), cy + DpiScalingHelper.ScaleValue(5, _owner));
+                g.DrawLine(iconPen, cx - DpiScalingHelper.ScaleValue(2, _owner), cy + DpiScalingHelper.ScaleValue(5, _owner), cx + DpiScalingHelper.ScaleValue(8, _owner), cy - DpiScalingHelper.ScaleValue(5, _owner));
             }
             else
             {
                 // Info icon (i)
-                using var dotBrush = new SolidBrush(ctx.StatusColor);
-                g.FillEllipse(dotBrush, cx - 2, cy - 8, 5, 5);
-                g.DrawLine(iconPen, cx, cy - 2, cx, cy + 8);
+                var dotBrush = CardPaintCache.Brush(ctx.StatusColor);
+                g.FillEllipse(dotBrush, cx - DpiScalingHelper.ScaleValue(2, _owner), cy - DpiScalingHelper.ScaleValue(8, _owner), DpiScalingHelper.ScaleValue(5, _owner), DpiScalingHelper.ScaleValue(5, _owner));
+                g.DrawLine(iconPen, cx, cy - DpiScalingHelper.ScaleValue(2, _owner), cx, cy + DpiScalingHelper.ScaleValue(8, _owner));
             }
         }
         
@@ -227,10 +228,10 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Draw X button
-            int margin = 6;
+            int margin = DpiScalingHelper.ScaleValue(6, _owner);
             var rect = ctx.SecondaryButtonRect;
-            
-            using var pen = new Pen(Color.FromArgb(100, Color.Black), 2);
+
+            using var pen = new Pen(Color.FromArgb(100, _theme?.CardTextForeColor ?? Color.Black), DpiScalingHelper.ScaleValue(2, _owner));
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
             

@@ -108,9 +108,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     g.FillEllipse(brush, iconRect);
 
                     var iconFont = _regularFont; // reuse font
-                    var textBrush = PaintersFactory.GetSolidBrush(_theme.AccentColor);
-                    StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString("▶", iconFont, textBrush, iconRect, sf);
+                    TextRenderer.DrawText(g, "▶", iconFont, iconRect, _theme.AccentColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
 
                 // STEP 5: Draw text with bold on selection (pill rail typography)
@@ -244,9 +243,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, _theme.AccentColor));
             g.FillEllipse(brush, iconRect);
             var iconFont = _regularFont;
-            var textBrush = PaintersFactory.GetSolidBrush(_theme.AccentColor);
-            StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString("▶", iconFont, textBrush, iconRect, sf);
+            TextRenderer.DrawText(g, "▶", iconFont, iconRect, _theme.AccentColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
         public override void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -109,9 +110,8 @@ _badgeFont = captionFont;
             // Draw timestamp or additional status text
             if (!string.IsNullOrEmpty(ctx.StatusText))
             {
-                var statusBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(128, ctx.StatusColor));
-                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _statusFont, statusBrush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _statusFont, ctx.SubtitleRect, Color.FromArgb(128, ctx.StatusColor),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
         }
 

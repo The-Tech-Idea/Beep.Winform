@@ -179,6 +179,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 			// SetStyle( ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Opaque, true);
 			// UpdateStyles();
 			DoubleBuffered = true;
+
+            // Accessibility (design-skill compliance)
+            AccessibleRole = AccessibleRole.Outline;
+            AccessibleName = "Tree";
+            AccessibleDescription = "Hierarchical tree view with expandable nodes";
 			//Padding= new Padding(2);
             // Initialize helpers
             _treeHelper = new BeepTreeHelper(this);

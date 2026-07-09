@@ -26,11 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             base.Initialize(owner, theme);
             _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
-            if (_boldFont == null || _boldFont.Size != _regularFont.Size || !_boldFont.FontFamily.Equals(_regularFont.FontFamily))
-            {
-                try { _boldFont?.Dispose(); } catch { }
-                _boldFont = new Font(_regularFont.FontFamily, _regularFont.Size, FontStyle.Bold);
-            }
+            _boldFont = GetFont(_regularFont.Size, FontStyle.Bold);
         }
 
         /// <summary>
@@ -149,18 +145,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
                     // Shadow
-                    using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), 0, 0, 0)))
-                    {
-                        var shadowRect = new Rectangle(
-                            nodeBounds.X,
-                            nodeBounds.Y + 2,
-                            nodeBounds.Width,
-                            nodeBounds.Height);
+                    var shadowBrush = GetBrush(Color.FromArgb((int)(255 * ShadowOpacity), 0, 0, 0));
+                    var shadowRect = new Rectangle(
+                        nodeBounds.X,
+                        nodeBounds.Y + 2,
+                        nodeBounds.Width,
+                        nodeBounds.Height);
 
-                        using (var shadowPath = CreateRoundedRectangle(shadowRect, CornerRadius))
-                        {
-                            g.FillPath(shadowBrush, shadowPath);
-                        }
+                    using (var shadowPath = CreateRoundedRectangle(shadowRect, CornerRadius))
+                    {
+                        g.FillPath(shadowBrush, shadowPath);
                     }
 
                     // Fill
@@ -175,10 +169,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle gray background
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var hoverBrush = new SolidBrush(GetHoverBackColor()))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    var hoverBrush = GetBrush(GetHoverBackColor());
+                    g.FillPath(hoverBrush, path);
                 }
             }
         }

@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -124,9 +126,8 @@ _titleFont = titleFont;
             // Draw main value
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(ctx.AccentColor);
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _valueFont, brush, ctx.SubtitleRect, format);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _valueFont, ctx.SubtitleRect, ctx.AccentColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             }
             
             // Draw trend indicator
@@ -154,19 +155,17 @@ _titleFont = titleFont;
             bool isPositive = ctx.StatusText.StartsWith("+") || ctx.StatusText.Contains("↑");
             bool isNegative = ctx.StatusText.StartsWith("-") || ctx.StatusText.Contains("↓");
             
-            Color trendColor = isPositive ? Color.FromArgb(76, 175, 80) :
-                               isNegative ? Color.FromArgb(244, 67, 54) :
+            Color trendColor = isPositive ? (_theme?.SuccessColor ?? Color.FromArgb(76, 175, 80)) :
+                               isNegative ? (_theme?.ErrorColor ?? Color.FromArgb(244, 67, 54)) :
                                Color.FromArgb(158, 158, 158);
-            
+
             // Draw pill background
-            using var pillPath = CardRenderingHelpers.CreateRoundedPath(ctx.StatusRect, 12);
-            using var pillBrush = new SolidBrush(Color.FromArgb(20, trendColor));
-            g.FillPath(pillBrush, pillPath);
-            
+            using var pillPath = CardRenderingHelpers.CreateRoundedPath(ctx.StatusRect, DpiScalingHelper.ScaleValue(12, _owner));
+            g.FillPath(CardPaintCache.Brush(Color.FromArgb(20, trendColor)), pillPath);
+
             // Draw text
-            using var textBrush = new SolidBrush(trendColor);
-            var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(ctx.StatusText, _badgeFont, textBrush, ctx.StatusRect, format);
+            TextRenderer.DrawText(g, ctx.StatusText, _badgeFont, ctx.StatusRect, trendColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
         
         private void DrawChartPlaceholder(Graphics g, LayoutContext ctx)
@@ -174,14 +173,13 @@ _titleFont = titleFont;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Draw chart background
-            using var bgBrush = new SolidBrush(Color.FromArgb(5, ctx.AccentColor));
-            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
-            g.FillPath(bgBrush, bgPath);
-            
+            using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, DpiScalingHelper.ScaleValue(8, _owner));
+            g.FillPath(CardPaintCache.Brush(Color.FromArgb(5, ctx.AccentColor)), bgPath);
+
             // Draw sample line chart
             int barCount = 12;
-            int barWidth = (ctx.ImageRect.Width - 20) / barCount;
-            int maxHeight = ctx.ImageRect.Height - 30;
+            int barWidth = (ctx.ImageRect.Width - DpiScalingHelper.ScaleValue(20, _owner)) / barCount;
+            int maxHeight = ctx.ImageRect.Height - DpiScalingHelper.ScaleValue(30, _owner);
             
             Random rnd = new Random(42); // Fixed seed for consistent rendering
             Point[] points = new Point[barCount];
@@ -190,29 +188,28 @@ _titleFont = titleFont;
             {
                 int height = rnd.Next(maxHeight / 3, maxHeight);
                 points[i] = new Point(
-                    ctx.ImageRect.Left + 10 + i * barWidth + barWidth / 2,
-                    ctx.ImageRect.Bottom - 15 - height);
+                    ctx.ImageRect.Left + DpiScalingHelper.ScaleValue(10, _owner) + i * barWidth + barWidth / 2,
+                    ctx.ImageRect.Bottom - DpiScalingHelper.ScaleValue(15, _owner) - height);
             }
-            
+
             // Draw area under line
             Point[] areaPoints = new Point[barCount + 2];
             Array.Copy(points, 0, areaPoints, 0, barCount);
-            areaPoints[barCount] = new Point(points[barCount - 1].X, ctx.ImageRect.Bottom - 15);
-            areaPoints[barCount + 1] = new Point(points[0].X, ctx.ImageRect.Bottom - 15);
-            
-            using var areaBrush = new SolidBrush(Color.FromArgb(30, ctx.AccentColor));
-            g.FillPolygon(areaBrush, areaPoints);
-            
+            areaPoints[barCount] = new Point(points[barCount - 1].X, ctx.ImageRect.Bottom - DpiScalingHelper.ScaleValue(15, _owner));
+            areaPoints[barCount + 1] = new Point(points[0].X, ctx.ImageRect.Bottom - DpiScalingHelper.ScaleValue(15, _owner));
+
+            g.FillPolygon(CardPaintCache.Brush(Color.FromArgb(30, ctx.AccentColor)), areaPoints);
+
             // Draw line
-            using var linePen = new Pen(ctx.AccentColor, 2);
+            using var linePen = new Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(2, _owner));
             linePen.LineJoin = LineJoin.Round;
             g.DrawLines(linePen, points);
             
             // Draw points
-            using var pointBrush = new SolidBrush(ctx.AccentColor);
+            var pointBrush = CardPaintCache.Brush(ctx.AccentColor);
             foreach (var point in points)
             {
-                g.FillEllipse(pointBrush, point.X - 3, point.Y - 3, 6, 6);
+                g.FillEllipse(pointBrush, point.X - DpiScalingHelper.ScaleValue(3, _owner), point.Y - DpiScalingHelper.ScaleValue(3, _owner), DpiScalingHelper.ScaleValue(6, _owner), DpiScalingHelper.ScaleValue(6, _owner));
             }
         }
         
@@ -229,17 +226,15 @@ _titleFont = titleFont;
                 if (string.IsNullOrWhiteSpace(item)) continue;
                 
                 // Color dot
-                var dotRect = new Rectangle(x, ctx.ParagraphRect.Top + 6, 10, 10);
-                using var dotBrush = new SolidBrush(legendColors[colorIndex % legendColors.Length]);
-                g.FillEllipse(dotBrush, dotRect);
-                
+                var dotRect = new Rectangle(x, ctx.ParagraphRect.Top + DpiScalingHelper.ScaleValue(6, _owner), DpiScalingHelper.ScaleValue(10, _owner), DpiScalingHelper.ScaleValue(10, _owner));
+                g.FillEllipse(CardPaintCache.Brush(legendColors[colorIndex % legendColors.Length]), dotRect);
+
                 // Label
-                using var textBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-                var textRect = new Rectangle(dotRect.Right + 4, ctx.ParagraphRect.Top, 60, ctx.ParagraphRect.Height);
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(item, _legendFont, textBrush, textRect, format);
-                
-                x += 80;
+                var textRect = new Rectangle(dotRect.Right + DpiScalingHelper.ScaleValue(4, _owner), ctx.ParagraphRect.Top, DpiScalingHelper.ScaleValue(60, _owner), ctx.ParagraphRect.Height);
+                TextRenderer.DrawText(g, item, _legendFont, textRect, Color.FromArgb(120, _theme?.CardTextForeColor ?? Color.Black),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+
+                x += DpiScalingHelper.ScaleValue(80, _owner);
                 colorIndex++;
             }
         }

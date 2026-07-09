@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -182,9 +183,8 @@ _nameFont = titleFont;
             if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
-                using var subtitleBrush = new SolidBrush(subtitleColor);
-                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _dateFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+                TextRenderer.DrawText(g, ctx.SubtitleText, _dateFont, ctx.SubtitleRect, subtitleColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
             
             // Draw verification badge
@@ -197,25 +197,24 @@ _nameFont = titleFont;
             // Draw helpful count
             if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.StatusRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(120, ctx.AccentColor));
-                var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _helpfulFont, brush, ctx.StatusRect, format);
+                TextRenderer.DrawText(g, ctx.StatusText, _helpfulFont, ctx.StatusRect, Color.FromArgb(120, ctx.AccentColor),
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
             
             // Draw avatar border
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
-                using var pen = new Pen(Color.FromArgb(50, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.DrawEllipse(pen, ctx.ImageRect);
+                g.DrawEllipse(CardPaintCache.Pen(Color.FromArgb(50, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner)), ctx.ImageRect);
             }
-            
+
             // Draw decorative quote mark
-            if (!ctx.ParagraphRect.IsEmpty && ctx.ParagraphRect.Height > 40)
+            if (!ctx.ParagraphRect.IsEmpty && ctx.ParagraphRect.Height > DpiScalingHelper.ScaleValue(40, _owner))
             {
-                using var brush = new SolidBrush(Color.FromArgb(12, ctx.AccentColor));
-                g.DrawString("\"", _quoteFont, brush, 
-                    ctx.ParagraphRect.Left - 6, ctx.ParagraphRect.Top - 14);
+                TextRenderer.DrawText(g, "\"", _quoteFont,
+                    new Point(ctx.ParagraphRect.Left - DpiScalingHelper.ScaleValue(6, _owner), ctx.ParagraphRect.Top - DpiScalingHelper.ScaleValue(14, _owner)),
+                    Color.FromArgb(12, ctx.AccentColor),
+                    TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
             }
         }
         

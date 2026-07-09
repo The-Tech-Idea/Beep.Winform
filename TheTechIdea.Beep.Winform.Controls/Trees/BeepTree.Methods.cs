@@ -1523,20 +1523,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             int y = bounds.Top;
 
             // Draw header
-            using (var headerFont = new Font(_textFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Bold))
-            {
-                var headerText = "Tree Report";
-                var headerSize = g.MeasureString(headerText, headerFont);
-                g.DrawString(headerText, headerFont, Brushes.Black, bounds.Left, bounds.Top);
-                y = bounds.Top + (int)headerSize.Height + 20;
+            var headerFont = ThemeManagement.BeepThemesManager.ToFont(
+                _textFont?.FontFamily.Name ?? "Segoe UI", 14f,
+                TheTechIdea.Beep.Vis.Modules.FontWeight.Bold, FontStyle.Bold);
+            var headerText = "Tree Report";
+            var headerSize = TextRenderer.MeasureText(headerText, headerFont);
+            TextRenderer.DrawText(g, headerText, headerFont, new Point(bounds.Left, bounds.Top), Color.Black,
+                TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
+            y = bounds.Top + headerSize.Height + 20;
 
-                // Draw date
-                using (var dateFont = new Font(_textFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8))
-                {
-                    g.DrawString(DateTime.Now.ToString("g"), dateFont, Brushes.Gray, bounds.Right - 100, bounds.Top);
-                }
-            }
-            int lineHeight = _textFont?.Height ?? 16;
+            // Draw date
+            var dateFont = ThemeManagement.BeepThemesManager.ToFont(
+                _textFont?.FontFamily.Name ?? "Segoe UI", 8f,
+                TheTechIdea.Beep.Vis.Modules.FontWeight.Normal, FontStyle.Regular);
+            TextRenderer.DrawText(g, DateTime.Now.ToString("g"), dateFont,
+                new Point(bounds.Right - 100, bounds.Top), Color.Gray,
+                TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
+
+            int lineHeight = (_textFont?.Height ?? 16) + 2;
 
             // Draw tree nodes
             foreach (var node in TraverseAll(_nodes))
@@ -1554,12 +1558,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (node.Children != null && node.Children.Count > 0)
                 {
                     var indicator = node.IsExpanded ? "-" : "+";
-                    g.DrawString(indicator, _textFont ?? SystemFonts.DefaultFont, Brushes.Black, bounds.Left + indent, y);
+                    TextRenderer.DrawText(g, indicator, _textFont ?? SystemFonts.DefaultFont,
+                        new Point(bounds.Left + indent, y), Color.Black,
+                        TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
                 }
 
                 // Draw node text
                 var nodeText = node.Text ?? string.Empty;
-                g.DrawString(nodeText, _textFont ?? SystemFonts.DefaultFont, Brushes.Black, bounds.Left + indent + 20, y);
+                TextRenderer.DrawText(g, nodeText, _textFont ?? SystemFonts.DefaultFont,
+                    new Point(bounds.Left + indent + 20, y), Color.Black,
+                    TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
 
                 y += lineHeight;
             }

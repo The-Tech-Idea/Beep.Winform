@@ -31,6 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepDataRecord : BaseControl, IEditableObject
     {
         protected override Size DefaultSize => BeepLayoutMetrics.DataRecord;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Properties
 
         private Type _currentRowType;

@@ -24,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepComboBox : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ComboBox;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Helper and Painter
         
         /// <summary>

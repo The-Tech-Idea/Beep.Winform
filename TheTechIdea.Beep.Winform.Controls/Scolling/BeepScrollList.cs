@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
     public class BeepScrollList : BeepPanel
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ScrollList;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
         private BeepButton _button;  // Single button instance for drawing

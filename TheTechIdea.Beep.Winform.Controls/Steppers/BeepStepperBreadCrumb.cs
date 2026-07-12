@@ -24,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepStepperBreadCrumb : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.StepperBreadcrumb;
+        protected internal override Padding StylePadding => new Padding(0);
         private Orientation orientation = Orientation.Horizontal;
         private int selectedIndex = -1;
         private readonly List<GraphicsPath> chevronPaths = new List<GraphicsPath>(); // For precise click detection

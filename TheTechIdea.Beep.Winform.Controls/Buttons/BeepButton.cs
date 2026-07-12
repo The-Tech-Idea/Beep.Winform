@@ -580,6 +580,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderThickness = 0;
         }
         protected override Size DefaultSize => BeepLayoutMetrics.ButtonStandard;
+        protected internal override Padding StylePadding => new Padding(0);
         #endregion "Constructor"
         #region "Popup List Methods"
 

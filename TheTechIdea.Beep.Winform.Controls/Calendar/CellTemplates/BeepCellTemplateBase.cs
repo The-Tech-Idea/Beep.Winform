@@ -7,6 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
 {
     public abstract class BeepCellTemplateBase : BaseControl
     {
+        protected internal override Padding StylePadding => new Padding(0);
         public CalendarCellContext CurrentContext { get; private set; }
 
         protected CalendarEvent Event => CurrentContext?.Event;

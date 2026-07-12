@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
     public class BeepProjectTaskCard : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.CardTask;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Private Fields
         private BeepButton _actionButton;
         private BeepLabel _label;

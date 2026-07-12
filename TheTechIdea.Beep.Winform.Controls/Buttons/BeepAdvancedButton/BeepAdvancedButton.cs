@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
     public partial class BeepAdvancedButton : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ButtonToolbar;
+        protected internal override Padding StylePadding => new Padding(0);
         #region "Fields"
 
         private AdvancedButtonStyle _buttonStyle = AdvancedButtonStyle.Solid;

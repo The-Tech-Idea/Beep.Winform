@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
     public partial class BeepProgressBar : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ProgressBar;
+        protected internal override Padding StylePadding => new Padding(0);
         // core numeric state
         private int _value = 0;
         private int _minimum = 0;

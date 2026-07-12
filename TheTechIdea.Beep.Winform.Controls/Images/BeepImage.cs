@@ -645,5 +645,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
         }
 
         protected override Size DefaultSize => BeepLayoutMetrics.Image;
+        protected internal override Padding StylePadding => new Padding(0);
     }
 }

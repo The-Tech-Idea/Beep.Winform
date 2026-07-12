@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
     public partial class BeepRadioListBox : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.RadioList;
+        protected internal override Padding StylePadding => new Padding(0);
         // Implementation is split across partial class files:
         // - BeepRadioListBox.cs: Main class definition
         // - BeepRadioListBox.Core.cs: Fields, constructor, core initialization

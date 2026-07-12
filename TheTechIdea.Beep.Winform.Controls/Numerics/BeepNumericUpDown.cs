@@ -88,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
     public partial class BeepNumericUpDown : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.FieldNumeric;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Internal Fields (exposed to partial classes)
         internal TextBox? _textBox;
         internal bool _isEditing = false;

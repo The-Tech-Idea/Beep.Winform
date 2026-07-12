@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
     public partial class BeepToggle : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ToggleStandard;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Private Fields
         private bool _isOn = false;
         private ToggleStyle _toggleStyle = ToggleStyle.Classic;

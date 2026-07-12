@@ -15,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
     public partial class BeepCalendar : BaseControl, ICalendarCellHost
     {
         protected override Size DefaultSize => BeepLayoutMetrics.Calendar;
+        protected internal override Padding StylePadding => new Padding(0);
         protected override bool AllowBaseControlClear => false;
         protected override bool IsContainerControl => true;
 

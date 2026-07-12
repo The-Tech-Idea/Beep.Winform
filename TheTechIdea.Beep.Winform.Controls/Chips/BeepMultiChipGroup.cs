@@ -215,6 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
     public partial class BeepMultiChipGroup : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.MultiChipGroup;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private BindingList<SimpleItem> _chipItems = new BindingList<SimpleItem>();
         private List<ChipItem> _chips = new List<ChipItem>();

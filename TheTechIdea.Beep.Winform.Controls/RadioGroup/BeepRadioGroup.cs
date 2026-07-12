@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     public partial class BeepRadioGroup : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.RadioGroup;
+        protected internal override Padding StylePadding => new Padding(0);
         private const string AccessibilityDescriptionPrefix = "RadioGroup status:";
         #region Fields
         private readonly RadioGroupLayoutHelper _layoutHelper;

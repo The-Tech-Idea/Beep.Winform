@@ -19,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepDatePickerView : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.FieldDateView;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private DateTime _currentMonth;
         private DateTime? _selectedDateTime;

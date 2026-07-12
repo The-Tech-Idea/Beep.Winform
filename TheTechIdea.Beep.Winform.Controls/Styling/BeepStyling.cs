@@ -1317,23 +1317,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// </summary>
         public static GraphicsPath GetContentPath(
             GraphicsPath controlPath,
-            BeepControlStyle style)
+            BeepControlStyle style,
+            int? paddingOverride = null)
         {
             if (controlPath == null)
                 return null;
 
             RectangleF bounds = controlPath.GetBounds();
             float borderWidth = StyleBorders.GetBorderWidth(style);
-            int padding = BeepStyling.GetPadding(style);
+            int padding = paddingOverride ?? BeepStyling.GetPadding(style);
             int radius = StyleBorders.GetRadius(style);
 
-            // Deflate bounds for internal content area
+            // Deflate bounds for internal content area.
+            // Cap the inset so style padding never eats more than half of a small control's
+            // available dimension — small controls (textbox, button, label) still render.
+            const float MIN_CONTENT = 10f;
             float inset = borderWidth + padding;
+            float safeInsetX = Math.Min(inset, Math.Max(0f, (bounds.Width  - MIN_CONTENT) / 2f));
+            float safeInsetY = Math.Min(inset, Math.Max(0f, (bounds.Height - MIN_CONTENT) / 2f));
             RectangleF contentBounds = new RectangleF(
-                bounds.X + inset,
-                bounds.Y + inset,
-                bounds.Width - (inset * 2),
-                bounds.Height - (inset * 2)
+                bounds.X + safeInsetX,
+                bounds.Y + safeInsetY,
+                bounds.Width  - safeInsetX * 2,
+                bounds.Height - safeInsetY * 2
             );
 
             // Ensure valid bounds

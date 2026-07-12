@@ -313,5 +313,38 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
         }
 
         #endregion
+
+        #region Layout / sizing
+
+        /// <summary>
+        /// Sets the form's ClientSize to exactly fit its child controls plus their margins.
+        /// No arbitrary minimum — the content determines the size. The form can be resized
+        /// smaller by the user; MinimumSize is set to half the computed size as a reasonable
+        /// lower bound so the form never collapses to zero.
+        /// Call this in the form constructor after InitializeComponent().
+        /// </summary>
+        public static void FitFormToContent(Form form)
+        {
+            form.PerformLayout();
+            int maxRight  = 0;
+            int maxBottom = 0;
+            foreach (Control c in form.Controls)
+            {
+                int r = c.Right  + c.Margin.Right;
+                int b = c.Bottom + c.Margin.Bottom;
+                if (r > maxRight)  maxRight  = r;
+                if (b > maxBottom) maxBottom = b;
+            }
+
+            // Add a reasonable gutter so content doesn't touch the edges.
+            int gutter = TheTechIdea.Beep.Winform.Controls.Layouts.Helpers.BeepLayoutMetrics.DialogPadding.Left;
+            maxRight  += gutter;
+            maxBottom += gutter;
+
+            form.ClientSize = new Size(Math.Max(1, maxRight), Math.Max(1, maxBottom));
+            form.MinimumSize = new Size(Math.Max(100, maxRight / 3), Math.Max(80, maxBottom / 3));
+        }
+
+        #endregion
     }
 }

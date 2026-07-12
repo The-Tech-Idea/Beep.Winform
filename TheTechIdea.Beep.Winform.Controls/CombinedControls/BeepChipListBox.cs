@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
     public partial class BeepChipListBox : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ChipList;
+        protected internal override Padding StylePadding => new Padding(0);
         // Implementation is split across partial class files:
         // - BeepChipListBox.cs: Main class, constructor, core initialization
         // - BeepChipListBox.Properties.cs: All properties

@@ -36,6 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     /// </remarks>
     public abstract class BeepRadioGroupBase : BaseControl
     {
+        protected internal override Padding StylePadding => new Padding(0);
         #region Shared Fields
         protected readonly Dictionary<RadioGroupRenderStyle, IRadioGroupRenderer> _renderers;
         protected IRadioGroupRenderer _currentRenderer;

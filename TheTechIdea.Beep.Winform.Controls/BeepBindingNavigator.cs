@@ -20,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepBindingNavigator : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.BindingNavigator;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private object _dataSource;
         private BindingSource _bindingsource = new BindingSource();

@@ -20,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
     public class BeepQuickFilterBar : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.QuickFilterBar;
+        protected internal override Padding StylePadding => new Padding(0);
         private BeepTextBox _searchTextBox = null!;
         private BeepButton _clearButton = null!;
         private BeepButton _advancedButton = null!;

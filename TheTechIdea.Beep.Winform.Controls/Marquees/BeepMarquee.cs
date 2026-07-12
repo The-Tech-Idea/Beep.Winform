@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepMarquee : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.Marquee;
+        protected internal override Padding StylePadding => new Padding(0);
         // â”€â”€ Legacy component dictionary (kept for backward-compat) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private Dictionary<string, IBeepUIComponent> _marqueeComponents
             = new Dictionary<string, IBeepUIComponent>();

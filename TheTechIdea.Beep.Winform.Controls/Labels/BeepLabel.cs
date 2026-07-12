@@ -549,6 +549,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     measured.Height + DpiScalingHelper.ScaleValue(offset, this));
             }
         }
+        protected internal override Padding StylePadding => new Padding(0);
         #endregion "Constructors"
 
         #region "Painting"

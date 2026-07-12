@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
     public class BeepCircularButton : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ButtonStandard;
+        protected internal override Padding StylePadding => new Padding(0);
         private string _imagePath = "";
         private TextLocation _textLocation = TextLocation.Below;
         private ContentAlignment _textAlign = ContentAlignment.MiddleCenter;

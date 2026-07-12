@@ -14,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
     public partial class BeepProjectCard : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.CardProject;
+        protected internal override Padding StylePadding => new Padding(0);
         private readonly Dictionary<ProjectCardPainterKind, IProjectCardPainter> _painters = new();
         private ProjectCardPainterKind _painterKind = ProjectCardPainterKind.CompactProgress;
         private Dictionary<string, object> _parameters = new();

@@ -67,42 +67,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             var rects = new List<Rectangle>();
             if (items == null || items.Count == 0) return rects;
 
-            int gapBetweenButtons = ScaleUi(5);
-            int startX            = ScaleUi(5);
+            int gapBetweenButtons = ScaleUi(2);
+            int startX            = ScaleUi(4);
 
-            // Style-driven chrome sizes (border + padding + shadow blur).
-            int styleBorderWidth = (int)BeepStyling.GetBorderThickness(ControlStyle);
-            int stylePadding     = BeepStyling.GetPadding(ControlStyle);
-            int styleShadowDepth = StyleShadows.HasShadow(ControlStyle)
-                ? Math.Max(2, StyleShadows.GetShadowBlur(ControlStyle) / 2)
-                : 0;
-
-            // IMPORTANT: shadow contributes to width too — it extends past the border.
-            int totalChromeWidth  = (styleBorderWidth * 2) + (stylePadding * 2) + (styleShadowDepth * 2);
-            int totalChromeHeight = (styleBorderWidth * 2) + (stylePadding * 2) + styleShadowDepth;
-
-            // Content height derives from the actual font metric (resilient to GDI/DPI quirks).
+            // Flat menubar items — no per-item chrome. Item height = font + padding.
             int fontHeight     = GetFontHeightSafe(_textFont, this);
-            int contentPadding = GetVerticalPaddingForStyle(ControlStyle);
-            int contentHeight  = fontHeight + contentPadding;
-            int outerItemHeight = contentHeight + totalChromeHeight;
+            int contentPadding = ScaleUi(6);
+            int itemHeight     = fontHeight + contentPadding;
 
-            // Symmetric vertical breathing room (6 px top + 6 px bottom, DPI-scaled).
-            int verticalBuffer = ScaleUi(6);
-            int buttonTop = (Height - outerItemHeight) / 2;
-            if (buttonTop < 0) buttonTop = verticalBuffer;
-            else buttonTop = Math.Max(buttonTop, verticalBuffer);
+            // Vertically center items in the bar
+            int buttonTop = Math.Max(0, (Height - itemHeight) / 2);
 
             int currentX = startX;
             foreach (var item in items)
             {
                 if (item == null) continue;
 
-                int outerItemWidth = CalculateMenuItemWidth(item, totalChromeWidth);
+                int itemWidth = CalculateMenuItemWidth(item);
 
-                var rect = new Rectangle(currentX, buttonTop, outerItemWidth, outerItemHeight);
+                var rect = new Rectangle(currentX, buttonTop, itemWidth, itemHeight);
                 rects.Add(rect);
-                currentX += outerItemWidth + gapBetweenButtons;
+                currentX += itemWidth + gapBetweenButtons;
             }
 
             return rects;
@@ -129,9 +114,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private int CalculateMenuItemWidth(SimpleItem item, int totalChromeWidth)
+        private int CalculateMenuItemWidth(SimpleItem item)
         {
-            if (item == null) return 80;
+            if (item == null) return ScaleUi(60);
 
             int textWidth = 0;
             if (!string.IsNullOrEmpty(item.Text))
@@ -140,12 +125,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textWidth = textSize.Width;
             }
 
-            int imageWidth          = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + ScaleUi(8) : 0;
-            int internalContentPad  = ScaleUi(16); // 8 px on each side
-            int contentWidth        = textWidth + imageWidth + internalContentPad;
-            int totalWidth          = contentWidth + totalChromeWidth;
-
-            return Math.Max(totalWidth, ScaleUi(60)); // DPI-scaled floor.
+            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + ScaleUi(6) : 0;
+            int itemPad    = ScaleUi(16); // 8 px left + 8 px right for click room
+            return Math.Max(textWidth + imageWidth + itemPad, ScaleUi(44)); // DPI-scaled floor (touch target)
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -177,15 +159,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             int preferredWidth = proposedSize.Width <= 0 ? Width : Math.Max(Width, proposedSize.Width);
 
-            // Respect developer-set height — see Properties.cs `Height` setter.
-            if (_heightManuallySet)
-                return new Size(preferredWidth, Height);
-
             int fontHeight     = GetFontHeightSafe(_textFont, this);
             int contentPadding = GetVerticalPaddingForStyle(ControlStyle);
 
             int styleBorderWidth = (int)BeepStyling.GetBorderThickness(ControlStyle);
-            int stylePadding     = BeepStyling.GetPadding(ControlStyle);
+            int stylePadding     = StylePadding.Horizontal / 2; // per-control override, 0 for menu bar
             int styleShadowDepth = StyleShadows.HasShadow(ControlStyle)
                 ? Math.Max(2, StyleShadows.GetShadowBlur(ControlStyle) / 2)
                 : 0;

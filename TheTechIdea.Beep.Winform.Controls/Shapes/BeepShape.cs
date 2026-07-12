@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Shapes
     public class BeepShape : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.Shape;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private bool isDragging = false;
         private Point dragStart;

@@ -41,6 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepStepperBar : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.Stepper;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Private Fields
         private Orientation orientation = Orientation.Horizontal;
         private int selectedIndex = -1;

@@ -105,10 +105,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ShowAllBorders
                 );
 
+                // Use the chrome-inset content path for text/icon placement when
+                // available; fall back to the item rect itself for compact bars.
                 if (contentPath != null)
                 {
-                    DrawMenuItemContent(g, item, rect, ControlStyle, theme, contentPath);
+                    var boundsF = contentPath.GetBounds();
+                    var cr = Rectangle.Round(boundsF);
+                    // Guard: if the chrome path is virtually empty (e.g. card padding
+                    // collapsed on a short bar), use a sensible fallback inset.
+                    if (cr.Width > 4 && cr.Height > 4)
+                        DrawMenuItemContent(g, item, cr, ControlStyle, theme, contentPath);
+                    else
+                    {
+                        int pad = ScaleUi(4);
+                        var fallback = new Rectangle(rect.X + pad, rect.Y, rect.Width - pad * 2, rect.Height);
+                        DrawMenuItemContent(g, item, fallback, ControlStyle, theme, null);
+                    }
                     contentPath.Dispose();
+                }
+                else
+                {
+                    int pad = ScaleUi(4);
+                    var fallback = new Rectangle(rect.X + pad, rect.Y, rect.Width - pad * 2, rect.Height);
+                    DrawMenuItemContent(g, item, fallback, ControlStyle, theme, null);
                 }
 
                 itemPath.Dispose();
@@ -166,16 +185,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 contentRect = Rectangle.Round(boundsF);
             }
 
-            int horizontalPadding = ScaleUi(8);
-            int scaledImageSize   = ScaledImageSize;
-            int imageAreaWidth    = !string.IsNullOrEmpty(item.ImagePath) ? scaledImageSize + horizontalPadding : 0;
-            int textStartX        = contentRect.X + horizontalPadding + imageAreaWidth;
-            int textWidth         = contentRect.Width - (horizontalPadding * 2) - imageAreaWidth;
+            int gap             = ScaleUi(6);
+            int scaledImageSize = ScaledImageSize;
+            int imageAreaWidth  = !string.IsNullOrEmpty(item.ImagePath) ? scaledImageSize + gap : 0;
+            int textStartX      = contentRect.X + imageAreaWidth;
+            int textWidth       = Math.Max(0, contentRect.Width - imageAreaWidth);
 
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 var imageRect = new Rectangle(
-                    contentRect.X + horizontalPadding,
+                    contentRect.X,
                     contentRect.Y + (contentRect.Height - scaledImageSize) / 2,
                     scaledImageSize,
                     scaledImageSize);
@@ -187,26 +206,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             var textRect = new Rectangle(textStartX, contentRect.Y, textWidth, contentRect.Height);
 
-            // Prefer theme foreground for consistency; fall back to the
-            // style's default only when no theme is active.
             Color textColor = theme != null
                 ? theme.MenuItemForeColor
                 : BeepStyling.GetForegroundColor(style);
 
-            // Phase 04A — mnemonic-aware prefix flag.
-            //   _drawMnemonics == true  → omit any prefix flag so the
-            //                              default GDI behaviour kicks
-            //                              in: '&' is stripped AND the
-            //                              following character is
-            //                              underlined.
-            //   _drawMnemonics == false → set HidePrefix so '&' is
-            //                              stripped but no underline is
-            //                              drawn. Matches Win32 / WPF
-            //                              "lazy underline" UX where
-            //                              mnemonics only appear after
-            //                              the user presses Alt.
-            //   Authors that don't use '&' get neither side-effect since
-            //   the prefix flags become no-ops without an ampersand.
             var baseFlags = TextFormatFlags.VerticalCenter
                           | TextFormatFlags.Left
                           | TextFormatFlags.EndEllipsis;

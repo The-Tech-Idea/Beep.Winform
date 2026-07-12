@@ -70,6 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
     // Generic class for flexibility
     public partial class BeepCheckBox<T> : BaseControl
     {
+        protected internal override Padding StylePadding => new Padding(0);
         #region Private Fields
         private Dictionary<Color, SolidBrush> _brushCache = new Dictionary<Color, SolidBrush>();
         private Dictionary<Color, Pen> _penCache = new Dictionary<Color, Pen>();

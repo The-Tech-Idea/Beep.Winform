@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             ShowInTaskbar = false;
             TopMost = true;
             // Skill § 1: modeless dialog size flows from a BeepLayoutMetrics token; DPI-aware.
-            Size = BeepLayoutMetrics.DialogSmall.ScaleSize(this);
+            Helpers.DialogHelpers.FitFormToContent(this);
             StartPosition = FormStartPosition.Manual;
         }
 

@@ -355,6 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         protected override Size DefaultSize => new Size(200, 36);
+        protected internal override Padding StylePadding => new Padding(0);
 
         protected override void InitLayout()
         {

@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepDataNavigator : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.DataNavigator;
+        protected internal override Padding StylePadding => new Padding(0);
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;
         public BeepButton btnQuery, btnFilter,btnPrint,btnEmail;
         public BeepButton txtPosition;

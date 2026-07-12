@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
     public class BeepDateRangePicker : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.FieldDateRange;
+        protected internal override Padding StylePadding => new Padding(0);
         private BeepTextBox _startDateTextBox;
         private BeepTextBox _endDateTextBox;
         private BeepButton _startCalendarButton;

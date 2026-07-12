@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
 
         // FIXED: DPI-aware DefaultSize
         protected override Size DefaultSize => new Size(GetScaledScrollbarWidth(), GetScaledScrollbarHeight());
+        protected internal override Padding StylePadding => new Padding(0);
 
         // FIELDS
         private int _value = 0;

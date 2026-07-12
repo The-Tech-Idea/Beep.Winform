@@ -76,12 +76,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             int shadow = 0;
             int border = 0;
             int padding = 0;
-            Padding customPadding = owner.CustomPadding; // Get custom padding from owner (now a Padding object)
-            
+
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
                 border = 1; // (int)Math.Ceiling(BeepStyling.GetBorderThickness(owner.ControlStyle));
-                padding = 2;// BeepStyling.GetPadding(owner.ControlStyle);
+                Padding stylePad = owner.StylePadding;
+                padding = Math.Min(stylePad.Horizontal, stylePad.Vertical) / 2; // internal content inset from style
                 
                 // Note: Style padding is symmetric, we'll add customPadding asymmetrically later
                 
@@ -119,11 +119,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 Math.Max(1, width - (shadow * 2) - 1),
                 Math.Max(1, height - (shadow * 2) - 1)
             );
-            
-            // **CRITICAL**: Apply CustomPadding to shrink borderRect BEFORE creating paths
-            // This allows asymmetric padding (e.g., only top padding for Material Design 3 title labels)
-            borderRect = ApplyCustomPaddingToBorderRect(borderRect, customPadding);
-            
             _borderRect = borderRect;
 
             // 4. Create BorderShape (Layer 1)
@@ -151,9 +146,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
-                // BeepStyling has a helper for Content Path which respects style metrics
-                // Note: CustomPadding already applied to borderRect, so GetContentPath works on adjusted rect
-                _contentPath = BeepStyling.GetContentPath(_borderPath, owner.ControlStyle);
+                // BeepStyling.GetContentPath honours the control's StylePadding so small
+                // controls don't get clipped by container-level style padding.
+                Padding ctrlPad = owner.StylePadding;
+                _contentPath = BeepStyling.GetContentPath(_borderPath, owner.ControlStyle,
+                    paddingOverride: Math.Min(ctrlPad.Horizontal, ctrlPad.Vertical) / 2);
                 
                 // Fallback if GetContentPath fails
                 if (_contentPath == null)
@@ -323,25 +320,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             return ControlState.Normal;
         }
 
-        /// <summary>
-        /// Apply CustomPadding to borderRect to shrink it before creating border paths.
-        /// This allows asymmetric padding (e.g., only top padding for Material Design 3 title labels).
-        /// </summary>
-        private static Rectangle ApplyCustomPaddingToBorderRect(Rectangle borderRect, Padding customPadding)
-        {
-            if (customPadding == Padding.Empty || customPadding.All == 0)
-                return borderRect;
-
-            // Shrink rectangle by custom padding on each side
-            Rectangle adjustedRect = new Rectangle(
-                borderRect.Left + customPadding.Left,
-                borderRect.Top + customPadding.Top,
-                Math.Max(1, borderRect.Width - customPadding.Horizontal),
-                Math.Max(1, borderRect.Height - customPadding.Vertical)
-            );
-
-            return adjustedRect;
-        }
 
         private void CalculateLabelProperties(Graphics g, Base.BaseControl owner)
         {

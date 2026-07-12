@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 {
@@ -16,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public BeepMessageDialog()
         {
             InitializeComponent();
+            Helpers.DialogHelpers.FitFormToContent(this);
         }
 
         public string Title

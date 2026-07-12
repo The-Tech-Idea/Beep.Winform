@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Chips;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
@@ -47,8 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
         {
             StartPosition = FormStartPosition.CenterParent;
             ShowInTaskbar = false;
-            // Skill § 1: dialog size flows from BeepLayoutMetrics tokens; DPI-aware.
-            Size = BeepLayoutMetrics.DialogMedium.ScaleSize(this);
+            DialogHelpers.FitFormToContent(this);
 
             // ── Header panel (search) ───────────────────────────────────────
             _headerPanel = new BeepPanel

@@ -29,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
     public class BeepDropDownCheckBoxSelect : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.DropDownSelect;
+        protected internal override Padding StylePadding => new Padding(0);
         private readonly List<SimpleItem> _items = new List<SimpleItem>();
         private readonly List<SimpleItem> _selected = new List<SimpleItem>();
         private string _popupSearchText = string.Empty;

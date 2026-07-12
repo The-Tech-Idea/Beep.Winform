@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepQueryandFilter : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.QueryAndFilter;
+        protected internal override Padding StylePadding => new Padding(0);
         private TableLayoutPanel tableLayoutPanel;
         private List<AppFilter> Filters = new List<AppFilter>();
         public event EventHandler SubmitClicked;

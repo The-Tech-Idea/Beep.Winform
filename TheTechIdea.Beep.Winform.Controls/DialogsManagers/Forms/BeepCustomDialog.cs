@@ -19,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public BeepCustomDialog()
         {
             InitializeComponent();
+            Helpers.DialogHelpers.FitFormToContent(this);
         }
 
         public string Title { get => _titleLabel.Text; set => _titleLabel.Text = value ?? string.Empty; }

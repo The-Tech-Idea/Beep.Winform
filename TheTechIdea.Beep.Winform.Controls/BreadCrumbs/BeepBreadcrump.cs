@@ -332,6 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         protected override Size DefaultSize => new Size(DpiScalingHelper.ScaleValue(300, this), DpiScalingHelper.ScaleValue(36, this));
+        protected internal override Padding StylePadding => new Padding(0);
         #endregion
 
         #region Item Management

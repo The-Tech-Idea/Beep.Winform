@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     public class BeepHierarchicalRadioGroup : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.HierarchicalRadio;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private readonly RadioGroupLayoutHelper _layoutHelper;
         private readonly RadioGroupHitTestHelper _hitTestHelper;

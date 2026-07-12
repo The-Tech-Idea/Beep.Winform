@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepStarRating : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.RatingStandard;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields and Properties
         // Core rating properties
         private int _starCount = 5;

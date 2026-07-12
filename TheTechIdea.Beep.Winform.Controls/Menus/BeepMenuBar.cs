@@ -79,5 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return new Size(ScaleUi(200), ScaledMenuItemHeight + verticalBuffer);
             }
         }
+
+        protected internal override Padding StylePadding => new Padding(0);
     }
 }

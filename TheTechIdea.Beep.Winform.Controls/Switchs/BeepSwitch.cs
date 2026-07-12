@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepSwitch : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.SwitchStandard;
+        protected internal override Padding StylePadding => new Padding(0);
         // NOTE: Fields moved to BeepSwitch.Core.cs
         // NOTE: Events and Properties moved to BeepSwitch.Properties.cs
 

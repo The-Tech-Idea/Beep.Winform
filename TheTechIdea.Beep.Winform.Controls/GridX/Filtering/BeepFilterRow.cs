@@ -20,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
     public class BeepFilterRow : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.FilterRow;
+        protected internal override Padding StylePadding => new Padding(0);
         private BeepComboBox _columnCombo = null!;
         private BeepComboBox _operatorCombo = null!;
         private BeepTextBox _valueTextBox = null!;

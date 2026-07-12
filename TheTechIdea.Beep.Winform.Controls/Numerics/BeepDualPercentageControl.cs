@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
     public class BeepDualPercentageControl : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.DualPercentage;
+        protected internal override Padding StylePadding => new Padding(0);
         private BeepLabel lblLeftIcon;
         private BeepLabel lblLeftLabel;
         private BeepLabel lblLeftPercentage;

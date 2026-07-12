@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 
@@ -565,6 +566,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
         private Padding _customPadding = Padding.Empty;
+
+        /// <summary>
+        /// The style-driven internal padding for this control type. Override in derived
+        /// controls to return a smaller padding appropriate for their size (e.g., a BeepTextBox
+        /// returns 4,2,4,2 while a BeepPanel uses the full style padding of 12-16 px).
+        /// The painter reads this instead of the raw <c>StyleSpacing.GetPadding(style)</c>.
+        /// </summary>
+        [Browsable(false)]
+        protected internal virtual Padding StylePadding => new Padding(BeepStyling.GetPadding(ControlStyle));
 
         [Browsable(true)]
         public int BorderRadius

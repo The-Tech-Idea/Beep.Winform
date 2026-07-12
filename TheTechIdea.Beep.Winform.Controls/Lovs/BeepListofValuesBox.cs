@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepListofValuesBox : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ListOfValues;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private BeepTextBox  _keyTextBox;
         // _valueTextBox removed (Phase 6) â€” display value is painted directly in DrawContent

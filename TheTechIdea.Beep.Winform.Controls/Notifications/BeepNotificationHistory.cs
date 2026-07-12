@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
     public class BeepNotificationHistory : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.NotificationHistory;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Private Fields
         private readonly List<NotificationHistoryItem> _history;
 

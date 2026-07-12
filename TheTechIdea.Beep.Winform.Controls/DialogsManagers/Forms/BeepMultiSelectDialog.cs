@@ -38,9 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             ShowCaptionBar = false;
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
-            // Skill § 1: dialog sizes flow from BeepLayoutMetrics tokens; DPI-aware.
-            ClientSize = BeepLayoutMetrics.DialogMedium.ScaleSize(this);
-            MinimumSize = BeepLayoutMetrics.DialogSmall.ScaleSize(this);
+            Helpers.DialogHelpers.FitFormToContent(this);
 
             _headerPanel = new BeepPanel
             {

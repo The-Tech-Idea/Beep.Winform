@@ -86,6 +86,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 // returns only the usable content area. Child controls will NOT overlap
                 // the caption bar or borders.
                 var cr = CurrentLayout.ContentRect;
+
+                // Inset by the form's border width so docked children stay inside
+                // the visible border. Respects SafeContentInsets for rounded-corner
+                // styles (iOS, macOS, Ubuntu, etc.) which need deeper insets.
+                int borderW = GetCurrentMetrics().BorderWidth;
+                int safeL  = Math.Max(borderW, CurrentLayout.SafeContentInsets.Left);
+                int safeR  = Math.Max(borderW, CurrentLayout.SafeContentInsets.Right);
+                int safeB  = Math.Max(borderW, CurrentLayout.SafeContentInsets.Bottom);
+                cr = new Rectangle(
+                    cr.X + safeL,
+                    cr.Y,
+                    Math.Max(0, cr.Width  - safeL - safeR),
+                    Math.Max(0, cr.Height - safeB));
+
                 if (!cr.IsEmpty && cr.Width > 0 && cr.Height > 0)
                 {
                     Padding = new Padding(

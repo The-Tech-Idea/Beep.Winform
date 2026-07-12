@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
     public partial class BeepFilter : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.FilterBar;
+        protected internal override Padding StylePadding => new Padding(0);
         #region Private Fields
 
         private FilterStyle _filterStyle = FilterStyle.TagPills;

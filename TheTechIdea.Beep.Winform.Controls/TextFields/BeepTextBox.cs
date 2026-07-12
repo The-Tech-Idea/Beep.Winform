@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     public partial class BeepTextBox : BaseControl,IBeepTextBox
     {
+        protected internal override Padding StylePadding => new Padding(0);
         // This is the main entry point for BeepTextBox
         // The implementation is split across multiple partial class files:
         // - BeepTextBox.Core.cs: Core fields, constructor, initialization

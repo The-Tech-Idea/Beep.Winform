@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepSideMenu : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.SideMenu;
+        protected internal override Padding StylePadding => new Padding(0);
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EndMenuCollapseExpand;
         public event Action<bool> StartOnMenuCollapseExpand;

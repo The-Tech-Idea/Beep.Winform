@@ -101,6 +101,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             ClientSize = BeepLayoutMetrics.Splash.ScaleSize(this);
+            MinimumSize = ClientSize;
+            AutoSize  = false;
+            AutoScaleMode = AutoScaleMode.None; // prevent AutoScale from snapping the form back on DPI/layout changes
+
+            // Accessibility (design-skill compliance)
+            AccessibleRole = AccessibleRole.Dialog;
+            AccessibleName = "Please wait";
+            AccessibleDescription = "Wait dialog with progress information";
+
+            // Build a structured TableLayoutPanel layout so controls reflow on resize
+            // instead of overlapping at hardcoded positions.
+            ApplyTableLayout();
 
             // Capture UI thread context so Config()/SafeInvoke() can marshal from any thread without accessing this control
             _uiSyncContext = SynchronizationContext.Current ?? new System.Windows.Forms.WindowsFormsSynchronizationContext();
@@ -543,6 +555,74 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void _spinnerImage_Click(object sender, EventArgs e)
         {
 
+        }
+
+        /// <summary>
+        /// Restructures the form's child controls into a TableLayoutPanel hierarchy
+        /// so the layout reflows correctly on resize (design-skill compliance).
+        /// Title → top, spinner + message → middle (split), status → bottom.
+        /// </summary>
+        private void ApplyTableLayout()
+        {
+            // Remove controls from the form surface — they'll be reparented.
+            Controls.Remove(Title);
+            Controls.Remove(_spinnerImage);
+            Controls.Remove(messege);
+            Controls.Remove(beepLabel1);
+
+            int rowCount = 3;
+            var mainTable = new System.Windows.Forms.TableLayoutPanel
+            {
+                Dock = System.Windows.Forms.DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = rowCount,
+                Padding = new Padding(0)
+            };
+            mainTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            mainTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));  // Title
+            mainTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F)); // content
+            mainTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, DpiScalingHelper.ScaleValue(28, this))); // status
+
+            // Row 0: Title (spans full width)
+            Title.Dock = System.Windows.Forms.DockStyle.Fill;
+            Title.Location = Point.Empty;
+            Title.Anchor = AnchorStyles.None;
+            mainTable.Controls.Add(Title, 0, 0);
+
+            // Row 1: Content area — spinner (left) + message (fill)
+            var contentTable = new System.Windows.Forms.TableLayoutPanel
+            {
+                Dock = System.Windows.Forms.DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                Padding = new Padding(4, 2, 4, 2)
+            };
+            contentTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(
+                System.Windows.Forms.SizeType.Absolute, DpiScalingHelper.ScaleValue(80, this)));
+            contentTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(
+                System.Windows.Forms.SizeType.Percent, 100F));
+            contentTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+
+            _spinnerImage.Dock = System.Windows.Forms.DockStyle.Fill;
+            _spinnerImage.Anchor = AnchorStyles.None;
+            _spinnerImage.Location = Point.Empty;
+            contentTable.Controls.Add(_spinnerImage, 0, 0);
+
+            messege.Dock = System.Windows.Forms.DockStyle.Fill;
+            messege.Anchor = AnchorStyles.None;
+            messege.Location = Point.Empty;
+            contentTable.Controls.Add(messege, 1, 0);
+
+            mainTable.Controls.Add(contentTable, 0, 1);
+
+            // Row 2: Status label
+            beepLabel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            beepLabel1.Location = Point.Empty;
+            beepLabel1.Anchor = AnchorStyles.None;
+            mainTable.Controls.Add(beepLabel1, 0, 2);
+
+            // Add the TLP to the form
+            Controls.Add(mainTable);
         }
     }
 }

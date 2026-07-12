@@ -34,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
     public class BeepChevronButton : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ButtonSmall;
+        protected internal override Padding StylePadding => new Padding(0);
         private const int ChevronPaddingToken = 6;
         private const int ChevronImageInsetToken = 5;
         private const int ChevronDefaultImageSizeToken = 16;

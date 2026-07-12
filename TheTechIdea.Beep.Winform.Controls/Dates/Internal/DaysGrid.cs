@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Internal
     [ToolboxItem(false)]
     public partial class DaysGrid : BaseControl
     {
+        protected internal override Padding StylePadding => new Padding(0);
         // this control represents the grid of days in the date picker
         // it handles the display and selection of days
         // it raises events when a date is selected

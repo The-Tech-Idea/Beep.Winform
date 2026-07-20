@@ -190,9 +190,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Dictionary<string, object> Data { get; set; } = new Dictionary<string, object>();
 
+        /// <summary>
+        /// Human-readable label for this item: <see cref="DisplayField"/>, which is the item's
+        /// own display value and already falls back to <see cref="Text"/>.
+        ///
+        /// Anything that renders a SimpleItem without an explicit template lands here — the
+        /// PropertyGrid, a plain WinForms/WPF ComboBox or ListBox, debugger output. This used to
+        /// return <see cref="Name"/>, which most items never set, so those consumers rendered
+        /// blank rows. Name is now only the fallback, for items that carry a name and no text.
+        ///
+        /// Never returns null: callers concatenate and format this without null-checking.
+        /// </summary>
         public override string ToString()
         {
-            return Name; // DisplayField this value in the PropertyGrid
+            if (!string.IsNullOrWhiteSpace(DisplayField)) return DisplayField;
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return string.Empty;
         }
     }
 

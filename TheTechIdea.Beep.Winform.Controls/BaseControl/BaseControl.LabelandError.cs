@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             const int imageSize = 16;
             const int imageSpacing = 4;
 
-            if (owner.LabelTextOn && owner.FloatingLabelOn && !string.IsNullOrEmpty(owner.LabelText))
+            if (owner.LabelTextOn && !string.IsNullOrEmpty(owner.LabelText))
             {
                 float labelSize = Math.Max(7f, owner.Font.Size - 2f);
                 using var labelFont = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
@@ -95,11 +95,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             provider.ClearChildExternalDrawing(this);
 
-            // Label is rendered externally only when floating (LabelTextOn && FloatingLabelOn).
-            // Helper/Error are ALWAYS rendered externally when present — they are independent
-            // of the label's floating toggle. DrawLabelAndHelperUniversal never paints them
-            // internally, so external registration is the only way they show.
-            bool labelExternal = LabelTextOn && FloatingLabelOn && !string.IsNullOrEmpty(LabelText);
+            // Label, Helper and Error are ALWAYS rendered externally when present — the label
+            // is not gated on FloatingLabelOn, it follows the same rule as the supporting text.
+            // DrawLabelAndHelperUniversal only paints them internally when the parent is not an
+            // IExternalDrawingProvider, so external registration is the normal way they show.
+            bool labelExternal = LabelTextOn && !string.IsNullOrEmpty(LabelText);
             bool helperExternal = (HelperTextOn && !string.IsNullOrEmpty(HelperText))
                                 || !string.IsNullOrEmpty(ErrorText);
 

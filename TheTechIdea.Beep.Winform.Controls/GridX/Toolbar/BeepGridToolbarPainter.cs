@@ -306,9 +306,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
         private void PaintSearchSection(Graphics g, BeepGridToolbarState state)
         {
+            // Box first, icon second: the search icon now sits INSIDE the box, so painting it
+            // before the box fill would bury it under the background.
+            PaintSearchBox(g, state.SearchBoxRect, state.SearchText, state.SearchHasFocus);
             DrawCenteredTintedIcon(g, state, state.SearchIconRect,
                 SvgsUIcons.Common.Search, 0.7f);
-            PaintSearchBox(g, state.SearchBoxRect, state.SearchText, state.SearchHasFocus);
         }
 
         private void PaintSearchBox(Graphics g, Rectangle bounds, string text, bool hasFocus)

@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public BeepGridColumnConfigCollection Columns { get; }
         private readonly Dictionary<INotifyPropertyChanged, PropertyChangedEventHandler> _rowChangeHandlers = new();
         private INotifyCollectionChanged? _subscribedCollectionChanged;
+        private IBindingList? _subscribedBindingList;
 
         public GridDataHelper(BeepGridPro grid)
         {
@@ -120,6 +121,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _subscribedCollectionChanged.CollectionChanged -= OnCollectionDataChanged;
                 _subscribedCollectionChanged = null;
             }
+
+            if (_subscribedBindingList != null)
+            {
+                _subscribedBindingList.ListChanged -= OnDataListChanged;
+                _subscribedBindingList = null;
+            }
         }
 
         private void OnCollectionDataChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -148,6 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     AutoGenerateColumns();
                 }
+                RepaintAfterBind();
                 return;
             }
 
@@ -162,6 +170,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.RequestAutoSize(AutoSizeTriggerSource.DataBind);
             }
+
+            RepaintAfterBind();
+        }
+
+        /// <summary>
+        /// Recalculates geometry and repaints after a bind.
+        /// </summary>
+        /// <remarks>
+        /// Binding changes both the column set and the row count, which changes every rect the
+        /// layout owns. Without this, assigning DataSource updated the model but left the previous
+        /// frame on screen until some unrelated event happened to invalidate the control — which is
+        /// why a fresh bind looked like it had done nothing.
+        /// </remarks>
+        private void RepaintAfterBind()
+        {
+            _grid.Layout?.Recalculate();
+            _grid.ScrollBars?.UpdateBars();
+            _grid.SafeInvalidate();
         }
 
         private int GetSystemColumnCount()
@@ -169,14 +195,40 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return Columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID);
         }
 
+        /// <summary>
+        /// Subscribes to whichever change notification the bound list actually raises.
+        /// </summary>
+        /// <remarks>
+        /// An <c>IBindingList</c> raises <c>ListChanged</c>, an <c>INotifyCollectionChanged</c> raises
+        /// <c>CollectionChanged</c>, and a type can be both — <c>ObservableBindingList&lt;T&gt;</c>
+        /// (the shape every UnitofWork exposes through <c>Units</c>) implements both. This used to
+        /// subscribe to CollectionChanged only when the source was NOT an IBindingList, on the
+        /// assumption that a BindingSource would forward ListChanged. That holds only when a
+        /// BindingSource is actually in the chain; binding a BindingList or ObservableBindingList
+        /// directly left the grid with no subscription at all, so rows added or removed after the
+        /// bind never appeared until something else forced a repaint.
+        ///
+        /// IBindingList is preferred when a type offers both: ListChanged also reports item-level
+        /// edits (ItemChanged), which CollectionChanged does not. Only one is ever subscribed, so
+        /// there is no double refresh.
+        /// </remarks>
         private void SubscribeCollectionChangedIfNeeded()
         {
             // Resolve to the actual list object
             var resolved = ResolveDataForBinding();
 
-            // Only subscribe when: implements INotifyCollectionChanged but NOT IBindingList
-            // (IBindingList is handled by BindingSource.ListChanged; double-subscribing would cause double refreshes)
-            if (resolved is INotifyCollectionChanged incc && resolved is not IBindingList)
+            if (resolved is IBindingList bindingList)
+            {
+                if (ReferenceEquals(_subscribedBindingList, bindingList))
+                    return; // Already subscribed to this same list
+
+                UnsubscribeCollectionChanged();
+                _subscribedBindingList = bindingList;
+                bindingList.ListChanged += OnDataListChanged;
+                return;
+            }
+
+            if (resolved is INotifyCollectionChanged incc)
             {
                 if (ReferenceEquals(_subscribedCollectionChanged, incc))
                     return; // Already subscribed to this same collection
@@ -184,12 +236,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 UnsubscribeCollectionChanged();
                 _subscribedCollectionChanged = incc;
                 incc.CollectionChanged += OnCollectionDataChanged;
+                return;
             }
-            else
-            {
-                // Source changed to something without INCC — release any old subscription
-                UnsubscribeCollectionChanged();
-            }
+
+            // Source changed to something that raises neither — release any old subscription
+            UnsubscribeCollectionChanged();
+        }
+
+        private void OnDataListChanged(object? sender, ListChangedEventArgs e)
+        {
+            // Column-metadata churn on the bound list is not a row change; everything else
+            // (add, delete, move, reset, item edit) means the visible rows are stale.
+            if (e.ListChangedType is ListChangedType.PropertyDescriptorAdded
+                or ListChangedType.PropertyDescriptorChanged
+                or ListChangedType.PropertyDescriptorDeleted)
+                return;
+
+            RefreshRows();
+            _grid.Layout?.Recalculate();
+            _grid.SafeInvalidate();
         }
 
         /// <summary>

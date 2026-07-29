@@ -7,12 +7,52 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
+    /// Geometry of one header cell, produced by the painter and consumed by the renderer.
+    /// </summary>
+    /// <remarks>
+    /// The painter owns header geometry so each style can place things its own way, while the
+    /// renderer still knows where the interactive parts landed: it copies
+    /// <see cref="SortIndicatorRect"/> and <see cref="MenuButtonRect"/> into the grid's hit-rect
+    /// dictionaries, so input handling needs no per-style knowledge.
+    /// </remarks>
+    public sealed class HeaderCellLayout
+    {
+        /// <summary>Area the caption is drawn in — already excludes the indicator and menu slots.</summary>
+        public Rectangle TextRect { get; set; }
+
+        /// <summary>Sort indicator slot. Reserved whenever the column is sortable, so text does not reflow on sort.</summary>
+        public Rectangle SortIndicatorRect { get; set; }
+
+        /// <summary>The single column menu button (sort + filter + clear). Empty when the column offers no menu.</summary>
+        public Rectangle MenuButtonRect { get; set; }
+
+        /// <summary>Clickable area that toggles sort — the caption plus its indicator.</summary>
+        public Rectangle SortHitRect { get; set; }
+    }
+
+    /// <summary>
     /// Enhanced interface for painting grid column headers with different styles.
     /// Header painters use the same navigationStyle enum as navigation painters for consistency.
     /// This ensures headers and navigation bars can be coordinated to match.
     /// </summary>
     public interface IPaintGridHeader
     {
+        /// <summary>
+        /// Computes where the caption, sort indicator and column menu button go for one cell.
+        /// </summary>
+        /// <remarks>
+        /// Called by the renderer before painting. Implementations should reserve the sort slot for
+        /// sortable columns whether or not the column is currently sorted, and size everything from
+        /// <paramref name="dpiScale"/> rather than fixed pixels.
+        /// </remarks>
+        HeaderCellLayout CalculateHeaderCellLayout(Rectangle cellRect, BeepColumnConfig column,
+            BeepGridPro grid, float dpiScale);
+
+        /// <summary>
+        /// Paints the column menu button (funnel/chevron) that opens sort + filter + clear.
+        /// </summary>
+        void PaintColumnMenuButton(Graphics g, Rectangle rect, bool filterActive, bool isHovered, IBeepTheme? theme);
+
         /// <summary>
         /// Get the name/identifier of this painter style
         /// </summary>

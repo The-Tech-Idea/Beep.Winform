@@ -73,6 +73,126 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Headers typically don't need special hit areas beyond what the grid tracks
         }
 
+        /// <summary>
+        /// Shared commercial header geometry: caption on the left, a permanently reserved sort
+        /// indicator slot, and the column menu button hard right.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The sort slot is reserved for every sortable column whether or not it is currently
+        /// sorted. Sizing the slot from the sort state — as the old renderer did
+        /// (<c>column.IsSorted ? 16 : 0</c>) — made the caption's width change the instant a user
+        /// sorted, so the text visibly jumped on the very click that was meant to sort it. Every
+        /// commercial grid reserves the slot up front for exactly this reason.
+        /// </para>
+        /// <para>
+        /// Slots are at least <see cref="MinTouchTarget"/> logical pixels wide so the indicator and
+        /// the menu button are comfortably clickable rather than 16px specks, and everything is
+        /// derived from <paramref name="dpiScale"/>.
+        /// </para>
+        /// </remarks>
+        public virtual HeaderCellLayout CalculateHeaderCellLayout(Rectangle cellRect, BeepColumnConfig column,
+            BeepGridPro grid, float dpiScale)
+        {
+            int Scale(int v) => Math.Max(1, (int)Math.Round(v * dpiScale));
+
+            int padding = Scale(CalculateHeaderPadding());
+            int slot = Scale(MinTouchTarget);
+            int iconSize = Scale(HeaderIconSize);
+
+            var layout = new HeaderCellLayout();
+            int rightX = cellRect.Right - padding;
+
+            // Column menu (sort + filter + clear) — rightmost, and only when the column offers it.
+            bool wantsMenu = column != null && (column.ShowFilterIcon || column.AllowSort);
+            if (wantsMenu && rightX - slot > cellRect.Left)
+            {
+                layout.MenuButtonRect = new Rectangle(
+                    rightX - slot,
+                    cellRect.Top + (cellRect.Height - slot) / 2,
+                    slot, slot);
+                rightX -= slot;
+            }
+
+            // Sort indicator — reserved for sortable columns regardless of current sort state.
+            if (column != null && column.AllowSort && rightX - slot > cellRect.Left)
+            {
+                layout.SortIndicatorRect = new Rectangle(
+                    rightX - slot + (slot - iconSize) / 2,
+                    cellRect.Top + (cellRect.Height - iconSize) / 2,
+                    iconSize, iconSize);
+                rightX -= slot;
+            }
+
+            layout.TextRect = new Rectangle(
+                cellRect.X + padding,
+                cellRect.Y,
+                Math.Max(1, rightX - cellRect.X - padding),
+                cellRect.Height);
+
+            // Clicking the caption sorts, which is what users try first; the indicator is part of
+            // the same target so the whole left region behaves as one control.
+            layout.SortHitRect = column != null && column.AllowSort
+                ? Rectangle.Union(layout.TextRect,
+                    layout.SortIndicatorRect.IsEmpty ? layout.TextRect : layout.SortIndicatorRect)
+                : Rectangle.Empty;
+
+            return layout;
+        }
+
+        /// <summary>
+        /// Paints the column menu button: a funnel, filled when a filter is active on the column.
+        /// </summary>
+        public virtual void PaintColumnMenuButton(Graphics g, Rectangle rect, bool filterActive, bool isHovered, IBeepTheme? theme)
+        {
+            if (rect.Width <= 0 || rect.Height <= 0) return;
+
+            if (isHovered)
+            {
+                using var hoverBrush = new SolidBrush(Color.FromArgb(30,
+                    theme?.GridHeaderForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText)));
+                g.FillRectangle(hoverBrush, rect);
+            }
+
+            // Inset so the glyph is smaller than its (deliberately generous) hit target.
+            int inset = Math.Max(2, rect.Width / 4);
+            var glyph = Rectangle.Inflate(rect, -inset, -inset);
+
+            Color iconColor = filterActive
+                ? (theme?.AccentColor ?? Color.DodgerBlue)
+                : (theme?.GridHeaderForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText));
+
+            var funnel = new[]
+            {
+                new Point(glyph.Left, glyph.Top),
+                new Point(glyph.Right, glyph.Top),
+                new Point(glyph.Left + glyph.Width * 5 / 8, glyph.Top + glyph.Height / 2),
+                new Point(glyph.Left + glyph.Width * 5 / 8, glyph.Bottom),
+                new Point(glyph.Left + glyph.Width * 3 / 8, glyph.Bottom - glyph.Height / 5),
+                new Point(glyph.Left + glyph.Width * 3 / 8, glyph.Top + glyph.Height / 2)
+            };
+
+            var smoothing = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            if (filterActive)
+            {
+                using var fill = new SolidBrush(iconColor);
+                g.FillPolygon(fill, funnel);
+            }
+            else
+            {
+                using var pen = new Pen(iconColor, Math.Max(1f, glyph.Width / 10f));
+                g.DrawPolygon(pen, funnel);
+            }
+            g.SmoothingMode = smoothing;
+        }
+
+        /// <summary>Logical size of a comfortable header hit target.</summary>
+        protected const int MinTouchTarget = 24;
+
+        /// <summary>Logical size of the glyph drawn inside a header slot.</summary>
+        protected const int HeaderIconSize = 12;
+
         #region Common Helper Methods
 
         /// <summary>

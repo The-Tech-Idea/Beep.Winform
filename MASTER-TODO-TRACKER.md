@@ -628,6 +628,46 @@
 
 ---
 
+## BeepGridPro Header And Toolbar Commercialization
+
+Target: header band and column headers that match AG Grid / Excel / Telerik / DevExpress behaviour.
+Two decisions frame this program: the 13 `IPaintGridHeader` painters get wired into real rendering
+(today they are only called for `CalculateHeaderHeight()`), and sort/filter move to the commercial
+model — click the header to sort, one menu button for sort + filter + clear.
+
+### Phase 1 - Toolbar Geometry And Sizing
+- [ ] Add a single vertical-centre helper and apply it to every toolbar rect (search icon, filter, advanced, clear-filter, overflow, button bounds) — icons currently sit ~7px high in the 32px band
+- [ ] Give labelled and icon-only buttons the same hit height, with the icon centred inside
+- [ ] Move the search icon inside `SearchBoxRect` and make `SearchIconWidth` the one text inset used by both the painter and the live search editor
+- [ ] Replace the `bounds.Width / 4` title cap with a measured width clamped to remaining space, drawn with `EndEllipsis`
+- [ ] Define and implement the narrow-width collapse order: labels → export buttons → overflow → search shrink, never overlap
+- [ ] Fix the overflow test to compare against `bounds.Right - reservedRight` instead of `bounds.Width`
+- [ ] Clamp `BadgeRect` inside the toolbar band
+
+### Phase 2 - Header Painter Contract And Wiring
+- [ ] Add `CalculateHeaderCellLayout(...)` + `HeaderCellLayout` (TextRect, SortIndicatorRect, MenuButtonRect, ReservesSortSlot) to `IPaintGridHeader`
+- [ ] Implement the commercial geometry once in `BaseHeaderPainter` (reserved sort slot, right-hand menu button, DPI-scaled, vertically centred)
+- [ ] Make `GridRenderHelper.DrawHeaderCell` delegate to the active painter and record the returned rects into the existing sort/filter rect dictionaries
+- [ ] Cache the header painter on the grid instead of allocating `GridColumnHeadersPainterHelper` per layout pass (`BeepGridPro.cs:578`, `GridLayoutHelper.cs:496`)
+- [ ] Verify each of the 12 style painters renders distinctly once wired in
+
+### Phase 3 - Commercial Sort And Filter Interaction
+- [ ] Reserve the sort indicator slot for every sortable column so header text stops reflowing on first sort
+- [ ] Sort on header-text click (asc → desc → none); shift-click appends to multi-sort
+- [ ] Show the 1-based multi-sort order on the indicator
+- [ ] Replace the separate funnel icon with one column menu button opening sort + value checklist + clear, reusing `BeepGridFilterFlyout.ShowNear`
+- [ ] Pad sort/menu hit targets to ≥24px DPI-scaled
+- [ ] Unify icon visibility across styles: reveal on hover, space always reserved
+
+### Phase 4 - Verification
+- [ ] Toolbar and header verified vertically centred at 100% / 150% / 200% DPI
+- [ ] Narrow-window collapse order confirmed with no overlap
+- [ ] Sort click causes no horizontal text shift; multi-sort badge correct
+- [ ] Column menu applies filters and updates the toolbar active-filter badge
+- [ ] Style sweep (Material, AGGrid, Fluent, Telerik) visibly changes the header
+
+---
+
 ## Priority Order (One-By-One Execution)
 
 Controls below are sorted by importance. Work through top-to-bottom.

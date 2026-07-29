@@ -168,92 +168,116 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             int margin = (int)(8 * DpiScale);
             int iconSize = (int)(18 * DpiScale);
             int buttonGap = (int)(4 * DpiScale);
-            int height = (int)(32 * DpiScale);
-            int y = bounds.Top + (bounds.Height - height) / 2;
+            int bandHeight = (int)(32 * DpiScale);
+            int bandY = bounds.Top + (bounds.Height - bandHeight) / 2;
             int separatorWidth = Math.Max(1, (int)Math.Round(DpiScale));
+            int minSearchWidth = (int)(MinSearchLogicalWidth * DpiScale);
             Font labelFont = LabelFont;
 
             Reset();
+
+            // The right-hand sections are fixed width, so budget them first: everything flexible
+            // (title, actions, search) then lays out against a known right limit instead of
+            // discovering the overrun afterwards and overlapping.
+            int exportVisibleCount = ExportButtons.Count(b => b.IsVisible);
+            int filterButtonCount = ShowFilterButton ? 3 : 2;   // [filter] + advanced + clear
+            int filterSectionWidth = filterButtonCount * (iconSize + buttonGap) + margin;
+            int exportSectionWidth = exportVisibleCount > 0
+                ? exportVisibleCount * (iconSize + buttonGap) + margin
+                : 0;
+            int overflowWidth = iconSize + margin;   // reserved; the chevron may or may not be used
+            int reservedRight = filterSectionWidth + exportSectionWidth + overflowWidth
+                                + separatorWidth * 3 + margin;
+            int rightLimit = Math.Max(bounds.Left + margin, bounds.Right - reservedRight);
+
             int x = bounds.Left + margin;
 
             // === TITLE SECTION (optional, left-most) ===
             if (ShowGridTitle && !string.IsNullOrEmpty(GridTitle))
             {
-                // The painter populates TitleFont once per cache so this
-                // measurement reuses the same font instance the painter
-                // draws with.  The previous code allocated a new Font
-                // every paint via "using var titleFont" — the allocation
-                // was visible in the toolbar's paint profile.
-                var titleFont = TitleFont;
-                var titleSize = TextRenderer.MeasureText(GridTitle, titleFont);
-                int titleWidth = Math.Min(titleSize.Width + margin, bounds.Width / 4);
-                TitleSectionRect = new Rectangle(x, y, titleWidth, height);
-                x += titleWidth + margin;
+                // The painter populates TitleFont once per cache so this measurement reuses the
+                // same font instance the painter draws with.
+                var titleSize = TextRenderer.MeasureText(GridTitle, TitleFont);
+
+                // Take what the title needs, but never so much that the search box drops below its
+                // minimum. The painter draws with EndEllipsis, so a clamped width truncates
+                // gracefully instead of being cut mid-glyph.
+                int titleBudget = Math.Max(0, rightLimit - x - minSearchWidth - margin);
+                int titleWidth = Math.Min(titleSize.Width + margin, titleBudget);
+                if (titleWidth > 0)
+                {
+                    TitleSectionRect = new Rectangle(x, bandY, titleWidth, bandHeight);
+                    x += titleWidth + margin;
+                }
             }
 
-            // === ACTIONS SECTION (text labels for primary CRUD) ===
+            // === ACTIONS SECTION ===
+            // Collapse order under pressure: labels go first, then whole buttons move to overflow.
+            int actionsBudget = rightLimit - x - minSearchWidth - margin;
+            bool showActionLabels = actionsBudget >= (int)(LabelCollapseLogicalWidth * DpiScale);
+
             int actionsStartX = x;
-            LayoutButtonList(ActionButtons, ref x, y, iconSize, height, buttonGap, bounds.Width, margin, showLabels: true, labelFont);
+            LayoutButtonList(ActionButtons, ref x, bandY, iconSize, bandHeight, buttonGap,
+                             x + Math.Max(0, actionsBudget), showActionLabels, labelFont);
             int actionsEndX = x;
             bool hasVisibleActions = ActionButtons.Any(b => b.IsVisible && !b.IsOverflow);
             ActionsSectionRect = hasVisibleActions
-                ? new Rectangle(actionsStartX, y - (height - iconSize) / 2, actionsEndX - actionsStartX, height)
+                ? new Rectangle(actionsStartX, bandY, actionsEndX - actionsStartX, bandHeight)
                 : Rectangle.Empty;
 
-            // === SEARCH SECTION (flexible, fills remaining space) ===
-            int searchIconX = x;
-            SearchIconRect = new Rectangle(searchIconX, y, iconSize, iconSize);
-            x += iconSize + (int)(4 * DpiScale);
-
-            int filterSectionWidth = iconSize * 2 + buttonGap * 2 + margin * 2 + (int)(16 * DpiScale);
-            int exportVisibleCount = ExportButtons.Count(b => b.IsVisible && !b.IsOverflow);
-            int exportSectionWidth = exportVisibleCount * (iconSize + buttonGap) + margin;
-            int overflowWidth = HasOverflowItems ? (iconSize + margin) : 0;
-            int separatorCount = 0;
-            if (hasVisibleActions) separatorCount++;
-            if (exportVisibleCount > 0) separatorCount++;
-            if (HasOverflowItems) separatorCount++;
-            int reservedRight = filterSectionWidth + exportSectionWidth + overflowWidth + separatorWidth * separatorCount + margin;
-
-            int searchWidth = Math.Max(80, bounds.Right - x - reservedRight);
-            SearchBoxRect = new Rectangle(x, y, searchWidth, height);
+            // === SEARCH SECTION (flexible, fills what is left) ===
+            // The box is laid out first and the icon sits INSIDE it. The painter and the on-demand
+            // search editor both inset their text by SearchIconWidth, so the icon has to occupy
+            // that inset — previously it was painted to the left of the box and the inset was
+            // empty space, leaving placeholder and typed text visibly out of line with the icon.
+            int searchWidth = Math.Max(minSearchWidth, rightLimit - x - margin);
+            SearchBoxRect = new Rectangle(x, bandY, searchWidth, bandHeight);
+            SearchIconWidth = SearchIconLogicalInset;   // logical; painter/editor scale it themselves
+            SearchIconRect = new Rectangle(
+                SearchBoxRect.Left + (int)(6 * DpiScale),
+                CenterY(bandY, bandHeight, iconSize),
+                iconSize, iconSize);
             x = SearchBoxRect.Right + margin;
-            SearchSectionRect = new Rectangle(SearchIconRect.Left, y - (height - iconSize) / 2, x - SearchIconRect.Left, height);
+            SearchSectionRect = new Rectangle(SearchBoxRect.Left, bandY, x - SearchBoxRect.Left, bandHeight);
 
             // === FILTER SECTION ===
             x += separatorWidth;
             Separator1X = x - separatorWidth;
+            int filterSectionStart = x;
             if (ShowFilterButton)
             {
-                FilterButtonRect = new Rectangle(x, y, iconSize, iconSize);
+                FilterButtonRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
                 x += iconSize + buttonGap;
             }
             else
             {
                 FilterButtonRect = Rectangle.Empty;
             }
-            AdvancedButtonRect = new Rectangle(x, y, iconSize, iconSize);
+
+            AdvancedButtonRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
+            x += iconSize + buttonGap;
+            ClearFilterRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
             x += iconSize + buttonGap;
 
-            // The active-filter badge sits over the Advanced button when
-            // the standalone Filter button is hidden (the default), and
-            // over the Filter button when it is shown.  Either way the
-            // badge announces the active-filter count on whichever
-            // button the user perceives as "the filter button".
+            // The active-filter badge sits over whichever button the user perceives as "the filter
+            // button", clamped inside the band so it cannot paint outside the toolbar.
             var badgeAnchor = ShowFilterButton ? FilterButtonRect : AdvancedButtonRect;
-            BadgeRect = new Rectangle(badgeAnchor.Right - 4, y - 6, (int)(16 * DpiScale), (int)(16 * DpiScale));
-            ClearFilterRect = new Rectangle(AdvancedButtonRect.Right + buttonGap, y, iconSize, iconSize);
-            FilterSectionRect = new Rectangle(SearchSectionRect.Right, y - (height - iconSize) / 2, x - SearchSectionRect.Right, height);
+            int badgeSize = (int)(14 * DpiScale);
+            BadgeRect = ClampToBand(
+                new Rectangle(badgeAnchor.Right - badgeSize / 2, badgeAnchor.Top - badgeSize / 3, badgeSize, badgeSize),
+                bounds);
+            FilterSectionRect = new Rectangle(filterSectionStart, bandY, x - filterSectionStart, bandHeight);
 
             // === EXPORT SECTION (right) ===
             x += separatorWidth;
             Separator2X = x - separatorWidth;
 
             int exportStartX = x;
-            LayoutButtonList(ExportButtons, ref x, y, iconSize, height, buttonGap, bounds.Width, margin, showLabels: false, labelFont);
+            LayoutButtonList(ExportButtons, ref x, bandY, iconSize, bandHeight, buttonGap,
+                             bounds.Right - overflowWidth - margin, showLabels: false, labelFont);
             int exportEndX = x;
-            ExportSectionRect = exportVisibleCount > 0
-                ? new Rectangle(exportStartX, y - (height - iconSize) / 2, exportEndX - exportStartX, height)
+            ExportSectionRect = ExportButtons.Any(b => b.IsVisible && !b.IsOverflow)
+                ? new Rectangle(exportStartX, bandY, exportEndX - exportStartX, bandHeight)
                 : Rectangle.Empty;
 
             // === OVERFLOW BUTTON ===
@@ -261,30 +285,65 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             {
                 Separator3X = x;
                 x += separatorWidth;
-                OverflowButtonRect = new Rectangle(x, y, iconSize, iconSize);
+                OverflowButtonRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
             }
         }
 
-        /// <summary>
-        /// Lays out a button list left-to-right, flagging items that don't
-        /// fit as overflow.  The width budget is derived from the
-        /// available right-side real estate so the search box never gets
-        /// squeezed below 80 px.
-        /// </summary>
-        private void LayoutButtonList(List<ToolbarButtonItem> buttons, ref int x, int y,
-            int iconSize, int height, int buttonGap, int totalWidth, int margin, bool showLabels, Font labelFont)
-        {
-            int availableWidth = totalWidth - margin * 4;
+        /// <summary>Minimum search box width in logical pixels before other sections must give way.</summary>
+        private const int MinSearchLogicalWidth = 120;
 
+        /// <summary>Below this much free space (logical px) action buttons drop their text labels.</summary>
+        private const int LabelCollapseLogicalWidth = 260;
+
+        /// <summary>
+        /// Logical inset from the left of the search box to its text — the width the search icon
+        /// occupies. Kept logical because both the painter and <c>FilterEditorHelper</c> scale it
+        /// by DPI themselves; storing a scaled value here would double-scale it.
+        /// </summary>
+        private const int SearchIconLogicalInset = 24;
+
+        /// <summary>Top coordinate that vertically centres <paramref name="itemHeight"/> in the band.</summary>
+        private static int CenterY(int bandY, int bandHeight, int itemHeight)
+            => bandY + Math.Max(0, (bandHeight - itemHeight) / 2);
+
+        /// <summary>Keeps a rect inside the toolbar bounds so nothing paints outside the band.</summary>
+        private static Rectangle ClampToBand(Rectangle rect, Rectangle bounds)
+        {
+            int top = Math.Max(bounds.Top, Math.Min(rect.Top, bounds.Bottom - rect.Height));
+            int left = Math.Max(bounds.Left, Math.Min(rect.Left, bounds.Right - rect.Width));
+            return new Rectangle(left, top, rect.Width, rect.Height);
+        }
+
+        /// <summary>
+        /// Lays out a button list left-to-right, flagging anything past
+        /// <paramref name="rightLimit"/> as overflow.
+        /// </summary>
+        /// <remarks>
+        /// <paramref name="rightLimit"/> is an absolute X coordinate, not a width. The previous
+        /// version compared the running <c>x</c> against a width derived from <c>bounds.Width</c>,
+        /// which only agreed with reality when the toolbar started at x=0 — anywhere else buttons
+        /// either overflowed early or ran past the sections to their right.
+        ///
+        /// Every button gets the full band height so labelled and icon-only buttons present the
+        /// same hit target; the painter centres the icon within those bounds.
+        /// </remarks>
+        private void LayoutButtonList(List<ToolbarButtonItem> buttons, ref int x, int bandY,
+            int iconSize, int bandHeight, int buttonGap, int rightLimit, bool showLabels, Font labelFont)
+        {
             foreach (var btn in buttons)
             {
-                if (!btn.IsVisible) continue;
+                if (!btn.IsVisible)
+                {
+                    btn.IsOverflow = false;
+                    btn.Bounds = Rectangle.Empty;
+                    continue;
+                }
 
                 int btnWidth = showLabels && !string.IsNullOrEmpty(btn.Label)
                     ? MeasureLabeledButtonWidth(btn, iconSize, labelFont)
-                    : iconSize;
+                    : Math.Max(iconSize, (int)(28 * DpiScale));
 
-                if (x + btnWidth > availableWidth)
+                if (x + btnWidth > rightLimit)
                 {
                     btn.IsOverflow = true;
                     btn.Bounds = Rectangle.Empty;
@@ -292,7 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 }
 
                 btn.IsOverflow = false;
-                btn.Bounds = new Rectangle(x, y, btnWidth, height);
+                btn.Bounds = new Rectangle(x, bandY, btnWidth, bandHeight);
                 x += btnWidth + buttonGap;
             }
         }

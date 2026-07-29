@@ -21,6 +21,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
     public partial class BeepGridPro : BaseControl
     {
+        private Painters.IPaintGridHeader? _headerPainter;
+
+        /// <summary>
+        /// The header painter for the current <see cref="NavigationStyle"/>. Owns header cell
+        /// geometry (caption, sort slot, column menu) as well as the per-style look.
+        /// </summary>
+        /// <remarks>
+        /// Cached and rebuilt only when the style changes. It used to be created fresh on every
+        /// layout pass — twice per recalculate — purely to read a header height.
+        /// </remarks>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Painters.IPaintGridHeader? HeaderPainter
+        {
+            get
+            {
+                if (_headerPainter == null || _headerPainter.Style != NavigationStyle)
+                    _headerPainter = Painters.HeaderPainterFactory.CreateHeaderPainter(NavigationStyle);
+                return _headerPainter;
+            }
+        }
+
         // Data management fields
         internal Type _entityType = null;
         internal List<object> _fullData

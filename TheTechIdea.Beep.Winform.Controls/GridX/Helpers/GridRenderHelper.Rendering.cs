@@ -99,10 +99,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Draw data rows
+            // Draw data rows, or the empty state when there is nothing to draw
             try
             {
-                DrawRows(g);
+                if (_grid.Data?.Rows == null || _grid.Data.Rows.Count == 0)
+                    DrawEmptyState(g, rowsRect);
+                else
+                    DrawRows(g);
             }
             catch (Exception ex)
             {
@@ -154,6 +157,55 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 // Silently handle focus indicator errors
             }
+        }
+
+        /// <summary>
+        /// Draws the grid body when there are no rows: empty row bands with the column grid lines,
+        /// and a centred message.
+        /// </summary>
+        /// <remarks>
+        /// A grid with no data used to paint nothing but background, so a null DataSource, an empty
+        /// list, or a filter that matched nothing all looked identical to a broken control. Every
+        /// mainstream grid keeps drawing its ruling and says why it is empty; this does the same,
+        /// and it distinguishes "no columns defined" from "columns but no rows".
+        /// </remarks>
+        private void DrawEmptyState(Graphics g, Rectangle rowsRect)
+        {
+            var isDark = IsDarkTheme;
+            var lineColor = Theme?.GridLineColor ?? (isDark ? Color.FromArgb(55, 65, 81) : Color.FromArgb(229, 231, 235));
+            var textColor = Theme?.GridForeColor ?? (isDark ? Color.FromArgb(156, 163, 175) : Color.FromArgb(107, 114, 128));
+
+            bool hasColumns = _grid.Data?.Columns?.Any(c => c != null && c.Visible && !c.IsSelectionCheckBox
+                                                            && !c.IsRowNumColumn && !c.IsRowID) == true;
+
+            // Empty row bands, so the body reads as a grid rather than a blank panel.
+            int rowHeight = Math.Max(18, _grid.RowHeight);
+            using (var pen = new Pen(lineColor))
+            {
+                for (int y = rowsRect.Top + rowHeight; y < rowsRect.Bottom; y += rowHeight)
+                    g.DrawLine(pen, rowsRect.Left, y, rowsRect.Right, y);
+
+                // Column separators follow the real header geometry when columns exist.
+                if (hasColumns && _grid.Layout?.HeaderCellRects is { Length: > 0 } cells)
+                {
+                    foreach (var cell in cells)
+                    {
+                        if (cell.IsEmpty) continue;
+                        int x = cell.Right;
+                        if (x > rowsRect.Left && x < rowsRect.Right)
+                            g.DrawLine(pen, x, rowsRect.Top, x, rowsRect.Bottom);
+                    }
+                }
+            }
+
+            string message = !hasColumns
+                ? "No columns defined."
+                : _grid.IsFiltered ? "No rows match the current filter." : "No data.";
+
+            using var font = new Font(_grid.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily,
+                                      Math.Max(8f, (_grid.TextFont?.Size ?? 9f) + 1f), FontStyle.Regular);
+            TextRenderer.DrawText(g, message, font, rowsRect, textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
         /// <summary>
@@ -431,30 +483,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             bool isSystemColumn = column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID;
             bool hasSortArea = ShowSortIndicators && SortIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn && column.AllowSort;
-            bool hasFilterArea = !_grid.ShowTopFilterPanel && FilterIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn;
+            bool hasMenuArea = !_grid.ShowTopFilterPanel && FilterIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn;
 
-            int sortIconSize = hasSortArea ? Math.Min(cellRect.Height - HeaderCellPadding * 2, 14) : 0;
-            int filterIconSize = hasFilterArea ? Math.Min(cellRect.Height - HeaderCellPadding * 2, 14) : 0;
-            int rightX = cellRect.Right - HeaderCellPadding;
+            // Geometry comes from the active style painter, so Material/AGGrid/Fluent/Telerik each
+            // place the caption, indicator and menu their own way. The renderer only records where
+            // the interactive parts landed, which is what keeps input handling style-agnostic.
+            var painter = _grid.HeaderPainter;
+            var layout = painter?.CalculateHeaderCellLayout(cellRect, column, _grid, _grid.DeviceDpi / 96f);
 
-            Rectangle filterIconRect = Rectangle.Empty;
-            if (hasFilterArea && filterIconSize > 0)
+            Rectangle textRect, sortIconRect, menuButtonRect;
+            if (layout != null)
             {
-                filterIconRect = new Rectangle(rightX - filterIconSize, cellRect.Top + HeaderCellPadding, filterIconSize, filterIconSize);
-                rightX -= filterIconSize + HeaderCellPadding;
+                textRect = layout.TextRect;
+                sortIconRect = hasSortArea ? layout.SortIndicatorRect : Rectangle.Empty;
+                menuButtonRect = hasMenuArea ? layout.MenuButtonRect : Rectangle.Empty;
             }
-
-            Rectangle sortIconRect = Rectangle.Empty;
-            if (hasSortArea && sortIconSize > 0)
+            else
             {
-                sortIconRect = new Rectangle(rightX - sortIconSize, cellRect.Top + HeaderCellPadding, sortIconSize, sortIconSize);
-                rightX -= sortIconSize + HeaderCellPadding;
+                textRect = new Rectangle(cellRect.X + HeaderCellPadding, cellRect.Y,
+                    Math.Max(1, cellRect.Width - HeaderCellPadding * 2), cellRect.Height);
+                sortIconRect = menuButtonRect = Rectangle.Empty;
             }
-
-            var textRect = new Rectangle(cellRect.X + HeaderCellPadding, cellRect.Y + HeaderCellPadding,
-                Math.Max(1, rightX - cellRect.X - HeaderCellPadding),
-                Math.Max(1, cellRect.Height - HeaderCellPadding * 2)
-            );
 
             if (!string.IsNullOrEmpty(text))
             {
@@ -462,15 +511,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 TextRenderer.DrawText(g, text, font, textRect, textColor, flags);
             }
 
-            // Draw sort icon
-            bool showSortIcon = hasSortArea && !sortIconRect.IsEmpty &&
-                (SortIconVisibility == HeaderIconVisibility.Always ||
-                (SortIconVisibility == HeaderIconVisibility.HoverOnly && (isHovered || (column.IsSorted && column.ShowSortIcon))));
-
-            if (showSortIcon)
+            // Sort indicator: the slot is reserved whether or not the column is sorted (so the
+            // caption never reflows on the sort click); the glyph itself appears when sorted, or on
+            // hover as an affordance.
+            if (!sortIconRect.IsEmpty)
             {
-                var direction = (column.IsSorted && column.ShowSortIcon) ? column.SortDirection : TheTechIdea.Beep.Vis.Modules.SortDirection.None;
-                DrawSortIndicator(g, sortIconRect, direction);
+                var direction = (column.IsSorted && column.ShowSortIcon)
+                    ? column.SortDirection
+                    : TheTechIdea.Beep.Vis.Modules.SortDirection.None;
+
+                bool drawGlyph = direction != TheTechIdea.Beep.Vis.Modules.SortDirection.None
+                                 || SortIconVisibility == HeaderIconVisibility.Always
+                                 || isHovered;
+                if (drawGlyph)
+                    DrawSortIndicator(g, sortIconRect, direction);
+
+                // Registered regardless of glyph visibility: the slot stays clickable so the user
+                // does not have to hover-then-aim to sort.
                 _headerSortIconRects[columnIndex] = sortIconRect;
             }
             else
@@ -478,20 +535,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _headerSortIconRects.Remove(columnIndex);
             }
 
-            // Draw filter icon
-            bool showFilterIcon = hasFilterArea && !filterIconRect.IsEmpty &&
-                (FilterIconVisibility == HeaderIconVisibility.Always ||
-                (FilterIconVisibility == HeaderIconVisibility.HoverOnly && (isHovered || column.IsFiltered)));
+            // Column menu button (sort + filter + clear in one place).
+            bool showMenu = !menuButtonRect.IsEmpty &&
+                (FilterIconVisibility == HeaderIconVisibility.Always || isHovered || column.IsFiltered);
 
-            if (showFilterIcon)
+            if (showMenu && painter != null)
             {
-                DrawFilterIcon(g, filterIconRect, column.IsFiltered);
-                _headerFilterIconRects[columnIndex] = filterIconRect;
+                painter.PaintColumnMenuButton(g, menuButtonRect, column.IsFiltered, isHovered, Theme);
             }
+
+            if (!menuButtonRect.IsEmpty)
+                _headerFilterIconRects[columnIndex] = menuButtonRect;
             else
-            {
                 _headerFilterIconRects.Remove(columnIndex);
-            }
+
+            // The caption itself sorts — the first thing users try. Recorded per column so the
+            // input helper can route a header-text click without re-deriving geometry.
+            if (hasSortArea && layout != null && !layout.SortHitRect.IsEmpty)
+                _headerSortHitRects[columnIndex] = layout.SortHitRect;
+            else
+                _headerSortHitRects.Remove(columnIndex);
 
             // Border
             if (ShowGridLines)

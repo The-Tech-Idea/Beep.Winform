@@ -39,6 +39,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private readonly Dictionary<int, Rectangle> _headerSortIconRects = new();
         public Dictionary<int, Rectangle> HeaderSortIconRects => _headerSortIconRects;
 
+        /// <summary>
+        /// Caption areas that toggle sort when clicked, keyed by column index. Separate from
+        /// <see cref="HeaderSortIconRects"/> because the caption is a much larger target and must
+        /// not swallow clicks meant for the column menu.
+        /// </summary>
+        private readonly Dictionary<int, Rectangle> _headerSortHitRects = new();
+        public Dictionary<int, Rectangle> HeaderSortHitRects => _headerSortHitRects;
+
         // Store top filter panel cell/icon rectangles for hit-testing
         private readonly Dictionary<int, Rectangle> _topFilterCellRects = new();
         public Dictionary<int, Rectangle> TopFilterCellRects => _topFilterCellRects;

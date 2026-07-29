@@ -229,6 +229,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         private void SafeRecalculate()
         {
+            // Inside a BeginInit/EndInit batch layout is recalculated once, at EndInit
+            if (IsInitializing) return;
             if (Layout != null && !Layout.IsCalculating)
                 Layout.Recalculate();
         }
@@ -572,9 +574,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         public void RecalculateHeightsFromPainters()
         {
-            // Calculate header height from column header painter (font-aware)
-            var headerPainter = new Helpers.GridColumnHeadersPainterHelper(this);
-            ColumnHeaderHeight = headerPainter.CalculateHeaderHeight();
+            // Calculate header height from the cached column header painter (font-aware)
+            ColumnHeaderHeight = HeaderPainter?.CalculateHeaderHeight(this) ?? ColumnHeaderHeight;
 
             // Calculate row height from data font (font-aware)
             if (Font != null)

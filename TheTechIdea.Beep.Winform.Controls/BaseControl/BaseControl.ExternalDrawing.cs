@@ -71,9 +71,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         internal static DrawExternalHandler CreateCombinedExternalHandler(BaseControl owner)
         {
-            // Label is external only when floating. Helper/Error are always external when set
-            // (independent of FloatingLabelOn). DrawLabelAndHelperUniversal never paints them.
-            bool labelExternal = owner.LabelTextOn && owner.FloatingLabelOn && !string.IsNullOrEmpty(owner.LabelText);
+            // Label, Helper and Error are all external whenever they are set — the label follows
+            // the same rule as the supporting text and is not gated on FloatingLabelOn.
+            bool labelExternal = owner.LabelTextOn && !string.IsNullOrEmpty(owner.LabelText);
             bool hasHelper = owner.HelperTextOn && !string.IsNullOrEmpty(owner.HelperText);
             bool hasError = !string.IsNullOrEmpty(owner.ErrorText);
             bool showIcon = owner._validationIcon != ValidationState.None;

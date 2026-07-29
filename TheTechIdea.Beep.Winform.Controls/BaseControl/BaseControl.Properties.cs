@@ -349,9 +349,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             InvalidateOnce();
         }
         
-        public object SelectedValue 
-        { 
-            get => _selectedValue; 
+        // Runtime binding value, not a design-time setting. Without these the WinForms designer
+        // serializes "SelectedValue = null" into InitializeComponent for every Beep control on the
+        // form — noise at best, and a hard compile error on controls such as BeepListBox that
+        // shadow this property with a read-only one.
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public object SelectedValue
+        {
+            get => _selectedValue;
             set 
             { 
                 _selectedValue = value; 
@@ -755,7 +761,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         [Browsable(true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("FloatingLabel is obsolete. Use LabelText + FloatingLabelOn instead. LabelText is the content; FloatingLabelOn toggles whether the label floats above the border (external) or sits inside the control (internal).")]
+        [Obsolete("FloatingLabel is obsolete. Use LabelText + LabelTextOn instead. LabelText is drawn above the control on the parent surface (external), the same way HelperText/ErrorText are drawn below it.")]
         public string FloatingLabel
         {
             get => _labelText;

@@ -873,6 +873,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         /// <summary>Gets the underlying value of the currently selected item.</summary>
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object? SelectedValue
         {
             get

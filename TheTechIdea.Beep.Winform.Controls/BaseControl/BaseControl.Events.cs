@@ -621,8 +621,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (border.Width <= 0 || border.Height <= 0)
                 border = new Rectangle(0, 0, Width - 1, Height - 1);
 
-            // 1) Label — internal only when NOT floating (external handles floating label)
-            if (hasLabel && !FloatingLabelOn)
+            // 1) Label — external is primary (drawn above the control on the parent surface,
+            // same as Helper/Error). Internal is the fallback when no parent provider exists.
+            if (hasLabel && !parentSupportsExternal)
             {
                 float labelSize = Math.Max(8f, TextFont.Size - 1f);
                 using var lf = BeepFontManager.GetFont(TextFont.FontFamily.Name, labelSize, FontStyle.Regular);

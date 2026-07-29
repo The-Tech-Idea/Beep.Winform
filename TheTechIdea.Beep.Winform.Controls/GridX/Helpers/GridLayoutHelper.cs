@@ -492,9 +492,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Get DPI scale factor for consistent scaling
             float dpiScale = DpiScalingHelper.GetDpiScaleFactor(_grid);
             
-            // Calculate column header height from painter (font-aware and DPI-aware)
-            var headerPainter = new GridColumnHeadersPainterHelper(_grid);
-            ColumnHeaderHeight = headerPainter.CalculateHeaderHeight();
+            // Calculate column header height from the cached painter (font-aware and DPI-aware).
+            // Previously this allocated a GridColumnHeadersPainterHelper on every layout pass just
+            // to read one number.
+            ColumnHeaderHeight = _grid.HeaderPainter?.CalculateHeaderHeight(_grid) ?? ColumnHeaderHeight;
 
             // Always calculate filter panel height from painter (DPI-aware)
             // This ensures proper height even when toggling panel visibility

@@ -303,14 +303,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Sort icon click in header
+            // Sort click in header — the indicator slot first, then the caption itself.
+            //
+            // Clicking the caption to sort is what users try before hunting for an arrow, and it is
+            // what every commercial grid does. The caption rect is checked after the column-menu
+            // rect above so the menu button always wins where they meet.
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
             {
                 int colIdx = HitHeaderIcon(_grid.Render.HeaderSortIconRects, e.Location);
+                if (colIdx < 0)
+                    colIdx = HitHeaderIcon(_grid.Render.HeaderSortHitRects, e.Location);
+
                 if (colIdx >= 0)
                 {
                     _grid.Layout.HoveredHeaderColumnIndex = colIdx;
-                    _grid.ToggleColumnSort(colIdx);
+                    // Shift-click appends to the sort instead of replacing it, matching Excel/AG Grid.
+                    _grid.ToggleColumnSort(colIdx, additive: (Control.ModifierKeys & Keys.Shift) == Keys.Shift);
                     return;
                 }
             }

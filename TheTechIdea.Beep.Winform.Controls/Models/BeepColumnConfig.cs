@@ -408,6 +408,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             set { _isFiltered = value; OnPropertyChanged(nameof(IsFiltered)); }
         }
 
+        private int _sortOrder;
+        [Category("Sorting")]
+        [Description("1-based position of this column in a multi-column sort; 0 when not sorted.")]
+        [DefaultValue(0)]
+        public int SortOrder
+        {
+            get => _sortOrder;
+            set { _sortOrder = value; OnPropertyChanged(nameof(SortOrder)); }
+        }
+
         private bool _isSorted;
         [Category("Sorting")]
         [Description("Indicates whether the column is currently sorted.")]

@@ -670,40 +670,79 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         /// <summary>
-        /// Toggles the sort direction for the specified column index.
+        /// Cycles the sort for a column: ascending → descending → unsorted.
         /// </summary>
         /// <param name="columnIndex">The index of the column to sort.</param>
-        public void ToggleColumnSort(int columnIndex)
+        /// <param name="additive">
+        /// When true the column joins the existing sort (shift-click) instead of replacing it.
+        /// </param>
+        /// <remarks>
+        /// The third state matters: with only asc/desc there was no way to undo a sort from the
+        /// header, which is the behaviour users expect from Excel and every commercial grid.
+        /// </remarks>
+        public void ToggleColumnSort(int columnIndex, bool additive = false)
         {
             if (columnIndex < 0 || columnIndex >= Data.Columns.Count)
                 return;
 
             var column = Data.Columns[columnIndex];
-            if (column == null)
+            if (column == null || !column.AllowSort)
                 return;
 
-            // Toggle sort direction
-            var newDirection = column.SortDirection == SortDirection.Ascending 
-                ? SortDirection.Descending 
-                : SortDirection.Ascending;
+            // asc → desc → none
+            SortDirection newDirection;
+            if (!column.IsSorted)
+                newDirection = SortDirection.Ascending;
+            else if (column.SortDirection == SortDirection.Ascending)
+                newDirection = SortDirection.Descending;
+            else
+                newDirection = SortDirection.None;
 
-            // Clear previous sort indicators
-            foreach (var col in Data.Columns)
+            if (!additive)
             {
-                col.IsSorted = false;
-                col.ShowSortIcon = false;
+                foreach (var col in Data.Columns)
+                {
+                    if (ReferenceEquals(col, column)) continue;
+                    col.IsSorted = false;
+                    col.ShowSortIcon = false;
+                    col.SortOrder = 0;
+                }
             }
 
-            // Set new sort
+            if (newDirection == SortDirection.None)
+            {
+                column.IsSorted = false;
+                column.ShowSortIcon = false;
+                column.SortDirection = SortDirection.None;
+                column.SortOrder = 0;
+                RenumberSortOrder();
+                SortFilter.Sort(column.ColumnName, SortDirection.None);
+                SafeInvalidate();
+                return;
+            }
+
             column.IsSorted = true;
             column.ShowSortIcon = true;
             column.SortDirection = newDirection;
+            if (column.SortOrder <= 0)
+                column.SortOrder = Data.Columns.Count(c => c.IsSorted && c.SortOrder > 0) + 1;
+            RenumberSortOrder();
 
-            // Apply the sort
             SortFilter.Sort(column.ColumnName, newDirection);
-
-            // Refresh the grid
             SafeInvalidate();
+        }
+
+        /// <summary>
+        /// Compacts sort order numbers to 1..n so the badges read 1, 2, 3 after a column drops out.
+        /// </summary>
+        private void RenumberSortOrder()
+        {
+            int order = 1;
+            foreach (var col in Data.Columns.Where(c => c.IsSorted).OrderBy(c => c.SortOrder <= 0 ? int.MaxValue : c.SortOrder))
+                col.SortOrder = order++;
+
+            foreach (var col in Data.Columns.Where(c => !c.IsSorted))
+                col.SortOrder = 0;
         }
         #endregion
     }

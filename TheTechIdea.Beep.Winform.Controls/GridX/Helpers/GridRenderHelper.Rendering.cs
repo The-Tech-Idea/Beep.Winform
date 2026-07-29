@@ -365,6 +365,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// <summary>
         /// Draws sort indicator arrows
         /// </summary>
+        /// <summary>
+        /// Draws the 1-based multi-sort position next to a sort arrow.
+        /// </summary>
+        private void DrawSortOrderBadge(Graphics g, Rectangle sortRect, int order)
+        {
+            if (sortRect.Width <= 0 || sortRect.Height <= 0) return;
+
+            var color = Theme?.GridHeaderForeColor ?? (IsDarkTheme ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
+            float size = Math.Max(6f, sortRect.Height * 0.45f);
+
+            using var font = new Font(GetSafeHeaderFont().FontFamily, size, FontStyle.Bold, GraphicsUnit.Pixel);
+            var badgeRect = new Rectangle(sortRect.Right - 2, sortRect.Top, sortRect.Width, sortRect.Height);
+            TextRenderer.DrawText(g, order.ToString(), font, badgeRect, color,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+        }
+
         private void DrawSortIndicator(Graphics g, Rectangle rect, TheTechIdea.Beep.Vis.Modules.SortDirection sortDirection)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
@@ -524,7 +540,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                  || SortIconVisibility == HeaderIconVisibility.Always
                                  || isHovered;
                 if (drawGlyph)
+                {
                     DrawSortIndicator(g, sortIconRect, direction);
+
+                    // Multi-sort: show this column's position so a two-column sort reads 1 and 2
+                    // rather than two identical arrows.
+                    int sortedCount = _grid.Data.Columns.Count(c => c.IsSorted);
+                    if (column.IsSorted && column.SortOrder > 0 && sortedCount > 1)
+                        DrawSortOrderBadge(g, sortIconRect, column.SortOrder);
+                }
 
                 // Registered regardless of glyph visibility: the slot stays clickable so the user
                 // does not have to hover-then-aim to sort.

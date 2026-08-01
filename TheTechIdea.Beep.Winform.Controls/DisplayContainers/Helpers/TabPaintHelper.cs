@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // close button cannot disagree about who owns which pixels.
                 int badgeTextWidth = MeasureBadgeTextWidth(badgeText, font);
                 var slots = TabHeaderMetrics.GetSlotLayout(
-                    bounds, hasIcon, showCloseButton, badgeTextWidth, isModified, OwnerControl);
+                    bounds, hasIcon, showCloseButton, badgeTextWidth, isModified, OwnerControl, isPinned);
 
                 if (hasIcon)
                 {
@@ -265,7 +265,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // ── Close button (fade-in with animation) ────────────────────
                 int closeW = TabHeaderMetrics.CloseButtonSlotWidth(OwnerControl);
                 int closeSize = TabHeaderMetrics.CloseButtonSize(OwnerControl);
-                if (showCloseButton && bounds.Width > closeW + 10 && bounds.Height > closeSize + 4)
+                if (showCloseButton && !slots.CloseGlyphRect.IsEmpty
+                    && bounds.Width > closeW + 10 && bounds.Height > closeSize + 4)
                 {
                     // Phase 6: Fade-in close button with animation progress
                     // Active tabs always show the close button; hovered tabs fade it in.
@@ -343,17 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// correct if it is measured exactly as it is drawn.
         /// </remarks>
         private int MeasureBadgeTextWidth(string badgeText, Font baseFont)
-        {
-            if (string.IsNullOrEmpty(badgeText)) return 0;
-
-            var badgeFont = BeepThemesManager.ToFont(_theme?.LabelSmall)
-                ?? BeepThemesManager.ToFont(_theme?.BodySmall)
-                ?? baseFont;
-
-            return TextRenderer.MeasureText(badgeText, badgeFont,
-                new Size(int.MaxValue, int.MaxValue),
-                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
-        }
+            => TabHeaderMetrics.MeasureBadgeTextWidth(badgeText, _theme, baseFont);
 
         private void DrawBadge(Graphics g, Rectangle badgeRect, string badgeText, Color badgeColor, Font baseFont)
         {
@@ -365,9 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 bg = _theme?.ActiveBorderColor ?? Color.FromArgb(220, 60, 60);
 
             // DC-01/DC-02: Use BeepThemesManager.ToFont — fonts are theme-managed, never dispose
-            var badgeFont = BeepThemesManager.ToFont(_theme?.LabelSmall)
-                ?? BeepThemesManager.ToFont(_theme?.BodySmall)
-                ?? baseFont;
+            var badgeFont = TabHeaderMetrics.ResolveBadgeFont(_theme, baseFont);
 
             if (badgeRect.Width <= 0 || badgeRect.Height <= 0) return;
 

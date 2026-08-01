@@ -19,6 +19,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         private Font _font = SystemFonts.MessageBoxFont;
 
         public Control OwnerControl { get; set; }
+
+        /// <summary>
+        /// Needed only to resolve the badge font, which decides how much width a badge claims.
+        /// Layout must measure it with the same font the painter draws it with.
+        /// </summary>
+        public TheTechIdea.Beep.Vis.Modules.IBeepTheme Theme { get; set; }
         public Font TextFont { get => _font; set => _font = value ?? SystemFonts.MessageBoxFont; }
         
         public struct TabLayoutResult
@@ -134,31 +140,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             if (tab.IsPinned)
                 return TabHeaderMetrics.PinnedTabWidth(OwnerControl) + chromeWidth;
             
-            // Measure text width using TextRenderer (safe and accurate)
-            int textWidth = 0;
-            try
-            {
-                var measureFont = _font;
-                var textSize = TextRenderer.MeasureText(tab.Title, measureFont, 
-                    new Size(int.MaxValue, int.MaxValue), 
-                    TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
-                textWidth = textSize.Width;
-            }
-            catch
-            {
-                // Fallback: estimate based on character count (scaled)
-                textWidth = tab.Title.Length * DpiScalingHelper.ScaleValue(7, OwnerControl);
-            }
-            
-            // Add space for close button (if enabled) and internal padding
+            // Measured with the flags the painter draws with. The previous version wrapped this in
+            // a bare catch that substituted title.Length * 7px -- a fabricated width that is wrong
+            // for any non-monospace font, applied silently to every tab.
+            int textWidth = TextRenderer.MeasureText(tab.Title, _font,
+                new Size(int.MaxValue, int.MaxValue),
+                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
+
             int closeButtonWidth = tab.CanClose ? TabHeaderMetrics.CloseButtonSlotWidth(OwnerControl) : 0;
             int internalPadding = TabHeaderMetrics.TextContentPadding(OwnerControl);
-
-            // Add icon slot width when an icon path is specified
             int iconWidth = !string.IsNullOrEmpty(tab.IconPath) ? TabHeaderMetrics.IconSlotWidth(OwnerControl) : 0;
-            
-            // Total content width = icon + text + close button + internal padding
-            int contentWidth = iconWidth + textWidth + closeButtonWidth + internalPadding;
+
+            // The badge and the modified dot are drawn, so they must be paid for here. They were
+            // not, which is why a badged tab was drawn wider than it was measured and overlapped
+            // whatever sat to its left.
+            int badgeWidth = TabHeaderMetrics.BadgeSlotWidth(
+                TabHeaderMetrics.MeasureBadgeTextWidth(tab.BadgeText, Theme, _font), OwnerControl);
+            int modifiedWidth = tab.IsModified ? TabHeaderMetrics.ModifiedDotSlotWidth(OwnerControl) : 0;
+
+            int contentWidth = iconWidth + textWidth + closeButtonWidth
+                               + badgeWidth + modifiedWidth + internalPadding;
             
             // Add chrome width (border + padding + shadow)
             return contentWidth + chromeWidth;

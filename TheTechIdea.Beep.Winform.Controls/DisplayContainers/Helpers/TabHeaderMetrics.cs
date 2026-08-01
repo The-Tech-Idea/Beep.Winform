@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 {
@@ -83,6 +84,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// <summary>Width of a pinned (icon-only) tab.</summary>
         public static int PinnedTabWidth(Control ownerControl) => DpiScalingHelper.ScaleValue(38, ownerControl);
 
+        /// <summary>
+        /// The font a badge is drawn with. Resolved in one place because the tab's width depends on
+        /// it: measuring the badge with a different font than it is painted with reserves the wrong
+        /// amount of space, which is how the badge came to overlap its neighbours.
+        /// </summary>
+        public static Font ResolveBadgeFont(IBeepTheme theme, Font fallback)
+            => BeepThemesManager.ToFont(theme?.LabelSmall)
+               ?? BeepThemesManager.ToFont(theme?.BodySmall)
+               ?? fallback;
+
+        /// <summary>Width of a badge caption, measured exactly as the badge is drawn.</summary>
+        public static int MeasureBadgeTextWidth(string badgeText, IBeepTheme theme, Font fallback)
+        {
+            if (string.IsNullOrEmpty(badgeText)) return 0;
+
+            return TextRenderer.MeasureText(badgeText, ResolveBadgeFont(theme, fallback),
+                new Size(int.MaxValue, int.MaxValue),
+                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
+        }
+
+        /// <summary>Total width a badge occupies inside a tab, including its leading gap.</summary>
+        public static int BadgeSlotWidth(int badgeTextWidth, Control ownerControl)
+        {
+            if (badgeTextWidth <= 0) return 0;
+            int w = Math.Max(BadgeMinWidth(ownerControl), badgeTextWidth + BadgeHPadding(ownerControl) * 2);
+            return w + DpiScalingHelper.ScaleValue(4, ownerControl);
+        }
+
         /// <summary>Smallest comfortable pointer target, per WCAG 2.5.5 / platform guidance.</summary>
         public static int MinTouchTarget(Control ownerControl) => DpiScalingHelper.ScaleValue(24, ownerControl);
 
@@ -107,12 +136,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// it needs, and the caption receives exactly what is left.
         /// </remarks>
         public static TabSlotLayout GetSlotLayout(Rectangle bounds, bool hasIcon, bool showCloseButton,
-            int badgeTextWidth, bool isModified, Control ownerControl)
+            int badgeTextWidth, bool isModified, Control ownerControl, bool isPinned = false)
         {
             int hPad = HorizontalPadding(ownerControl);
             int vPad = VerticalPadding(ownerControl);
 
             var layout = new TabSlotLayout();
+
+            // A pinned tab is icon-only, and that contract is enforced here so no draw site has to
+            // remember it. Its width comes from PinnedTabWidth, which has room for nothing else.
+            if (isPinned)
+            {
+                int pinIcon = IconSize(ownerControl);
+                layout.IconRect = new Rectangle(
+                    bounds.X + (bounds.Width - pinIcon) / 2,
+                    bounds.Y + (bounds.Height - pinIcon) / 2,
+                    pinIcon, pinIcon);
+                return layout;
+            }
 
             // Left edge: the icon, vertically centred.
             int leftX = bounds.X + hPad;

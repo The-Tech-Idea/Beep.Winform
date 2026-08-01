@@ -20,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             if (_paintHelper != null)
             {
                 _paintHelper.Theme = _currentTheme;
+                if (_layoutHelper != null) _layoutHelper.Theme = _currentTheme;
                 _paintHelper.ControlStyle = ControlStyle;
             }
 

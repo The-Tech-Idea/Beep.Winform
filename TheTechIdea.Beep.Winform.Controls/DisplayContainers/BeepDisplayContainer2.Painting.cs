@@ -294,6 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _paintHelper.IsTransparent           = IsTransparentBackground;
             _paintHelper.TabStyle                = TabStyle;
             _paintHelper.Theme                   = _currentTheme;
+            if (_layoutHelper != null) _layoutHelper.Theme = _currentTheme;
             _paintHelper.OwnerControl            = this;
             _paintHelper.ShowFocusRing            = _keyboardFocusActive;
             // Keep tab corner radius in sync with the container's overall shape.

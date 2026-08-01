@@ -446,6 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             else
             {
                 _paintHelper.Theme         = _currentTheme;
+                if (_layoutHelper != null) _layoutHelper.Theme = _currentTheme;
                 _paintHelper.ControlStyle  = controlStyle;
                 _paintHelper.IsTransparent = IsTransparentBackground;
             }

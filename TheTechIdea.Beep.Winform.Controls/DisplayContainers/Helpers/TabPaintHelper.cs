@@ -233,32 +233,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 }
 
                 // ── Icon ──────────────────────────────────────────────────────
+                // Every slot is computed once, together, so the caption, badge, modified dot and
+                // close button cannot disagree about who owns which pixels.
+                int badgeTextWidth = MeasureBadgeTextWidth(badgeText, font);
+                var slots = TabHeaderMetrics.GetSlotLayout(
+                    bounds, hasIcon, showCloseButton, badgeTextWidth, isModified, OwnerControl);
+
                 if (hasIcon)
                 {
-                    DrawTabIcon(g, bounds, iconPath, colors.TextColor);
+                    DrawTabIcon(g, slots.IconRect, iconPath, colors.TextColor);
                 }
 
                 // ── Title text ────────────────────────────────────────────────
                 // Pinned tabs are icon-only — skip the title.
                 if (!isPinned)
                 {
-                    var textBounds = TabHeaderMetrics.GetTextBounds(bounds, showCloseButton, hasIcon, OwnerControl);
-                    if (textBounds.Width > 10 && textBounds.Height > 10)
+                    if (slots.TextRect.Width > 10 && slots.TextRect.Height > 10)
                     {
-                        DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
+                        DrawTabText(g, slots.TextRect, title, font, colors.TextColor, isActive);
+                    }
 
-                        // DC-14: Modified/unsaved indicator dot (VS Code-style)
-                        if (isModified)
-                        {
-                            int dotSize = Math.Max(3, DpiScalingHelper.ScaleValue(4, OwnerControl));
-                            var dotRect = new Rectangle(
-                                textBounds.Right + DpiScalingHelper.ScaleValue(2, OwnerControl),
-                                textBounds.Y + (textBounds.Height - dotSize) / 2,
-                                dotSize, dotSize);
-                            var dotColor = IndicatorColor();
-                            using (var dotBrush = new SolidBrush(dotColor))
-                                g.FillEllipse(dotBrush, dotRect);
-                        }
+                    // DC-14: Modified/unsaved indicator dot (VS Code-style). Its slot was reserved
+                    // during layout, so it no longer lands on top of the badge or the close button.
+                    if (isModified && !slots.ModifiedDotRect.IsEmpty)
+                    {
+                        using (var dotBrush = new SolidBrush(IndicatorColor()))
+                            g.FillEllipse(dotBrush, slots.ModifiedDotRect);
                     }
                 }
                 
@@ -272,16 +272,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     float closeAlpha = isActive ? 1f : animationProgress;
                     if (closeAlpha > 0.05f)
                     {
-                        var closeRect = TabHeaderMetrics.GetCloseButtonBounds(bounds, OwnerControl);
                         Color closeTint = Color.FromArgb((int)(closeAlpha * 160), colors.TextColor);
-                        DrawCloseButton(g, closeRect, isCloseHovered, closeTint);
+                        DrawCloseButton(g, slots.CloseGlyphRect, isCloseHovered, closeTint);
                     }
                 }
 
                 // ── Badge pill ────────────────────────────────────────────────
-                if (!string.IsNullOrEmpty(badgeText))
+                if (!string.IsNullOrEmpty(badgeText) && !slots.BadgeRect.IsEmpty)
                 {
-                    DrawBadge(g, bounds, badgeText, badgeColor, font);
+                    DrawBadge(g, slots.BadgeRect, badgeText, badgeColor, font);
                 }
 
                 // If style is underline or minimal and active, draw underline accent
@@ -321,9 +320,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         }
 
         // ── Icon rendering via StyledImagePainter ─────────────────────────────
-        private void DrawTabIcon(Graphics g, Rectangle tabBounds, string iconPath, Color tintColor)
+        private void DrawTabIcon(Graphics g, Rectangle iconRect, string iconPath, Color tintColor)
         {
-            var iconRect = TabHeaderMetrics.GetIconBounds(tabBounds, OwnerControl);
             if (iconRect.Width <= 0 || iconRect.Height <= 0) return;
 
             try
@@ -337,7 +335,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         }
 
         // ── Notification badge pill ───────────────────────────────────────────
-        private void DrawBadge(Graphics g, Rectangle tabBounds, string badgeText, Color badgeColor, Font baseFont)
+        /// <summary>
+        /// Width of the badge caption, measured with the font and flags the badge is drawn with.
+        /// </summary>
+        /// <remarks>
+        /// Layout needs this before it can reserve the badge's slot, and the reservation is only
+        /// correct if it is measured exactly as it is drawn.
+        /// </remarks>
+        private int MeasureBadgeTextWidth(string badgeText, Font baseFont)
+        {
+            if (string.IsNullOrEmpty(badgeText)) return 0;
+
+            var badgeFont = BeepThemesManager.ToFont(_theme?.LabelSmall)
+                ?? BeepThemesManager.ToFont(_theme?.BodySmall)
+                ?? baseFont;
+
+            return TextRenderer.MeasureText(badgeText, badgeFont,
+                new Size(int.MaxValue, int.MaxValue),
+                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
+        }
+
+        private void DrawBadge(Graphics g, Rectangle badgeRect, string badgeText, Color badgeColor, Font baseFont)
         {
             if (string.IsNullOrEmpty(badgeText)) return;
 
@@ -351,11 +369,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 ?? BeepThemesManager.ToFont(_theme?.BodySmall)
                 ?? baseFont;
 
-            int textWidth = TextRenderer.MeasureText(badgeText, badgeFont,
-                new Size(int.MaxValue, int.MaxValue),
-                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
-
-            var badgeRect = TabHeaderMetrics.GetBadgeBounds(tabBounds, textWidth, OwnerControl);
             if (badgeRect.Width <= 0 || badgeRect.Height <= 0) return;
 
             int radius = badgeRect.Height / 2;

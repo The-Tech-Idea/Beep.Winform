@@ -374,9 +374,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             return tabs?.FirstOrDefault(tab => tab.IsVisible && tab.Bounds.Contains(point));
         }
 
+        /// <summary>
+        /// The area the close affordance responds to - the reserved slot, not the glyph.
+        /// </summary>
+        /// <remarks>
+        /// The close slot is consumed first when walking in from the tab's right edge, so it does
+        /// not depend on whether the tab carries an icon, a badge or a modified marker.
+        /// </remarks>
         public Rectangle GetCloseButtonRect(Rectangle tabBounds)
         {
-            return TabHeaderMetrics.GetCloseButtonBounds(tabBounds, OwnerControl);
+            return TabHeaderMetrics.GetSlotLayout(
+                tabBounds, hasIcon: false, showCloseButton: true,
+                badgeTextWidth: 0, isModified: false, OwnerControl).CloseHitRect;
         }
     }
 }

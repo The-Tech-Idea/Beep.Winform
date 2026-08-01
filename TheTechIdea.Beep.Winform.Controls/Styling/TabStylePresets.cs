@@ -69,28 +69,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
 
         /// <summary>
-        /// Apply presets to BeepDisplayContainer (wraps internal BeepTabs)
-        /// </summary>
-        public static void ApplyPreset(BeepDisplayContainer container, TheTechIdea.Beep.Winform.Controls.TabStyle style)
-        {
-            if (container == null) return;
-            container.TabStyle = style;
-            if (container.ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && container.Controls != null)
-            {
-                if (container.Controls.Count > 0)
-                {
-                    foreach (Control c in container.Controls)
-                    {
-                        if (c is TheTechIdea.Beep.Winform.Controls.BeepTabs tabs)
-                        {
-                            ApplyPreset(tabs, style);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Apply presets for BeepDisplayContainer2 (native painting)
         /// </summary>
         public static void ApplyPreset(TheTechIdea.Beep.Winform.Controls.DisplayContainers.BeepDisplayContainer2 container, TheTechIdea.Beep.Winform.Controls.TabStyle style)

@@ -4,6 +4,7 @@ using System.ComponentModel;
 
 
 using TheTechIdea.Beep.Winform.Controls.AppBars;
+using TheTechIdea.Beep.Winform.Controls.DisplayContainers;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -23,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private BeepiFormPro _beepiForm;     // strongly-typed reference (if host inherits BeepiForm)
         private BeepSideMenu _beepSideMenu;
         private BeepWebHeaderAppBar _beepAppBar;
-        private BeepDisplayContainer _displayContainer;
+        private BeepDisplayContainer2 _displayContainer;
         private BeepMenuBar _beepMenuBar;
       
 
@@ -170,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             {
                 if (_beepSideMenu == null && c is BeepSideMenu sm) _beepSideMenu = sm;
                 else if (_beepAppBar == null && c is BeepWebHeaderAppBar ab) _beepAppBar = ab;
-                else if (_displayContainer == null && c is BeepDisplayContainer dc) _displayContainer = dc;
+                else if (_displayContainer == null && c is BeepDisplayContainer2 dc) _displayContainer = dc;
                 else if (_beepMenuBar == null && c is BeepMenuBar mb) _beepMenuBar = mb;
              
             }
@@ -219,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             if (_beepSideMenu == null && e.Control is BeepSideMenu sm) { _beepSideMenu = sm; _beepSideMenu.Title = Title; _beepSideMenu.LogoImage = LogoImage; WireSideMenuCollapse(); }
             if (_beepAppBar == null && e.Control is BeepWebHeaderAppBar ab) { _beepAppBar = ab; _beepAppBar.Text = Title; _beepAppBar.LogoImagePath = LogoImage; }
-            if (_displayContainer == null && e.Control is BeepDisplayContainer dc) _displayContainer = dc;
+            if (_displayContainer == null && e.Control is BeepDisplayContainer2 dc) _displayContainer = dc;
             if (_beepMenuBar == null && e.Control is BeepMenuBar mb) _beepMenuBar = mb;
           
         }
@@ -462,7 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         }
 
         [Browsable(true), Category("Components")]
-        public BeepDisplayContainer DisplayContainer
+        public BeepDisplayContainer2 DisplayContainer
         {
             get => _displayContainer;
             set

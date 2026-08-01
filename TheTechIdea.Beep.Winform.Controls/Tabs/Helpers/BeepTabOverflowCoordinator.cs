@@ -67,29 +67,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
             int availableRunExtent = GetAvailableRunExtent(owner, plannedActions);
             float[] desiredSizes = owner.GetDesiredHeaderTabSizes(graphics);
 
-            List<int> visibleIndices = new List<int>(desiredSizes.Length);
-            int visibleItemCount = 0;
-            float usedExtent = 0f;
+            // Claim space in priority order — pinned first, then the selected tab, then the rest in
+            // positional order — but render in positional order.
+            //
+            // This used to be a single left-to-right loop that stopped at the first tab that did not
+            // fit. With ten tabs in a narrow header and the tenth selected, the selected tab was
+            // pushed into overflow: the user clicked a tab and it vanished from the strip. Pinning a
+            // tab did nothing to protect it either, which is most of what pinning is for. Every
+            // reference product (VS, VS Code, Chrome, DevExpress, Telerik) guarantees both.
+            int selectedIndex = owner.GetHostedSourceSelectedIndex();
+
+            List<int> priority = new List<int>(desiredSizes.Length);
             for (int index = 0; index < desiredSizes.Length; index++)
+                if (IsPinned(owner, index)) priority.Add(index);
+
+            if (selectedIndex >= 0 && selectedIndex < desiredSizes.Length && !priority.Contains(selectedIndex))
+                priority.Add(selectedIndex);
+
+            for (int index = 0; index < desiredSizes.Length; index++)
+                if (!priority.Contains(index)) priority.Add(index);
+
+            HashSet<int> claimed = new HashSet<int>();
+            float usedExtent = 0f;
+            foreach (int index in priority)
             {
                 float desiredSize = desiredSizes[index];
                 if (usedExtent + desiredSize > availableRunExtent)
                 {
-                    break;
+                    // Keep scanning: a narrower tab later in priority order may still fit, and
+                    // dropping out here is what made a wide tab hide everything after it.
+                    continue;
                 }
 
                 usedExtent += desiredSize;
-                visibleItemCount++;
-                visibleIndices.Add(index);
+                claimed.Add(index);
             }
 
-            List<int> overflowIndices = new List<int>(Math.Max(0, itemCount - visibleItemCount));
-            for (int index = visibleItemCount; index < itemCount; index++)
+            List<int> visibleIndices = new List<int>(claimed.Count);
+            List<int> overflowIndices = new List<int>(Math.Max(0, itemCount - claimed.Count));
+            for (int index = 0; index < itemCount; index++)
             {
-                overflowIndices.Add(index);
+                if (claimed.Contains(index)) visibleIndices.Add(index);
+                else overflowIndices.Add(index);
             }
 
-            int overflowItemCount = Math.Max(0, itemCount - visibleItemCount);
+            int visibleItemCount = visibleIndices.Count;
+            int overflowItemCount = overflowIndices.Count;
             return new BeepTabOverflowState
             {
                 Policy = policy,
@@ -101,6 +124,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 VisibleIndices = visibleIndices,
                 OverflowIndices = overflowIndices
             };
+        }
+
+        /// <summary>
+        /// A pinned tab is exempt from overflow. Read from the page, which owns the document state.
+        /// </summary>
+        private static bool IsPinned(BeepTabs owner, int index)
+        {
+            return owner.GetHostedSourcePageAt(index)?.TabIsPinned == true;
         }
 
         private static int GetAvailableRunExtent(BeepTabs owner, IReadOnlyList<BeepTabHeaderAction> plannedActions)

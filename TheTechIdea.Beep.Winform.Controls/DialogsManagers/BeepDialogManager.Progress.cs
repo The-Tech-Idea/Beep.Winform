@@ -122,7 +122,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             using var progress = ShowProgress(title, message, cancellable);
             try
             {
-                return await operation(progress);
+                T result = await operation(progress);
+
+                // Complete() on the success path, matching the non-generic overload. This one
+                // returned the result without it, so the two overloads ended a successful run in
+                // different states — and anything Complete() does beyond the visual (stopping the
+                // indeterminate animation, settling the bar at 100%) was skipped for every caller
+                // that happened to need a return value.
+                progress.Complete();
+                return result;
             }
             catch (OperationCanceledException)
             {

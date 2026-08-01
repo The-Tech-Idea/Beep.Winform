@@ -19,6 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         private readonly DateTime _createdAt;
         private CustomToolTip _tooltip;
         private CancellationTokenSource _cancellationTokenSource;
+        private Helpers.ToolTipAutoUpdate _autoUpdate;
+        private Helpers.ToolTipEscapeFilter _escapeFilter;
         private bool _disposed;
 
         #endregion
@@ -75,13 +77,45 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 // Display tooltip with cancellation support
                 await _tooltip.ShowAsync(_config.Position, _cancellationTokenSource.Token);
 
-                // Schedule auto-hide if duration is set
+                // Resolve preview content. Fire-and-forget on purpose: the tooltip is already
+                // visible showing its skeleton, and awaiting here would delay the show by however
+                // long the caller's delegate takes.
+                _ = ResolvePreviewAsync();
+
+                // Escape must dismiss while focus is still on the trigger (WCAG 1.4.13
+                // "dismissible"). The tooltip's own ProcessCmdKey only fires when the tooltip has
+                // focus, which a hover-triggered tooltip never does.
+                if (_config.KeyboardTriggerable)
+                {
+                    _escapeFilter = Helpers.ToolTipEscapeFilter.Install(() =>
+                    {
+                        if (!_disposed) _ = HideAsync();
+                    });
+                }
+
+                // Follow the anchor for as long as we are visible. Without this the tooltip is
+                // positioned once and then stays put while its anchor scrolls or the window moves.
+                if (_config.AutoUpdate && _config.AnchorControl != null && !_config.AnchorControl.IsDisposed)
+                {
+                    _autoUpdate = new Helpers.ToolTipAutoUpdate(
+                        _config.AnchorControl,
+                        rect =>
+                        {
+                            if (_disposed || _tooltip == null || _tooltip.IsDisposed) return;
+                            _config.AnchorRect = rect;
+                            _tooltip.UpdatePosition(rect);
+                        },
+                        () => { if (!_disposed) _ = HideAsync(); });
+                }
+
+                // Schedule auto-hide if duration is set. A pinned tooltip is exempt: pinning means
+                // "keep this until I dismiss it", so a timer closing it would defeat the feature.
                 if (_config.Duration > 0 && !_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     _ = Task.Delay(_config.Duration, _cancellationTokenSource.Token)
                         .ContinueWith(t =>
                         {
-                            if (!t.IsCanceled && !_disposed)
+                            if (!t.IsCanceled && !_disposed && !_config.IsPinned)
                             {
                                 _ = HideAsync();
                             }
@@ -103,6 +137,89 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 // Cleanup on error
                 CleanupTooltip();
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Resolves the preview image exactly once — from <see cref="ToolTipConfig.LoadPreviewAsync"/>
+        /// if supplied, otherwise by loading <see cref="ToolTipConfig.PreviewImagePath"/> off the UI
+        /// thread — then re-measures and repositions the tooltip around it.
+        /// <para>
+        /// <c>LoadPreviewAsync</c> was declared, documented as showing "a skeleton placeholder until
+        /// the task completes", and invoked by nothing.
+        /// </para>
+        /// </summary>
+        private async Task ResolvePreviewAsync()
+        {
+            if (_config.ResolvedPreviewImage != null) return;
+
+            Image image = null;
+            try
+            {
+                if (_config.LoadPreviewAsync != null)
+                {
+                    image = await _config.LoadPreviewAsync().ConfigureAwait(true);
+                }
+                else if (!string.IsNullOrEmpty(_config.PreviewImagePath))
+                {
+                    string path = _config.PreviewImagePath;
+                    image = await Task.Run(() =>
+                    {
+                        try { return File.Exists(path) ? Image.FromFile(path) : null; }
+                        catch { return null; }
+                    }).ConfigureAwait(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Preview load failed: {ex.Message}");
+                return;
+            }
+
+            if (image == null) return;
+
+            // The tooltip may have been hidden while the delegate was running. Dropping the image
+            // on the floor here would leak it, and touching a disposed window would throw.
+            if (_disposed || _tooltip == null || _tooltip.IsDisposed)
+            {
+                image.Dispose();
+                return;
+            }
+
+            _config.ResolvedPreviewImage = image;
+
+            try
+            {
+                if (_tooltip.InvokeRequired)
+                    _tooltip.BeginInvoke(new Action(() => _tooltip.RefreshContentSize()));
+                else
+                    _tooltip.RefreshContentSize();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Hidden between the check above and the invoke — nothing to update.
+            }
+        }
+
+        /// <summary>
+        /// True when the pointer is currently over the tooltip window itself.
+        /// <para>
+        /// This is what makes a tooltip "hoverable" per WCAG 1.4.13: the manager checks it before
+        /// completing a pending hide, so a user can move onto the tooltip to read it, scroll it, or
+        /// click a link inside it.
+        /// </para>
+        /// </summary>
+        internal bool IsPointerOver()
+        {
+            try
+            {
+                var tip = _tooltip;
+                if (_disposed || tip == null || tip.IsDisposed || !tip.Visible) return false;
+                return tip.Bounds.Contains(Cursor.Position);
+            }
+            catch (ObjectDisposedException)
+            {
+                return false;
             }
         }
 
@@ -286,6 +403,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         private void CleanupTooltip()
         {
+            // Unsubscribe from the anchor first. These handlers are attached to controls that
+            // outlive the tooltip, so leaving them attached would keep the anchor's whole parent
+            // chain wired to a dead tooltip.
+            try { _autoUpdate?.Dispose(); } catch { }
+            _autoUpdate = null;
+
+            // Message filters are process-wide; leaving one installed outlives the tooltip and
+            // keeps its closure alive.
+            try { _escapeFilter?.Dispose(); } catch { }
+            _escapeFilter = null;
+
+            // We resolved this image, so we own it.
+            try { _config.ResolvedPreviewImage?.Dispose(); } catch { }
+            _config.ResolvedPreviewImage = null;
+
             if (_tooltip != null)
             {
                 try

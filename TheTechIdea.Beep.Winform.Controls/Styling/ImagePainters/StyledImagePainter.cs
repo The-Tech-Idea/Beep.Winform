@@ -792,6 +792,76 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             }
         }
 
+        /// <summary>
+        /// Paints an SVG icon recoloured to <paramref name="color"/>.
+        /// <para>
+        /// Use this instead of <see cref="PaintWithTint(Graphics, Rectangle, string, Color, float, int)"/>
+        /// for monochrome UI glyphs. PaintWithTint applies a <b>multiplying</b> ColorMatrix, which
+        /// can only ever darken: a near-black source icon stays near-black whatever tint you pass
+        /// (asking for cyan on a black glyph just zeroes the red channel). This replaces the
+        /// artwork's fill outright via <c>ImagePainter.ApplyColorToAllElements</c>, so an icon
+        /// follows the theme on dark surfaces as well as light ones.
+        /// </para>
+        /// <para>
+        /// The rendered result is cached per path + colour + opacity + size, so a theme change
+        /// yields a new cache key rather than requiring invalidation, and repeat paints are a blit.
+        /// </para>
+        /// </summary>
+        public static void PaintSvgRecolored(Graphics g, Rectangle bounds, string imagePath, Color color, float opacity = 1f)
+        {
+            if (g == null || string.IsNullOrEmpty(imagePath) || bounds.Width <= 0 || bounds.Height <= 0)
+                return;
+
+            string key = GetRecolorCacheKey(imagePath, color, opacity, bounds.Size);
+            if (_tintedCache.TryGetValue(key, out var cached) && cached != null)
+            {
+                g.DrawImage(cached, bounds);
+                return;
+            }
+
+            var painter = GetOrCreatePainter(imagePath);
+            if (painter == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                return;
+            }
+
+            var previousOpacity = painter.Opacity;
+            try
+            {
+                // Recolour the shared painter, then render to an off-screen bitmap at the exact
+                // size we need. Caching the bitmap means the next paint never touches the SVG
+                // document again -- important because the painters are shared and recolouring
+                // mutates them.
+                painter.ApplyColorToAllElements(color);
+                painter.Opacity = opacity;
+
+                var bmp = new Bitmap(bounds.Width, bounds.Height);
+                using (var ig = Graphics.FromImage(bmp))
+                {
+                    ig.Clear(Color.Transparent);
+                    ig.SmoothingMode = SmoothingMode.AntiAlias;
+                    ig.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    ig.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    painter.DrawImage(ig, new Rectangle(0, 0, bounds.Width, bounds.Height));
+                }
+
+                _tintedCache[key] = bmp;
+                g.DrawImage(bmp, bounds);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Recolor failed for '{imagePath}': {ex.Message}");
+            }
+            finally
+            {
+                painter.Opacity = previousOpacity;
+            }
+        }
+
+        private static string GetRecolorCacheKey(string path, Color color, float opacity, Size size)
+            => $"recolor|{NormalizeImagePath(path)}|{color.ToArgb()}|{opacity}|{size.Width}x{size.Height}";
+
         public static void PreRenderTintedToCache(string imagePath, Color tint, float opacity, Size size)
         {
             if (string.IsNullOrEmpty(imagePath) || size.Width <= 0 || size.Height <= 0) return;

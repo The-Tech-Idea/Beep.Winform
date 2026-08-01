@@ -1303,7 +1303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             {
                 string help = _keyboardHandler.GetShortcutsHelp();
                 var dialogManager = CreateDialogManager();
-                dialogManager.ShowInfo("BeepFilter Keyboard Shortcuts", help);
+                dialogManager.Info("BeepFilter Keyboard Shortcuts", help);
             }
         }
 

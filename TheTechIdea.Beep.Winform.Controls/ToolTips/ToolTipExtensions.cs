@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 Title = title,
                 Type = type,
                 ShowArrow = true,
-                EnableShadow = true
+                ShowShadow = true
             };
             ToolTipManager.Instance.SetTooltip(control, text, config);
         }
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 Placement = ToolTipPlacement.Top,
                 Animation = ToolTipAnimation.Slide,
                 ShowArrow = true,
-                EnableShadow = true
+                ShowShadow = true
             };
             return await ToolTipManager.Instance.ShowTooltipAsync(config);
         }
@@ -204,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         public ToolTipBuilder WithShadow(bool enableShadow = true)
         {
-            _config.EnableShadow = enableShadow;
+            _config.ShowShadow = enableShadow;
             return this;
         }
 

@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             var font = TextFont;
             if (font == null) return;
 
-            using (var brush = new SolidBrush(theme.GridHeaderForeColor))
+            using (var brush = new SolidBrush(GetInfoTextColor(theme)))
             using (var format = new StringFormat
             {
                 Alignment = StringAlignment.Center,

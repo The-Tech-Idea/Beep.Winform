@@ -849,13 +849,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty(nameof(BeepTabs.HeaderHeight), value);
         }
 
-        [Category("Appearance")]
-        [Description("Minimum touch target width for tabs in pixels")]
-        public int MinTouchTargetWidth
-        {
-            get => _designer.GetProperty<int>(nameof(BeepTabs.MinTouchTargetWidth));
-            set => _designer.SetProperty(nameof(BeepTabs.MinTouchTargetWidth), value);
-        }
+        // MinTouchTargetWidth was removed from BeepTabs deliberately — see the
+        // note in Tabs/BeepTabs.cs: its only reader was BeepTabLayoutHelper
+        // copying it into a render context, and the touch code it belonged to
+        // had no callers at all. This smart-tag property was left behind and
+        // stopped compiling.
 
         [Category("Appearance")]
         [Description("Controls when tab text labels are visible")]
@@ -1163,13 +1161,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private static string FormatHeaderActionLabel(BeepTabHeaderActionKind actionKind)
         {
+            // AddTab / ScrollBackward / ScrollForward were removed from
+            // BeepTabHeaderActionKind deliberately — see the note in
+            // Tabs/Models/BeepTabHeaderAction.cs: no action slot ever created
+            // them so none could fire, and the scroll pair belonged to an
+            // overflow policy that was itself removed. These arms were left
+            // behind and stopped compiling. The default covers any kind without
+            // a friendlier label.
             return actionKind switch
             {
                 BeepTabHeaderActionKind.CloseCurrent => "Close current",
                 BeepTabHeaderActionKind.Overflow => "Overflow menu",
-                BeepTabHeaderActionKind.AddTab => "Add page",
-                BeepTabHeaderActionKind.ScrollBackward => "Scroll backward",
-                BeepTabHeaderActionKind.ScrollForward => "Scroll forward",
                 _ => actionKind.ToString()
             };
         }
@@ -1247,7 +1249,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(HeaderHeight), "Header Height", "Appearance"));
-            items.Add(new DesignerActionPropertyItem(nameof(MinTouchTargetWidth), "Min Touch Target Width", "Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(TabTextVisibility), "Tab Text Visibility", "Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(HeaderPosition), "Header Position", "Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(Theme), "Theme", "Appearance"));

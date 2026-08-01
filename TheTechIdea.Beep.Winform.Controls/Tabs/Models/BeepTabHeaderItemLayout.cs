@@ -4,7 +4,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Models
 {
     /// <summary>
     /// Layout data for one tab header item.
-    /// Carries both core bounds (text, close) and Phase 2 adornment bounds
+    /// Carries both core bounds (text, close) and adornment bounds
     /// (icon, subtext, badge, dirty marker, busy indicator).
     /// </summary>
     public sealed class BeepTabHeaderItemLayout
@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Models
         public Rectangle CloseButtonBounds { get; set; } = Rectangle.Empty;
         public bool HasCloseButton { get; set; }
 
-        // ── Phase 2: adornment bounds ────────────────────────────────────────
+        // ── Adornment bounds ────────────────────────────────────────────────
 
         /// <summary>Bounds for the leading icon glyph. Empty when no icon.</summary>
         public Rectangle IconBounds { get; set; } = Rectangle.Empty;

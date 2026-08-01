@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             string text = $"Page {currentPage} of {totalPages}  •  {current} / {total} records";
             using (var font = new Font("Segoe UI", 8.5f, FontStyle.Regular))
             {
-                DrawCenteredText(g, text, font, theme.GridHeaderForeColor, bounds);
+                DrawCenteredText(g, text, font, GetInfoTextColor(theme), bounds);
             }
         }
 

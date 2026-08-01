@@ -83,14 +83,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Index = index,
                 Name = metadata.Name,
                 Title = metadata.Title,
-                Content = page,
+                IsPageBacked = true,
                 IsSelected = index == selectedIndex,
                 IsFocused = index == selectedIndex && Focused,
                 IsEnabled = page.Enabled,
                 IsVisible = true,
                 CanClose = metadata.CanClose,
                 CanSelect = page.Enabled && metadata.CanSelect,
-                CanReorder = metadata.CanReorder && !(TabMode != BeepTabMode.Navigation && metadata.IsPinned),
+                // Pinning does not make a tab immovable — it confines it to the pinned partition,
+                // which CanReorderTabTo enforces by comparing the two tabs' pinned state. This flag
+                // used to also clear CanReorder for any pinned tab, which was both redundant with
+                // that check and stricter than it: pinned tabs could not be reordered even among
+                // themselves, which VS, VS Code and Chrome all allow.
+                CanReorder = metadata.CanReorder,
                 WorkspaceState = metadata.WorkspaceState.Clone(),
                 IconPath = metadata.IconPath,
                 SubText = metadata.SubText,
@@ -104,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal BeepTabItem GetOrCreateHostedTabMetadata(BeepTabPage page)
         {
             BeepTabItem metadata = page.TabMetadata;
-            if (metadata.Content == null)
+            if (!metadata.IsPageBacked)
             {
                 page.ResetTabMetadata();
                 metadata = page.TabMetadata;
@@ -126,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 page.Text = metadata.Title;
             }
 
-            metadata.Content = page;
+            metadata.IsPageBacked = true;
             metadata.IsEnabled = page.Enabled;
             metadata.IsVisible = true;
         }

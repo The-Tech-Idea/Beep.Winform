@@ -124,8 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     var renderFont = _regularFont ?? SystemFonts.DefaultFont;
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
             }
             finally
@@ -158,10 +157,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
 
                     // Fill
-                    using (var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor()))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
+                    g.FillPath(brush, path);
                 }
             }
             else if (isHovered)
@@ -249,8 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             var renderFont = _regularFont ?? SystemFonts.DefaultFont;
-            TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)

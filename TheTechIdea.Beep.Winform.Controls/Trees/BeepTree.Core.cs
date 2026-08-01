@@ -57,6 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 		// Note: _textFont is inherited from BaseControl (protected)
 		private TextAlignment _textAlignment = TextAlignment.Left;
 		private bool _showCheckBox = false;
+		private IconSlotMode _iconSlotMode = IconSlotMode.WhenAnyNodeHasIcon;
 		private bool _enableThreeStateCheckboxes = false;
 
 		// Behavior/performance

@@ -7,12 +7,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Models
         None,
         SelectTab,
         CloseTab,
-        AddTab,
         Overflow,
-        CloseCurrent,
-        ScrollBackward,
-        ScrollForward
+        CloseCurrent
     }
+
+    // AddTab, ScrollBackward and ScrollForward were declared here and dispatched by
+    // BeepTabHeaderActionRouter, but no action slot was ever created with any of them, so none could
+    // fire — and all three handlers were `return false`. ScrollBackward/Forward were remnants of the
+    // ScrollButtons overflow policy, itself removed for never having been implemented.
 
     /// <summary>
     /// Represents a resolved header action from the custom tab header host.

@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A button control with an image and text.")]
     [DisplayName("Beep Button")]
     //[Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepButtonDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
-    public class BeepButton : BaseControl
+    public class BeepButton : BaseControl, IButtonControl
     {
         #region "Properties"
         // Add these new fields to your BeepButton class (in your region "Properties" or near other private fields):
@@ -1182,6 +1182,52 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Size(finalWidth, finalHeight);
         }
         #endregion "Paint"
+
+        #region "IButtonControl"
+
+        private DialogResult _dialogResult = DialogResult.None;
+        private bool _isDefaultButton;
+
+        /// <summary>
+        /// The value returned to the parent form when this button is clicked.
+        /// </summary>
+        /// <remarks>
+        /// Implementing <see cref="IButtonControl"/> is what makes this button assignable to
+        /// <see cref="Form.AcceptButton"/> and <see cref="Form.CancelButton"/>. Without it, every
+        /// dialog in the codebase had to hand-roll <c>ProcessCmdKey</c> to route Enter and Escape —
+        /// which works, but gives none of the framework behaviour that comes with the real contract:
+        /// the default-button visual cue, participation in dialog semantics, and the default action
+        /// that assistive technology announces.
+        /// </remarks>
+        [Category("Behavior")]
+        [DefaultValue(DialogResult.None)]
+        [Description("The dialog result produced when this button is clicked.")]
+        public DialogResult DialogResult
+        {
+            get => _dialogResult;
+            set => _dialogResult = value;
+        }
+
+        /// <summary>
+        /// <see langword="true"/> when this button is the form's accept button and should render its
+        /// default-action cue.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool IsDefaultButton => _isDefaultButton;
+
+        /// <summary>
+        /// Called by the framework when this button becomes, or stops being, the form's default.
+        /// </summary>
+        public void NotifyDefault(bool value)
+        {
+            if (_isDefaultButton == value) return;
+            _isDefaultButton = value;
+            Invalidate();
+        }
+
+        #endregion
+
         #region "Mouse and Click"
         /// <summary>
         /// Programmatically triggers the Click event on this button.
@@ -1657,6 +1703,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 isLongPressTriggered = false;
                 return;
             }
+
+            // Publish the result to the owning form, which is what actually closes a modal dialog.
+            // This mirrors System.Windows.Forms.Button.OnClick; without it, DialogResult would be a
+            // property nothing acted on and AcceptButton would appear wired but do nothing.
+            if (_dialogResult != DialogResult.None)
+            {
+                Form owner = FindForm();
+                if (owner != null) owner.DialogResult = _dialogResult;
+            }
+
             base.OnClick(e);
         }
 

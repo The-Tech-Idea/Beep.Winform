@@ -698,6 +698,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             else
                 newDirection = SortDirection.None;
 
+            SetColumnSort(columnIndex, newDirection, additive);
+        }
+
+        /// <summary>
+        /// Applies an explicit sort direction to a column. Shared by the header click-cycle and the
+        /// column menu so both produce identical state.
+        /// </summary>
+        /// <param name="additive">True to keep other columns' sorts (shift-click multi-sort).</param>
+        public void SetColumnSort(int columnIndex, SortDirection direction, bool additive = false)
+        {
+            if (columnIndex < 0 || columnIndex >= Data.Columns.Count)
+                return;
+
+            var column = Data.Columns[columnIndex];
+            if (column == null || !column.AllowSort)
+                return;
+
+            var newDirection = direction;
+
             if (!additive)
             {
                 foreach (var col in Data.Columns)

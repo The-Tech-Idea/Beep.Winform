@@ -9,53 +9,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
     {
         public CardTabPainter(BeepTabs tabControl) : base(tabControl) { }
 
-        public override void PaintTab(Graphics g, RectangleF tabRect, int index, bool isSelected, bool isHovered, float alpha = 1.0f)
-        {
-            Color baseColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, isSelected, false);
-            Color borderColor = Theme?.BorderColor ?? SystemColors.ButtonShadow;
-            
-            // Adjust rect for card look (connect to bottom if selected)
-            RectangleF drawRect = tabRect;
-            
-            using (GraphicsPath path = GetRoundedTopRect(drawRect, 4))
-            {
-                // Fill
-                Color fillColor = isSelected ? baseColor : Color.FromArgb((int)(alpha * 255), Theme?.ButtonBackColor ?? SystemColors.Control);
-                if (isHovered && !isSelected)
-                {
-                    fillColor = Theme?.ButtonHoverBackColor ?? SystemColors.ButtonHighlight;
-                }
-
-                using (var brush = PaintersFactory.GetSolidBrush(fillColor))
-                {
-                    g.FillPath(brush, path);
-                }
-
-                // Border
-                using (var pen = PaintersFactory.GetPen(borderColor))
-                {
-                    g.DrawPath(pen, path);
-                }
-                
-                // If selected, cover the bottom border line to merge with content
-                if (isSelected)
-                {
-                    using (var pen = PaintersFactory.GetPen(fillColor))
-                    {
-                        g.DrawLine(pen, drawRect.Left + 1, drawRect.Bottom, drawRect.Right - 1, drawRect.Bottom);
-                    }
-                }
-            }
-
-            bool vertical = (TabControl.HeaderPosition == TabHeaderPosition.Left || TabControl.HeaderPosition == TabHeaderPosition.Right);
-            DrawTabText(g, tabRect, TabControl.GetTabTitle(index), index, isSelected, vertical, alpha);
-
-            if (TabControl.ShowCloseButtons)
-            {
-                DrawCloseButton(g, tabRect, vertical);
-            }
-        }
-
         private GraphicsPath GetRoundedTopRect(RectangleF rect, int radius)
         {
             GraphicsPath path = new GraphicsPath();
@@ -80,36 +33,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             return path;
         }
 
+        /// <summary>Gap between cards, so they read as separate sheets rather than one strip.</summary>
+        // Design-time pixels; scaled per display via BaseTabPainter.Scale.
+        private const int CardGap = 3;
+
         public override void PaintTabItem(Graphics g, Tabs.Models.BeepTabHeaderItemLayout itemLayout, float alpha = 1.0f)
         {
-            Color borderColor = Theme?.BorderColor ?? SystemColors.ButtonShadow;
-            RectangleF drawRect = itemLayout.Bounds;
+            Rectangle bounds = itemLayout.Bounds;
+            if (bounds.IsEmpty) return;
 
-            using (GraphicsPath path = GetRoundedTopRect(drawRect, 4))
+            int a = (int)(Math.Clamp(alpha, 0f, 1f) * 255f);
+            Color borderColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers
+                .GetTabBorderColor(Theme, Theme != null, itemLayout.Item.IsSelected, false);
+
+            // Separated cards, and the selected one lifted a little higher than its neighbours.
+            int lift = itemLayout.Item.IsSelected ? 0 : Scale(3);
+            var drawRect = new RectangleF(
+                bounds.X + Scale(CardGap),
+                bounds.Y + lift,
+                Math.Max(0, bounds.Width - Scale(CardGap) * 2),
+                Math.Max(0, bounds.Height - lift));
+            if (drawRect.Width <= 0 || drawRect.Height <= 0) return;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            using (GraphicsPath path = GetRoundedTopRect(drawRect, Scale(6)))
             {
-                Color fillColor = itemLayout.Item.IsSelected
-                    ? TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, true, false)
-                    : Color.FromArgb((int)(alpha * 255), Theme?.ButtonBackColor ?? SystemColors.Control);
+                // Resolved through the colour seam. Reading Theme.ButtonBackColor directly rendered
+                // *unselected* cards in the primary colour under MaterialDesignTheme, so the tabs
+                // looked inverted — every unselected tab appeared selected.
+                Color resolved = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers
+                    .GetTabBackgroundColor(Theme, Theme != null, itemLayout.Item.IsSelected, itemLayout.Item.IsHovered);
 
-                if (itemLayout.Item.IsHovered && !itemLayout.Item.IsSelected)
+                // Every tab is a card, not just the selected one — that is what separates this style
+                // from Classic, where only the selected tab has a body at all. An unselected card
+                // whose fill matches the strip is invisible, so nudge it away from the header.
+                if (!itemLayout.Item.IsSelected)
                 {
-                    fillColor = Theme?.ButtonHoverBackColor ?? SystemColors.ButtonHighlight;
+                    Color header = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers
+                        .GetHeaderBackgroundColor(Theme, Theme != null);
+                    if (Math.Abs(resolved.R - header.R) + Math.Abs(resolved.G - header.G)
+                        + Math.Abs(resolved.B - header.B) <= 24)
+                    {
+                        float shift = header.GetBrightness() > 0.5f ? -0.07f : 0.10f;
+                        resolved = Color.FromArgb(
+                            header.A,
+                            (int)(Math.Clamp(header.R / 255f + shift, 0f, 1f) * 255),
+                            (int)(Math.Clamp(header.G / 255f + shift, 0f, 1f) * 255),
+                            (int)(Math.Clamp(header.B / 255f + shift, 0f, 1f) * 255));
+                    }
                 }
 
-                using (var brush = PaintersFactory.GetSolidBrush(fillColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                Color fillColor = Color.FromArgb(a, resolved);
 
-                using (var pen = PaintersFactory.GetPen(borderColor))
-                {
-                    g.DrawPath(pen, path);
-                }
+                var brush = PaintersFactory.GetSolidBrush(fillColor);
+                g.FillPath(brush, path);
+
+                var pen = PaintersFactory.GetPen(borderColor);
+                g.DrawPath(pen, path);
 
                 if (itemLayout.Item.IsSelected)
                 {
-                    using var pen = PaintersFactory.GetPen(fillColor);
-                    g.DrawLine(pen, drawRect.Left + 1, drawRect.Bottom, drawRect.Right - 1, drawRect.Bottom);
+                    // Accent stripe along the card's top edge, and a merge line along the bottom so
+                    // the selected card joins the content area.
+                    Color accent = Color.FromArgb(a, TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
+                        .TabThemeHelpers.GetTabIndicatorColor(Theme, Theme != null));
+                    var accentBrush = PaintersFactory.GetSolidBrush(accent);
+                    g.FillRectangle(accentBrush, drawRect.X + Scale(2), drawRect.Y,
+                        drawRect.Width - Scale(4), Scale(3));
+
+                    var mergePen = PaintersFactory.GetPen(fillColor);
+                    g.DrawLine(mergePen, drawRect.Left + 1, drawRect.Bottom, drawRect.Right - 1, drawRect.Bottom);
                 }
             }
 

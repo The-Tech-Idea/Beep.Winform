@@ -131,7 +131,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
+                // Report for diagnostics, then rethrow. Returning normally here told the caller
+                // the page had been added when it had not — a void method that "fails quietly and
+                // keeps going" cannot be built on. CreatePage already used this pattern.
                 ReportError($"AddPage failed for page '{page?.Text}'.", ex);
+                throw;
             }
         }
 
@@ -161,8 +165,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
+                // `false` is the domain answer for "no such page". Reusing it for "an exception
+                // occurred" made the two indistinguishable at the call site.
                 ReportError($"RemovePage failed for page '{page?.Text}'.", ex);
-                return false;
+                throw;
             }
         }
 
@@ -192,6 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch (Exception ex)
             {
                 ReportError("ClearPages failed.", ex);
+                throw;
             }
         }
 
@@ -230,8 +237,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
+                // As with RemovePage: `false` means "could not move it there", not "it blew up".
                 ReportError($"MovePage failed for page '{page.Text}'.", ex);
-                return false;
+                throw;
             }
         }
 
@@ -269,6 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch (Exception ex)
             {
                 ReportError($"InsertPageAt({index}) failed for page '{page.Text}'.", ex);
+                throw;
             }
         }
 
@@ -298,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Preview-slot replacement: if the incoming page should reuse the
                 // preview slot (ReusePreviewSlot is true by default), evict the
                 // current preview tab first so there is at most one preview open.
-                if (TabMode != BeepTabMode.Navigation)
+                if (ModeCapabilities.SupportsPreviewTabs)
                 {
                     BeepTabPage? existingPreview = FindExistingPreviewSlotPage();
                     if (existingPreview != null)
@@ -663,24 +672,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return false;
             }
 
-            List<RectangleF> headerRects = GetCurrentHeaderTabRects(graphics);
-            foreach (BeepTabItem item in GetHostedSourceItemsSnapshot())
+            // _hostedPages is the order the snapshot is built from, so the index is already known.
+            // This used to allocate a full snapshot and scan it comparing item.Content to the page,
+            // which is how BeepTabItem came to hold a Control reference at all.
+            int index = _hostedPages.IndexOf(page);
+            if (index < 0)
             {
-                if (!ReferenceEquals(item.Content, page))
-                {
-                    continue;
-                }
-
-                if (item.Index < 0 || item.Index >= headerRects.Count)
-                {
-                    return false;
-                }
-
-                bounds = Rectangle.Ceiling(headerRects[item.Index]);
-                return true;
+                return false;
             }
 
-            return false;
+            List<RectangleF> headerRects = GetCurrentHeaderTabRects(graphics);
+            if (index >= headerRects.Count)
+            {
+                return false;
+            }
+
+            bounds = Rectangle.Ceiling(headerRects[index]);
+            return true;
         }
 
         internal IReadOnlyList<Control> GetHostedSourceSelectedContentChildren()

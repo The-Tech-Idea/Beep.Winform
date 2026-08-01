@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                     }
                     using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
                     {
-                        DrawCenteredText(g, page.ToString(), font, theme.GridHeaderForeColor, pageRect);
+                        DrawCenteredText(g, page.ToString(), font, GetInfoTextColor(theme), pageRect);
                     }
                 }
 
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
                 using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
                 {
-                    DrawCenteredText(g, text, font, theme.GridHeaderForeColor, bounds);
+                    DrawCenteredText(g, text, font, GetInfoTextColor(theme), bounds);
                 }
             }
         }

@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             string text = $"Record {currentPosition} of {totalRecords}";
             using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
-            using (var brush = new SolidBrush(theme.GridHeaderForeColor))
+            using (var brush = new SolidBrush(GetInfoTextColor(theme)))
             using (var format = new StringFormat
             {
                 Alignment = StringAlignment.Center,

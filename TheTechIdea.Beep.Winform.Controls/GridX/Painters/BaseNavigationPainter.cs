@@ -153,6 +153,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         }
 
         /// <summary>
+        /// The navigator's informational text colour: the theme's header foreground, swapped for
+        /// black or white only when the theme pairs it with a background too close to read against.
+        /// Painters should prefer this over <c>theme.GridHeaderForeColor</c> for status text.
+        /// </summary>
+        protected Color GetInfoTextColor(IBeepTheme theme)
+            => TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.EnsureReadable(
+                theme.GridHeaderForeColor, theme.GridHeaderBackColor);
+
+        /// <summary>
         /// Draw centered text in a rectangle
         /// </summary>
         protected void DrawCenteredText(Graphics g, string text, Font font, Color color, Rectangle bounds)

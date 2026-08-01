@@ -113,8 +113,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _owner.TextFont, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    // Was drawing with _owner.TextFont while the layout measured this rect with the
+                    // themed font, so labels rendered wider than their rect and were cut mid-word.
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
             }
             finally

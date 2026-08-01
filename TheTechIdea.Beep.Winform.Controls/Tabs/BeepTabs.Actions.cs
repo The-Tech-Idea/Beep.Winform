@@ -16,9 +16,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string? _lastError;
 
         /// <summary>
-        /// Records an error, writes it to the debug output, and repaints the
-        /// control so the message is visible on its surface.
+        /// Raised when a tab operation fails, in every build configuration.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is a diagnostic channel, not error handling: the operation that failed still
+        /// throws, so a host that does not subscribe still learns about the failure. Subscribe to
+        /// route failures to a log or telemetry sink in a shipped application, where the
+        /// <c>Debug.WriteLine</c> below does not exist.
+        /// </para>
+        /// <para>
+        /// Handlers must not throw. This event is raised from inside a <c>catch</c> block that is
+        /// about to rethrow, so an exception from a handler would replace the original failure and
+        /// destroy the diagnostic it was subscribed to receive.
+        /// </para>
+        /// </remarks>
+        [Category("Behavior")]
+        [Description("Raised when a tab operation fails. The operation still throws; this reports it.")]
+        public event EventHandler<BeepTabErrorEventArgs>? TabError;
+
+        /// <summary>
+        /// Records an error, publishes it on <see cref="TabError"/>, writes it to the debug output,
+        /// and repaints the control so the message is visible on its surface.
+        /// </summary>
+        /// <remarks>
+        /// This reports a failure; it does not handle one. Every caller rethrows after calling it —
+        /// reporting and continuing was how a failed <c>AddPage</c> used to return normally, which
+        /// told the caller the page had been added when it had not.
+        /// </remarks>
         private void ReportError(string context, Exception? ex)
         {
             string message = ex == null
@@ -27,10 +52,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _lastError = message;
 
-            // Always visible in the Output / Immediate window
+            // Debug-only: absent from Release builds, which is why TabError exists.
             System.Diagnostics.Debug.WriteLine($"[BeepTabs] {message}");
             if (ex != null)
                 System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+
+            TabError?.Invoke(this, new BeepTabErrorEventArgs(context, ex));
 
             Invalidate();
         }
@@ -46,12 +73,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         private bool _showHeaderCloseCurrentAction;
-        private BeepTabOverflowPolicy _headerOverflowPolicy = BeepTabOverflowPolicy.None;
+        private BeepTabOverflowPolicy _headerOverflowPolicy = BeepTabOverflowPolicy.OverflowMenu;
 
         [Browsable(true)]
         [Category("Behavior")]
         [Description("Controls how the header responds when the visible tab run exceeds available header space.")]
-        [DefaultValue(BeepTabOverflowPolicy.None)]
+        [DefaultValue(BeepTabOverflowPolicy.OverflowMenu)]
         public BeepTabOverflowPolicy HeaderOverflowPolicy
         {
             get => _headerOverflowPolicy;
@@ -209,21 +236,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             IReadOnlyList<BeepTabItem> items = GetHostedSourceItemsSnapshot();
-            List<BeepTabItem> overflowItems = new List<BeepTabItem>(overflowState.OverflowIndices.Count);
+
+            // Overflowed tabs, most-recently-used first. Positional order is the wrong ordering for
+            // this menu: the tabs in it are precisely the ones that did not fit, so the one the user
+            // wants is far more likely to be the one they were last in than the one that happens to
+            // sit leftmost. Every reference product orders this list by recency.
+            // BeepTabWorkspaceMruTracker already tracked it and nothing here consulted it.
+            List<BeepTabPage> overflowPages = new List<BeepTabPage>(overflowState.OverflowIndices.Count);
             foreach (int index in overflowState.OverflowIndices)
             {
-                if (index >= 0 && index < items.Count)
-                {
-                    overflowItems.Add(items[index]);
-                }
+                BeepTabPage? page = GetHostedSourcePageAt(index);
+                if (page != null) overflowPages.Add(page);
+            }
+
+            IReadOnlyList<BeepTabPage> ordered = ModeCapabilities.SupportsMruOrdering
+                ? _workspaceMruTracker.GetMruOrderedPages(overflowPages, GetHostedSourceSelectedPage())
+                : overflowPages;
+
+            List<BeepTabItem> overflowItems = new List<BeepTabItem>(ordered.Count);
+            foreach (BeepTabPage page in ordered)
+            {
+                int index = _hostedPages.IndexOf(page);
+                if (index >= 0 && index < items.Count) overflowItems.Add(items[index]);
             }
 
             return overflowItems.ToArray();
-        }
-
-        internal bool TryAddHeaderTab()
-        {
-            return false;
         }
 
         internal bool TryShowHeaderOverflow()
@@ -254,16 +291,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal bool TryCloseCurrentHeaderTab()
         {
             return TryCloseHeaderTab(GetHostedSourceSelectedIndex());
-        }
-
-        internal bool TryScrollHeaderBackward()
-        {
-            return false;
-        }
-
-        internal bool TryScrollHeaderForward()
-        {
-            return false;
         }
 
         /// <summary>

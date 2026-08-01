@@ -14,6 +14,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Models
         public Font TextFont { get; set; } = SystemFonts.DefaultFont;
         public IBeepTheme? Theme { get; set; }
         public bool ShowCloseButtons { get; set; }
-        public int MinTouchTargetWidth { get; set; }
     }
 }

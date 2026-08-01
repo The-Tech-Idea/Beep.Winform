@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Paint in order: Shadow -> Background -> Border -> Arrow -> Content
-            if (config.ShowShadow || config.EnableShadow)
+            if (config.ShowShadow)
             {
                 PaintShadow(g, bounds, config);
             }
@@ -197,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// </summary>
         public override void PaintShadow(Graphics g, Rectangle bounds, ToolTipConfig config)
         {
-            if (!config.ShowShadow && !config.EnableShadow)
+            if (!config.ShowShadow)
                 return;
 
             var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
@@ -318,18 +318,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             var colors = ToolTipStyleAdapter.GetColors(config, theme);
             Color foreColor = config.ForeColor ?? colors.foreground;
 
+            // LayoutVariant decides which sections exist. It used to be ignored entirely — the
+            // layout was inferred from which fields happened to be populated, so setting the enum
+            // had no effect and four of its seven values were indistinguishable.
+            var sections = ToolTipSectionPlan.For(config);
+
             int currentX = contentRect.X;
             int currentY = contentRect.Y;
             int contentWidth = contentRect.Width;
 
-            // Draw close button if closable
+            // Header buttons. Rectangles come from ToolTipHeaderButtons so the pixels drawn here
+            // and the pixels CustomToolTip hit-tests are the same ones.
             if (config.Closable)
             {
-                int btnSize = 16;
-                var closeRect = new Rectangle(contentRect.Right - btnSize, contentRect.Y, btnSize, btnSize);
-                DrawCloseButton(g, closeRect, foreColor);
-                contentWidth -= (btnSize + 4);
+                DrawCloseButton(g, ToolTipHeaderButtons.CloseRect(contentRect, config), foreColor);
             }
+
+            if (config.Pinnable)
+            {
+                DrawPinButton(g, ToolTipHeaderButtons.PinRect(contentRect, config), foreColor, config.IsPinned);
+            }
+
+            contentWidth -= ToolTipHeaderButtons.ReservedWidth(config);
 
             // Paint icon if present
             if (HasIcon(config))
@@ -341,7 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             }
 
             // Paint title
-            if (!string.IsNullOrEmpty(config.Title))
+            if (sections.ShowTitle && !string.IsNullOrEmpty(config.Title))
             {
                 var titleFont = GetTitleFont(config);
                 var titleRect = new Rectangle(currentX, currentY, contentWidth, contentRect.Height);
@@ -361,6 +371,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 // Measure title height for text positioning
                 var titleSize = TextUtils.MeasureText(g,config.Title, titleFont, contentWidth);
                 currentY += (int)Math.Ceiling(titleSize.Height) + DefaultTitleSpacing;
+
+                // Card layout separates its header from the body with a rule — this is what makes
+                // Card visually distinct from Rich rather than just "Rich with a title".
+                if (sections.ShowHeaderDivider)
+                {
+                    var dividerRect = new Rectangle(contentRect.X, currentY, contentRect.Width, 1);
+                    DrawDivider(g, dividerRect, foreColor, theme);
+                    currentY += DefaultTitleSpacing + 1;
+                }
             }
 
             // Paint text (with optional markup rendering)
@@ -391,15 +410,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 }
             }
 
-            // Paint keyboard shortcut badges in the footer
-            if (config.Shortcuts != null && config.Shortcuts.Count > 0)
+            // Paint keyboard shortcut badges
+            if (sections.ShowShortcuts && config.Shortcuts != null && config.Shortcuts.Count > 0)
             {
                 var badgeSize = ShortcutBadgePainter.MeasureShortcuts(g, config.Shortcuts);
                 if (!badgeSize.IsEmpty)
                 {
-                    // Right-align in the content area
+                    // Shortcut layout is a single compact row: label left, keycaps right, both on
+                    // the same baseline. Every other variant puts the badges in a footer.
                     int bx = contentRect.Right - badgeSize.Width;
-                    int by = contentRect.Bottom - badgeSize.Height;
+                    int by = sections.ShortcutsInline
+                        ? contentRect.Y + Math.Max(0, (contentRect.Height - badgeSize.Height) / 2)
+                        : contentRect.Bottom - badgeSize.Height;
                     ShortcutBadgePainter.DrawShortcuts(g, config.Shortcuts, new Point(bx, by), theme);
                 }
             }
@@ -577,6 +599,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// Draws a × close glyph in the specified rectangle.
         /// Color is foreground at 60% alpha; hover state managed by CustomToolTip form.
         /// </summary>
+        /// <summary>
+        /// Draws the pin toggle: an outline pin when unpinned, filled when pinned, so the state is
+        /// readable without a tooltip-on-a-tooltip.
+        /// </summary>
+        private void DrawPinButton(Graphics g, Rectangle rect, Color foreColor, bool isPinned)
+        {
+            if (rect.Width <= 0 || rect.Height <= 0) return;
+
+            var old = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // A simple pushpin: round head, tapering body, point at the bottom.
+            int cx = rect.Left + rect.Width / 2;
+            int headR = Math.Max(2, rect.Width / 4);
+            var head = new Rectangle(cx - headR, rect.Top + 2, headR * 2, headR * 2);
+
+            using var pen = new Pen(Color.FromArgb(isPinned ? 255 : 170, foreColor), 1.4f);
+
+            if (isPinned)
+            {
+                using var fill = new SolidBrush(Color.FromArgb(220, foreColor));
+                g.FillEllipse(fill, head);
+            }
+            else
+            {
+                g.DrawEllipse(pen, head);
+            }
+
+            g.DrawLine(pen, cx, head.Bottom, cx, rect.Bottom - 2);
+            g.SmoothingMode = old;
+        }
+
         private void DrawCloseButton(Graphics g, Rectangle rect, Color foreColor)
         {
             Color btnColor = Color.FromArgb(153, foreColor); // 60% alpha

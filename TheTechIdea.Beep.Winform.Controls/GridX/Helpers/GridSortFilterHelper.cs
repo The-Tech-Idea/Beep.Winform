@@ -459,23 +459,55 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return EscapeBindingListStringLiteral(value);
         }
 
+        /// <summary>
+        /// Reorders rows by every sorted column, honouring <see cref="BeepColumnConfig.SortOrder"/>.
+        /// </summary>
+        /// <remarks>
+        /// The column passed in is only the trigger — the sort is rebuilt from the full set of
+        /// sorted columns so shift-click multi-sort actually orders the data. Sorting by the
+        /// triggering column alone made the header's order badges (1, 2, 3…) describe an ordering
+        /// the rows did not have.
+        /// </remarks>
         private void ApplyLocalSort(string columnName, SortDirection direction)
         {
-            if (direction != SortDirection.Ascending && direction != SortDirection.Descending)
+            var sortedColumns = _grid.Data.Columns
+                .Where(c => c != null && c.IsSorted && c.SortDirection != SortDirection.None)
+                .OrderBy(c => c.SortOrder <= 0 ? int.MaxValue : c.SortOrder)
+                .ToList();
+
+            // Nothing sorted (the trigger was a "clear sort") — leave the current row order alone.
+            if (sortedColumns.Count == 0)
             {
+                RecalculateAndInvalidate();
                 return;
             }
 
-            Func<BeepRowConfig, object?> key = row => GetColumnValue(row, columnName);
-            var ordered = direction == SortDirection.Ascending
-                ? _grid.Data.Rows.OrderBy(key, SortValueComparer).ToList()
-                : _grid.Data.Rows.OrderByDescending(key, SortValueComparer).ToList();
-
-            _grid.Data.Rows.Clear();
-            for (int i = 0; i < ordered.Count; i++)
+            IOrderedEnumerable<BeepRowConfig>? ordered = null;
+            foreach (var col in sortedColumns)
             {
-                ordered[i].DisplayIndex = i;
-                _grid.Data.Rows.Add(ordered[i]);
+                string name = col.ColumnName;
+                Func<BeepRowConfig, object?> key = row => GetColumnValue(row, name);
+
+                if (ordered == null)
+                {
+                    ordered = col.SortDirection == SortDirection.Descending
+                        ? _grid.Data.Rows.OrderByDescending(key, SortValueComparer)
+                        : _grid.Data.Rows.OrderBy(key, SortValueComparer);
+                }
+                else
+                {
+                    ordered = col.SortDirection == SortDirection.Descending
+                        ? ordered.ThenByDescending(key, SortValueComparer)
+                        : ordered.ThenBy(key, SortValueComparer);
+                }
+            }
+
+            var result = ordered!.ToList();
+            _grid.Data.Rows.Clear();
+            for (int i = 0; i < result.Count; i++)
+            {
+                result[i].DisplayIndex = i;
+                _grid.Data.Rows.Add(result[i]);
             }
 
             RecalculateAndInvalidate();

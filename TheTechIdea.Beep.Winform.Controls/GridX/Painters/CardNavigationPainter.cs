@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             );
             using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
             {
-                DrawCenteredText(g, $"of {total}", font, theme.GridHeaderForeColor, totalRect);
+                DrawCenteredText(g, $"of {total}", font, GetInfoTextColor(theme), totalRect);
             }
         }
 

@@ -60,6 +60,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             int newIndex = dragFeedback.InsertIndex;
+
+            // Same rule the Move Left/Right commands use. This call used to go straight to
+            // TryMoveHostedSourceItem, so dragging bypassed CanReorder, the pinned partition and
+            // the mode check that the context menu enforced.
+            if (!CanReorderTabTo(draggedIndex, newIndex))
+            {
+                ResetDragState();
+                return;
+            }
+
             if (TryMoveHostedSourceItem(draggedIndex, newIndex))
             {
                 LastTabSelected = GetHostedSourceSelectedIndex();
@@ -220,6 +230,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return false;
             }
 
+            // A tab that cannot be reordered must not start a drag. Letting it drag and then
+            // rejecting the drop shows drop markers for moves that will not happen, which reads as
+            // the control being broken rather than as the tab being fixed in place.
+            if (!ModeCapabilities.SupportsDragReorder || !CanDragTab(draggedTabIndex))
+            {
+                _headerHost.ResetPointerInteractionState();
+                draggedTabIndex = -1;
+                return false;
+            }
+
             InvalidateHeader();
             return true;
         }
@@ -257,7 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Dirty-close guard (Documents / Workspace mode only).
             // Fire a cancellable event so the host can show a "save?" prompt.
-            if (TabMode != BeepTabMode.Navigation)
+            if (ModeCapabilities.SupportsDirtyCloseGuard)
             {
                 BeepTabPage? candidate = GetHostedSourcePageAt(tabIndex);
                 if (candidate != null)
@@ -292,7 +312,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            if (TabMode == BeepTabMode.Navigation)
+            if (!ModeCapabilities.SupportsPreviewTabs)
             {
                 return;
             }

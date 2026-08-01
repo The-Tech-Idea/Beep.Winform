@@ -132,8 +132,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
  Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
- TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
- TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+ // _regularFont is snapshotted from owner.TextFont in the constructor, but the layout
+ // measured this rect with the themed font (BeepTree.GetNodeFont). With UseThemeFont on --
+ // the default -- those differ (Arial 10pt vs Segoe UI 8pt), so the label rendered wider
+ // than its rect and was cut mid-word. DrawNodeLabel uses the font layout measured with.
+ DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
  }
  }
  finally
@@ -274,8 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
  Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
- TextRenderer.DrawText(g, text, _regularFont, textRect, textColor,
- TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+ DrawNodeLabel(g, textRect, text, textColor);
  }
 
  public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)

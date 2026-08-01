@@ -11,8 +11,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
  /// <summary>
  /// Central factory and cache for commonly used painters (brushes, pens, gradients, paths, rasters).
  /// Use this to avoid allocating transient GDI objects each paint cycle.
- /// /// Call `ClearCache()` when application/theme unloads to release GDI objects.
+ /// Call <see cref="ClearCache"/> when the application/theme unloads to release GDI objects.
  /// </summary>
+ /// <remarks>
+ /// <para><b>Ownership — read this before calling anything here.</b></para>
+ /// <para>
+ /// <b>Shared, cached, MUST NOT be disposed by the caller:</b> <see cref="GetSolidBrush"/>,
+ /// <see cref="GetPen"/>, <see cref="GetStyledPen"/>, <see cref="GetFont(string,float,FontStyle)"/>,
+ /// <see cref="GetOrCreateRaster"/>. These return a process-wide instance. Wrapping one in
+ /// <c>using</c> disposes the object the cache is still handing out, and the damage is permanent:
+ /// the disposal probe in <see cref="GetSolidBrush"/> cannot detect it, because
+ /// <c>SolidBrush.Color</c> returns a cached field and never touches the native handle. That colour
+ /// is then poisoned for the lifetime of the process and every later <c>FillPath</c> with it throws
+ /// <c>ArgumentException: Parameter is not valid</c>. This shipped in the tab and tree painters and
+ /// was reported as a crash from a real session.
+ /// </para>
+ /// <para>
+ /// <b>Caller owns and MUST dispose:</b> <see cref="CreateLinearGradientBrush(RectangleF,Color,Color,LinearGradientMode)"/>,
+ /// the obsolete <c>GetLinearGradientBrush</c> forwarders, and
+ /// <see cref="GetRoundedRectanglePath"/> — the last returns <c>template.Clone()</c>, not the cached
+ /// template. Omitting <c>using</c> on these leaks a GDI handle.
+ /// </para>
+ /// </remarks>
  public static class PaintersFactory
  {
  private static readonly ConcurrentDictionary<int, SolidBrush> _solidBrushCache = new ConcurrentDictionary<int, SolidBrush>();

@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Models
 
     /// <summary>
     /// Snapshot of the adornment inputs for one tab item, consumed by
-    /// <see cref="BeepTabAdornmentLayoutHelper"/> and passed to painters.
+    /// <see cref="Helpers.BeepTabAdornmentLayoutHelper"/> and passed to painters.
     /// All properties are init-only so the snapshot is effectively immutable after creation.
     /// </summary>
     public sealed class BeepTabAdornmentState

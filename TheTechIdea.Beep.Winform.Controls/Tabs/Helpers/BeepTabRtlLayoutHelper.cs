@@ -48,18 +48,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
         }
 
         /// <summary>
-        /// Converts an LTR client-coordinate <see cref="Point"/> (e.g. from a mouse
-        /// event) to its RTL-equivalent so existing hit-test code can be reused without
-        /// modification.
-        /// </summary>
-        /// <param name="point">Original LTR client point.</param>
-        /// <param name="containerWidth">Width of the header strip.</param>
-        public static Point FlipPoint(Point point, int containerWidth)
-        {
-            return new Point(containerWidth - point.X - 1, point.Y);
-        }
-
-        /// <summary>
         /// Returns <see langword="true"/> when <paramref name="containerWidth"/> and
         /// <paramref name="rightToLeft"/> together require RTL mirroring.
         /// </summary>

@@ -1,3 +1,4 @@
+using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Images;
 
@@ -9,69 +10,102 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null)) { components.Dispose(); _autoCloseTimer?.Dispose(); }
+            if (disposing)
+            {
+                components?.Dispose();
+                _autoCloseTimer?.Dispose();
+            }
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Creates and configures the controls; the shell decides where they sit.
+        /// </summary>
+        /// <remarks>
+        /// Every control here used to carry an explicit <c>Location</c> and <c>Size</c> — the message
+        /// label pinned to 396×80 whatever the message said, the title to 352×36 whatever the caption
+        /// was, the button to a hardcoded (155, 152). Those numbers are gone. The shell's AutoSize
+        /// header and percentage body derive them from content, which is what lets this dialog
+        /// survive a long message, a high-DPI display and a caption localised into a longer language.
+        /// <para>
+        /// <c>AutoScaleMode</c> also changes from <c>Font</c> to <c>Dpi</c>: font-based scaling moves
+        /// controls that were placed by coordinate, which is meaningless once a layout manager owns
+        /// placement, and Dpi is what the rest of this codebase scales by.
+        /// </para>
+        /// </remarks>
         private void InitializeComponent()
         {
-            this._dialogIcon   = new BeepImage();
-            this._titleLabel   = new BeepLabel();
-            this._messageLabel = new BeepLabel();
-            this._okButton     = new BeepButton();
-            this.SuspendLayout();
+            _shell = new BeepDialogShell();
+            _headerPanel = new TableLayoutPanel();
+            _dialogIcon = new BeepImage();
+            _titleLabel = new BeepLabel();
+            _messageLabel = new BeepLabel();
+            _okButton = new BeepButton();
+            SuspendLayout();
 
-            this._dialogIcon.UseThemeColors = true;
-            this._dialogIcon.Theme = "ModernTheme";
-            this._dialogIcon.ImagePath = Svgs.Information;
-            this._dialogIcon.ScaleMode = ImageScaleMode.Stretch;
-            this._dialogIcon.Location = new System.Drawing.Point(12, 12);
-            this._dialogIcon.Size = new System.Drawing.Size(36, 36);
+            // ── header: icon + title ─────────────────────────────────────────────
+            _headerPanel.Dock = DockStyle.Fill;
+            _headerPanel.AutoSize = true;
+            _headerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            _headerPanel.ColumnCount = 2;
+            _headerPanel.RowCount = 1;
+            _headerPanel.Margin = new Padding(0);
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            _headerPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            this._titleLabel.UseThemeColors = true;
-            this._titleLabel.Theme = "ModernTheme";
-            this._titleLabel.IsFrameless = true;
-            this._titleLabel.AutoEllipsis = true;
-            this._titleLabel.Text = "Title";
-            this._titleLabel.Location = new System.Drawing.Point(56, 12);
-            this._titleLabel.Size = new System.Drawing.Size(352, 36);
+            _dialogIcon.UseThemeColors = true;
+            _dialogIcon.Theme = "ModernTheme";
+            _dialogIcon.ImagePath = Svgs.Information;
+            _dialogIcon.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            _dialogIcon.Size = new System.Drawing.Size(32, 32);
+            _dialogIcon.Margin = new Padding(0, 0, 12, 0);
 
-            this._messageLabel.UseThemeColors = true;
-            this._messageLabel.Theme = "ModernTheme";
-            this._messageLabel.IsFrameless = true;
-            this._messageLabel.WordWrap = true;
-            this._messageLabel.Text = "Message";
-            this._messageLabel.Location = new System.Drawing.Point(12, 60);
-            this._messageLabel.Size = new System.Drawing.Size(396, 80);
+            _titleLabel.UseThemeColors = true;
+            _titleLabel.Theme = "ModernTheme";
+            _titleLabel.IsFrameless = true;
+            _titleLabel.AutoEllipsis = true;
+            _titleLabel.Dock = DockStyle.Fill;
+            _titleLabel.Text = "Title";
 
-            this._okButton.UseThemeColors = true;
-            this._okButton.Theme = "ModernTheme";
-            this._okButton.Text = "OK";
-            this._okButton.AutoSize = true;
-            this._okButton.MinimumSize = new System.Drawing.Size(110, 34);
-            this._okButton.Location = new System.Drawing.Point(155, 152);
+            // ── body: the message, wrapping to whatever width the shell gives it ──
+            _messageLabel.UseThemeColors = true;
+            _messageLabel.Theme = "ModernTheme";
+            _messageLabel.IsFrameless = true;
+            _messageLabel.WordWrap = true;
+            _messageLabel.Text = "Message";
 
-            this.Controls.Add(this._messageLabel);
-            this.Controls.Add(this._titleLabel);
-            this.Controls.Add(this._dialogIcon);
-            this.Controls.Add(this._okButton);
+            // ── footer action ────────────────────────────────────────────────────
+            _okButton.UseThemeColors = true;
+            _okButton.Theme = "ModernTheme";
+            _okButton.Text = "OK";
+            _okButton.AutoSize = true;
+            _okButton.MinimumSize = new System.Drawing.Size(110, 34);
+            _okButton.Click += OkButton_Click;
 
-            this._okButton.Click += this.OkButton_Click;
+            // ── form ─────────────────────────────────────────────────────────────
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new System.Drawing.Size(420, 206);
+            MinimumSize = new System.Drawing.Size(320, 160);
+            StartPosition = FormStartPosition.CenterParent;
+            ShowInTaskbar = false;
+            // This dialog draws its own header row, so the skinned caption bar would be a
+            // second, empty title band: it reserved 72px of top chrome and painted
+            // owner.Text, which was blank. Text is now the accessible window name instead.
+            ShowCaptionBar = false;
+            Text = string.Empty;
+            Name = "BeepMessageDialog";
 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(420, 206);
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.ShowInTaskbar = false;
-            this.Text = string.Empty;
-            this.Name = "BeepMessageDialog";
+            Controls.Add(_shell);
 
-            this.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
-        internal BeepImage  _dialogIcon;
-        internal BeepLabel  _titleLabel;
-        internal BeepLabel  _messageLabel;
+        private BeepDialogShell _shell;
+        private TableLayoutPanel _headerPanel;
+        internal BeepImage _dialogIcon;
+        internal BeepLabel _titleLabel;
+        internal BeepLabel _messageLabel;
         internal BeepButton _okButton;
     }
 }

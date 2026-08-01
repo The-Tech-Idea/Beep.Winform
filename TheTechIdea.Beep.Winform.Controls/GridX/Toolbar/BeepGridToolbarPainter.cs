@@ -130,8 +130,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             var pressed     = ResolveToolbarColor(_grid.ToolbarButtonPressedBackColor, ThemeFallback.Pressed);
             var separator   = ResolveToolbarColor(_grid.ToolbarSeparatorColor,         theme?.BorderColor ?? ThemeFallback.Separator);
 
-            _cachedBackBrush           = new SolidBrush(back);
-            if (ReferenceEquals(theme, _cachedTheme) && state.DpiScale == _cachedDpiScale
+            // The cache is only reusable when every brush in it actually exists. Assigning
+            // _cachedBackBrush here (before the check) and then letting DisposeCache null it was
+            // hiding a much worse problem — see the rebuild below.
+            bool cacheIntact = _cachedBackBrush != null && _cachedHoverBrush != null
+                               && _cachedPressedBrush != null && _cachedSearchBackBrush != null
+                               && _cachedSearchFocusBackBrush != null && _cachedBorderPen != null;
+
+            if (cacheIntact
+                && ReferenceEquals(theme, _cachedTheme) && state.DpiScale == _cachedDpiScale
                 && ReferenceEquals(_grid.Font, _cachedLabelFont)
                 && back == _cachedBackColor
                 && fore == _cachedForeColor
@@ -167,14 +174,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             _cachedButtonPressedColor = pressed;
             _cachedSeparatorColor = separator;
 
+            // These five were disposed and nulled by DisposeCache but never rebuilt, so from the
+            // first cache rebuild onwards _cachedSearchBackBrush was null and PaintSearchBox threw
+            // on FillPath. The toolbar's paint call is wrapped in a silent catch, so the exception
+            // aborted the rest of the toolbar: no search box, no export buttons, no overflow
+            // chevron, no separators, no bottom border — only the title and the filter gear ever
+            // reached the screen.
+            _cachedBackBrush = new SolidBrush(back);
+            _cachedHoverBrush = new SolidBrush(hover);
+            _cachedPressedBrush = new SolidBrush(pressed);
+            _cachedSearchBackBrush = new SolidBrush(searchBack);
+            _cachedSearchFocusBackBrush = new SolidBrush(searchFocus);
+
             _cachedSearchForeBrush = new SolidBrush(fore);
             _cachedSearchPlaceholderBrush = new SolidBrush(placeholder);
             _cachedLabelForeBrush = new SolidBrush(fore);
             _cachedWhiteBrush = new SolidBrush(Color.White);
             _cachedBadgeBrush = new SolidBrush(theme?.AccentColor ?? Color.DeepSkyBlue);
 
-            _cachedBorderPen = new Pen(ResolveBorderColor(), 1);
-            _cachedSearchFocusBorderPen = new Pen(theme?.AccentColor ?? Color.DeepSkyBlue, 1);
+            _cachedBorderPen = new Pen(ResolveBorderColor(), SearchBoxBorderWidth);
+            _cachedSearchFocusBorderPen = new Pen(theme?.AccentColor ?? Color.DeepSkyBlue, SearchBoxBorderWidth);
             _cachedSeparatorPen = separator == Color.Empty
                 ? null
                 : new Pen(separator, 1);
@@ -253,7 +272,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         {
             if (!state.ShowGridTitle || string.IsNullOrEmpty(state.GridTitle) || state.TitleSectionRect.IsEmpty) return;
             const TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis;
-            TextRenderer.DrawText(g, state.GridTitle, _cachedTitleFont!, state.TitleSectionRect, _grid.ToolbarForeColor, flags);
+
+            // Guard the title against a theme whose toolbar foreground and background are too close
+            // to tell apart; the theme's own colour is used whenever it is legible.
+            var titleColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.EnsureReadable(
+                _grid.ToolbarForeColor, _grid.ToolbarBackColor);
+            TextRenderer.DrawText(g, state.GridTitle, _cachedTitleFont!, state.TitleSectionRect, titleColor, flags);
         }
 
         private void PaintActionButtons(Graphics g, BeepGridToolbarState state)
@@ -280,8 +304,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             // is still visible on the Advanced button via the badge.
             if (!state.FilterButtonRect.IsEmpty)
             {
+                // An active filter reads as the theme's accent, not merely as a more opaque grey —
+                // it is state the user needs to spot at a glance.
                 DrawCenteredTintedIcon(g, state, state.FilterButtonRect,
-                    SvgsUIcons.Common.Filter, state.IsFilterActive ? 1f : 0.6f);
+                    SvgsUIcons.Common.Filter,
+                    state.IsFilterActive ? 1f : 0.6f,
+                    state.IsFilterActive ? (Theme?.AccentColor ?? Color.DodgerBlue) : null);
             }
             DrawCenteredTintedIcon(g, state, state.AdvancedButtonRect,
                 SvgsUIcons.Common.Settings, 0.6f);
@@ -313,11 +341,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 SvgsUIcons.Common.Search, 0.7f);
         }
 
+        /// <summary>Corner radius of the painted search box, in logical pixels.</summary>
+        internal const int SearchBoxRadius = 4;
+
+        /// <summary>Stroke width of the painted search box border, in logical pixels.</summary>
+        internal const int SearchBoxBorderWidth = 1;
+
         private void PaintSearchBox(Graphics g, Rectangle bounds, string text, bool hasFocus)
         {
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            const int radius = 4;
+            const int radius = SearchBoxRadius;
             // Reuse the path; recreate only on bounds change.
             if (_searchBoxPath == null) _searchBoxPath = new GraphicsPath();
             _searchBoxPath.Reset();
@@ -326,8 +360,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             // per paint allocated two GDI handles that the GC would have
             // to finalize — with a repainting toolbar the per-paint cost
             // was visible in profiling.
-            var bgBrush = hasFocus ? _cachedSearchFocusBackBrush! : _cachedSearchBackBrush!;
-            g.FillPath(bgBrush, _searchBoxPath);
+            // While the real editor is up, fill the box with the editor's own background so the
+            // painted box and the control sitting inside it are the same colour. BeepTextBox owns
+            // its BackColor (ApplyTheme rewrites it), so matching it here is the only way to get
+            // one seamless box without fighting the theme -- see FilterEditorHelper.
+            var editorBack = _grid.FilterEditor?.SearchEditorBackColor;
+            if (editorBack is Color liveEditorBack)
+            {
+                using var editorBrush = new SolidBrush(liveEditorBack);
+                g.FillPath(editorBrush, _searchBoxPath);
+            }
+            else
+            {
+                var bgBrush = hasFocus ? _cachedSearchFocusBackBrush! : _cachedSearchBackBrush!;
+                g.FillPath(bgBrush, _searchBoxPath);
+            }
             // The non-focus border matches the bottom border (caller has
             // already cached _cachedBorderPen).  When focused, the accent
             // border is also cached so no GDI handle is allocated per paint.
@@ -344,11 +391,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 bounds.X + textPad, bounds.Y,
                 bounds.Width - textPad, bounds.Height);
 
+            // While the real editor is up it owns every pixel of the text area, so the painter must
+            // not draw the text or placeholder underneath it. This is the same rule commercial grids
+            // follow for in-place editors: the view stops rendering the value once the editor is
+            // activated, otherwise painted text and the editor's own text are stacked and every
+            // repaint of the toolbar re-draws the string behind a live caret.
+            if (_grid.FilterEditor?.IsSearchEditorVisible == true) return;
+
             if (!string.IsNullOrEmpty(text))
                 TextRenderer.DrawText(g, text, _grid.Font, textRect, _grid.ToolbarForeColor, flags);
             else
                 TextRenderer.DrawText(g, _grid.SearchPlaceholder, _grid.Font, textRect, _grid.ToolbarPlaceholderColor, flags);
         }
+
 
 
         private void PaintOverflowButton(Graphics g, BeepGridToolbarState state)
@@ -444,16 +499,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             PaintIcon(g, CenterIconInBounds(btn.Bounds, iconSize), ResolveIconPath(btn.IconPath), 0.8f);
         }
 
+        /// <summary>
+        /// Centres an icon in <paramref name="bounds"/> and paints it. Pass
+        /// <paramref name="tintOverride"/> to colour a state (an active filter, for instance);
+        /// otherwise the icon takes the toolbar's resolved foreground.
+        /// </summary>
         private void DrawCenteredTintedIcon(Graphics g, BeepGridToolbarState state, Rectangle bounds,
-            string iconPath, float opacity)
+            string iconPath, float opacity, Color? tintOverride = null)
         {
-            // The "tint" concept was retired: icon recoloring is now done
-            // by the ImagePainter's theme (ApplyThemeOnImage) so the
-            // painter no longer needs to know the per-button tint at
-            // call time.  Kept the helper because the filter / advanced
-            // / search icons all share the same "center, opacity" shape.
             int iconSize = ScaledIconSize(state);
-            PaintIcon(g, CenterIconInBounds(bounds, iconSize), iconPath, opacity);
+            PaintIcon(g, CenterIconInBounds(bounds, iconSize), iconPath, opacity, tintOverride);
         }
 
         // ─── Visual primitives ───────────────────────────────────────
@@ -504,28 +559,37 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         // ─── Icon painting ──────────────────────────────────────────
 
         /// <summary>
-        /// Paints a toolbar icon using theme-aware coloring.  Allocates
-        /// a fresh <see cref="ImagePainter"/> per call.  The toolbar has
-        /// at most ~10 icons per paint, so the per-call allocation is
-        /// not a hot spot; profile before pooling.
+        /// Paints a toolbar icon, recoloured to an explicit theme colour.
+        /// <para>
+        /// This previously built a fresh <see cref="ImagePainter"/> per icon per paint and left the
+        /// colour to <c>ApplyThemeOnImage</c> + <c>ImageEmbededin.DataGridView</c>. That produced a
+        /// fixed dark grey no matter the theme, so the icons were nearly invisible on dark toolbars
+        /// (MaterialYou paints a #101010 toolbar; Cyberpunk asks for cyan and got grey).
+        /// </para>
+        /// <para>
+        /// <see cref="StyledImagePainter.PaintSvgRecolored"/> takes the colour as an argument and
+        /// caches the rendered result by path+colour+opacity+size — so a theme change just produces
+        /// a different cache key rather than needing invalidation, and repeat paints (the toolbar
+        /// repaints on every hover change) become a blit instead of an SVG re-render. It recolours
+        /// rather than tints: <c>PaintWithTint</c> multiplies, which cannot lighten a near-black
+        /// source glyph, so tinting these icons only ever made them darker.
+        /// </para>
         /// </summary>
-        private void PaintIcon(Graphics g, Rectangle bounds, string iconPath, float opacity)
+        private void PaintIcon(Graphics g, Rectangle bounds, string iconPath, float opacity,
+            Color? tintOverride = null)
         {
             if (bounds.Width <= 0 || bounds.Height <= 0 || string.IsNullOrEmpty(iconPath)) return;
-
-            using var painter = new ImagePainter(iconPath);
-            if (!painter.HasImage) return;
-
-            var theme = Theme;
-            if (theme != null)
-            {
-                painter.CurrentTheme = theme;
-                painter.ImageEmbededin = ImageEmbededin.DataGridView;
-                painter.ApplyThemeOnImage = true;
-            }
-            painter.Opacity = opacity;
-            painter.DrawImage(g, bounds);
+            StyledImagePainter.PaintSvgRecolored(g, bounds, iconPath, tintOverride ?? ResolveIconColor(), opacity);
         }
+
+        /// <summary>
+        /// The colour toolbar icons are drawn in: the toolbar's own foreground, guarded so a theme
+        /// pairing it too closely with the toolbar background cannot render the icons invisible.
+        /// </summary>
+        private Color ResolveIconColor()
+            => TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.EnsureReadable(
+                ResolveToolbarColor(_grid.ToolbarForeColor, Theme?.ForeColor ?? ThemeFallback.Fore),
+                ResolveToolbarColor(_grid.ToolbarBackColor, Theme?.BackgroundColor ?? ThemeFallback.Back));
 
         // ─── Icon resolution ─────────────────────────────────────────
 

@@ -8,7 +8,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 {
     public partial class BeepTabHeaderHost
     {
-        public void RenderLegacyHeader(Graphics graphics, BeepTabHeaderRenderRequest renderRequest)
+        /// <summary>
+        /// Renders the whole tab header: header background, every tab, header actions, drag
+        /// feedback, then focus rings on top.
+        /// </summary>
+        /// <remarks>
+        /// This was called <c>RenderLegacyHeader</c>, which was simply wrong - it is the only
+        /// render entry point there is, called from <c>BeepTabs.Drawing</c>. Nothing replaced it and
+        /// nothing was scheduled to. The name cost real time during this review, because a method
+        /// named "legacy" invites a maintainer to delete it or to go looking for the newer one.
+        /// </remarks>
+        public void RenderHeader(Graphics graphics, BeepTabHeaderRenderRequest renderRequest)
         {
             if (graphics == null)
             {
@@ -34,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 
             foreach (BeepTabHeaderItemLayout itemLayout in LayoutSnapshot.Items)
             {
-                PaintLegacyTab(graphics, itemLayout, renderRequest);
+                PaintTabItemClipped(graphics, itemLayout, renderRequest);
                 PaintCloseButtonFeedback(graphics, itemLayout);
             }
 
@@ -42,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             PaintDragFeedback(graphics);
 
             // Focus rings are drawn last so they appear above all tab content.
-            bool highContrast = SystemInformation.HighContrast;
+            bool highContrast = TabThemeHelpers.IsHighContrast;
             foreach (BeepTabHeaderItemLayout itemLayout in LayoutSnapshot.Items)
             {
                 BeepTabFocusVisualHelper.DrawFocusRing(graphics, itemLayout.Item, itemLayout.Bounds, highContrast);
@@ -89,7 +99,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             graphics.DrawLine(markerPen, DragFeedback.MarkerStart, DragFeedback.MarkerEnd);
         }
 
-        private static void PaintLegacyTab(Graphics graphics, BeepTabHeaderItemLayout itemLayout, BeepTabHeaderRenderRequest renderRequest)
+        /// <summary>
+        /// Paints one tab through the active painter, clipped to its own bounds, cross-fading
+        /// between the outgoing and incoming painters while a style transition is running.
+        /// </summary>
+        private static void PaintTabItemClipped(Graphics graphics, BeepTabHeaderItemLayout itemLayout, BeepTabHeaderRenderRequest renderRequest)
         {
             graphics.SetClip(itemLayout.Bounds, System.Drawing.Drawing2D.CombineMode.Replace);
             try

@@ -83,8 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     var textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
             }
             finally

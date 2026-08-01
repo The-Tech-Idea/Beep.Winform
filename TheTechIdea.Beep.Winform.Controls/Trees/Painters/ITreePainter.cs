@@ -55,6 +55,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         int GetPreferredRowHeight(SimpleItem item, Font font);
 
         /// <summary>
+        /// The font this painter draws node labels with.
+        /// <para>
+        /// The layout measures each node's text rectangle with this font, so a painter that renders
+        /// labels in something other than the tree's font — a monospace or compact variant, say —
+        /// must report it here. Otherwise the rectangle is sized for one font and filled with
+        /// another, and labels are clipped mid-word.
+        /// </para>
+        /// <para>
+        /// Painters that use the tree's own font need not override the default.
+        /// </para>
+        /// </summary>
+        Font GetNodeFont(BeepTree owner);
+
+        /// <summary>
+        /// Extra width, in pixels, this painter needs at the trailing edge of a node's text
+        /// rectangle for decoration it draws there — a metric badge or status pill, for instance.
+        /// <para>
+        /// The layout adds this to the measured text width. A painter that instead shrinks the
+        /// rectangle it is handed will squeeze the label, because the layout sized that rectangle
+        /// for the text alone.
+        /// </para>
+        /// </summary>
+        int GetLabelTrailingReserve();
+
+        /// <summary>
         /// Paint the column headers row.
         /// </summary>
         void PaintColumnHeaders(Graphics g, Rectangle headersBounds, BeepTreeColumnCollection columns);

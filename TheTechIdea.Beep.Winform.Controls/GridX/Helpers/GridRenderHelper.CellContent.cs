@@ -26,6 +26,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (g == null || column == null || cell == null || rect.Width <= 0 || rect.Height <= 0)
                 return;
 
+            // Keep the theme's cell foreground unless it is illegible against the row it lands on.
+            // Row backgrounds vary per row (selection, alternating, conditional colours) while the
+            // foreground is resolved once, so a theme pairing a light AltRowColor with light text
+            // silently loses whole rows of data.
+            foreColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.EnsureReadable(
+                foreColor, backColor, minimumRatio: 4.5);
+
             try
             {
                 if (column.IsSelectionCheckBox)

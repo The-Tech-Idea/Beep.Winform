@@ -270,11 +270,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
                 source = source.Where(a => string.Equals(
                     a.Category, _activeCategory, StringComparison.OrdinalIgnoreCase));
 
-            // Search filter
+            // Search filter - subsequence match, ranked.
+            //
+            // This was string.Contains, which is the difference between a command palette and a
+            // filtered list box: "opfi" found nothing for "Open File", and neither did "newwin" for
+            // "New Window". Every reference product (VS Code Quick Pick, Raycast, Linear) matches on
+            // subsequence and orders by relevance, so a query narrows toward what the user meant
+            // instead of only what they typed literally.
             if (!string.IsNullOrWhiteSpace(query))
-                source = source.Where(a =>
-                    a.Text.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                    (!string.IsNullOrEmpty(a.Category) && a.Category.Contains(query, StringComparison.OrdinalIgnoreCase)));
+            {
+                var scored = new List<(CommandAction Action, int Score)>();
+                foreach (var a in source)
+                {
+                    bool hit = CommandFuzzyMatcher.TryMatch(a.Text ?? string.Empty, query, out int score, out _);
+
+                    // Category is a weaker signal than the command's own name, so a category hit
+                    // scores lower and never outranks a name hit.
+                    if (!hit && !string.IsNullOrEmpty(a.Category)
+                        && CommandFuzzyMatcher.TryMatch(a.Category, query, out int catScore, out _))
+                    {
+                        hit = true;
+                        score = catScore / 2;
+                    }
+
+                    if (hit) scored.Add((a, score));
+                }
+
+                source = scored.OrderByDescending(x => x.Score).Select(x => x.Action).ToList();
+            }
 
             // When search is empty and no category active: pin favorites then recent items.
             List<CommandAction> result;

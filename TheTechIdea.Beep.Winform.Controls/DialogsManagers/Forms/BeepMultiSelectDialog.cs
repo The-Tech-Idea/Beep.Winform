@@ -1,29 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
+using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 {
-    public class BeepMultiSelectDialog : BeepiFormPro
+    public partial class BeepMultiSelectDialog : BeepiFormPro
     {
-        private readonly BeepPanel _headerPanel;
-        private readonly BeepLabel _titleLabel;
-        private readonly BeepLabel _messageLabel;
-        private readonly BeepPanel _listPanel;
-        private readonly BeepPanel _buttonPanel;
-        private readonly BeepButton _selectAllButton;
-        private readonly BeepButton _okButton;
-        private readonly BeepButton _cancelButton;
-        private readonly BeepPanel _scrollContainer;
-
         private readonly List<SimpleItem> _items = new();
         private readonly List<BeepCheckBoxBool> _checkBoxes = new();
 
@@ -35,132 +22,43 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
         public BeepMultiSelectDialog()
         {
-            ShowCaptionBar = false;
-            ShowInTaskbar = false;
-            StartPosition = FormStartPosition.CenterParent;
+            InitializeComponent();
+            ComposeLayout();
             Helpers.DialogHelpers.FitFormToContent(this);
-
-            _headerPanel = new BeepPanel
-            {
-                Dock = DockStyle.Top,
-                // Header height = ~2 label rows + padding (skill § default-size composition).
-                Height = BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this) * 2
-                       + BeepLayoutMetrics.DialogPadding.All.ScaleValue(this)
-                       + BeepLayoutMetrics.SmallGap.ScaleValue(this),
-                IsFrameless = true,
-                ShowTitle = false,
-                ShowTitleLine = false,
-                UseThemeColors = true,
-                Padding = BeepLayoutMetrics.DialogPadding.ScalePadding(this)
-            };
-
-            _titleLabel = new BeepLabel
-            {
-                Location = new Point(
-                    BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this),
-                    BeepLayoutMetrics.SmallGap.ScaleValue(this)),
-                Size = new Size(
-                    ClientSize.Width - BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this) * 2,
-                    BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this)),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                UseThemeColors = true,
-                IsFrameless = true,
-                Font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.TitleStyle) ?? SystemFonts.DefaultFont
-            };
-
-            _messageLabel = new BeepLabel
-            {
-                Location = new Point(
-                    BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this),
-                    BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this) + BeepLayoutMetrics.SmallGap.ScaleValue(this)),
-                Size = new Size(
-                    ClientSize.Width - BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this) * 2,
-                    BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this)),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                UseThemeColors = true,
-                IsFrameless = true
-            };
-
-            _headerPanel.Controls.Add(_titleLabel);
-            _headerPanel.Controls.Add(_messageLabel);
-
-            _listPanel = new BeepPanel
-            {
-                Dock = DockStyle.Fill,
-                IsFrameless = true,
-                ShowTitle = false,
-                ShowTitleLine = false,
-                UseThemeColors = true,
-                Padding = new Padding(8, 4, 8, 4)
-            };
-
-            _scrollContainer = new BeepPanel
-            {
-                Dock = DockStyle.Fill,
-                IsFrameless = true,
-                ShowTitle = false,
-                ShowTitleLine = false,
-                UseThemeColors = true,
-                AutoScroll = true
-            };
-
-            _listPanel.Controls.Add(_scrollContainer);
-
-            _buttonPanel = new BeepPanel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 50,
-                IsFrameless = true,
-                ShowTitle = false,
-                ShowTitleLine = false,
-                UseThemeColors = true,
-                Padding = new Padding(8, 8, 8, 8)
-            };
-
-            _selectAllButton = new BeepButton
-            {
-                Size = new Size(100, 32),
-                Location = new Point(10, 9),
-                Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
-                UseThemeColors = true,
-                Text = "Select All"
-            };
-
-            _okButton = new BeepButton
-            {
-                Size = new Size(100, 32),
-                Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
-                UseThemeColors = true,
-                Text = "OK"
-            };
-
-            _cancelButton = new BeepButton
-            {
-                Size = new Size(100, 32),
-                Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
-                UseThemeColors = true,
-                Text = "Cancel"
-            };
-
-            _selectAllButton.Click += (s, e) => ToggleSelectAll();
-            _okButton.Click += (s, e) => { DialogResult = DialogResult.OK; Close(); };
-            _cancelButton.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
-
-            _buttonPanel.Controls.Add(_selectAllButton);
-            _buttonPanel.Controls.Add(_okButton);
-            _buttonPanel.Controls.Add(_cancelButton);
-
-            Controls.Add(_listPanel);
-            Controls.Add(_buttonPanel);
-            Controls.Add(_headerPanel);
-
-            ApplyTheme();
         }
 
-        public void SetItems(string title, string message, List<SimpleItem> items, IEnumerable<string>? preSelected = null)
+        /// <summary>Places the controls into the shell's header / body / footer regions.</summary>
+        private void ComposeLayout()
         {
-            _titleLabel.Text = title;
-            _messageLabel.Text = message;
+            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
+            _headerPanel.Controls.Add(_titleLabel, 1, 0);
+
+            _bodyPanel.Controls.Add(_messageLabel, 0, 0);
+            _bodyPanel.Controls.Add(_listPanel, 0, 1);
+
+            _shell.SetHeader(_headerPanel);
+            _shell.SetBody(_bodyPanel);
+            _shell.AddAction(_cancelButton);
+            _shell.AddAction(_okButton);
+            _shell.AddAction(_selectAllButton);
+
+            _okButton.DialogResult = DialogResult.OK;
+            _cancelButton.DialogResult = DialogResult.Cancel;
+            AcceptButton = _okButton;
+            CancelButton = _cancelButton;
+        }
+
+        public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
+        public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
+
+        public void SetItems(string title, string message, List<SimpleItem> items,
+                             IEnumerable<string>? preSelected = null)
+        {
+            if (items == null) throw new ArgumentNullException(nameof(items));
+
+            Title = title;
+            Message = message;
+
             _items.Clear();
             _items.AddRange(items);
 
@@ -168,118 +66,81 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 ? new HashSet<string>(preSelected, StringComparer.OrdinalIgnoreCase)
                 : null;
 
-            _scrollContainer.Controls.Clear();
+            _listPanel.SuspendLayout();
+            foreach (var old in _checkBoxes) old.Dispose();
+            _listPanel.Controls.Clear();
             _checkBoxes.Clear();
 
-            int y = BeepLayoutMetrics.SmallGap.ScaleValue(this);
-            // Checkbox row = label-standard height + small padding (skill § default-size).
-            int checkboxHeight = BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this);
-            int spacing = BeepLayoutMetrics.SmallGap.ScaleValue(this);
-            int sideMargin = BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this) / 2;
-
-            for (int i = 0; i < _items.Count; i++)
+            foreach (var item in _items)
             {
-                var item = _items[i];
                 var cb = new BeepCheckBoxBool
                 {
-                    Size = new Size(_scrollContainer.ClientSize.Width - (sideMargin * 2), checkboxHeight),
-                    Location = new Point(sideMargin, y),
-                    Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                    AutoSize = true,
                     UseThemeColors = true,
+                    Theme = Theme,
                     Text = item.Text,
                     CurrentValue = selectedSet?.Contains(item.Text) ?? false,
-                    Tag = item
+                    Tag = item,
+                    Margin = new Padding(0, 0, 0, 4)
                 };
 
                 _checkBoxes.Add(cb);
-                _scrollContainer.Controls.Add(cb);
-                y += checkboxHeight + spacing;
+                _listPanel.Controls.Add(cb);
             }
 
-            _scrollContainer.AutoScrollMinSize = new Size(0, y + BeepLayoutMetrics.SmallGap.ScaleValue(this));
+            _listPanel.ResumeLayout(true);
+            UpdateSelectAllCaption();
         }
 
-        private void ToggleSelectAll()
+        private void SelectAllButton_Click(object? sender, EventArgs e)
         {
-            bool allChecked = _checkBoxes.All(cb => cb.CurrentValue);
-            bool newState = !allChecked;
-            foreach (var cb in _checkBoxes)
-            {
-                cb.CurrentValue = newState;
-            }
-            _selectAllButton.Text = newState ? "Deselect All" : "Select All";
+            bool selectAll = !_checkBoxes.All(cb => cb.CurrentValue);
+            foreach (var cb in _checkBoxes) cb.CurrentValue = selectAll;
+            UpdateSelectAllCaption();
         }
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        /// <summary>Keeps the button's caption describing what pressing it will do.</summary>
+        private void UpdateSelectAllCaption()
         {
-            if (keyData == Keys.Enter)
-            {
-                _okButton.PerformClick();
-                return true;
-            }
-            if (keyData == Keys.Escape)
-            {
-                _cancelButton.PerformClick();
-                return true;
-            }
-            return base.ProcessCmdKey(ref msg, keyData);
+            bool allChecked = _checkBoxes.Count > 0 && _checkBoxes.All(cb => cb.CurrentValue);
+            _selectAllButton.Text = allChecked ? "Deselect All" : "Select All";
+            _selectAllButton.Enabled = _checkBoxes.Count > 0;
+        }
+
+        private void OkButton_Click(object? sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void CancelButton_Click(object? sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
+        // ProcessCmdKey override removed: AcceptButton and CancelButton route Enter and Escape.
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (_checkBoxes.Count > 0) _checkBoxes[0].Focus();
         }
 
         public override void ApplyTheme()
         {
-            if (_headerPanel == null) return;
-
-            _headerPanel.Theme = Theme;
-            _listPanel.Theme = Theme;
-            _buttonPanel.Theme = Theme;
-            _scrollContainer.Theme = Theme;
-            _titleLabel.Theme = Theme;
-            _messageLabel.Theme = Theme;
-            _selectAllButton.Theme = Theme;
-            _okButton.Theme = Theme;
-            _cancelButton.Theme = Theme;
-
-            foreach (var cb in _checkBoxes)
-            {
-                cb.Theme = Theme;
-            }
-
-            if (_currentTheme != null)
-            {
-                _okButton.BackColor = _currentTheme.AccentColor != Color.Empty
-                    ? _currentTheme.AccentColor
-                    : Color.FromArgb(59, 130, 246);
-                _okButton.ForeColor = ColorUtils.GetContrastColor(_okButton.BackColor);
-            }
-
-            Invalidate();
+            if (_titleLabel == null) return;
+            // The header/body/footer panels are layout, not themed surfaces — the shell's rows carry
+            // no chrome of their own, so only the Beep controls inside them take the theme.
+            _dialogIcon.Theme = Theme; _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
+            _selectAllButton.Theme = Theme; _okButton.Theme = Theme; _cancelButton.Theme = Theme;
+            foreach (var cb in _checkBoxes) cb.Theme = Theme;
         }
 
-        protected override void OnResize(EventArgs e)
+        protected override void Dispose(bool disposing)
         {
-            base.OnResize(e);
-            PositionButtons();
-            ResizeCheckBoxes();
-        }
-
-        private void PositionButtons()
-        {
-            int panelW = _buttonPanel.ClientSize.Width;
-            int btnW = 100, btnH = 32, margin = 10;
-            int y = (_buttonPanel.ClientSize.Height - btnH) / 2;
-
-            _selectAllButton.SetBounds(margin, y, btnW, btnH);
-            _cancelButton.SetBounds(panelW - margin - btnW, y, btnW, btnH);
-            _okButton.SetBounds(panelW - margin - btnW * 2 - 8, y, btnW, btnH);
-        }
-
-        private void ResizeCheckBoxes()
-        {
-            int width = _scrollContainer.ClientSize.Width - 16;
-            foreach (var cb in _checkBoxes)
-            {
-                cb.Width = width;
-            }
+            if (disposing) components?.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

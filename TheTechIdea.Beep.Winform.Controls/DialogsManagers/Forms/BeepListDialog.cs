@@ -21,10 +21,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public BeepListDialog()
         {
             InitializeComponent();
+            ComposeLayout();
             Helpers.DialogHelpers.FitFormToContent(this);
         }
 
-        public string Title { get => _titleLabel.Text; set => _titleLabel.Text = value ?? string.Empty; }
+        /// <summary>Places the controls into the shell's header / body / footer regions.</summary>
+        private void ComposeLayout()
+        {
+            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
+            _headerPanel.Controls.Add(_titleLabel, 1, 0);
+
+            _bodyPanel.Controls.Add(_messageLabel, 0, 0);
+            _bodyPanel.Controls.Add(_comboBox, 0, 1);
+
+            _shell.SetHeader(_headerPanel);
+            _shell.SetBody(_bodyPanel);
+            _shell.AddAction(_cancelButton);
+            _shell.AddAction(_okButton);
+
+            _okButton.DialogResult = DialogResult.OK;
+            _cancelButton.DialogResult = DialogResult.Cancel;
+            AcceptButton = _okButton;
+            CancelButton = _cancelButton;
+        }
+
+        public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
         public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
 
         public DialogButton[] TypedButtons
@@ -42,30 +63,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         {
             ReturnValue = _comboBox.SelectedItem?.Text ?? string.Empty;
             ReturnItem = _comboBox.SelectedItem;
-            DialogResult = System.Windows.Forms.DialogResult.OK;
+            DialogResult = DialogResult.OK;
             Close();
         }
 
         private void CancelButton_Click(object? sender, EventArgs e)
         {
             ReturnValue = string.Empty;
-            DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
             Close();
         }
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (keyData == Keys.Enter) { _okButton.PerformClick(); return true; }
-            if (keyData == Keys.Escape) { _cancelButton.PerformClick(); return true; }
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
+        // ProcessCmdKey override removed: AcceptButton and CancelButton route Enter and Escape.
 
         protected override void OnShown(EventArgs e) { base.OnShown(e); _comboBox.Focus(); }
 
         public override void ApplyTheme()
         {
-            if (_headerPanel == null) return;
-            _headerPanel.Theme = Theme; _bodyPanel.Theme = Theme; _buttonPanel.Theme = Theme;
+            if (_titleLabel == null) return;
+            // The header/body/footer panels are layout, not themed surfaces — the shell's rows carry
+            // no chrome of their own, so only the Beep controls inside them take the theme.
             _dialogIcon.Theme = Theme; _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
             _comboBox.Theme = Theme; _okButton.Theme = Theme; _cancelButton.Theme = Theme;
         }

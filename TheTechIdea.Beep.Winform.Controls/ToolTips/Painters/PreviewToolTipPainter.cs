@@ -122,22 +122,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
             try
             {
-                Image img = null;
-
-                if (!string.IsNullOrEmpty(config.PreviewImagePath) &&
-                    File.Exists(config.PreviewImagePath))
-                {
-                    try { img = Image.FromFile(config.PreviewImagePath); }
-                    catch { /* fall through to skeleton */ }
-                }
+                // Read the already-resolved image. This used to call Image.FromFile here and
+                // dispose it again, so the file was re-read from disk on every single repaint —
+                // and an async LoadPreviewAsync result had nowhere to go. ToolTipInstance now
+                // resolves the image once (from the delegate or the path) and owns its lifetime.
+                var img = config.ResolvedPreviewImage;
 
                 if (img != null)
                 {
                     g.DrawImage(img, imageRect);
-                    img.Dispose();
                 }
                 else
                 {
+                    // Still loading, or no image supplied.
                     PaintSkeleton(g, imageRect);
                 }
             }
@@ -149,23 +146,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
         private void PaintSkeleton(Graphics g, Rectangle r)
         {
+            if (r.Width <= 0 || r.Height <= 0) return;
+
             // Background base
             using (var brush = new SolidBrush(Color.FromArgb(50, 50, 55)))
                 g.FillRectangle(brush, r);
 
             // Animated shimmer bar
-            int shimmerW = (int)(r.Width * 0.6f);
+            int shimmerW = Math.Max(1, (int)(r.Width * 0.6f));
             float fraction = _skeletonPhase / 255f;
             int shimmerX  = r.Left + (int)((r.Width + shimmerW) * fraction) - shimmerW;
+            var shimmerRect = new Rectangle(shimmerX, r.Top, shimmerW, r.Height);
 
+            // NO WrapMode here.
+            //
+            // This used to set WrapMode.Clamp, which GDI+ rejects on a LinearGradientBrush — only
+            // the Tile modes are legal — so the setter threw ArgumentException("Parameter is not
+            // valid") on every paint. That exception escaped Paint and WinForms drew its red-X
+            // error box in place of the entire tooltip. It went unnoticed because this painter was
+            // never actually instantiated: ToolTipPainterFactory had no call sites.
+            //
+            // The default (Tile) is correct here anyway: the fill rectangle and the gradient
+            // rectangle are identical, so the gradient never repeats.
             using var shimmerBrush = new LinearGradientBrush(
-                new Rectangle(shimmerX, r.Top, shimmerW, r.Height),
+                shimmerRect,
                 Color.Transparent,
                 Color.FromArgb(40, 255, 255, 255),
-                LinearGradientMode.Horizontal)
-            { WrapMode = WrapMode.Clamp };
+                LinearGradientMode.Horizontal);
 
-            g.FillRectangle(shimmerBrush, shimmerX, r.Top, shimmerW, r.Height);
+            g.FillRectangle(shimmerBrush, shimmerRect);
         }
 
         // ──────────────────────────────────────────────────────────────────────

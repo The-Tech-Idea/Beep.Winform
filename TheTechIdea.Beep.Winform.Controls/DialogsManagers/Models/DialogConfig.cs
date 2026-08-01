@@ -398,14 +398,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         #region Validation and Data Binding
 
         /// <summary>
-        /// Validation callback - called before dialog closes on OK/Yes
-        /// Return true to allow close, false to keep dialog open
+        /// Called before the dialog closes on OK/Yes. Return <see langword="false"/> to keep it open.
         /// </summary>
-        public Func<DialogResult, bool>? ValidationCallback { get; set; }
+        /// <remarks>
+        /// Typed <see cref="DialogReturn"/> — the type the rest of this API speaks, and the one its
+        /// sibling <see cref="DataExtractionCallback"/> already used. It was previously
+        /// <c>Func&lt;DialogResult, bool&gt;</c>, referring to a local class that shadowed
+        /// <see cref="DialogResult"/> and existed almost solely to type this
+        /// one delegate — at the cost of forcing 44 call sites across 8 files to write the framework
+        /// type fully qualified.
+        /// <para>
+        /// Cancelling is never gated: only OK and Yes run this callback, so a validation failure
+        /// cannot trap the user in a dialog they are trying to escape.
+        /// </para>
+        /// </remarks>
+        public Func<DialogReturn, bool>? ValidationCallback { get; set; }
 
         /// <summary>
         /// Data extraction callback - called when dialog closes successfully
-        /// Use this to extract data from CustomControl into DialogResult.UserData
+        /// Use this to extract data from CustomControl into DialogReturn
         /// </summary>
         public Action<DialogReturn>? DataExtractionCallback { get; set; }
 
@@ -885,7 +896,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// <summary>
         /// Star-rating dialog (modelled on app-store / Figma plugin patterns).
         /// Intended to host a <c>BeepRating</c> custom control via <see cref="CustomControl"/>;
-        /// the caller must supply the rating control and read back <see cref="DialogResult.UserData"/>.
+        /// the caller must supply the rating control and read back the returned <see cref="DialogReturn"/>.
         /// </summary>
         /// <param name="title">Dialog title, e.g. "Rate your experience".</param>
         public static DialogConfig CreateRating(string title = "Rate your experience")
@@ -905,84 +916,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         #endregion
 
         #region Obsolete Preset Methods (For Backward Compatibility)
-
-        /// <summary>
-        /// [Obsolete] Use CreateQuestion instead
-        /// </summary>
-        [Obsolete("Use CreateQuestion or CreateInformation instead")]
-        public static DialogConfig CreateConfirmAction(string title, string message)
-        {
-            return CreateQuestion(title, message);
-        }
-
-        /// <summary>
-        /// [Obsolete] Use CreateSuccess instead
-        /// </summary>
-        [Obsolete("Use CreateSuccess instead")]
-        public static DialogConfig CreateSmoothPositive(string title, string message)
-        {
-            return CreateSuccess(title, message);
-        }
-
-        /// <summary>
-        /// [Obsolete] Use CreateDanger instead
-        /// </summary>
-        [Obsolete("Use CreateDanger instead")]
-        public static DialogConfig CreateSmoothDanger(string title, string message)
-        {
-            return CreateDanger(title, message);
-        }
-
-        /// <summary>
-        /// [Obsolete] Use CreateInformation instead
-        /// </summary>
-        [Obsolete("Use CreateInformation instead")]
-        public static DialogConfig CreateSmoothPrimary(string title, string message)
-        {
-            return CreateInformation(title, message);
-        }
-
-        /// <summary>
-        /// [Obsolete] Use appropriate semantic preset (CreateInformation, CreateDanger, CreateSuccess, CreateWarning)
-        /// </summary>
-        [Obsolete("Use CreateInformation, CreateDanger, CreateSuccess, or CreateWarning instead")]
-        public static DialogConfig CreateSmoothDense(string title, string message, DialogPreset preset)
-        {
-            return new DialogConfig
-            {
-                Title = title,
-                Message = message,
-                Preset = preset,
-                Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok }
-            };
-        }
-
-        /// <summary>
-        /// [Obsolete] Use CreateInformation instead
-        /// </summary>
-        [Obsolete("Use CreateInformation instead")]
-        public static DialogConfig CreateRaisedDense(string title, string message)
-        {
-            return CreateInformation(title, message);
-        }
-
-        /// <summary>
-        /// [Obsolete] Use CreateSuccess instead
-        /// </summary>
-        [Obsolete("Use CreateSuccess instead")]
-        public static DialogConfig CreateSetproductDesign(string title, string message)
-        {
-            return CreateSuccess(title, message);
-        }
-
-        /// <summary>
-        /// [Obsolete] Use CreateDanger or CreateWarning instead
-        /// </summary>
-        [Obsolete("Use CreateDanger or CreateWarning instead")]
-        public static DialogConfig CreateRaisedDanger(string title, string message)
-        {
-            return CreateDanger(title, message);
-        }
 
         #endregion
 

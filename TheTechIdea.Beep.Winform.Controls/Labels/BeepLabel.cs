@@ -348,6 +348,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _styleProfile.Multiline = value;
                 }
+                // These three decide whether the minimum width comes from the text or from the
+                // container, so the minimum has to be recomputed when one of them changes;
+                // otherwise the value measured under the previous setting stays in force.
+                UpdateMinimumSize();
                 Invalidate();
                 if (AutoSize)
                 {
@@ -370,6 +374,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _styleProfile.AutoEllipsis = value;
                 }
+                // These three decide whether the minimum width comes from the text or from the
+                // container, so the minimum has to be recomputed when one of them changes;
+                // otherwise the value measured under the previous setting stays in force.
+                UpdateMinimumSize();
                 Invalidate();
             }
         }
@@ -388,6 +396,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _styleProfile.WordWrap = value;
                 }
+                // These three decide whether the minimum width comes from the text or from the
+                // container, so the minimum has to be recomputed when one of them changes;
+                // otherwise the value measured under the previous setting stays in force.
+                UpdateMinimumSize();
                 Invalidate();
                 if (AutoSize)
                 {
@@ -401,19 +413,49 @@ namespace TheTechIdea.Beep.Winform.Controls
     
 
      
-        // Compute and enforce a DatePicker-like minimum size
+        /// <summary>
+        /// Computes the smallest size this label can be drawn at, and enforces it.
+        /// </summary>
+        /// <remarks>
+        /// This measured every label as a single unbroken line at <see cref="int.MaxValue"/> width,
+        /// then wrote the result to <see cref="Control.MinimumSize"/>. Because MinimumSize outranks
+        /// both AutoSize and the container, a paragraph produced a label pinned wider than the form
+        /// holding it — measured at 730px inside a 420px dialog, and 1788px for a longer message —
+        /// so it never wrapped and simply ran off the edge.
+        ///
+        /// <see cref="WordWrap"/>, <see cref="Multiline"/>, <see cref="AutoEllipsis"/> and an explicit
+        /// Width all produced the identical figure, because none of them were consulted here. The
+        /// paint path has always measured against the available width when wrapping; this now uses
+        /// the same rule, so measurement and drawing agree:
+        ///
+        /// <list type="bullet">
+        /// <item>wrapping or ellipsising — the container picks the width, so the minimum width falls
+        /// back to the floor and the height is measured against the width actually available;</item>
+        /// <item>plain single-line — unchanged: the label must be wide enough for its text.</item>
+        /// </list>
+        /// </remarks>
         private void UpdateMinimumSize()
         {
-            try
             {
                 var headerFont = _textFont ?? Font;
                 string headerSample = string.IsNullOrEmpty(Text) ? "A" : Text;
 
+                // The same rule the painter uses (see the wrapText branch in the layout pass).
+                bool wrapText = Multiline || WordWrap;
+
+                // A label that ellipsises is equally free to be narrower than its text — that is what
+                // the ellipsis is for — so neither kind should demand the full single-line width.
+                bool widthComesFromContainer = wrapText || AutoEllipsis;
+
+                int chrome = (BorderThickness + 2) * 2 + Padding.Left + Padding.Right;
+                int measureWidth = wrapText && Width > chrome ? Width - chrome : int.MaxValue;
+                TextFormatFlags measureFlags = wrapText ? TextFormatFlags.WordBreak : TextFormatFlags.SingleLine;
+
                 Size headerSize = TextRenderer.MeasureText(
                     headerSample,
                     headerFont,
-                    new Size(int.MaxValue, int.MaxValue),
-                    TextFormatFlags.SingleLine);
+                    new Size(measureWidth, int.MaxValue),
+                    measureFlags);
 
                 bool hasSub = !string.IsNullOrEmpty(SubHeaderText);
                 var subFont = SubHeaderFont ?? headerFont;
@@ -423,11 +465,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     subSize = TextRenderer.MeasureText(
                         SubHeaderText,
                         subFont,
-                        new Size(int.MaxValue, int.MaxValue),
-                        TextFormatFlags.SingleLine);
+                        new Size(measureWidth, int.MaxValue),
+                        measureFlags);
                 }
 
-                int textWidth = Math.Max(headerSize.Width, hasSub ? subSize.Width : 0);
+                // Height still comes from the measurement — a wrapped label needs every line it takes.
+                int textWidth = widthComesFromContainer
+                    ? 0
+                    : Math.Max(headerSize.Width, hasSub ? subSize.Width : 0);
                 int textHeight = headerSize.Height + (hasSub ? DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subSize.Height : 0);
 
                 Size imgSize = Size.Empty;
@@ -468,10 +513,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Height = effectiveMin.Height;
                 }
             }
-            catch
-            {
-                MinimumSize = new Size(120, 28);
-            }
+            // The catch that stood here replaced any failure with a fixed 120x28 minimum, so a
+            // disposed font or a bad image size produced a silently wrong layout on every consumer
+            // instead of a diagnosable error. Nothing in this method is expected to throw.
         }
         /// <summary>
         /// Override to provide label specific minimum width

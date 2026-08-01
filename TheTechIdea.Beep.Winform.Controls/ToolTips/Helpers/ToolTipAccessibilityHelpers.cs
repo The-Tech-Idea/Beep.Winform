@@ -134,14 +134,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
                 return foreColor; // Already meets requirement
             }
 
-            // Try to darken or lighten foreground to meet contrast
+            // Nudge toward the target luminance first, so a colour that only just misses keeps its
+            // hue rather than collapsing to black or white.
             var backLuminance = GetRelativeLuminance(backColor);
-            var targetLuminance = backLuminance > 0.5 
+            var targetLuminance = backLuminance > 0.5
                 ? (backLuminance + 0.05) / minRatio - 0.05  // Darker foreground for light background
                 : (backLuminance + 0.05) * minRatio - 0.05;  // Lighter foreground for dark background
 
-            // Adjust color to meet target luminance
-            return AdjustLuminance(foreColor, targetLuminance);
+            var nudged = AdjustLuminance(foreColor, targetLuminance);
+            if (EnsureContrastRatio(nudged, backColor, minRatio))
+            {
+                return nudged;
+            }
+
+            // The nudge is a single 20% multiply, so it cannot rescue a near-black foreground on a
+            // near-black background — 0 x 1.2 is still 0. MaterialYouTheme pairs #080808 text with
+            // a #101010 surface, and the old code returned #090909 and called it accessible: all 21
+            // tooltip types measured below 4.5:1 after "enforcement".
+            //
+            // ColorUtils.EnsureReadable is the same helper the grid uses for exactly this, and
+            // falls back to black or white against the surface. One implementation, not two.
+            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils
+                .EnsureReadable(foreColor, backColor, minRatio);
         }
 
         /// <summary>

@@ -105,7 +105,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             
             if (layout == null || layout.Count ==0)
             {
-                // Try to recalculate
+                // Ask the control's layout engine to run, then re-read the cache. This used to call
+                // the layout helper's own geometry, which was a different implementation from the
+                // one that produced every other frame — so a paint that happened to arrive with an
+                // empty cache drew the tree at a different indentation than the next paint did.
                 try
                 {
                     layout = layoutHelper.RecalculateLayout();
@@ -210,10 +213,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Text
             if (!node.TextRectContent.IsEmpty && _owner?.LayoutHelper != null)
             {
-                var font = _owner?.UseThemeFont == true
-                    ? (BeepThemesManager.ToFontForControl(_owner?._currentTheme?.LabelFont, _owner) ?? _owner?.TextFont)
-                    : _owner?.TextFont;
-                font ??= SystemFonts.DefaultFont;
+                // Same font the layout measured the text rect with -- see BeepTree.GetNodeFont.
+                var font = _owner.GetNodeFont();
                 var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                 PaintText(g, textRect, node.Item?.Text ?? string.Empty, font, isSelected, isHovered);
             }
@@ -602,8 +603,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             }
 
             TextRenderer.DrawText(g, text, drawFont, textRect, textColor,
-                alignmentFlags | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                alignmentFlags | NodeTextFlags);
         }
+
+        /// <summary>
+        /// The flags every node label is measured AND drawn with.
+        /// <para>
+        /// <see cref="TextFormatFlags.NoPadding"/> is the important one, and it must match the
+        /// measurement side. Layout measures with <c>NoPadding</c>, but this draw call used to omit
+        /// it — so GDI added padding at draw time that the rectangle had never accounted for, and
+        /// labels were clipped mid-word at the right edge ("Root (paren"). Measuring one way and
+        /// drawing another is the whole bug; keeping the flags in one constant is the fix.
+        /// </para>
+        /// <para>
+        /// <see cref="TextFormatFlags.EndEllipsis"/> makes an over-long label degrade to
+        /// "Long node na…" instead of being cut off mid-glyph with no indication anything is
+        /// missing.
+        /// </para>
+        /// </summary>
+        public const TextFormatFlags NodeTextFlags =
+            TextFormatFlags.VerticalCenter
+            | TextFormatFlags.NoPrefix
+            | TextFormatFlags.NoPadding
+            | TextFormatFlags.EndEllipsis;
+
+        /// <summary>
+        /// Draws a node's label using the font and flags the layout measured its rectangle with.
+        /// <para>
+        /// Every painter that renders node text should call this rather than its own
+        /// <c>TextRenderer.DrawText</c>. Painters that override <c>PaintNode</c> were each picking
+        /// their own font — <c>_owner.TextFont</c> is common — while the layout sized the text
+        /// rectangle using the *themed* font from <see cref="BeepTree.GetNodeFont"/>. When those two
+        /// differ (they do whenever <c>UseThemeFont</c> is on) the drawn string is wider than the
+        /// rectangle it was measured into and gets clipped mid-word, with no ellipsis because the
+        /// painters also omitted <see cref="TextFormatFlags.EndEllipsis"/>.
+        /// </para>
+        /// </summary>
+        protected void DrawNodeLabel(Graphics g, Rectangle textRect, string text, Color textColor,
+            TextFormatFlags alignment = TextFormatFlags.Left)
+        {
+            if (g == null || string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0)
+                return;
+
+            // GetNodeFont is virtual, so a painter with a distinctive label font gets its own here
+            // and the layout measured with the same one.
+            var font = GetNodeFont(_owner) ?? SystemFonts.DefaultFont;
+            TextRenderer.DrawText(g, text, font, textRect, textColor, alignment | NodeTextFlags);
+        }
+
+        /// <summary>
+        /// Draws a node label in an explicit font, still using the shared node-text flags.
+        /// <para>
+        /// For styles that vary the label font per node — bold on selection, for instance. The
+        /// painter must report the <em>widest</em> variant from <see cref="GetNodeFont"/> so the
+        /// layout reserves enough width for it; otherwise the emphasised state clips.
+        /// </para>
+        /// </summary>
+        protected void DrawNodeLabel(Graphics g, Rectangle textRect, string text, Color textColor,
+            Font font, TextFormatFlags alignment = TextFormatFlags.Left)
+        {
+            if (g == null || string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0)
+                return;
+
+            TextRenderer.DrawText(g, text, font ?? GetNodeFont(_owner) ?? SystemFonts.DefaultFont,
+                textRect, textColor, alignment | NodeTextFlags);
+        }
+
+        /// <summary>
+        /// The font this painter draws node labels with. Defaults to the tree's own node font.
+        /// <para>
+        /// Override when the style deliberately renders labels in a different face or size — a
+        /// monospace or compact variant, for instance. The layout calls this to size the text
+        /// rectangle, so an override keeps measurement and drawing in agreement instead of
+        /// flattening every style onto one font.
+        /// </para>
+        /// </summary>
+        public virtual Font GetNodeFont(BeepTree owner)
+            => (owner ?? _owner)?.GetNodeFont() ?? SystemFonts.DefaultFont;
+
+        /// <summary>
+        /// Extra trailing width this painter needs inside the node's text rectangle. Zero for
+        /// styles that draw nothing after the label; override when the style appends a badge.
+        /// </summary>
+        public virtual int GetLabelTrailingReserve() => 0;
 
         public virtual void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
@@ -670,9 +752,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         public virtual int GetPreferredRowHeight(SimpleItem item, Font font)
         {
-            // Default: measure text height + padding
+            // Default: measure text height + padding. Same flags as the draw call.
             var textSize = TextRenderer.MeasureText(item.Text ?? string.Empty, font,
-                new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                new Size(int.MaxValue, int.MaxValue), NodeTextFlags);
             return Math.Max(textSize.Height +8,24); // Minimum24px
         }
 

@@ -25,8 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 HeaderPosition = owner.HeaderPosition,
                 TextFont = owner.TextFont,
                 Theme = owner.CurrentTheme,
-                ShowCloseButtons = owner.ShowCloseButtons,
-                MinTouchTargetWidth = owner.MinTouchTargetWidth
+                ShowCloseButtons = owner.ShowCloseButtons
             };
         }
 
@@ -71,7 +70,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 Rectangle tabBounds = item.Index >= 0 && item.Index < tabRects.Count
                     ? Rectangle.Ceiling(tabRects[item.Index])
                     : Rectangle.Empty;
-                item.Bounds = tabBounds;
 
                 BeepTabHeaderItemLayout itemLayout = new BeepTabHeaderItemLayout
                 {

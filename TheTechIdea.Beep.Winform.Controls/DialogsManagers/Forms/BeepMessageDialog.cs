@@ -17,13 +17,41 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public BeepMessageDialog()
         {
             InitializeComponent();
+            ComposeLayout();
             Helpers.DialogHelpers.FitFormToContent(this);
+        }
+
+        /// <summary>
+        /// Places the controls into the shell's header / body / footer regions.
+        /// </summary>
+        /// <remarks>
+        /// Kept out of <c>InitializeComponent</c> deliberately. Composition is the part that would
+        /// otherwise want loops — one per action button — and control flow in a designer file breaks
+        /// the VS designer's parser. Creation stays in the designer file; arrangement lives here.
+        /// </remarks>
+        private void ComposeLayout()
+        {
+            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
+            _headerPanel.Controls.Add(_titleLabel, 1, 0);
+
+            _shell.SetHeader(_headerPanel);
+            _shell.SetBody(_messageLabel);
+            _shell.AddAction(_okButton);
+
+            // The framework's default-action contract, now that BeepButton implements
+            // IButtonControl. This replaces the hand-rolled ProcessCmdKey override every dialog in
+            // this directory carried: Enter activates the accept button and Escape cancels, and the
+            // button additionally gets its default-action cue and the semantics assistive technology
+            // announces — none of which a key-routing override provides.
+            _okButton.DialogResult = DialogResult.OK;
+            AcceptButton = _okButton;
+            CancelButton = _okButton;
         }
 
         public string Title
         {
             get => _titleLabel.Text;
-            set => _titleLabel.Text = value ?? string.Empty;
+            set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value);
         }
 
         public string Message
@@ -37,16 +65,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         private void OkButton_Click(object? sender, EventArgs e)
         {
             ReturnValue = "ok";
-            DialogResult = System.Windows.Forms.DialogResult.OK;
+            DialogResult = DialogResult.OK;
             Close();
         }
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (keyData == Keys.Enter) { _okButton.PerformClick(); return true; }
-            if (keyData == Keys.Escape) { DialogResult = System.Windows.Forms.DialogResult.Cancel; Close(); return true; }
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
+        // ProcessCmdKey override removed: AcceptButton handles Enter, and CancelButton handles
+        // Escape — set in ComposeLayout now that BeepButton implements IButtonControl. A dialog
+        // with a single OK action uses that button for both, which is the standard contract for a
+        // message box on every platform.
 
         protected override void OnShown(EventArgs e) { base.OnShown(e); _okButton.Focus(); }
 

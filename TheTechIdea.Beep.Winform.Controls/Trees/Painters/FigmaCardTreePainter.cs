@@ -72,6 +72,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             g.DrawPath(borderPen, cardPath);
                         }
                     }
+                }
+
+                // Everything below is unconditional.
+                //
+                // The `if (isSelected || isHovered)` above used to stay open all the way to the end
+                // of the method, so the toggle, checkbox, icon, eye and label were only drawn for a
+                // selected or hovered node — a FigmaCard tree rendered completely blank. The clue
+                // that this was a misplaced brace rather than intent is STEP 2 immediately
+                // re-testing the same condition: the drag handle is meant to appear only on
+                // hover/selection, which is only meaningful if the surrounding block does not.
 
                     // STEP 2: Draw drag handle (Figma layers panel feature)
                     if (isSelected || isHovered)
@@ -175,19 +185,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             var iconPath = CreateRoundedRectangle(iconRect, 2);
                             var pen = PaintersFactory.GetPen(_theme.AccentColor, 1.5f);
                             g.DrawPath(pen, iconPath);
-                            using (var innerPen = PaintersFactory.GetPen(Color.FromArgb(100, _theme.AccentColor), 1f))
-                            {
-                                int padding = iconRect.Width / 4;
-                                Rectangle innerRect = new Rectangle(
-                                    iconRect.X + padding,
-                                    iconRect.Y + padding,
-                                    iconRect.Width - padding * 2,
-                                    iconRect.Height - padding * 2);
+                            var innerPen = PaintersFactory.GetPen(Color.FromArgb(100, _theme.AccentColor), 1f);
+                            int padding = iconRect.Width / 4;
+                            Rectangle innerRect = new Rectangle(
+                                iconRect.X + padding,
+                                iconRect.Y + padding,
+                                iconRect.Width - padding * 2,
+                                iconRect.Height - padding * 2);
 
-                                if (innerRect.Width > 0 && innerRect.Height > 0)
-                                {
-                                    g.DrawRectangle(innerPen, innerRect);
-                                }
+                            if (innerRect.Width > 0 && innerRect.Height > 0)
+                            {
+                                g.DrawRectangle(innerPen, innerRect);
                             }
                         }
                     }
@@ -219,10 +227,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     {
                         var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                         Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                        DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                     }
-                }
             }
             finally
             {
@@ -407,8 +413,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Figma uses theme font
             var renderFont = GetFont(font.Size);
 
-            TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)

@@ -27,6 +27,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
         /// Delegate called each time screen coordinates are required so the object
         /// always reflects the current layout (accounts for scroll / DPI changes).
         /// </param>
+        /// <param name="selectTab">
+        /// Invoked with the tab index when a screen reader performs the Select action. When
+        /// <see langword="null"/> the accessible object is read-only to assistive technology.
+        /// </param>
         public static AccessibleObject CreateTabObject(
             Control owner,
             BeepTabItem item,

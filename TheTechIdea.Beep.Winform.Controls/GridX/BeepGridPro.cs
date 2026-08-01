@@ -772,6 +772,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
+        private bool _showVerticalGridLines = true;
+
+        /// <summary>
+        /// Gets or sets whether cells are ruled vertically. When false, only the row separator is
+        /// drawn — the open-column look used by most modern grids.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(true)]
+        [Description("Draw vertical lines between columns. False rules rows only (lighter, modern look).")]
+        public bool ShowVerticalGridLines
+        {
+            get => _showVerticalGridLines;
+            set
+            {
+                if (_showVerticalGridLines == value) return;
+                _showVerticalGridLines = value;
+                SafeInvalidate();
+            }
+        }
+
         /// <summary>
         /// Gets or sets whether alternate row colors are used for striping effect.
         /// </summary>

@@ -115,11 +115,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int stickyWidth = stickyColumns.Sum(c => c.Width);
             stickyWidth = Math.Min(stickyWidth, _grid.Layout.RowsRect.Width); // Prevent overflow
 
-            // Calculate scrollable columns width exactly like BeepSimpleGrid
-            int visibleColumnCount = _grid.Data.Columns.Count(o => o.Visible);
-            int borderWidth = 1;
-            int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0;
-            int totalColumnWidth = _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width) + totalBorderWidth;
+            // Borders live inside the column widths (see CalculateTotalContentWidth).
+            int totalColumnWidth = CalculateTotalContentWidth();
             int visibleWidth = _grid.Layout.RowsRect.Width - (_showVerticalScrollBar && maxVerticalOffset > 0 ? ScrollbarWidth : 0);
 
             // Determine if scrollbars are needed
@@ -330,9 +327,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             // Don't process mouse move while context menu is active
 
-            _verticalThumbHovered = _verticalThumbRect.Contains(location);
-            _horizontalThumbHovered = _horizontalThumbRect.Contains(location);
-            _grid.SafeInvalidate(); // Hover colors
+            // Repaint for thumb hover colours ONLY when the hover state actually flips, and only
+            // over the bars themselves.
+            //
+            // This used to be an unconditional full-control `SafeInvalidate()` on every mouse move.
+            // Because OnMouseMove routes here for every WM_MOUSEMOVE, the whole grid repainted
+            // continuously while the cursor moved anywhere over the control -- which made the
+            // toolbar's activated search editor (a real child control sitting on the painted
+            // search box) visibly blink on and off as the user moved the mouse away from it.
+            bool verticalHover = _verticalThumbRect.Contains(location);
+            bool horizontalHover = _horizontalThumbRect.Contains(location);
+            if (verticalHover != _verticalThumbHovered || horizontalHover != _horizontalThumbHovered)
+            {
+                _verticalThumbHovered = verticalHover;
+                _horizontalThumbHovered = horizontalHover;
+
+                if (!_verticalScrollBarRect.IsEmpty) _grid.SafeInvalidate(_verticalScrollBarRect);
+                if (!_horizontalScrollBarRect.IsEmpty) _grid.SafeInvalidate(_horizontalScrollBarRect);
+            }
 
             if (_isVerticalThumbDragging)
             {
@@ -588,11 +600,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private int CalculateTotalContentWidth()
         {
-            // Calculate total width exactly like BeepSimpleGrid
-            int visibleColumnCount = _grid.Data.Columns.Count(o => o.Visible);
-            int borderWidth = 1;
-            int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0;
-            return _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width) + totalBorderWidth;
+            // Column borders are drawn INSIDE each column's width -- GridLayoutHelper advances
+            // by `px += w` with no inter-column gap -- so the content width is just the sum of
+            // the widths. Adding (n-1) border pixels here used to over-report it, which made
+            // AutoSizeColumnsMode.Fill (which distributes exactly RowsRect.Width) look like a
+            // few-pixel overflow and raise a phantom horizontal scrollbar whose thumb spanned
+            // the whole track -- the grey bar above the navigator.
+            return _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width);
         }
 
         private int CalculateRowIndexForPixelOffset(int pixelOffset)

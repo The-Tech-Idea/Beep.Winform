@@ -15,11 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
             {
                 BeepTabHeaderActionKind.SelectTab => owner.TrySelectHeaderTab(action.TabIndex),
                 BeepTabHeaderActionKind.CloseTab => owner.TryCloseHeaderTab(action.TabIndex),
-                BeepTabHeaderActionKind.AddTab => owner.TryAddHeaderTab(),
                 BeepTabHeaderActionKind.Overflow => owner.TryShowHeaderOverflow(),
                 BeepTabHeaderActionKind.CloseCurrent => owner.TryCloseCurrentHeaderTab(),
-                BeepTabHeaderActionKind.ScrollBackward => owner.TryScrollHeaderBackward(),
-                BeepTabHeaderActionKind.ScrollForward => owner.TryScrollHeaderForward(),
                 _ => false
             };
         }

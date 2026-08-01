@@ -165,6 +165,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 return;
             }
 
+            // Two passes so nothing is reserved that will not be drawn. The first assumes every
+            // button fits; if any overflowed, the second reserves the chevron slot and lays out
+            // again. Reserving it up front left a permanent gap on toolbars that never overflow.
+            LayoutPass(bounds, reserveOverflow: false);
+            if (HasOverflowItems)
+                LayoutPass(bounds, reserveOverflow: true);
+        }
+
+        private void LayoutPass(Rectangle bounds, bool reserveOverflow)
+        {
             int margin = (int)(8 * DpiScale);
             int iconSize = (int)(18 * DpiScale);
             int buttonGap = (int)(4 * DpiScale);
@@ -179,15 +189,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             // The right-hand sections are fixed width, so budget them first: everything flexible
             // (title, actions, search) then lays out against a known right limit instead of
             // discovering the overrun afterwards and overlapping.
+            //
+            // Only what the painter will actually draw gets reserved — the clear-filter chip only
+            // appears while a filter is active, and the chevron only when something overflowed.
             int exportVisibleCount = ExportButtons.Count(b => b.IsVisible);
-            int filterButtonCount = ShowFilterButton ? 3 : 2;   // [filter] + advanced + clear
+            int filterButtonCount = 1                            // advanced
+                                    + (ShowFilterButton ? 1 : 0)
+                                    + (IsFilterActive ? 1 : 0);  // clear-filter chip
             int filterSectionWidth = filterButtonCount * (iconSize + buttonGap) + margin;
             int exportSectionWidth = exportVisibleCount > 0
                 ? exportVisibleCount * (iconSize + buttonGap) + margin
                 : 0;
-            int overflowWidth = iconSize + margin;   // reserved; the chevron may or may not be used
+            int overflowWidth = reserveOverflow ? iconSize + margin : 0;
+
+            int separatorCount = 1                                     // before the filter section
+                                 + (exportVisibleCount > 0 ? 1 : 0)
+                                 + (reserveOverflow ? 1 : 0);
             int reservedRight = filterSectionWidth + exportSectionWidth + overflowWidth
-                                + separatorWidth * 3 + margin;
+                                + separatorWidth * separatorCount + margin;
             int rightLimit = Math.Max(bounds.Left + margin, bounds.Right - reservedRight);
 
             int x = bounds.Left + margin;
@@ -199,11 +218,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 // same font instance the painter draws with.
                 var titleSize = TextRenderer.MeasureText(GridTitle, TitleFont);
 
-                // Take what the title needs, but never so much that the search box drops below its
-                // minimum. The painter draws with EndEllipsis, so a clamped width truncates
-                // gracefully instead of being cut mid-glyph.
+                // Take what the title needs, but keep the search box above its minimum. The title
+                // still gets a floor so a set title never disappears entirely — it ellipsizes
+                // instead, and the search box gives up the difference.
+                int minTitle = (int)(MinTitleLogicalWidth * DpiScale);
                 int titleBudget = Math.Max(0, rightLimit - x - minSearchWidth - margin);
-                int titleWidth = Math.Min(titleSize.Width + margin, titleBudget);
+                int titleWidth = Math.Min(titleSize.Width + margin, Math.Max(titleBudget, minTitle));
+                titleWidth = Math.Min(titleWidth, Math.Max(0, rightLimit - x - margin));
                 if (titleWidth > 0)
                 {
                     TitleSectionRect = new Rectangle(x, bandY, titleWidth, bandHeight);
@@ -230,8 +251,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             // search editor both inset their text by SearchIconWidth, so the icon has to occupy
             // that inset — previously it was painted to the left of the box and the inset was
             // empty space, leaving placeholder and typed text visibly out of line with the icon.
-            int searchWidth = Math.Max(minSearchWidth, rightLimit - x - margin);
-            SearchBoxRect = new Rectangle(x, bandY, searchWidth, bandHeight);
+            // Cap the search box and right-align it against the filter/export cluster instead of
+            // stretching it across the whole toolbar. A full-width search field dominated the band
+            // and pushed the title into a corner; commercial grids keep a modest field grouped with
+            // the other tools on the right, with open space after the title.
+            int maxSearch = (int)(MaxSearchLogicalWidth * DpiScale);
+            int available = Math.Max(0, rightLimit - x - margin);
+            int searchWidth = Math.Max(minSearchWidth, Math.Min(maxSearch, available));
+            int searchX = Math.Max(x, rightLimit - margin - searchWidth);
+            SearchBoxRect = new Rectangle(searchX, bandY, searchWidth, bandHeight);
             SearchIconWidth = SearchIconLogicalInset;   // logical; painter/editor scale it themselves
             SearchIconRect = new Rectangle(
                 SearchBoxRect.Left + (int)(6 * DpiScale),
@@ -256,8 +284,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
             AdvancedButtonRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
             x += iconSize + buttonGap;
-            ClearFilterRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
-            x += iconSize + buttonGap;
+
+            // The clear-filter chip is only painted while a filter is active, so it only takes a
+            // slot then — otherwise it left a permanent hole between Advanced and the exports.
+            if (IsFilterActive)
+            {
+                ClearFilterRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
+                x += iconSize + buttonGap;
+            }
+            else
+            {
+                ClearFilterRect = Rectangle.Empty;
+            }
 
             // The active-filter badge sits over whichever button the user perceives as "the filter
             // button", clamped inside the band so it cannot paint outside the toolbar.
@@ -291,6 +329,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
         /// <summary>Minimum search box width in logical pixels before other sections must give way.</summary>
         private const int MinSearchLogicalWidth = 120;
+
+        /// <summary>Search box never grows past this; the surplus stays as space after the title.</summary>
+        private const int MaxSearchLogicalWidth = 300;
+
+        /// <summary>Floor for the title so a configured title ellipsizes rather than disappearing.</summary>
+        private const int MinTitleLogicalWidth = 70;
 
         /// <summary>Below this much free space (logical px) action buttons drop their text labels.</summary>
         private const int LabelCollapseLogicalWidth = 260;
@@ -339,9 +383,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                     continue;
                 }
 
+                // Icon-only buttons keep their original icon-width footprint; widening them to a
+                // 28px minimum padded the whole strip out and made the toolbar look coarser.
                 int btnWidth = showLabels && !string.IsNullOrEmpty(btn.Label)
                     ? MeasureLabeledButtonWidth(btn, iconSize, labelFont)
-                    : Math.Max(iconSize, (int)(28 * DpiScale));
+                    : iconSize;
 
                 if (x + btnWidth > rightLimit)
                 {

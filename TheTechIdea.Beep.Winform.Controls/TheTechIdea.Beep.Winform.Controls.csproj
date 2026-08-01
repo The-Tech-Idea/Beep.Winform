@@ -4702,6 +4702,8 @@
     <Folder Include="SideBar\Helpers\" />
     <Folder Include="SideBar\Painters\" />
     <Folder Include="Tabs\Adapters\" />
+    <Folder Include="Tabs\plans\" />
+    <Folder Include="TextFields\plans\" />
     <Folder Include="ToolTips\Helpers\" />
     <Folder Include="Trees\plans\" />
     <Folder Include="Widgets\Helpers\Painters\Finance\" />

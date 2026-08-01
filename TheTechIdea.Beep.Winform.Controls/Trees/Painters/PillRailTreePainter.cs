@@ -117,17 +117,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-                    var renderFont = _regularFont;
-                    if (isSelected)
-                    {
-                        var bold = new Font(_regularFont, _regularFont.Style | FontStyle.Bold);
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, bold, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                        bold.Dispose();
-                    }
-                    else
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    // Bold on selection is this style's signature, so it is kept — but the layout
+                    // measures with the bold font (see GetNodeFont) so the emphasised label has room
+                    // and does not clip. The unselected label simply has a little slack.
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor,
+                        isSelected ? BoldLabelFont : _regularFont);
                 }
             }
             finally
@@ -251,7 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-            TextRenderer.DrawText(g, text, _regularFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
@@ -269,5 +263,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Pill rail needs comfortable height for rounded shape
             return Math.Max(36, base.GetPreferredRowHeight(item, font));
         }
-    }
+    
+        /// <summary>
+        /// Cached bold variant used for the selected node. Created once rather than per paint --
+        /// the previous code allocated and disposed a Font on every selected row, every frame.
+        /// </summary>
+        private Font _boldLabelFont;
+        private Font BoldLabelFont =>
+            _boldLabelFont ??= new Font(_regularFont, _regularFont.Style | FontStyle.Bold);
+
+        /// <summary>
+        /// Reports the BOLD font, not the regular one: this style emphasises the selected node, and
+        /// the layout must reserve width for the widest variant or the selected label clips the
+        /// moment it is selected.
+        /// </summary>
+        public override Font GetNodeFont(BeepTree owner)
+            => _regularFont != null ? BoldLabelFont : base.GetNodeFont(owner);
+}
 }

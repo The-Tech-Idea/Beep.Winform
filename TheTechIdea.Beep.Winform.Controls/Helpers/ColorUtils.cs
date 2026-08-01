@@ -290,6 +290,57 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             return luminance > 0.5 ? Color.Black : Color.White;
         }
 
+        /// <summary>
+        /// Relative luminance per WCAG 2.1, used for contrast ratios.
+        /// </summary>
+        public static double RelativeLuminance(Color color)
+        {
+            static double Channel(int v)
+            {
+                double c = v / 255.0;
+                return c <= 0.03928 ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4);
+            }
+
+            return 0.2126 * Channel(color.R) + 0.7152 * Channel(color.G) + 0.0722 * Channel(color.B);
+        }
+
+        /// <summary>
+        /// WCAG contrast ratio between two colors, from 1.0 (identical) to 21.0 (black on white).
+        /// </summary>
+        public static double ContrastRatio(Color a, Color b)
+        {
+            double la = RelativeLuminance(a);
+            double lb = RelativeLuminance(b);
+            double lighter = Math.Max(la, lb);
+            double darker = Math.Min(la, lb);
+            return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        /// <summary>
+        /// Honours a theme's foreground colour, but substitutes black or white when that colour
+        /// would be illegible on the given background.
+        /// <para>
+        /// Themes are the source of truth for colour, yet some ship a foreground that is nearly
+        /// the same as their background (MaterialYouTheme sets a grid header of #101010 with
+        /// #080808 text, a ratio of about 1.1) which renders as invisible text. This keeps the
+        /// theme's intent whenever it is readable and only steps in past that point.
+        /// </para>
+        /// </summary>
+        /// <param name="foreColor">The colour the theme asked for.</param>
+        /// <param name="backColor">The surface it will be drawn on.</param>
+        /// <param name="minimumRatio">
+        /// Minimum acceptable contrast ratio. Defaults to 3.0, the WCAG AA threshold for large
+        /// and bold text, which is what grid headers and captions are.
+        /// </param>
+        public static Color EnsureReadable(Color foreColor, Color backColor, double minimumRatio = 3.0)
+        {
+            if (foreColor.IsEmpty || backColor.IsEmpty) return foreColor;
+            if (foreColor.A < 255) return foreColor; // deliberately translucent; leave it alone
+            return ContrastRatio(foreColor, backColor) >= minimumRatio
+                ? foreColor
+                : GetContrastColor(backColor);
+        }
+
         // Example usage
     }
 

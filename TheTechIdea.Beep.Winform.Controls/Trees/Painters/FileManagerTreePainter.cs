@@ -176,8 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     var fontToUse = isSelected ? _boldFont ?? _regularFont : _regularFont;
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, fontToUse, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
             }
             finally
@@ -222,10 +221,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     g.FillPath(brush, path);
 
                     // Subtle border using accent color
-                    using (var pen = PaintersFactory.GetPen(_theme.AccentColor, 1))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    var pen = PaintersFactory.GetPen(_theme.AccentColor, 1);
+                    g.DrawPath(pen, path);
                 }
             }
             else if (isHovered)
@@ -332,8 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             var fontToUse = isSelected ? _boldFont ?? _regularFont : _regularFont;
-            TextRenderer.DrawText(g, text, fontToUse, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)

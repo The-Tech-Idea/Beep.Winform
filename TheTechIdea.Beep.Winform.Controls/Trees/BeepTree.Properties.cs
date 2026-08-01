@@ -58,9 +58,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // CRITICAL: Invalidate BOTH layout caches and recalculate
                     // The layout helper cache must be cleared before recalculating
                     try { _layoutHelper?.InvalidateCache(); } catch { }
+                    // RecalculateLayoutCache() already publishes to the helper via
+                    // SyncFromVisibleNodes. A follow-up _layoutHelper.RecalculateLayout() call used
+                    // to sit here and re-ran a second, divergent geometry implementation on top --
+                    // replacing the geometry just computed with one measured 4px per node away.
                     RecalculateLayoutCache();
-                    // Sync the layout helper's cache
-                    try { _layoutHelper?.RecalculateLayout(); } catch { }
                     UpdateScrollBars();
                     // Update hit areas since layout changed
                     try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
@@ -88,9 +90,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // CRITICAL: Invalidate BOTH layout caches and recalculate
                     // The layout helper cache must be cleared before recalculating
                     try { _layoutHelper?.InvalidateCache(); } catch { }
+                    // RecalculateLayoutCache() already publishes to the helper via
+                    // SyncFromVisibleNodes. A follow-up _layoutHelper.RecalculateLayout() call used
+                    // to sit here and re-ran a second, divergent geometry implementation on top --
+                    // replacing the geometry just computed with one measured 4px per node away.
                     RecalculateLayoutCache();
-                    // Sync the layout helper's cache
-                    try { _layoutHelper?.RecalculateLayout(); } catch { }
                     UpdateScrollBars();
                     // Update hit areas since layout changed
                     try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
@@ -177,6 +181,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showCheckBox = value;
+                RecalculateLayoutCache();
+                UpdateScrollBars();
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether a node reserves horizontal space for its icon when it has none.
+        /// <para>
+        /// Defaults to <see cref="IconSlotMode.WhenAnyNodeHasIcon"/>: a tree where only some nodes
+        /// carry an icon keeps its labels aligned, while a tree with no icons at all is unaffected.
+        /// </para>
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Whether nodes without an icon still reserve the icon's width, so labels stay aligned within a level.")]
+        [DefaultValue(IconSlotMode.WhenAnyNodeHasIcon)]
+        public IconSlotMode IconSlotMode
+        {
+            get => _iconSlotMode;
+            set
+            {
+                if (_iconSlotMode == value) return;
+                _iconSlotMode = value;
                 RecalculateLayoutCache();
                 UpdateScrollBars();
                 try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }

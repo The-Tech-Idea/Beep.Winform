@@ -79,12 +79,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                                              IBeepTheme theme)
         {
             var colors = ToolTipStyleAdapter.GetColors(config, theme);
-            int bgA    = (int)(GlassBgAlpha * 255);
 
-            // Base frosted fill
+            // Base frosted fill — OPAQUE.
+            //
+            // This used to fill with alpha (GlassBgAlpha), which looks right on a normal surface
+            // but not here: CustomToolTip sets TransparencyKey = Color.Magenta and paints its form
+            // background magenta, so those pixels are punched out to transparent. Alpha-blending
+            // over that base produces a magenta-tinted colour that is *not* exactly the key, so it
+            // is not punched out — the tooltip rendered as a solid magenta box.
+            //
+            // Colour-key transparency and alpha blending cannot be combined. True per-pixel glass
+            // would need a layered window (UpdateLayeredWindow), which is a much larger change; the
+            // frosted *look* is achieved here by compositing the same colour against a light base
+            // and filling opaquely. Layers drawn on top of this fill may use alpha freely, because
+            // they now blend against an opaque surface rather than the key colour.
             using var path = CreateRoundedRect(bounds, CornerRadius);
-            using var bg   = new SolidBrush(Color.FromArgb(bgA,
-                colors.background.R, colors.background.G, colors.background.B));
+            using var bg   = new SolidBrush(CompositeOverLight(colors.background, GlassBgAlpha));
             g.FillPath(bg, path);
 
             // Sheen — top-quarter highlight gradient
@@ -95,6 +105,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 Color.Transparent,
                 LinearGradientMode.Vertical);
             g.FillPath(sheen, sheenPath);
+        }
+
+        /// <summary>
+        /// Composites <paramref name="colour"/> at <paramref name="alpha"/> over a light base and
+        /// returns an opaque result — the frosted appearance without relying on window alpha, which
+        /// this form's colour-key transparency cannot support.
+        /// </summary>
+        private static Color CompositeOverLight(Color colour, float alpha)
+        {
+            const int BaseTone = 246;   // near-white frost backing
+            alpha = Math.Max(0f, Math.Min(1f, alpha));
+
+            int Blend(int channel) => (int)Math.Round(channel * alpha + BaseTone * (1 - alpha));
+
+            return Color.FromArgb(255, Blend(colour.R), Blend(colour.G), Blend(colour.B));
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -133,6 +158,55 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         // ──────────────────────────────────────────────────────────────
         // Content — text with soft drop shadow for legibility
         // ──────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Measures with the same fonts <see cref="PaintContent"/> draws with.
+        /// <para>
+        /// Without this override the inherited <c>CalculateSize</c> measures using the base
+        /// painter's title/body fonts, while this painter renders with the theme's much larger
+        /// <c>TitleStyle</c> and <c>BodyStyle</c>. The window was therefore sized for one font and
+        /// filled with another, and the body text was clipped off the bottom — the same
+        /// measure-with-one-font-draw-with-another defect that clipped every label in BeepTree.
+        /// </para>
+        /// </summary>
+        public override Size CalculateSize(Graphics g, ToolTipConfig config)
+        {
+            if (config?.ContentItems is { Count: > 0 })
+                return base.CalculateSize(g, config);
+
+            var theme = BeepThemesManager.CurrentTheme;
+            var titleFont = BeepThemesManager.ToFont(theme?.TitleStyle) ?? BeepFontManager.DefaultFont;
+            var bodyFont = BeepThemesManager.ToFont(theme?.BodyStyle) ?? BeepFontManager.DefaultFont;
+
+            const int pad = 10;
+            int maxWidth = config.MaxSize?.Width > 0 ? config.MaxSize.Value.Width : 320;
+            int maxInner = Math.Max(1, maxWidth - pad * 2);
+
+            // Two passes, because height depends on the width the text will actually wrap at.
+            //
+            // Pass 1 picks the content width. Pass 2 measures heights *at that same width* — the
+            // width PaintContent will use. Measuring heights against maxInner while painting at
+            // the narrower final width lets a line wrap at paint time that did not wrap at measure
+            // time, which grows the content past the window and clips the body text.
+            int contentWidth = 0;
+            if (!string.IsNullOrEmpty(config.Title))
+                contentWidth = Math.Max(contentWidth, (int)Math.Ceiling(g.MeasureString(config.Title, titleFont, maxInner).Width));
+            if (!string.IsNullOrEmpty(config.Text))
+                contentWidth = Math.Max(contentWidth, (int)Math.Ceiling(g.MeasureString(config.Text, bodyFont, maxInner).Width));
+
+            // A couple of pixels of slack: MeasureString and DrawString disagree by a fraction of a
+            // pixel on trailing glyphs, which is enough to force an unwanted wrap at exactly the
+            // measured width.
+            contentWidth = Math.Min(maxInner, contentWidth + 2);
+
+            int height = pad * 2;
+            if (!string.IsNullOrEmpty(config.Title))
+                height += (int)Math.Ceiling(g.MeasureString(config.Title, titleFont, contentWidth).Height) + 4;
+            if (!string.IsNullOrEmpty(config.Text))
+                height += (int)Math.Ceiling(g.MeasureString(config.Text, bodyFont, contentWidth).Height);
+
+            return new Size(contentWidth + pad * 2, height);
+        }
 
         public override void PaintContent(Graphics g, Rectangle bounds, ToolTipConfig config,
                                           IBeepTheme theme)

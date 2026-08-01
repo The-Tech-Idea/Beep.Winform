@@ -71,17 +71,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 height = Math.Max(height, DefaultIconSize + DefaultPadding * 2);
             }
 
-            // Measure title
+            // Measure exactly the sections the variant will actually draw. Measuring a title that
+            // PaintContent then suppresses (Simple, Shortcut) would leave a band of empty space,
+            // and omitting one it does draw would clip it.
+            var sections = ToolTipSectionPlan.For(config);
+
             int titleHeight = 0;
             int contentWidth = 0;
 
-            if (!string.IsNullOrEmpty(config.Title))
+            if (sections.ShowTitle && !string.IsNullOrEmpty(config.Title))
             {
                 var titleFont = GetTitleFont(config);
                 var titleSize = TextUtils.MeasureText(g,config.Title, titleFont, DefaultMaxWidth - width);
                 titleHeight = (int)Math.Ceiling(titleSize.Height);
                 contentWidth = Math.Max(contentWidth, (int)Math.Ceiling(titleSize.Width));
                 height += titleHeight + DefaultTitleSpacing;
+
+                if (sections.ShowHeaderDivider) height += DefaultTitleSpacing + 1;
             }
 
             // Measure text
@@ -93,6 +99,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 height += (int)Math.Ceiling(textSize.Height);
             }
 
+            if (sections.ShowShortcuts && config.Shortcuts != null && config.Shortcuts.Count > 0)
+            {
+                var badge = Helpers.ShortcutBadgePainter.MeasureShortcuts(g, config.Shortcuts);
+                if (!badge.IsEmpty)
+                {
+                    if (sections.ShortcutsInline)
+                    {
+                        // Same row as the label: widen, do not grow taller.
+                        contentWidth += badge.Width + DefaultIconMargin;
+                        height = Math.Max(height, badge.Height + DefaultPadding * 2);
+                    }
+                    else
+                    {
+                        contentWidth = Math.Max(contentWidth, badge.Width);
+                        height += badge.Height + DefaultTitleSpacing;
+                    }
+                }
+            }
+
             width += contentWidth;
 
             // Account for BeepControlStyle BorderThickness
@@ -102,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             height += borderWidth * 2; // Top + Bottom
 
             // Account for BeepControlStyle Shadow size
-            if ((config.ShowShadow || config.EnableShadow) && StyleShadows.HasShadow(beepStyle))
+            if (config.ShowShadow && StyleShadows.HasShadow(beepStyle))
             {
                 int shadowBlur = StyleShadows.GetShadowBlur(beepStyle);
                 int shadowOffsetX = Math.Abs(StyleShadows.GetShadowOffsetX(beepStyle));

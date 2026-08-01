@@ -1,3 +1,4 @@
+using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Images;
@@ -8,106 +9,110 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
     {
         private System.ComponentModel.IContainer components = null;
 
+        /// <summary>
+        /// Creates and configures the controls; <see cref="BeepDialogShell"/> decides where they sit.
+        /// </summary>
+        /// <remarks>
+        /// The combo box was pinned to 396×28 at (12, 36) inside a body panel pinned to 420×90. A
+        /// dialog whose entire purpose is to present a list could not grow to show more of it, and
+        /// its two buttons at (102, 8) and (220, 8) would overlap on any longer caption. The shell
+        /// gives the body the space the form actually has.
+        /// </remarks>
         private void InitializeComponent()
         {
-            this._headerPanel  = new BeepPanel();
-            this._dialogIcon   = new BeepImage();
-            this._titleLabel   = new BeepLabel();
-            this._bodyPanel    = new BeepPanel();
-            this._messageLabel = new BeepLabel();
-            this._comboBox     = new BeepComboBox();
-            this._buttonPanel  = new BeepPanel();
-            this._okButton     = new BeepButton();
-            this._cancelButton = new BeepButton();
-            this.SuspendLayout();
+            _shell = new BeepDialogShell();
+            _headerPanel = new TableLayoutPanel();
+            _bodyPanel = new TableLayoutPanel();
+            _dialogIcon = new BeepImage();
+            _titleLabel = new BeepLabel();
+            _messageLabel = new BeepLabel();
+            _comboBox = new BeepComboBox();
+            _okButton = new BeepButton();
+            _cancelButton = new BeepButton();
+            SuspendLayout();
 
-            this._headerPanel.IsFrameless = true;
-            this._headerPanel.ShowTitle = false;
-            this._headerPanel.ShowTitleLine = false;
-            this._headerPanel.UseThemeColors = true;
-            this._headerPanel.Location = new System.Drawing.Point(0, 0);
-            this._headerPanel.Size = new System.Drawing.Size(420, 56);
+            // ── header: icon + title ─────────────────────────────────────────────
+            _headerPanel.Dock = DockStyle.Fill;
+            _headerPanel.AutoSize = true;
+            _headerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            _headerPanel.ColumnCount = 2;
+            _headerPanel.RowCount = 1;
+            _headerPanel.Margin = new Padding(0);
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            _headerPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            this._dialogIcon.UseThemeColors = true;
-            this._dialogIcon.ImagePath = Svgs.Input;
-            this._dialogIcon.ScaleMode = ImageScaleMode.Stretch;
-            this._dialogIcon.Location = new System.Drawing.Point(8, 10);
-            this._dialogIcon.Size = new System.Drawing.Size(36, 36);
+            _dialogIcon.UseThemeColors = true;
+            _dialogIcon.ImagePath = Svgs.Input;
+            _dialogIcon.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            _dialogIcon.Size = new System.Drawing.Size(32, 32);
+            _dialogIcon.Margin = new Padding(0, 0, 12, 0);
 
-            this._titleLabel.UseThemeColors = true;
-            this._titleLabel.IsFrameless = true;
-            this._titleLabel.AutoEllipsis = true;
-            this._titleLabel.Location = new System.Drawing.Point(52, 12);
-            this._titleLabel.Size = new System.Drawing.Size(360, 36);
+            _titleLabel.UseThemeColors = true;
+            _titleLabel.IsFrameless = true;
+            _titleLabel.AutoEllipsis = true;
+            _titleLabel.Dock = DockStyle.Fill;
 
-            this._bodyPanel.IsFrameless = true;
-            this._bodyPanel.ShowTitle = false;
-            this._bodyPanel.ShowTitleLine = false;
-            this._bodyPanel.UseThemeColors = true;
-            this._bodyPanel.Location = new System.Drawing.Point(0, 56);
-            this._bodyPanel.Size = new System.Drawing.Size(420, 90);
+            // ── body: prompt above the list ──────────────────────────────────────
+            _bodyPanel.Dock = DockStyle.Fill;
+            _bodyPanel.ColumnCount = 1;
+            _bodyPanel.RowCount = 2;
+            _bodyPanel.Margin = new Padding(0);
+            _bodyPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            _bodyPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));       // prompt
+            _bodyPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));  // the list itself
 
-            this._messageLabel.UseThemeColors = true;
-            this._messageLabel.IsFrameless = true;
-            this._messageLabel.AutoEllipsis = true;
-            this._messageLabel.Location = new System.Drawing.Point(12, 8);
-            this._messageLabel.Size = new System.Drawing.Size(396, 20);
+            _messageLabel.UseThemeColors = true;
+            _messageLabel.IsFrameless = true;
+            _messageLabel.AutoEllipsis = true;
+            _messageLabel.AutoSize = true;
+            _messageLabel.Dock = DockStyle.Fill;
+            _messageLabel.Margin = new Padding(0, 0, 0, 8);
 
-            this._comboBox.UseThemeColors = true;
-            this._comboBox.Location = new System.Drawing.Point(12, 36);
-            this._comboBox.Size = new System.Drawing.Size(396, 28);
+            // Fills the row rather than a fixed 396×28, so the list grows with the dialog.
+            _comboBox.UseThemeColors = true;
+            _comboBox.Dock = DockStyle.Top;
+            _comboBox.Margin = new Padding(0);
 
-            this._buttonPanel.IsFrameless = true;
-            this._buttonPanel.ShowTitle = false;
-            this._buttonPanel.ShowTitleLine = false;
-            this._buttonPanel.UseThemeColors = true;
-            this._buttonPanel.Location = new System.Drawing.Point(0, 146);
-            this._buttonPanel.Size = new System.Drawing.Size(420, 54);
+            // ── footer actions ───────────────────────────────────────────────────
+            _okButton.UseThemeColors = true;
+            _okButton.Text = "OK";
+            _okButton.AutoSize = true;
+            _okButton.MinimumSize = new System.Drawing.Size(110, 34);
+            _okButton.Click += OkButton_Click;
 
-            this._okButton.UseThemeColors = true;
-            this._okButton.Text = "OK";
-            this._okButton.AutoSize = true;
-            this._okButton.MinimumSize = new System.Drawing.Size(110, 34);
-            this._okButton.Location = new System.Drawing.Point(102, 8);
+            _cancelButton.UseThemeColors = true;
+            _cancelButton.Text = "Cancel";
+            _cancelButton.AutoSize = true;
+            _cancelButton.MinimumSize = new System.Drawing.Size(110, 34);
+            _cancelButton.Click += CancelButton_Click;
 
-            this._cancelButton.UseThemeColors = true;
-            this._cancelButton.Text = "Cancel";
-            this._cancelButton.AutoSize = true;
-            this._cancelButton.MinimumSize = new System.Drawing.Size(110, 34);
-            this._cancelButton.Location = new System.Drawing.Point(220, 8);
+            // ── form ─────────────────────────────────────────────────────────────
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new System.Drawing.Size(420, 200);
+            MinimumSize = new System.Drawing.Size(340, 180);
+            StartPosition = FormStartPosition.CenterParent;
+            ShowInTaskbar = false;
+            // This dialog draws its own header row, so the skinned caption bar would be a
+            // second, empty title band: it reserved 72px of top chrome and painted
+            // owner.Text, which was blank. Text is now the accessible window name instead.
+            ShowCaptionBar = false;
+            Text = string.Empty;
+            Name = "BeepListDialog";
 
-            this._headerPanel.Controls.Add(this._dialogIcon);
-            this._headerPanel.Controls.Add(this._titleLabel);
-            this._bodyPanel.Controls.Add(this._messageLabel);
-            this._bodyPanel.Controls.Add(this._comboBox);
-            this._buttonPanel.Controls.Add(this._okButton);
-            this._buttonPanel.Controls.Add(this._cancelButton);
-            this.Controls.Add(this._bodyPanel);
-            this.Controls.Add(this._headerPanel);
-            this.Controls.Add(this._buttonPanel);
+            Controls.Add(_shell);
 
-            this._okButton.Click += this.OkButton_Click;
-            this._cancelButton.Click += this.CancelButton_Click;
-
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(420, 200);
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.ShowInTaskbar = false;
-            this.Text = string.Empty;
-            this.Name = "BeepListDialog";
-
-            this.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
-        internal BeepPanel    _headerPanel;
-        internal BeepImage    _dialogIcon;
-        internal BeepLabel    _titleLabel;
-        internal BeepPanel    _bodyPanel;
-        internal BeepLabel    _messageLabel;
+        private BeepDialogShell _shell;
+        private TableLayoutPanel _headerPanel;
+        private TableLayoutPanel _bodyPanel;
+        internal BeepImage _dialogIcon;
+        internal BeepLabel _titleLabel;
+        internal BeepLabel _messageLabel;
         internal BeepComboBox _comboBox;
-        internal BeepPanel    _buttonPanel;
-        internal BeepButton   _okButton;
-        internal BeepButton   _cancelButton;
+        internal BeepButton _okButton;
+        internal BeepButton _cancelButton;
     }
 }

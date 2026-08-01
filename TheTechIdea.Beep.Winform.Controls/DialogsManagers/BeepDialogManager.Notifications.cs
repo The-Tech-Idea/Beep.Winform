@@ -286,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 ShowProgressBar = false,
                 IconPath = GetToastIconPath(type),
             });
-            return new EmptyDisposable();
+            return new BannerHandle(mgr, MapType(type));
         }
 
         /// <summary>
@@ -493,9 +493,39 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             public void Dispose() => _mgr.DismissAllByType(Notifications.NotificationType.Info);
         }
 
-        private class EmptyDisposable : IDisposable
+        /// <summary>
+        /// Dismisses the banner it was returned for.
+        /// </summary>
+        /// <remarks>
+        /// <c>Banner</c> previously returned a no-op disposable, so <c>using (dm.Banner(...))</c>
+        /// read as scoped and was not - while its sibling <c>ToastLoading</c> returned a handle whose
+        /// disposal genuinely dismissed. Two methods with the same signature and opposite behaviour,
+        /// indistinguishable at the call site.
+        ///
+        /// Dismissal is by notification type, matching what LoadingToastHandle already does. That is
+        /// coarser than dismissing the exact banner - it clears any banner of the same severity -
+        /// because BeepNotificationManager.Show returns void and there is no handle to the instance
+        /// it created. Making Show return the notification would allow an exact dismiss, but that is
+        /// a signature change in the Notifications subsystem rather than here.
+        /// </remarks>
+        private sealed class BannerHandle : IDisposable
         {
-            public void Dispose() { }
+            private readonly BeepNotificationManager _mgr;
+            private readonly Notifications.NotificationType _type;
+            private bool _disposed;
+
+            public BannerHandle(BeepNotificationManager mgr, Notifications.NotificationType type)
+            {
+                _mgr = mgr;
+                _type = type;
+            }
+
+            public void Dispose()
+            {
+                if (_disposed) return;
+                _disposed = true;
+                _mgr.DismissAllByType(_type);
+            }
         }
 
         #endregion

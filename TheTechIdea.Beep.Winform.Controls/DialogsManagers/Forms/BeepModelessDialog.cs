@@ -17,19 +17,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             StartPosition = FormStartPosition.Manual;
         }
 
+        /// <summary>Positions this window relative to <paramref name="owner"/>, kept on screen.</summary>
         public void PositionRelativeToOwner(Form owner, DialogPosition position)
         {
             if (owner == null) return;
             // Skill § 1: corner offset = ContainerPadding (12 px at 96 DPI, scales with DPI).
             int cornerOffset = BeepLayoutMetrics.ContainerPadding.All.ScaleValue(this);
-            Location = position switch
-            {
-                DialogPosition.TopLeft => new Point(owner.Left + cornerOffset, owner.Top + cornerOffset),
-                DialogPosition.TopRight => new Point(owner.Right - Width - cornerOffset, owner.Top + cornerOffset),
-                DialogPosition.BottomLeft => new Point(owner.Left + cornerOffset, owner.Bottom - Height - cornerOffset),
-                DialogPosition.BottomRight => new Point(owner.Right - Width - cornerOffset, owner.Bottom - Height - cornerOffset),
-                _ => new Point(owner.Left + (owner.Width - Width) / 2, owner.Top + (owner.Height - Height) / 2)
-            };
+            Location = Helpers.DialogPlacementEngine.Place(owner, Size, position, cornerOffset);
         }
     }
 }

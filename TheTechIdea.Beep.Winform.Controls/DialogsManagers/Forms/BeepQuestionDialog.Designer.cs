@@ -1,3 +1,4 @@
+using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Images;
 
@@ -7,129 +8,137 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
     {
         private System.ComponentModel.IContainer components = null;
 
+        /// <summary>
+        /// Creates and configures the controls; <see cref="BeepDialogShell"/> decides where they sit.
+        /// </summary>
+        /// <remarks>
+        /// Every control here used to carry an explicit <c>Location</c> and <c>Size</c> — a body panel
+        /// pinned to 420×90 whatever the message said, a details label at a hardcoded (12, 78) with a
+        /// height of 0, and two buttons at (102, 8) and (220, 8) that would collide the moment either
+        /// caption was localised. All of it is gone; the shell derives structure from content.
+        /// <para>
+        /// The <c>BeepPanel</c> wrappers went with it. They existed to carve the form into three
+        /// bands by coordinate — the job a <c>TableLayoutPanel</c> row does — and were being told to
+        /// be frameless and title-less so they stayed invisible while doing it. The body's stacked
+        /// message / toggle / details is a real grouping, so that one survives as a table.
+        /// </para>
+        /// </remarks>
         private void InitializeComponent()
         {
-            this._headerPanel  = new BeepPanel();
-            this._dialogIcon   = new BeepImage();
-            this._titleLabel   = new BeepLabel();
-            this._bodyPanel    = new BeepPanel();
-            this._messageLabel = new BeepLabel();
-            this._detailsToggleButton = new BeepButton();
-            this._detailsLabel = new BeepLabel();
-            this._buttonPanel  = new BeepPanel();
-            this._yesButton    = new BeepButton();
-            this._noButton     = new BeepButton();
-            this.SuspendLayout();
+            _shell = new BeepDialogShell();
+            _headerPanel = new TableLayoutPanel();
+            _bodyPanel = new TableLayoutPanel();
+            _dialogIcon = new BeepImage();
+            _titleLabel = new BeepLabel();
+            _messageLabel = new BeepLabel();
+            _detailsToggleButton = new BeepButton();
+            _detailsLabel = new BeepLabel();
+            _yesButton = new BeepButton();
+            _noButton = new BeepButton();
+            SuspendLayout();
 
-            this._headerPanel.IsFrameless = true;
-            this._headerPanel.ShowTitle = false;
-            this._headerPanel.ShowTitleLine = false;
-            this._headerPanel.UseThemeColors = true;
-            this._headerPanel.Theme = "ModernTheme";
-            this._headerPanel.Location = new System.Drawing.Point(0, 0);
-            this._headerPanel.Size = new System.Drawing.Size(420, 56);
+            // ── header: icon + title ─────────────────────────────────────────────
+            _headerPanel.Dock = DockStyle.Fill;
+            _headerPanel.AutoSize = true;
+            _headerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            _headerPanel.ColumnCount = 2;
+            _headerPanel.RowCount = 1;
+            _headerPanel.Margin = new Padding(0);
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            _headerPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            this._dialogIcon.UseThemeColors = true;
-            this._dialogIcon.Theme = "ModernTheme";
-            this._dialogIcon.ImagePath = Svgs.Question;
-            this._dialogIcon.ScaleMode = ImageScaleMode.Stretch;
-            this._dialogIcon.Location = new System.Drawing.Point(8, 10);
-            this._dialogIcon.Size = new System.Drawing.Size(36, 36);
+            _dialogIcon.UseThemeColors = true;
+            _dialogIcon.Theme = "ModernTheme";
+            _dialogIcon.ImagePath = Svgs.Question;
+            _dialogIcon.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            _dialogIcon.Size = new System.Drawing.Size(32, 32);
+            _dialogIcon.Margin = new Padding(0, 0, 12, 0);
 
-            this._titleLabel.UseThemeColors = true;
-            this._titleLabel.Theme = "ModernTheme";
-            this._titleLabel.IsFrameless = true;
-            this._titleLabel.AutoEllipsis = true;
-            this._titleLabel.Location = new System.Drawing.Point(52, 12);
-            this._titleLabel.Size = new System.Drawing.Size(360, 36);
+            _titleLabel.UseThemeColors = true;
+            _titleLabel.Theme = "ModernTheme";
+            _titleLabel.IsFrameless = true;
+            _titleLabel.AutoEllipsis = true;
+            _titleLabel.Dock = DockStyle.Fill;
 
-            this._bodyPanel.IsFrameless = true;
-            this._bodyPanel.ShowTitle = false;
-            this._bodyPanel.ShowTitleLine = false;
-            this._bodyPanel.UseThemeColors = true;
-            this._bodyPanel.Theme = "ModernTheme";
-            this._bodyPanel.Location = new System.Drawing.Point(0, 56);
-            this._bodyPanel.Size = new System.Drawing.Size(420, 90);
+            // ── body: message, then the collapsible details ──────────────────────
+            _bodyPanel.Dock = DockStyle.Fill;
+            _bodyPanel.ColumnCount = 1;
+            _bodyPanel.RowCount = 3;
+            _bodyPanel.Margin = new Padding(0);
+            _bodyPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            _bodyPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));   // message
+            _bodyPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));        // toggle
+            _bodyPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));        // details
 
-            this._messageLabel.UseThemeColors = true;
-            this._messageLabel.Theme = "ModernTheme";
-            this._messageLabel.IsFrameless = true;
-            this._messageLabel.AutoEllipsis = true;
-            this._messageLabel.WordWrap = true;
-            this._messageLabel.Location = new System.Drawing.Point(12, 8);
-            this._messageLabel.Size = new System.Drawing.Size(396, 40);
+            _messageLabel.UseThemeColors = true;
+            _messageLabel.Theme = "ModernTheme";
+            _messageLabel.IsFrameless = true;
+            _messageLabel.WordWrap = true;
+            _messageLabel.Dock = DockStyle.Fill;
 
-            this._detailsToggleButton.UseThemeColors = true;
-            this._detailsToggleButton.Theme = "ModernTheme";
-            this._detailsToggleButton.Visible = false;
-            this._detailsToggleButton.Text = "Show details";
-            this._detailsToggleButton.Location = new System.Drawing.Point(12, 52);
-            this._detailsToggleButton.Size = new System.Drawing.Size(396, 26);
+            _detailsToggleButton.UseThemeColors = true;
+            _detailsToggleButton.Theme = "ModernTheme";
+            _detailsToggleButton.Visible = false;
+            _detailsToggleButton.AutoSize = true;
+            _detailsToggleButton.Text = "Show details";
+            _detailsToggleButton.Anchor = AnchorStyles.Left;
+            _detailsToggleButton.Margin = new Padding(0, 8, 0, 0);
 
-            this._detailsLabel.UseThemeColors = true;
-            this._detailsLabel.Theme = "ModernTheme";
-            this._detailsLabel.IsFrameless = true;
-            this._detailsLabel.WordWrap = true;
-            this._detailsLabel.Visible = false;
-            this._detailsLabel.Location = new System.Drawing.Point(12, 78);
-            this._detailsLabel.Size = new System.Drawing.Size(396, 0);
+            // No hardcoded height. The row is AutoSize, so details occupy exactly what the text
+            // needs when shown and nothing when hidden. This label previously carried an explicit
+            // Size of 396×0 — a height the form then had to fight every time it was revealed.
+            _detailsLabel.UseThemeColors = true;
+            _detailsLabel.Theme = "ModernTheme";
+            _detailsLabel.IsFrameless = true;
+            _detailsLabel.WordWrap = true;
+            _detailsLabel.Visible = false;
+            _detailsLabel.Dock = DockStyle.Fill;
+            _detailsLabel.Margin = new Padding(0, 6, 0, 0);
 
-            this._buttonPanel.IsFrameless = true;
-            this._buttonPanel.ShowTitle = false;
-            this._buttonPanel.ShowTitleLine = false;
-            this._buttonPanel.UseThemeColors = true;
-            this._buttonPanel.Theme = "ModernTheme";
-            this._buttonPanel.Location = new System.Drawing.Point(0, 146);
-            this._buttonPanel.Size = new System.Drawing.Size(420, 54);
+            // ── footer actions ───────────────────────────────────────────────────
+            _yesButton.UseThemeColors = true;
+            _yesButton.Theme = "ModernTheme";
+            _yesButton.Text = "Yes";
+            _yesButton.AutoSize = true;
+            _yesButton.MinimumSize = new System.Drawing.Size(110, 34);
+            _yesButton.Click += YesButton_Click;
 
-            this._yesButton.UseThemeColors = true;
-            this._yesButton.Theme = "ModernTheme";
-            this._yesButton.Text = "Yes";
-            this._yesButton.AutoSize = true;
-            this._yesButton.MinimumSize = new System.Drawing.Size(110, 34);
-            this._yesButton.Location = new System.Drawing.Point(102, 8);
+            _noButton.UseThemeColors = true;
+            _noButton.Theme = "ModernTheme";
+            _noButton.Text = "No";
+            _noButton.AutoSize = true;
+            _noButton.MinimumSize = new System.Drawing.Size(110, 34);
+            _noButton.Click += NoButton_Click;
 
-            this._noButton.UseThemeColors = true;
-            this._noButton.Theme = "ModernTheme";
-            this._noButton.Text = "No";
-            this._noButton.AutoSize = true;
-            this._noButton.MinimumSize = new System.Drawing.Size(110, 34);
-            this._noButton.Location = new System.Drawing.Point(220, 8);
+            _detailsToggleButton.Click += DetailsToggleButton_Click;
 
-            this._headerPanel.Controls.Add(this._dialogIcon);
-            this._headerPanel.Controls.Add(this._titleLabel);
-            this._bodyPanel.Controls.Add(this._messageLabel);
-            this._bodyPanel.Controls.Add(this._detailsToggleButton);
-            this._bodyPanel.Controls.Add(this._detailsLabel);
-            this._buttonPanel.Controls.Add(this._yesButton);
-            this._buttonPanel.Controls.Add(this._noButton);
-            this.Controls.Add(this._bodyPanel);
-            this.Controls.Add(this._headerPanel);
-            this.Controls.Add(this._buttonPanel);
+            // ── form ─────────────────────────────────────────────────────────────
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new System.Drawing.Size(420, 200);
+            MinimumSize = new System.Drawing.Size(340, 180);
+            StartPosition = FormStartPosition.CenterParent;
+            ShowInTaskbar = false;
+            // This dialog draws its own header row, so the skinned caption bar would be a
+            // second, empty title band: it reserved 72px of top chrome and painted
+            // owner.Text, which was blank. Text is now the accessible window name instead.
+            ShowCaptionBar = false;
+            Text = string.Empty;
+            Name = "BeepQuestionDialog";
 
-            this._yesButton.Click += this.YesButton_Click;
-            this._noButton.Click += this.NoButton_Click;
-            this._detailsToggleButton.Click += this.DetailsToggleButton_Click;
+            Controls.Add(_shell);
 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(420, 200);
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.ShowInTaskbar = false;
-            this.Text = string.Empty;
-            this.Name = "BeepQuestionDialog";
-
-            this.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
-        internal BeepPanel  _headerPanel;
-        internal BeepImage  _dialogIcon;
-        internal BeepLabel  _titleLabel;
-        internal BeepPanel  _bodyPanel;
-        internal BeepLabel  _messageLabel;
+        private BeepDialogShell _shell;
+        private TableLayoutPanel _headerPanel;
+        private TableLayoutPanel _bodyPanel;
+        internal BeepImage _dialogIcon;
+        internal BeepLabel _titleLabel;
+        internal BeepLabel _messageLabel;
         internal BeepButton _detailsToggleButton;
-        internal BeepLabel  _detailsLabel;
-        internal BeepPanel  _buttonPanel;
+        internal BeepLabel _detailsLabel;
         internal BeepButton _yesButton;
         internal BeepButton _noButton;
     }

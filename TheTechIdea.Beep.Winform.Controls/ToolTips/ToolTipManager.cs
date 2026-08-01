@@ -125,6 +125,71 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public bool EnableAccessibility { get; set; } = true;
 
+        /// <summary>
+        /// How long after a group's last tooltip closes that the next one in the same group skips
+        /// its show delay.
+        /// <para>
+        /// Without this, sweeping a ten-button toolbar costs ten × <see cref="DefaultShowDelay"/> —
+        /// five seconds of waiting to read ten labels. Every mature system special-cases the
+        /// "user is already reading tooltips" state: Radix calls it <c>skipDelayDuration</c>,
+        /// WinForms' own ToolTip calls it <c>ReshowDelay</c>.
+        /// </para>
+        /// </summary>
+        public int SkipDelayWindow { get; set; } = 300;
+
+        #endregion
+
+        #region Delay groups
+
+        // Last time a tooltip in each group was hidden. Only updated for tooltips that actually
+        // became visible, so flicking the pointer across a toolbar without ever showing one does
+        // not arm the skip window.
+        private readonly ConcurrentDictionary<string, DateTime> _groupLastHidden = new();
+
+        /// <summary>
+        /// The delay group for a config: the explicit name, otherwise one derived from the anchor's
+        /// parent so sibling controls share a group automatically.
+        /// </summary>
+        private static string ResolveDelayGroup(Control control, ToolTipConfig config)
+        {
+            if (!string.IsNullOrEmpty(config?.DelayGroup)) return config.DelayGroup;
+
+            var parent = control?.Parent;
+            if (parent == null) return "default";
+
+            // RuntimeHelpers.GetHashCode is the *identity* hash: it ignores any GetHashCode
+            // override the container might have. A control that overrode GetHashCode by value
+            // could otherwise make two unrelated containers resolve to the same delay group, so
+            // hovering in one would suppress the show delay in the other.
+            int identity = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(parent);
+            return $"parent:{parent.GetType().Name}:{identity}";
+        }
+
+        /// <summary>
+        /// The show delay to use, honouring the group's skip window.
+        /// </summary>
+        private int ResolveShowDelay(Control control, ToolTipConfig config)
+        {
+            int configured = config?.ShowDelay ?? DefaultShowDelay;
+            if (configured <= 0) return 0;
+
+            var group = ResolveDelayGroup(control, config);
+            if (_groupLastHidden.TryGetValue(group, out var lastHidden)
+                && (DateTime.UtcNow - lastHidden).TotalMilliseconds <= SkipDelayWindow)
+            {
+                return 0;   // still in the skip window — show immediately
+            }
+
+            return configured;
+        }
+
+        /// <summary>Records that a group just closed a tooltip, arming its skip window.</summary>
+        private void MarkGroupHidden(Control control, ToolTipConfig config)
+        {
+            if (control == null) return;
+            _groupLastHidden[ResolveDelayGroup(control, config)] = DateTime.UtcNow;
+        }
+
         #endregion
 
         #region Show Methods
@@ -417,7 +482,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Create or update configuration
             config ??= new ToolTipConfig();
             config.Text = text;
-            config.Key = $"control_{control.GetHashCode()}_{DateTime.Now.Ticks}";
+            // A GUID, not a hash code. Control.GetHashCode() is not an identity — two live controls
+            // can share one, and it is not stable across a control's lifetime. The old key combined
+            // it with DateTime.Now.Ticks to paper over collisions, which made the key neither
+            // unique-by-construction nor stable for the same control. Lookups by control go through
+            // _controlTooltips anyway, so the key only has to be unique.
+            config.Key = $"control_{Guid.NewGuid():N}";
             config.Style = DefaultControlStyle;
 
             // Store control-tooltip mapping
@@ -428,15 +498,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // every time a tooltip was reassigned.
             AttachControlHandlers(control, config);
 
-            // Set accessibility properties
-            if (EnableAccessibility)
+            // Expose the tooltip to assistive technology as the control's DESCRIPTION.
+            //
+            // This used to also write config.Title into control.AccessibleName, which *replaces*
+            // the control's own name: a button labelled "Save" with a tooltip titled
+            // "Save document" started announcing as "Save document". The tooltip describes the
+            // control, it does not rename it — the same distinction as aria-describedby versus
+            // aria-label. Nothing restored the previous values either, so removing a tooltip left
+            // the host's own accessibility text overwritten.
+            if (EnableAccessibility && _attachedHandlers.TryGetValue(control, out var attached))
             {
-                control.AccessibleDescription = text;
+                attached.PriorAccessibleName = control.AccessibleName;
+                attached.PriorAccessibleDescription = control.AccessibleDescription;
+                attached.CapturedAccessibility = true;
 
-                if (!string.IsNullOrEmpty(config.Title))
-                {
-                    control.AccessibleName = config.Title;
-                }
+                control.AccessibleDescription = string.IsNullOrEmpty(config.Title)
+                    ? text
+                    : $"{config.Title}. {text}";
             }
         }
 
@@ -450,28 +528,83 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             public EventHandler? EnterHandler;
             public EventHandler? LeaveHandler;
             public MouseEventHandler? MoveHandler;
+            public EventHandler? GotFocusHandler;
+            public EventHandler? LostFocusHandler;
+            public EventHandler? ClickHandler;
+            public EventHandler? DisposedHandler;
+
+            // What the host had set before we attached, so RemoveTooltip can put it back.
+            public string? PriorAccessibleName;
+            public string? PriorAccessibleDescription;
+            public bool CapturedAccessibility;
         }
         private readonly ConcurrentDictionary<Control, TooltipHandlers> _attachedHandlers = new();
 
+        /// <summary>
+        /// Subscribes the events that match the configured <see cref="ToolTipTriggerMode"/>.
+        /// <para>
+        /// <c>TriggerMode</c> was declared with four values and read by nothing, so every tooltip
+        /// was hover-only no matter what the caller asked for — Focus, Click and Manual all behaved
+        /// as Hover. Keyboard users in particular never saw a tooltip at all.
+        /// </para>
+        /// </summary>
         private void AttachControlHandlers(Control control, ToolTipConfig config)
         {
-            EventHandler enterHandler = (s, e) => _ = OnControlMouseEnter(control, config);
-            EventHandler leaveHandler = (s, e) => _ = OnControlMouseLeave(control, config);
-            MouseEventHandler moveHandler = (s, e) => OnControlMouseMove(control, config, e);
+            var handlers = new TooltipHandlers();
+            var mode = config.TriggerMode;
 
-            _attachedHandlers[control] = new TooltipHandlers
+            if (mode == ToolTipTriggerMode.Hover)
             {
-                EnterHandler = enterHandler,
-                LeaveHandler = leaveHandler,
-                MoveHandler = moveHandler
-            };
+                handlers.EnterHandler = (s, e) => _ = OnControlMouseEnter(control, config);
+                handlers.LeaveHandler = (s, e) => _ = OnControlMouseLeave(control, config);
+                control.MouseEnter += handlers.EnterHandler;
+                control.MouseLeave += handlers.LeaveHandler;
+            }
+            else if (mode == ToolTipTriggerMode.Click)
+            {
+                handlers.ClickHandler = (s, e) => _ = ToggleTooltipFor(control, config);
+                control.Click += handlers.ClickHandler;
+            }
+            // Manual: nothing is subscribed; the host drives Show/Hide itself.
 
-            control.MouseEnter += enterHandler;
-            control.MouseLeave += leaveHandler;
+            // Focus triggers apply for the Focus mode, and are ALSO added on top of Hover when
+            // KeyboardTriggerable is set: a hover-only tooltip is unreachable from the keyboard,
+            // which is the accessibility half of WCAG 1.4.13.
+            if (mode == ToolTipTriggerMode.Focus || (mode == ToolTipTriggerMode.Hover && config.KeyboardTriggerable))
+            {
+                handlers.GotFocusHandler = (s, e) => _ = OnControlMouseEnter(control, config);
+                handlers.LostFocusHandler = (s, e) => _ = OnControlMouseLeave(control, config);
+                control.GotFocus += handlers.GotFocusHandler;
+                control.LostFocus += handlers.LostFocusHandler;
+            }
+
             if (config.FollowCursor)
             {
-                control.MouseMove += moveHandler;
+                handlers.MoveHandler = (s, e) => OnControlMouseMove(control, config, e);
+                control.MouseMove += handlers.MoveHandler;
             }
+
+            // Release ourselves when the anchor dies.
+            //
+            // Both _controlTooltips and _attachedHandlers are keyed by Control, so a host that
+            // disposes a control without calling RemoveTooltip — the normal case when a form
+            // closes — left the manager holding the control forever. Measured: 20 disposed
+            // anchors retained after 20 create/dispose cycles.
+            handlers.DisposedHandler = (s, e) => RemoveTooltip(control);
+            control.Disposed += handlers.DisposedHandler;
+
+            _attachedHandlers[control] = handlers;
+        }
+
+        /// <summary>Click-trigger toggle: show if hidden, hide if already shown.</summary>
+        private async Task ToggleTooltipFor(Control control, ToolTipConfig config)
+        {
+            if (_controlTooltips.TryGetValue(control, out var key) && _activeTooltips.ContainsKey(key))
+            {
+                await HideTooltipAsync(key);
+                return;
+            }
+            await OnControlMouseEnter(control, config);
         }
 
         private void DetachControlHandlers(Control control)
@@ -484,6 +617,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                     control.MouseLeave -= handlers.LeaveHandler;
                 if (handlers.MoveHandler != null)
                     control.MouseMove -= handlers.MoveHandler;
+                if (handlers.GotFocusHandler != null)
+                    control.GotFocus -= handlers.GotFocusHandler;
+                if (handlers.LostFocusHandler != null)
+                    control.LostFocus -= handlers.LostFocusHandler;
+                if (handlers.ClickHandler != null)
+                    control.Click -= handlers.ClickHandler;
+                if (handlers.DisposedHandler != null)
+                    control.Disposed -= handlers.DisposedHandler;
+
+                // Put the host's own accessibility text back. Leaving ours behind would make a
+                // removed tooltip permanently alter how the control announces itself.
+                if (handlers.CapturedAccessibility && !control.IsDisposed)
+                {
+                    control.AccessibleName = handlers.PriorAccessibleName;
+                    control.AccessibleDescription = handlers.PriorAccessibleDescription;
+                }
             }
         }
 
@@ -535,14 +684,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 _ = HideTooltipAsync(key);
             }
 
-            // Detach the MouseEnter/Leave/Move handlers we registered
+            // Detach the handlers we registered. This also restores whatever accessibility text the
+            // host had before the tooltip was attached.
+            //
+            // There used to be a `control.AccessibleDescription = string.Empty` here, which ran
+            // *after* the restore and blanked it again — so removing a tooltip destroyed the host's
+            // own description rather than returning it.
             DetachControlHandlers(control);
-
-            // Clear accessibility properties
-            if (EnableAccessibility)
-            {
-                control.AccessibleDescription = string.Empty;
-            }
         }
 
         /// <summary>
@@ -636,19 +784,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             try
             {
-                // Wait for show delay
-                var delay = config.ShowDelay ?? DefaultShowDelay;
+                // Wait for show delay — zero if this control's delay group is still inside its
+                // skip window, so moving along a toolbar does not re-pay the delay per button.
+                var delay = ResolveShowDelay(control, config);
                 if (delay > 0)
                 {
                     await Task.Delay(delay);
                 }
 
-                // Check if cursor is still over the control
-                if (!control.IsDisposed && control.ClientRectangle.Contains(control.PointToClient(Cursor.Position)))
+                // Is showing still justified after the delay?
+                //
+                // This used to require the pointer to be over the control, full stop. That is right
+                // for a hover trigger and wrong for every other one: a focus-triggered tooltip is
+                // shown precisely when the pointer is elsewhere, so requiring it would have made
+                // keyboard-triggered tooltips impossible even once TriggerMode was honoured.
+                if (!control.IsDisposed && TriggerStillValid(control, config))
                 {
-                    // Calculate position relative to control
-                    var location = CalculateTooltipPosition(control, config.Placement);
-                    config.Position = location;
+                    // Anchor to the control's screen RECTANGLE. Positioning previously received
+                    // only a point, so it could not align *Start / *End to the control's edges and
+                    // placed the tooltip over the control it describes.
+                    config.AnchorRect = control.RectangleToScreen(control.ClientRectangle);
+                    config.AnchorControl = control;
+
+                    // Kept for follow-cursor and for any caller still reading Position.
+                    config.Position = CalculateTooltipPosition(control, config.Placement);
 
                     // Show tooltip
                     await ShowTooltipAsync(config);
@@ -677,18 +836,90 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             try
             {
-                if (_controlTooltips.TryGetValue(control, out var key))
-                {
-                    // Small delay to prevent flicker when moving between controls
-                    await Task.Delay(200);
+                if (!_controlTooltips.TryGetValue(control, out var key)) return;
 
-                    // Hide the tooltip
-                    await HideTooltipAsync(key);
+                // A pinned tooltip stays until it is explicitly dismissed — leaving the anchor,
+                // the close delay and the delay group are all irrelevant to it.
+                if (config?.IsPinned == true) return;
+
+                // The close delay does double duty: it stops flicker when moving between adjacent
+                // controls, and it is the grace period during which the pointer can travel from the
+                // anchor onto the tooltip. config.HideDelay was declared and never read — the delay
+                // was a hard-coded 200ms.
+                int closeDelay = config?.HideDelay ?? 200;
+                await Task.Delay(closeDelay);
+
+                // WCAG 1.4.13 "hoverable": additional content shown on hover must remain visible
+                // while the pointer is over it. PersistOnHover was declared, documented as
+                // implementing exactly this, and read by nothing.
+                if (config?.PersistOnHover == true)
+                {
+                    while (IsPointerOverTooltip(key) || IsPointerOver(control))
+                    {
+                        await Task.Delay(100);
+                    }
+
+                    // Left the tooltip: give the same grace period again in case the pointer is
+                    // travelling back to the anchor.
+                    await Task.Delay(closeDelay);
+                    if (IsPointerOverTooltip(key) || IsPointerOver(control)) return;
                 }
+
+                // Arm the group's skip window only if a tooltip was genuinely on screen. Flicking
+                // the pointer across a toolbar never shows one, so it must not make the next hover
+                // instant.
+                bool wasVisible = _activeTooltips.ContainsKey(key);
+
+                await HideTooltipAsync(key);
+
+                if (wasVisible) MarkGroupHidden(control, config);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error in OnControlMouseLeave: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// After the show delay elapses, is there still a reason to show this tooltip?
+        /// Hover requires the pointer; Focus requires focus; Click and Manual are already an
+        /// explicit user action so they need no further confirmation.
+        /// </summary>
+        private static bool TriggerStillValid(Control control, ToolTipConfig config)
+        {
+            try
+            {
+                return config.TriggerMode switch
+                {
+                    ToolTipTriggerMode.Hover =>
+                        IsPointerOver(control) || (config.KeyboardTriggerable && control.Focused),
+                    ToolTipTriggerMode.Focus => control.Focused,
+                    _ => true
+                };
+            }
+            catch (ObjectDisposedException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>True when the pointer is over the live tooltip window for <paramref name="key"/>.</summary>
+        private bool IsPointerOverTooltip(string key)
+            => !string.IsNullOrEmpty(key)
+               && _activeTooltips.TryGetValue(key, out var instance)
+               && instance.IsPointerOver();
+
+        /// <summary>True when the pointer is over the anchor control.</summary>
+        private static bool IsPointerOver(Control control)
+        {
+            try
+            {
+                return control != null && !control.IsDisposed && control.Visible
+                       && control.RectangleToScreen(control.ClientRectangle).Contains(Cursor.Position);
+            }
+            catch (ObjectDisposedException)
+            {
+                return false;
             }
         }
 

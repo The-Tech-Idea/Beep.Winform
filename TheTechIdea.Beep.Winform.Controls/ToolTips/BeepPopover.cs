@@ -108,12 +108,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (_outsideClickFilter != null)
-            {
-                Application.RemoveMessageFilter(_outsideClickFilter);
-                _outsideClickFilter = null;
-            }
+            RemoveOutsideClickFilter();
             base.OnClosing(e);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            // Also unhook here, not only in OnClosing. A Form disposed directly — by its parent,
+            // or by an explicit Dispose() — never raises Closing, which left the filter installed
+            // in Application's process-wide list forever.
+            if (disposing) RemoveOutsideClickFilter();
+            base.Dispose(disposing);
+        }
+
+        private void RemoveOutsideClickFilter()
+        {
+            if (_outsideClickFilter == null) return;
+            Application.RemoveMessageFilter(_outsideClickFilter);
+            _outsideClickFilter = null;
         }
 
         protected override void OnDeactivate(EventArgs e)

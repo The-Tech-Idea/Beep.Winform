@@ -427,7 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Name = Name ?? string.Empty,
                 Title = Text ?? string.Empty,
-                Content = this,
+                IsPageBacked = true,
                 IsEnabled = Enabled,
                 IsVisible = true,
                 CanClose = true,

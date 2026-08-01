@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         internal bool CanTogglePinHeaderTab(int tabIndex)
         {
-            return TabMode != BeepTabMode.Navigation && TryGetHeaderTabItem(tabIndex, out _);
+            return ModeCapabilities.SupportsPinning && TryGetHeaderTabItem(tabIndex, out _);
         }
 
         internal bool CanMoveHeaderTabLeft(int tabIndex)
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 && item.CanClose
                 && item.IsEnabled
                 && item.IsVisible
-                && (TabMode == BeepTabMode.Navigation || !item.IsPinned);
+                && (!ModeCapabilities.SupportsPinning || !item.IsPinned);
         }
 
         private bool CanMoveHeaderTab(int tabIndex, int direction)
@@ -228,13 +228,63 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return false;
             }
 
-            int targetIndex = tabIndex + direction;
-            if (!TryGetHeaderTabItem(targetIndex, out BeepTabItem? targetItem))
+            return CanReorderTabTo(tabIndex, tabIndex + direction);
+        }
+
+        /// <summary>
+        /// Whether the tab at <paramref name="tabIndex"/> may begin a drag at all — i.e. it exists,
+        /// is usable, and is not itself marked as non-reorderable. The destination is validated
+        /// separately by <see cref="CanReorderTabTo"/> once a drop target is known.
+        /// </summary>
+        internal bool CanDragTab(int tabIndex)
+        {
+            return TryGetHeaderTabItem(tabIndex, out BeepTabItem? item)
+                && item != null
+                && item.CanReorder
+                && item.IsEnabled
+                && item.IsVisible;
+        }
+
+        /// <summary>
+        /// Whether the tab at <paramref name="fromIndex"/> may be moved to
+        /// <paramref name="toIndex"/>. The single reorder rule, used by both the Move Left/Right
+        /// commands and by drag-and-drop.
+        /// </summary>
+        /// <remarks>
+        /// Drag-and-drop used to call <c>TryMoveHostedSourceItem</c> directly, checking nothing at
+        /// all, while the context menu enforced these rules. A pinned tab could not be moved past an
+        /// unpinned one with Move Right, but could be dragged anywhere — the constraints applied
+        /// only to the path users were less likely to take.
+        /// </remarks>
+        internal bool CanReorderTabTo(int fromIndex, int toIndex)
+        {
+            if (!ModeCapabilities.SupportsDragReorder)
             {
                 return false;
             }
 
-            if (TabMode != BeepTabMode.Navigation && item.IsPinned != targetItem.IsPinned)
+            if (fromIndex == toIndex)
+            {
+                return false;
+            }
+
+            if (!TryGetHeaderTabItem(fromIndex, out BeepTabItem? item) || item == null)
+            {
+                return false;
+            }
+
+            if (!item.CanReorder || !item.IsEnabled || !item.IsVisible)
+            {
+                return false;
+            }
+
+            if (!TryGetHeaderTabItem(toIndex, out BeepTabItem? targetItem) || targetItem == null)
+            {
+                return false;
+            }
+
+            // Pinned tabs form their own partition at the head of the run; a move may not cross it.
+            if (ModeCapabilities.SupportsPinning && item.IsPinned != targetItem.IsPinned)
             {
                 return false;
             }

@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (bounds.IsEmpty) return;
 
-            Color textColor = theme.GridHeaderForeColor;
+            Color textColor = GetInfoTextColor(theme);
 
             if (state == NavigationButtonState.Hovered)
             {

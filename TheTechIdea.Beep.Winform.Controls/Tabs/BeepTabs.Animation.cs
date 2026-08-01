@@ -48,6 +48,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (progress >= 1f)
                 {
                     _styleTransitionTimer.Stop();
+
+                    // Clear the transition state, not just the timer. Leaving progress at 1f with
+                    // _transitionFrom != _transitionTo left the control permanently "mid-transition":
+                    //   * BeepTabHeaderRenderRequest.HasTransition stayed true forever, so every tab
+                    //     was painted twice by two painters on every paint — one of those passes at
+                    //     alpha 0, doing all of its GDI work to produce nothing — and PrimaryPainter
+                    //     was never used again;
+                    //   * DrawHeaderSelectionIndicator took its transition branch forever, so its
+                    //     settled-state code below was unreachable and the Minimal style kept
+                    //     drawing the Underline accent bar, making the two styles pixel-identical.
+                    _styleTransitionProgress = 0f;
+                    _transitionFrom = _transitionTo;
+                    Invalidate();
                 }
             };
         }
@@ -160,29 +173,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            // Each painter decides whether its style has a selection accent and what it looks like.
+            // This used to be `_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal`
+            // here in the control — a switch on style outside the painters, which is what painters
+            // exist to avoid, and which made Minimal draw Underline's accent.
             if (_styleTransitionProgress > 0f && _transitionFrom != _transitionTo)
             {
-                if (_transitionFrom == TabStyle.Underline || _transitionFrom == TabStyle.Minimal)
-                {
-                    // PaintersFactory returns pooled brushes — do NOT wrap in using
-                    SolidBrush brush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)((1 - _styleTransitionProgress) * 255), _currentTheme?.PrimaryColor ?? Color.Blue));
-                    graphics.FillRectangle(brush, _underlineCurrentRect);
-                }
-
-                if (_transitionTo == TabStyle.Underline || _transitionTo == TabStyle.Minimal)
-                {
-                    SolidBrush brush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(_styleTransitionProgress * 255), _currentTheme?.PrimaryColor ?? Color.Blue));
-                    graphics.FillRectangle(brush, _underlineCurrentRect);
-                }
-
+                AccentPainter(_transitionFrom).PaintSelectionAccent(
+                    graphics, _underlineCurrentRect, 1f - _styleTransitionProgress);
+                AccentPainter(_transitionTo).PaintSelectionAccent(
+                    graphics, _underlineCurrentRect, _styleTransitionProgress);
                 return;
             }
 
-            if ((_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal) && _underlineCurrentRect != RectangleF.Empty)
-            {
-                SolidBrush brush = PaintersFactory.GetSolidBrush(_currentTheme?.PrimaryColor ?? Color.Blue);
-                graphics.FillRectangle(brush, _underlineCurrentRect);
-            }
+            AccentPainter(_tabStyle).PaintSelectionAccent(graphics, _underlineCurrentRect);
+        }
+
+        /// <summary>
+        /// Resolves a painter with its theme applied. <see cref="GetPainter"/> alone can hand back an
+        /// instance whose <c>Theme</c> was never set, which would silently fall back to the built-in
+        /// default accent colour instead of the active theme's.
+        /// </summary>
+        private Tabs.Painters.ITabPainter AccentPainter(TabStyle style)
+        {
+            Tabs.Painters.ITabPainter painter = (style == _tabStyle ? _painter : null) ?? GetPainter(style);
+            painter.Theme = _currentTheme;
+            return painter;
         }
     }
 }

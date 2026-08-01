@@ -19,22 +19,38 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public BeepCustomDialog()
         {
             InitializeComponent();
+            ComposeLayout();
             Helpers.DialogHelpers.FitFormToContent(this);
         }
 
-        public string Title { get => _titleLabel.Text; set => _titleLabel.Text = value ?? string.Empty; }
+        /// <summary>Places the controls into the shell's header and footer regions.</summary>
+        private void ComposeLayout()
+        {
+            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
+            _headerPanel.Controls.Add(_titleLabel, 1, 0);
+
+            _shell.SetHeader(_headerPanel);
+            _shell.AddAction(_cancelButton);
+            _shell.AddAction(_okButton);
+
+            _okButton.DialogResult = DialogResult.OK;
+            _cancelButton.DialogResult = DialogResult.Cancel;
+            AcceptButton = _okButton;
+            CancelButton = _cancelButton;
+        }
+
+        public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
 
         public void SetCustomControl(Control control)
         {
-            if (_hostedControl != null && !_hostedControl.IsDisposed) { _bodyPanel.Controls.Remove(_hostedControl); _hostedControl.Dispose(); }
+            if (_hostedControl != null && !_hostedControl.IsDisposed) _hostedControl.Dispose();
             _hostedControl = control;
-            if (control != null)
-            {
-                control.Location = new System.Drawing.Point(0, 0);
-                control.Size = _bodyPanel.ClientSize;
-                _bodyPanel.Controls.Add(control);
-                _bodyPanel.SizeChanged += (s, e) => { if (_hostedControl != null && !_hostedControl.IsDisposed) _hostedControl.Size = _bodyPanel.ClientSize; };
-            }
+
+            // The hosted control *is* the body. SetBody docks it to fill the shell's middle row, so
+            // the manual Location/Size assignment and the SizeChanged handler that re-applied Size
+            // on every resize — a hand-rolled Dock.Fill, and one that leaked a handler subscription
+            // on every call — are both gone.
+            if (control != null) _shell.SetBody(control);
         }
 
         public DialogButton[] TypedButtons
@@ -50,9 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             }
         }
 
-        private void OkButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 0 ? (_typedButtons[0].Id ?? "ok") : "ok"; DialogResult = System.Windows.Forms.DialogResult.OK; Close(); }
-        private void CancelButton_Click(object? sender, EventArgs e) { ReturnValue = string.Empty; DialogResult = System.Windows.Forms.DialogResult.Cancel; Close(); }
+        private void OkButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 0 ? (_typedButtons[0].Id ?? "ok") : "ok"; DialogResult = DialogResult.OK; Close(); }
+        private void CancelButton_Click(object? sender, EventArgs e) { ReturnValue = string.Empty; DialogResult = DialogResult.Cancel; Close(); }
 
+        // Enter and Escape are routed by AcceptButton / CancelButton, set in ComposeLayout.
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Enter) { _okButton.PerformClick(); return true; }
@@ -63,7 +80,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public override void ApplyTheme()
         {
             if (_headerPanel == null) return;
-            _headerPanel.Theme = Theme; _bodyPanel.Theme = Theme; _buttonPanel.Theme = Theme;
             _dialogIcon.Theme = Theme; _titleLabel.Theme = Theme;
             _okButton.Theme = Theme; _cancelButton.Theme = Theme;
         }

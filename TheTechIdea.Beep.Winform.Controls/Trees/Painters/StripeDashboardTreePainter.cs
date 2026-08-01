@@ -145,18 +145,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  textRect.Height);
 
  var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
- TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, adjustedTextRect, textColor,
- TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+ DrawNodeLabel(g, adjustedTextRect, node.Item.Text ?? string.Empty, textColor);
  }
 
  // STEP6: Draw metric badge (Stripe dashboard feature)
  if (node.TextRectContent != Rectangle.Empty)
  {
+ // Transformed to viewport like every other element in this method. Built from raw
+ // content coordinates, the badge ignored scroll position and drifted away from its row.
+ var badgeHost = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
  Rectangle badgeRect = new Rectangle(
- node.TextRectContent.Right - MetricBadgeWidth,
- node.TextRectContent.Y + node.TextRectContent.Height /4,
+ badgeHost.Right - MetricBadgeWidth,
+ badgeHost.Y + badgeHost.Height /4,
  MetricBadgeWidth -4,
- node.TextRectContent.Height /2);
+ badgeHost.Height /2);
 
  if (badgeRect.Width >0 && badgeRect.Height >0)
  {
@@ -216,8 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  Math.Max(0, textRect.Width - MetricBadgeWidth),
  textRect.Height);
 
- TextRenderer.DrawText(g, text, renderFont, adjustedTextRect, textColor,
- TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+ DrawNodeLabel(g, adjustedTextRect, text, textColor);
 
  PaintMetricBadge(g, textRect, isSelected);
  }
@@ -262,5 +263,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  return Math.Max(32, base.GetPreferredRowHeight(item, font));
  }
- }
+ 
+        /// <summary>
+        /// Room for the trailing metric badge. The layout adds this to the text rect so that
+        /// subtracting it below still leaves the label its full measured width.
+        /// </summary>
+        public override int GetLabelTrailingReserve() => MetricBadgeWidth;
+}
 }

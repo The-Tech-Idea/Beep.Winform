@@ -32,11 +32,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
                 // Check if preferred placement fits
                 var testBounds = CalculateBoundsForPlacement(targetRect, tooltipSize, preferredPlacement, offset);
                 var screenBounds = GetScreenBounds(targetRect.Location);
-                
+
                 if (IsFullyVisible(testBounds, screenBounds))
                 {
                     return preferredPlacement;
                 }
+
+                // FLIP, then let the caller SHIFT. An explicit request must not silently become an
+                // unrelated side: a tooltip asked for Top that is clipped by 3px should slide 3px
+                // along its edge, or at worst move to Bottom -- not jump to Right. Scoring all
+                // twelve candidates (below) cannot express that, so it is now reserved for Auto.
+                var flipped = GetOppositePlacement(preferredPlacement);
+                if (flipped != preferredPlacement)
+                {
+                    var flippedBounds = CalculateBoundsForPlacement(targetRect, tooltipSize, flipped, offset);
+                    if (FitsOnPrimaryAxis(flippedBounds, screenBounds, flipped))
+                    {
+                        return flipped;
+                    }
+                }
+
+                // Neither side fits on its primary axis; keep what was asked for and let the
+                // shift + clamp stage do what it can.
+                return preferredPlacement;
             }
 
             // Try all placements and find the best one
@@ -158,49 +176,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
-        /// Adjust position to ensure tooltip stays within screen bounds
-        /// </summary>
-        public static Point AdjustForScreenEdges(
-            Rectangle tooltipBounds,
-            Point targetPosition)
-        {
-            var screenBounds = GetScreenBounds(targetPosition);
-            var adjustedBounds = tooltipBounds;
-
-            // Adjust horizontally
-            if (adjustedBounds.Left < screenBounds.Left + ScreenEdgePadding)
-            {
-                adjustedBounds.X = screenBounds.Left + ScreenEdgePadding;
-            }
-            else if (adjustedBounds.Right > screenBounds.Right - ScreenEdgePadding)
-            {
-                adjustedBounds.X = screenBounds.Right - adjustedBounds.Width - ScreenEdgePadding;
-            }
-
-            // Adjust vertically
-            if (adjustedBounds.Top < screenBounds.Top + ScreenEdgePadding)
-            {
-                adjustedBounds.Y = screenBounds.Top + ScreenEdgePadding;
-            }
-            else if (adjustedBounds.Bottom > screenBounds.Bottom - ScreenEdgePadding)
-            {
-                adjustedBounds.Y = screenBounds.Bottom - adjustedBounds.Height - ScreenEdgePadding;
-            }
-
-            return adjustedBounds.Location;
-        }
-
-        /// <summary>
-        /// Detect if tooltip would collide with screen edges
-        /// </summary>
-        public static bool DetectCollisions(
-            Rectangle tooltipBounds,
-            Rectangle screenBounds)
-        {
-            return !IsFullyVisible(tooltipBounds, screenBounds);
-        }
-
-        /// <summary>
         /// Check if tooltip is fully visible within screen bounds
         /// </summary>
         public static bool IsFullyVisible(
@@ -214,6 +189,115 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
+        /// Resolve a placement and final position for an anchor rectangle.
+        /// <para>
+        /// This is the single implementation. It runs the middleware in the order Floating UI
+        /// established — <c>offset → flip → shift</c> — and returns the arrow offset needed to keep
+        /// the arrow pointing at the anchor after any shift.
+        /// </para>
+        /// <para>
+        /// <paramref name="offset"/> must already include the arrow size. Previously the helper
+        /// validated a placement using only the gap while <c>CustomToolTip</c> applied gap + arrow,
+        /// so a placement could be certified as fitting and then drawn where it did not.
+        /// </para>
+        /// </summary>
+        /// <returns>
+        /// The resolved placement, the tooltip's screen position, and the arrow's pixel offset from
+        /// the centre of the tooltip edge (positive = toward End).
+        /// </returns>
+        public static (ToolTipPlacement placement, Point position, int arrowOffset) Resolve(
+            Rectangle anchorRect,
+            Size tooltipSize,
+            ToolTipPlacement preferredPlacement,
+            int offset,
+            int viewportPadding)
+        {
+            var screenBounds = GetScreenBounds(anchorRect.IsEmpty
+                ? anchorRect.Location
+                : new Point(anchorRect.Left + anchorRect.Width / 2, anchorRect.Top + anchorRect.Height / 2));
+
+            var placement = CalculateOptimalPlacement(anchorRect, tooltipSize, preferredPlacement, offset);
+            var bounds = CalculateBoundsForPlacement(anchorRect, tooltipSize, placement, offset);
+
+            // SHIFT: slide along the placement's cross axis to stay inside the viewport, without
+            // changing which side of the anchor we are on.
+            var shifted = Shift(bounds, screenBounds, placement, viewportPadding);
+
+            // ARROW: how far the anchor's centre now sits from the tooltip's centre on the cross
+            // axis. Without this the arrow keeps pointing at the tooltip's own middle after a shift.
+            int arrowOffset = IsVerticalPlacement(placement)
+                ? (anchorRect.Left + anchorRect.Width / 2) - (shifted.Left + shifted.Width / 2)
+                : (anchorRect.Top + anchorRect.Height / 2) - (shifted.Top + shifted.Height / 2);
+
+            return (placement, shifted.Location, arrowOffset);
+        }
+
+        /// <summary>
+        /// Slides a rectangle along the axis parallel to the tooltip's edge so it stays within the
+        /// viewport, leaving the chosen side intact. The perpendicular axis is clamped too, as a
+        /// last resort for anchors that sit off-screen entirely.
+        /// </summary>
+        private static Rectangle Shift(Rectangle bounds, Rectangle screenBounds,
+            ToolTipPlacement placement, int padding)
+        {
+            var r = bounds;
+
+            if (IsVerticalPlacement(placement))
+            {
+                if (r.Left < screenBounds.Left + padding) r.X = screenBounds.Left + padding;
+                else if (r.Right > screenBounds.Right - padding) r.X = screenBounds.Right - r.Width - padding;
+
+                if (r.Top < screenBounds.Top + padding) r.Y = screenBounds.Top + padding;
+                else if (r.Bottom > screenBounds.Bottom - padding) r.Y = screenBounds.Bottom - r.Height - padding;
+            }
+            else
+            {
+                if (r.Top < screenBounds.Top + padding) r.Y = screenBounds.Top + padding;
+                else if (r.Bottom > screenBounds.Bottom - padding) r.Y = screenBounds.Bottom - r.Height - padding;
+
+                if (r.Left < screenBounds.Left + padding) r.X = screenBounds.Left + padding;
+                else if (r.Right > screenBounds.Right - padding) r.X = screenBounds.Right - r.Width - padding;
+            }
+
+            return r;
+        }
+
+        /// <summary>True for Top*/Bottom* placements, where the cross axis is horizontal.</summary>
+        public static bool IsVerticalPlacement(ToolTipPlacement p) => p switch
+        {
+            ToolTipPlacement.Top or ToolTipPlacement.TopStart or ToolTipPlacement.TopEnd or
+            ToolTipPlacement.Bottom or ToolTipPlacement.BottomStart or ToolTipPlacement.BottomEnd => true,
+            _ => false
+        };
+
+        /// <summary>The placement on the opposite side of the anchor, keeping the alignment.</summary>
+        public static ToolTipPlacement GetOppositePlacement(ToolTipPlacement p) => p switch
+        {
+            ToolTipPlacement.Top => ToolTipPlacement.Bottom,
+            ToolTipPlacement.TopStart => ToolTipPlacement.BottomStart,
+            ToolTipPlacement.TopEnd => ToolTipPlacement.BottomEnd,
+            ToolTipPlacement.Bottom => ToolTipPlacement.Top,
+            ToolTipPlacement.BottomStart => ToolTipPlacement.TopStart,
+            ToolTipPlacement.BottomEnd => ToolTipPlacement.TopEnd,
+            ToolTipPlacement.Left => ToolTipPlacement.Right,
+            ToolTipPlacement.LeftStart => ToolTipPlacement.RightStart,
+            ToolTipPlacement.LeftEnd => ToolTipPlacement.RightEnd,
+            ToolTipPlacement.Right => ToolTipPlacement.Left,
+            ToolTipPlacement.RightStart => ToolTipPlacement.LeftStart,
+            ToolTipPlacement.RightEnd => ToolTipPlacement.LeftEnd,
+            _ => p
+        };
+
+        /// <summary>
+        /// Does the rectangle fit on the axis the placement actually cares about? A Top placement
+        /// only needs vertical room — horizontal overflow is the shift stage's job.
+        /// </summary>
+        private static bool FitsOnPrimaryAxis(Rectangle bounds, Rectangle screenBounds, ToolTipPlacement placement)
+            => IsVerticalPlacement(placement)
+                ? bounds.Top >= screenBounds.Top + ScreenEdgePadding && bounds.Bottom <= screenBounds.Bottom - ScreenEdgePadding
+                : bounds.Left >= screenBounds.Left + ScreenEdgePadding && bounds.Right <= screenBounds.Right - ScreenEdgePadding;
+
+        /// <summary>
         /// Find the best placement that fits on screen
         /// Returns the placement and adjusted position
         /// </summary>
@@ -223,16 +307,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             ToolTipPlacement preferredPlacement = ToolTipPlacement.Auto,
             int offset = 8)
         {
-            // Calculate optimal placement
-            var placement = CalculateOptimalPlacement(targetRect, tooltipSize, preferredPlacement, offset);
-            
-            // Calculate bounds for this placement
-            var bounds = CalculateBoundsForPlacement(targetRect, tooltipSize, placement, offset);
-            
-            // Adjust for screen edges
-            var adjustedPosition = AdjustForScreenEdges(bounds, targetRect.Location);
-            
-            return (placement, adjustedPosition);
+            var (placement, position, _) = Resolve(
+                targetRect, tooltipSize, preferredPlacement, offset, ScreenEdgePadding);
+            return (placement, position);
         }
 
         /// <summary>
@@ -304,6 +381,57 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
+        /// Space available for a tooltip on a given side of an anchor, after the gap and the
+        /// viewport padding.
+        /// <para>
+        /// This is Floating UI's <c>size</c> middleware: it reports what actually fits on the side
+        /// that was chosen, so the tooltip can clamp to it. Clamping against a fraction of the
+        /// whole screen — as <see cref="CalculateResponsiveSize"/> does on its own — says a tooltip
+        /// above an anchor near the top of the display may be 80% of the screen tall, when the real
+        /// answer is the 60px between the anchor and the top edge.
+        /// </para>
+        /// </summary>
+        public static Size AvailableSpaceFor(
+            Rectangle anchorRect,
+            ToolTipPlacement placement,
+            int offset,
+            int viewportPadding)
+        {
+            var screen = GetScreenBounds(new Point(
+                anchorRect.Left + anchorRect.Width / 2,
+                anchorRect.Top + anchorRect.Height / 2));
+
+            int width, height;
+
+            if (IsVerticalPlacement(placement))
+            {
+                bool above = placement is ToolTipPlacement.Top
+                    or ToolTipPlacement.TopStart or ToolTipPlacement.TopEnd;
+
+                height = above
+                    ? anchorRect.Top - screen.Top - offset - viewportPadding
+                    : screen.Bottom - anchorRect.Bottom - offset - viewportPadding;
+
+                // Across the cross axis the tooltip may use the whole viewport, since shift() can
+                // slide it along that axis.
+                width = screen.Width - viewportPadding * 2;
+            }
+            else
+            {
+                bool leftSide = placement is ToolTipPlacement.Left
+                    or ToolTipPlacement.LeftStart or ToolTipPlacement.LeftEnd;
+
+                width = leftSide
+                    ? anchorRect.Left - screen.Left - offset - viewportPadding
+                    : screen.Right - anchorRect.Right - offset - viewportPadding;
+
+                height = screen.Height - viewportPadding * 2;
+            }
+
+            return new Size(Math.Max(0, width), Math.Max(0, height));
+        }
+
+        /// <summary>
         /// Calculate responsive size for tooltip based on content and screen size
         /// </summary>
         public static Size CalculateResponsiveSize(
@@ -334,45 +462,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             return size;
         }
 
-        /// <summary>
-        /// Calculate optimal position for tooltip with arrow adjustment
-        /// Adjusts position to keep arrow pointing at target when repositioned
-        /// </summary>
-        public static Point CalculatePositionWithArrow(
-            Rectangle targetRect,
-            Size tooltipSize,
-            ToolTipPlacement placement,
-            int arrowSize,
-            int offset = 8)
-        {
-            var bounds = CalculateBoundsForPlacement(targetRect, tooltipSize, placement, offset);
-            var screenBounds = GetScreenBounds(targetRect.Location);
-            
-            // Adjust for screen edges
-            var adjustedBounds = bounds;
-            
-            // If we had to adjust horizontally, we might need to adjust arrow position
-            // For now, just ensure tooltip stays on screen
-            if (adjustedBounds.Left < screenBounds.Left + ScreenEdgePadding)
-            {
-                adjustedBounds.X = screenBounds.Left + ScreenEdgePadding;
-            }
-            else if (adjustedBounds.Right > screenBounds.Right - ScreenEdgePadding)
-            {
-                adjustedBounds.X = screenBounds.Right - adjustedBounds.Width - ScreenEdgePadding;
-            }
-
-            if (adjustedBounds.Top < screenBounds.Top + ScreenEdgePadding)
-            {
-                adjustedBounds.Y = screenBounds.Top + ScreenEdgePadding;
-            }
-            else if (adjustedBounds.Bottom > screenBounds.Bottom - ScreenEdgePadding)
-            {
-                adjustedBounds.Y = screenBounds.Bottom - adjustedBounds.Height - ScreenEdgePadding;
-            }
-
-            return adjustedBounds.Location;
-        }
+        // Removed with the move to Resolve():
+        //   AdjustForScreenEdges      — superseded by Shift(), which slides along the placement's
+        //                               own axis instead of clamping both axes blindly.
+        //   DetectCollisions          — a one-line negation of IsFullyVisible, never called.
+        //   CalculatePositionWithArrow — a partial second copy of the placement maths whose own
+        //                               comment admitted it did not actually adjust the arrow.
     }
 }
-

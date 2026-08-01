@@ -39,31 +39,58 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 ?? SystemFonts.DefaultFont;
         }
 
-        /// <summary>DPI-safe measurement of font height.</summary>
+        /// <summary>
+        /// Measures the height of the given font, falling back to a usable font first.
+        /// <para>
+        /// No try/catch: <see cref="ResolveSafeFont"/> has already guaranteed a usable font, so
+        /// <see cref="TextRenderer.MeasureText(string, Font)"/> has nothing left to throw about. The
+        /// previous <c>catch { return ScaleValue(16, …); }</c> silently substituted a hard-coded
+        /// 16px for whatever went wrong, so a genuine failure surfaced as tabs that were the wrong
+        /// height with nothing recorded anywhere.
+        /// </para>
+        /// </summary>
         public static int GetSafeFontHeight(Font font, Control ownerControl = null)
         {
             Font safe = ResolveSafeFont(font, ownerControl);
-            try { return Math.Max(1, TextRenderer.MeasureText("Ag", safe).Height); }
-            catch { return DpiScalingHelper.ScaleValue(16, ownerControl); }
+            return Math.Max(1, TextRenderer.MeasureText("Ag", safe).Height);
         }
 
-        /// <summary>DPI-safe text width measurement.</summary>
+        /// <summary>
+        /// Measures text width with a guaranteed-usable font.
+        /// <para>
+        /// The previous version caught everything and re-measured with
+        /// <see cref="SystemFonts.DefaultFont"/> — which quietly produced a width for a *different*
+        /// font than the one the painter would draw with. Measuring with one font and drawing with
+        /// another is the exact defect that clipped every label in BeepTree.
+        /// </para>
+        /// </summary>
         public static int MeasureTextWidthSafe(string text, Font font, Control ownerControl = null)
         {
             if (string.IsNullOrEmpty(text)) return 0;
             Font safe = ResolveSafeFont(font, ownerControl);
-            try { return TextRenderer.MeasureText(text, safe).Width; }
-            catch { return TextRenderer.MeasureText(text, SystemFonts.DefaultFont).Width; }
+            return TextRenderer.MeasureText(text, safe).Width;
         }
 
-        /// <summary>Applies font theme — no-op (fonts are resolved at paint time).</summary>
-        public static void ApplyFontTheme(BeepControlStyle controlStyle) { }
-
+        /// <summary>
+        /// True when the font can actually be measured.
+        /// <para>
+        /// This catch is narrow and is genuine handling, not swallowing: GDI+ throws
+        /// <see cref="ArgumentException"/> when <see cref="Font.Height"/> is read on a disposed
+        /// font, and "is this font usable?" is precisely the question being asked — an unusable
+        /// font is the answer, not an error. Any other exception propagates.
+        /// </para>
+        /// </summary>
         private static bool IsFontUsable(Font font)
         {
             if (font == null) return false;
-            try { return font.Height > 0; }
-            catch { return false; }
+            try
+            {
+                return font.Height > 0;
+            }
+            catch (ArgumentException)
+            {
+                return false;   // disposed font — that is the answer, not a failure
+            }
         }
     }
 }

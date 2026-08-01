@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
 
-            if (result == System.Windows.Forms.DialogResult.OK)
+            if (result == DialogResult.OK)
             {
                 return dialog.ReturnValue;
             }
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
 
-            if (result == System.Windows.Forms.DialogResult.OK)
+            if (result == DialogResult.OK)
             {
                 return dialog.ReturnValue;
             }
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
 
-            if (result == System.Windows.Forms.DialogResult.OK)
+            if (result == DialogResult.OK)
             {
                 return dialog.ReturnValue;
             }
@@ -80,12 +80,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             {
                 if (min.HasValue && value < min.Value)
                 {
-                    ShowError("Invalid Input", $"Value must be at least {min.Value}");
+                    Error("Invalid Input", $"Value must be at least {min.Value}");
                     return null;
                 }
                 if (max.HasValue && value > max.Value)
                 {
-                    ShowError("Invalid Input", $"Value must be at most {max.Value}");
+                    Error("Invalid Input", $"Value must be at most {max.Value}");
                     return null;
                 }
                 return value;
@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
 
-            if (result == System.Windows.Forms.DialogResult.OK)
+            if (result == DialogResult.OK)
                 return dialog.ReturnItem;
 
             return null;
@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK
+            return result == DialogResult.OK
                 ? dialog.SelectedItems
                 : new List<SimpleItem>();
         }
@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             using var dialog = CreateDatePickerDialog(title, prompt, min, max, defaultValue);
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
-            return result == System.Windows.Forms.DialogResult.OK && dialog.Tag is DateTime dt ? dt : null;
+            return result == DialogResult.OK && dialog.Tag is DateTime dt ? dt : null;
         }
 
         public TimeSpan? InputTimeSpan(string title, string prompt, TimeSpan? min = null, TimeSpan? max = null, TimeSpan? defaultValue = null)
@@ -194,12 +194,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             {
                 if (min.HasValue && timeSpan < min.Value)
                 {
-                    ShowError("Invalid Time", $"Time must be at least {min.Value}");
+                    Error("Invalid Time", $"Time must be at least {min.Value}");
                     return null;
                 }
                 if (max.HasValue && timeSpan > max.Value)
                 {
-                    ShowError("Invalid Time", $"Time must be at most {max.Value}");
+                    Error("Invalid Time", $"Time must be at most {max.Value}");
                     return null;
                 }
                 return timeSpan;
@@ -245,7 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             form.FormClosed += (s, e) =>
             {
-                if (form.DialogResult == System.Windows.Forms.DialogResult.OK)
+                if (form.DialogResult == DialogResult.OK)
                     form.Tag = dtp.Value;
             };
 
@@ -271,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? cd.ShowDialog(owner) : cd.ShowDialog();
 
-            if (result == System.Windows.Forms.DialogResult.OK)
+            if (result == DialogResult.OK)
             {
                 return cd.Color;
             }
@@ -293,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? fd.ShowDialog(owner) : fd.ShowDialog();
 
-            if (result == System.Windows.Forms.DialogResult.OK)
+            if (result == DialogResult.OK)
             {
                 return fd.Font;
             }
@@ -435,7 +435,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             Color? initial = null;
             if (!string.IsNullOrEmpty(initialColor))
             {
-                try { initial = ColorTranslator.FromHtml(initialColor); } catch { }
+                // ColorTranslator.FromHtml throws a bare Exception for a malformed string, so the
+                // catch cannot be narrowed by type here — but it can be narrowed in scope, and the
+                // failure must not be silent. Previously `catch { }` also swallowed every unrelated
+                // failure and left the caller unable to tell "no colour supplied" from "the colour
+                // you supplied was not valid".
+                try
+                {
+                    initial = ColorTranslator.FromHtml(initialColor);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceWarning(
+                        $"[BeepDialogManager] SelectColor: '{initialColor}' is not a valid colour "
+                        + $"({ex.GetType().Name}); falling back to no initial selection.");
+                }
             }
 
             var color = InputColor(title, initial);

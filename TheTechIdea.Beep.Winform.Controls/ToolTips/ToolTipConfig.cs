@@ -49,9 +49,59 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         #region Positioning
 
         /// <summary>
-        /// Screen position where tooltip should appear
+        /// Screen position where tooltip should appear.
+        /// <para>
+        /// Prefer <see cref="AnchorRect"/> when the tooltip belongs to a control: a point cannot
+        /// express alignment. The <c>*Start</c> / <c>*End</c> placements are defined against the
+        /// anchor's edges, so a point-sized anchor collapses them onto the centred placement.
+        /// </para>
         /// </summary>
         public Point Position { get; set; }
+
+        /// <summary>
+        /// Screen rectangle of the element the tooltip describes.
+        /// <para>
+        /// This is what the placement engine positions against — the gap, the flip decision, the
+        /// shift, and the arrow's target all derive from it. When left empty the engine falls back
+        /// to a degenerate rectangle at <see cref="Position"/>, which preserves the older
+        /// cursor-anchored behaviour but cannot express <c>*Start</c> / <c>*End</c> alignment.
+        /// </para>
+        /// <para>
+        /// For a control this is <c>control.RectangleToScreen(control.ClientRectangle)</c>.
+        /// </para>
+        /// </summary>
+        public Rectangle AnchorRect { get; set; } = Rectangle.Empty;
+
+        /// <summary>
+        /// The anchor as a rectangle, always. Returns <see cref="AnchorRect"/> when set, otherwise
+        /// a 1x1 rectangle at <see cref="Position"/> so callers have exactly one shape to reason
+        /// about.
+        /// </summary>
+        public Rectangle ResolveAnchorRect()
+            => AnchorRect.IsEmpty ? new Rectangle(Position, new Size(1, 1)) : AnchorRect;
+
+        /// <summary>
+        /// Distance in pixels kept between the tooltip and the edge of the working area.
+        /// Was a hard-coded, non-DPI-scaled constant inside the positioning helper.
+        /// </summary>
+        public int ViewportPadding { get; set; } = 8;
+
+        /// <summary>
+        /// The control this tooltip describes, when there is one. Supplies the anchor rectangle and
+        /// lets the tooltip follow the control as it moves (see <see cref="AutoUpdate"/>).
+        /// Not serialised — this is a live reference held only while the tooltip is open.
+        /// </summary>
+        public Control AnchorControl { get; set; }
+
+        /// <summary>
+        /// Keep the tooltip attached to <see cref="AnchorControl"/> while it is visible: reposition
+        /// on scroll, move, resize and monitor change, and hide once the anchor is gone or clipped.
+        /// <para>
+        /// Defaults to true. Turn it off for a tooltip placed deliberately at a fixed point that
+        /// should not chase anything.
+        /// </para>
+        /// </summary>
+        public bool AutoUpdate { get; set; } = true;
 
         /// <summary>
         /// Preferred placement relative to target
@@ -86,6 +136,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// Delay before hiding in milliseconds
         /// </summary>
         public int? HideDelay { get; set; }
+
+        /// <summary>
+        /// Name of the delay group this tooltip belongs to.
+        /// <para>
+        /// Once any tooltip in a group has been shown, others in the same group appear immediately
+        /// for a short window after the last one closes — so sweeping a toolbar costs one
+        /// <see cref="ShowDelay"/> rather than one per button. Leave null to have the group derived
+        /// from the anchor's parent, which makes a toolbar, ribbon or grid header behave correctly
+        /// without the caller configuring anything.
+        /// </para>
+        /// </summary>
+        public string DelayGroup { get; set; }
 
         #endregion
 
@@ -159,14 +221,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         public bool ShowArrow { get; set; } = true;
 
         /// <summary>
-        /// Show drop shadow
+        /// Show drop shadow.
         /// </summary>
         public bool ShowShadow { get; set; } = true;
 
         /// <summary>
-        /// Enable shadow effect
+        /// Duplicate of <see cref="ShowShadow"/>, kept so existing callers keep compiling.
+        /// <para>
+        /// Two independent booleans meant the same thing, both defaulted to <c>true</c>, and every
+        /// painter had to test <c>ShowShadow || EnableShadow</c> — so setting either one to false
+        /// did nothing unless you knew to set both. This now forwards to <see cref="ShowShadow"/>,
+        /// which is the single source of truth.
+        /// </para>
         /// </summary>
-        public bool EnableShadow { get; set; } = true;
+        [Obsolete("Use ShowShadow. This forwards to it and will be removed.")]
+        public bool EnableShadow
+        {
+            get => ShowShadow;
+            set => ShowShadow = value;
+        }
 
         /// <summary>
         /// Show close button
@@ -231,9 +304,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         public int TotalSteps { get; set; } = 1;
 
         /// <summary>
-        /// Step-specific title (for Step Style)
+        /// Duplicate of <see cref="Title"/>, kept so existing callers keep compiling.
+        /// <para>
+        /// Documented as "step-specific title", but nothing ever set it and nothing ever read it:
+        /// <c>TourToolTipPainter</c> renders <see cref="Title"/> as the step heading. Two properties
+        /// for one heading meant a caller could set this one and see nothing appear.
+        /// </para>
         /// </summary>
-        public string StepTitle { get; set; }
+        [Obsolete("Use Title. This forwards to it and will be removed.")]
+        public string StepTitle
+        {
+            get => Title;
+            set => Title = value;
+        }
 
         /// <summary>
         /// Show navigation buttons (for Step Style)
@@ -363,6 +446,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// If supplied, a skeleton placeholder is shown until the task completes.
         /// </summary>
         public Func<System.Threading.Tasks.Task<Image>> LoadPreviewAsync { get; set; }
+
+        /// <summary>
+        /// The preview image once resolved — from <see cref="LoadPreviewAsync"/> or by loading
+        /// <see cref="PreviewImagePath"/> exactly once.
+        /// <para>
+        /// Painters must read this rather than touching the file system. The preview painter used
+        /// to call <c>Image.FromFile</c> on <em>every paint</em> and dispose the result, so a
+        /// visible preview tooltip re-read its image from disk on every repaint.
+        /// </para>
+        /// <para>
+        /// Owned by <c>ToolTipInstance</c>, which disposes it with the tooltip.
+        /// </para>
+        /// </summary>
+        internal Image ResolvedPreviewImage { get; set; }
 
         #endregion
 

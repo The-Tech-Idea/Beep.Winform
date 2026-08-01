@@ -1,61 +1,66 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Tabs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 {
+    /// <summary>
+    /// The notebook tab: the selected tab is a raised sheet whose bottom edge is open so it merges
+    /// into the content area below, and unselected tabs are unfilled with a hairline divider
+    /// between them — the VS / browser classic look.
+    /// </summary>
+    /// <remarks>
+    /// Classic, Capsule and Segmented were previously the same method with a different corner
+    /// radius. The contact sheet measured them at 0.2–1.4% pixel difference: the same tab three
+    /// times. What separates this style is the open bottom edge and the divider, not a radius.
+    /// </remarks>
     public class ClassicTabPainter : BaseTabPainter
     {
         public ClassicTabPainter(BeepTabs tabControl) : base(tabControl) { }
 
-        public override void PaintTab(Graphics g, RectangleF tabRect, int index, bool isSelected, bool isHovered, float alpha = 1.0f)
-        {
-            // Use theme helpers for consistent color retrieval
-            Color baseColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabBackgroundColor(
-                Theme, 
-                Theme != null, 
-                isSelected, 
-                isHovered);
-            Color backgroundColor = Color.FromArgb((int)(alpha * 255), baseColor.R, baseColor.G, baseColor.B);
-            
-            // Get border radius from style helpers
-            int borderRadius = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabStyleHelpers.GetBorderRadius(
-                TabControl.TabStyle, 
-                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3);
-            
-            using (GraphicsPath path = GetRoundedRect(tabRect, borderRadius))
-            {
-                var brush = PaintersFactory.GetSolidBrush(backgroundColor);
-                g.FillPath(brush, path);
-            }
-
-            bool vertical = (TabControl.HeaderPosition == TabHeaderPosition.Left || TabControl.HeaderPosition == TabHeaderPosition.Right);
-            DrawTabText(g, tabRect, TabControl.GetTabTitle(index), index, isSelected, vertical, alpha);
-
-            if (TabControl.ShowCloseButtons)
-            {
-                DrawCloseButton(g, tabRect, vertical);
-            }
-        }
-
-        public override void PaintTabItem(Graphics g, Tabs.Models.BeepTabHeaderItemLayout itemLayout, float alpha = 1.0f)
+        public override void PaintTabItem(Graphics g, BeepTabHeaderItemLayout itemLayout, float alpha = 1.0f)
         {
             BeepTabItem item = itemLayout.Item;
-            Color baseColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabBackgroundColor(
-                Theme,
-                Theme != null,
-                item.IsSelected,
-                item.IsHovered);
-            Color backgroundColor = Color.FromArgb((int)(alpha * 255), baseColor.R, baseColor.G, baseColor.B);
-            int borderRadius = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabStyleHelpers.GetBorderRadius(
-                TabControl.TabStyle,
-                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3);
+            Rectangle bounds = itemLayout.Bounds;
+            if (bounds.IsEmpty) return;
 
-            using (GraphicsPath path = GetRoundedRect(itemLayout.Bounds, borderRadius))
+            int a = (int)(Math.Clamp(alpha, 0f, 1f) * 255f);
+            Color border = Color.FromArgb(a, TabThemeHelpers.GetTabBorderColor(Theme, Theme != null, item.IsSelected));
+
+            if (item.IsSelected)
             {
-                var brush = PaintersFactory.GetSolidBrush(backgroundColor);
-                g.FillPath(brush, path);
+                Color fill = Color.FromArgb(a,
+                    TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, true, false));
+
+                // A sheet taller than the strip, so its bottom edge falls outside the clip and the
+                // tab reads as continuous with the content area below it.
+                var sheet = new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height + Scale(4));
+                using (GraphicsPath path = GetRoundedRect(sheet, Scale(5)))
+                {
+                    var brush = PaintersFactory.GetSolidBrush(fill);
+                    g.FillPath(brush, path);
+                    var pen = PaintersFactory.GetPen(border);
+                    g.DrawPath(pen, path);
+                }
+            }
+            else
+            {
+                if (item.IsHovered)
+                {
+                    Color hover = Color.FromArgb((int)(a * 0.35f),
+                        TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, false, true));
+                    var brush = PaintersFactory.GetSolidBrush(hover);
+                    g.FillRectangle(brush, bounds);
+                }
+
+                // Hairline divider on the trailing edge: the run reads as labels, not buttons.
+                var dividerPen = PaintersFactory.GetPen(Color.FromArgb((int)(a * 0.45f), border));
+                g.DrawLine(dividerPen,
+                    bounds.Right - 1, bounds.Y + Scale(6),
+                    bounds.Right - 1, bounds.Bottom - Scale(6));
             }
 
             DrawTabItemContent(g, itemLayout, alpha);

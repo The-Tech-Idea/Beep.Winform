@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             string text = $"{current}/{total}";
             using (var font = new Font("Segoe UI", 8, FontStyle.Regular))
-            using (var brush = new SolidBrush(theme.GridHeaderForeColor))
+            using (var brush = new SolidBrush(GetInfoTextColor(theme)))
             {
                 DrawCenteredText(g, text, font, theme.GridHeaderForeColor, bounds);
             }

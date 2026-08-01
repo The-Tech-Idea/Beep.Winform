@@ -11,6 +11,33 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
     /// </summary>
     public static class DialogHelpers
     {
+        #region Title
+
+        /// <summary>
+        /// Sets a dialog's visible title and the window's accessible name together.
+        /// </summary>
+        /// <remarks>
+        /// Every dialog's <c>Title</c> setter wrote only to its header label, and each designer set
+        /// <c>Text = string.Empty</c>, so the window itself had no accessible name: a screen reader
+        /// announcing the dialog said nothing, and the name was empty in the window list. Measured
+        /// against a stock <see cref="Form"/>, which reports its <c>Text</c> as the accessible name.
+        ///
+        /// Assigning <c>Text</c> is safe here only because these dialogs draw their own header and
+        /// set <c>ShowCaptionBar = false</c>; with the skinned caption bar on, the form painters draw
+        /// <c>owner.Text</c> and the title would appear twice.
+        /// </remarks>
+        public static void SetTitle(Form form, BeepLabel titleLabel, string? value)
+        {
+            if (form == null) throw new ArgumentNullException(nameof(form));
+            if (titleLabel == null) throw new ArgumentNullException(nameof(titleLabel));
+
+            string text = value ?? string.Empty;
+            titleLabel.Text = text;
+            form.Text = text;
+        }
+
+        #endregion
+
         #region Positioning
 
         /// <summary>
@@ -326,6 +353,52 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
         public static void FitFormToContent(Form form)
         {
             form.PerformLayout();
+
+            // A form whose content is one docked layout root must be measured by asking that root
+            // what it needs. Summing child Right/Bottom — which is what this did — is meaningless
+            // for a Dock.Fill child, because its Right and Bottom *are* the form's current client
+            // area: the form ends up measured against itself, the content is never consulted, and
+            // anything the layout wanted beyond the current size is simply cut off. That is exactly
+            // what happened when the dialogs moved onto BeepDialogShell — every footer button was
+            // pushed past the bottom edge.
+            if (form.Controls.Count == 1 && form.Controls[0].Dock == DockStyle.Fill)
+            {
+                Control root = form.Controls[0];
+
+                // This is called from the constructor, where the form has no handle yet and its
+                // chrome is not established — DisplayRectangle still reports the whole client area,
+                // so the caption band measures as zero and the dialog ends up ~73px short, dropping
+                // the footer. Defer to Load, when the chrome is real, and measure once there.
+                if (!form.IsHandleCreated)
+                {
+                    void FitOnLoad(object? sender, EventArgs e)
+                    {
+                        form.Load -= FitOnLoad;
+                        FitFormToContent(form);
+                    }
+
+                    form.Load += FitOnLoad;
+                    return;
+                }
+
+                // The host form reserves chrome *inside* its client area — BeepiFormPro draws its
+                // caption band there — so a Dock.Fill child is laid into DisplayRectangle, not
+                // ClientRectangle. Measuring the child and assigning that straight to ClientSize
+                // loses exactly the chrome band, which drops the footer off the bottom.
+                int chromeWidth = Math.Max(0, form.ClientSize.Width - form.DisplayRectangle.Width);
+                int chromeHeight = Math.Max(0, form.ClientSize.Height - form.DisplayRectangle.Height);
+
+                // Width is a design decision (a dialog has a sensible column measure); height
+                // follows the content. Constraining the width and asking for a preferred height is
+                // what makes a wrapped message grow the dialog instead of clipping it.
+                int width = Math.Max(form.MinimumSize.Width, form.ClientSize.Width);
+                Size preferred = root.GetPreferredSize(new Size(Math.Max(1, width - chromeWidth), 0));
+
+                int height = Math.Max(preferred.Height + chromeHeight, form.MinimumSize.Height);
+                form.ClientSize = new Size(width, height);
+                return;
+            }
+
             int maxRight  = 0;
             int maxBottom = 0;
             foreach (Control c in form.Controls)

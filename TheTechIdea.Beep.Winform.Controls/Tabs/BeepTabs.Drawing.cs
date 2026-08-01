@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             SyncHeaderSurface(graphics);
-            _headerHost.RenderLegacyHeader(graphics, CreateHeaderRenderRequest());
+            _headerHost.RenderHeader(graphics, CreateHeaderRenderRequest());
         }
 
         private void InvalidateHeader()

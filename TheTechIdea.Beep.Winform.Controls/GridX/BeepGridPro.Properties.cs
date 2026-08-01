@@ -130,18 +130,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         // Clear the grid when DataSource is set to null
                         ClearGrid();
                     }
+                    else if (EnableVirtualization)
+                    {
+                        // Virtualized: bind columns only, then let the virtualizer publish the
+                        // visible window. BindVirtualized skips rows precisely for this case.
+                        DataController.BindVirtualized(value);
+                        Data.Rows.Clear();
+                        var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
+                        VirtualDataSource = CreateVirtualDataSource(value, columnNames);
+                        int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
+                        RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
+                        Layout.Recalculate();
+                    }
                     else
                     {
-                        DataController.BindVirtualized(value);
-                        if (EnableVirtualization)
-                        {
-                            Data.Rows.Clear();
-                            var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
-                            VirtualDataSource = CreateVirtualDataSource(value, columnNames);
-                            int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
-                            RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
-                            Layout.Recalculate();
-                        }
+                        // Non-virtualized: materialize the rows now.
+                        //
+                        // This used to call BindVirtualized unconditionally, which binds with
+                        // skipRows:true. With virtualization off — the default — nothing then
+                        // filled Rows, so assigning DataSource produced columns and an empty body
+                        // until some later repaint happened to refresh them. Reading Rows.Count
+                        // straight after the assignment returned 0, and assigning an empty list
+                        // left the previous rows on screen.
+                        DataController.BindComplete(value);
                     }
                     SafeInvalidate();
                 }
@@ -873,7 +884,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Browsable(true)]
         [Category("Layout")]
         [DefaultValue(DataGridViewAutoSizeColumnsMode.None)]
-        public DataGridViewAutoSizeColumnsMode AutoSizeColumnsMode { get; set; } = DataGridViewAutoSizeColumnsMode.None;
+        public DataGridViewAutoSizeColumnsMode AutoSizeColumnsMode
+        {
+            get => _autoSizeColumnsMode;
+            set
+            {
+                if (_autoSizeColumnsMode == value) return;
+                _autoSizeColumnsMode = value;
+
+                // Apply straight away. As a plain auto-property this silently did nothing until the
+                // next data bind, because RequestAutoSize is gated on AutoSizeTriggerMode
+                // (OnDataBind by default) — so setting Fill after binding, which is what host code
+                // and the designer both do, left the columns exactly as they were.
+                if (!DesignMode && value != DataGridViewAutoSizeColumnsMode.None && Data?.Columns?.Count > 0)
+                    ApplyAutoSizeNow();
+            }
+        }
+        private DataGridViewAutoSizeColumnsMode _autoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 
         [Browsable(true)]
         [Category("Layout")]

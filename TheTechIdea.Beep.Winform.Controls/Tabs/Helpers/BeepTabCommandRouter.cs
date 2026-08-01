@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 MoveLeftCommand => owner.CanMoveHeaderTabLeft(tabIndex),
                 MoveRightCommand => owner.CanMoveHeaderTabRight(tabIndex),
                 RevealOverflowCommand   => owner.CanShowHeaderOverflow(),
-                ReopenLastClosedCommand => owner.TabMode != BeepTabMode.Navigation,
+                ReopenLastClosedCommand => owner.ModeCapabilities.SupportsClosedTabHistory,
                 _ => false
             };
         }

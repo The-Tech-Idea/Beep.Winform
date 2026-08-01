@@ -9,15 +9,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
     /// <summary>
     /// Provides accessibility support for BeepTree, enabling screen readers
     /// and assistive technologies to interact with the tree and its nodes.
+    /// <para>
+    /// Derives from <see cref="Control.ControlAccessibleObject"/>, not plain
+    /// <see cref="AccessibleObject"/>. WinForms stores whatever
+    /// <c>CreateAccessibilityInstance()</c> returns in a property-store slot typed as
+    /// <c>ControlAccessibleObject</c>, so returning a bare <c>AccessibleObject</c> compiles but
+    /// throws <c>InvalidCastException</c> later inside <c>Control.OnHandleDestroyed</c> —
+    /// the tree crashes when its handle is torn down (closing the form, re-parenting, theme
+    /// changes), far from the line that caused it.
+    /// </para>
     /// </summary>
-    public class BeepTreeAccessibleObject : AccessibleObject
+    public class BeepTreeAccessibleObject : Control.ControlAccessibleObject
     {
         private readonly BeepTree _owner;
         private readonly Dictionary<SimpleItem, NodeAccessibleObject> _nodeCache = new Dictionary<SimpleItem, NodeAccessibleObject>();
 
         public BeepTreeAccessibleObject(BeepTree owner)
+            : base(owner ?? throw new ArgumentNullException(nameof(owner)))
         {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _owner = owner;
         }
 
         public override AccessibleRole Role => AccessibleRole.Outline;

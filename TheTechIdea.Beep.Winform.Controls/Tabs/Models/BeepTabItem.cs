@@ -12,7 +12,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Models
         public int Index { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
-        public Control? Content { get; set; }
+        /// <summary>
+        /// Whether this metadata was created from a real <see cref="BeepTabPage"/> rather than
+        /// default-constructed. Used to detect metadata that was never normalised against its page.
+        /// </summary>
+        /// <remarks>
+        /// This replaces a <c>Control? Content</c> property that held the page itself. That was a
+        /// duplicate of what <see cref="BeepTabPage"/> already owns, and it put a live control
+        /// reference inside a render snapshot — a lifetime hazard, since a disposed page left the
+        /// snapshot holding a dangling reference. It was only ever used two ways: as this
+        /// initialised/not-initialised flag, and to recover a page's index by scanning a freshly
+        /// allocated snapshot comparing references — which the hosted-page list already knows.
+        /// </remarks>
+        public bool IsPageBacked { get; set; }
 
         // ── Interaction state ────────────────────────────────────────────────
         public bool IsSelected { get; set; }
@@ -30,9 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Models
         public BeepTabWorkspaceState WorkspaceState { get; set; } = new BeepTabWorkspaceState();
 
         // ── Layout ───────────────────────────────────────────────────────────
-        public Rectangle Bounds { get; set; } = Rectangle.Empty;
 
-        // ── Phase 2: rich metadata ────────────────────────────────────────────
+        // ── Rich metadata (icon, subtext, badge, dirty, busy) ──────────────────────────
         /// <summary>Path or embedded resource key for the tab icon.</summary>
         public string IconPath { get; set; } = string.Empty;
 

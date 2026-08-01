@@ -9,6 +9,65 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
     public partial class BeepGridPro
     {
+        /// <summary>
+        /// Shows the column menu: sort, filter and clear for one column, in one place.
+        /// </summary>
+        /// <remarks>
+        /// This is the single entry point behind the column menu button in the header. Commercial
+        /// grids put sort and filter in the same menu rather than making the user find two separate
+        /// icons, and it means a column offers the same actions whether or not the grid is wide
+        /// enough to show a toolbar.
+        /// </remarks>
+        public void ShowColumnMenu(int columnIndex, Point screenLocation)
+        {
+            if (columnIndex < 0 || columnIndex >= Data.Columns.Count) return;
+            var column = Data.Columns[columnIndex];
+            if (column == null) return;
+
+            var items = new List<SimpleItem>();
+
+            if (column.AllowSort)
+            {
+                items.Add(CreateMenuItem("Sort Ascending", string.Empty, "col_sort_asc"));
+                items.Add(CreateMenuItem("Sort Descending", string.Empty, "col_sort_desc"));
+                if (column.IsSorted)
+                    items.Add(CreateMenuItem("Clear Sort", string.Empty, "col_sort_clear"));
+                items.Add(CreateMenuSeparator());
+            }
+
+            items.Add(CreateMenuItem("Filter…", string.Empty, "col_filter"));
+            if (column.IsFiltered)
+                items.Add(CreateMenuItem("Clear Filter", string.Empty, "col_filter_clear"));
+
+            var selected = ShowContextMenu(items, screenLocation, multiSelect: false);
+            if (selected?.Tag == null) return;
+
+            // The menu is modal, so the hovered column can have moved on by the time it closes —
+            // act on the column the menu was opened for, not on whatever is hovered now.
+            Layout.HoveredHeaderColumnIndex = columnIndex;
+
+            switch (selected.Tag.ToString())
+            {
+                case "col_sort_asc":
+                    SetColumnSort(columnIndex, SortDirection.Ascending);
+                    break;
+                case "col_sort_desc":
+                    SetColumnSort(columnIndex, SortDirection.Descending);
+                    break;
+                case "col_sort_clear":
+                    SetColumnSort(columnIndex, SortDirection.None);
+                    break;
+                case "col_filter":
+                    ShowFilterDialog();
+                    break;
+                case "col_filter_clear":
+                    SortFilter.Filter(column.ColumnName, string.Empty);
+                    SortFilter.FilterIn(column.ColumnName, null);
+                    SafeInvalidate();
+                    break;
+            }
+        }
+
         private void ShowGridContextMenu(MouseEventArgs e)
         {
             var menuItems = new List<SimpleItem>

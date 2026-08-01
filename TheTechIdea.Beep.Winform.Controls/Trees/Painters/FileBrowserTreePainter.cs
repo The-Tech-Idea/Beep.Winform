@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     var textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _compactFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
 
                 // STEP 7: Draw file type badge (extension indicator)
@@ -332,7 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-            TextRenderer.DrawText(g, text, _compactFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
@@ -389,5 +389,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // File browser needs compact spacing for large directories
             return Math.Max(20, base.GetPreferredRowHeight(item, font) - 4);
         }
-    }
+    
+        /// <summary>
+        /// This style renders labels in a compact font, so the layout must measure with it too --
+        /// otherwise every text rect is sized for the tree font and the label is clipped.
+        /// </summary>
+        public override Font GetNodeFont(BeepTree owner) => _compactFont ?? base.GetNodeFont(owner);
+}
 }

@@ -10,89 +10,79 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
     {
         private System.ComponentModel.IContainer components = null;
 
+        /// <summary>
+        /// Creates and configures the controls; <see cref="BeepDialogShell"/> decides where they sit.
+        /// </summary>
+        /// <remarks>
+        /// There is no <c>_bodyPanel</c> any more. This dialog hosts a caller-supplied control, and
+        /// the panel existed only to give that control a rectangle — which it did by assigning
+        /// Location and Size and then re-assigning Size on every <c>SizeChanged</c>, a hand-rolled
+        /// <c>Dock.Fill</c>. The shell's body row does that natively.
+        /// </remarks>
         private void InitializeComponent()
         {
-            this._headerPanel  = new BeepPanel();
-            this._dialogIcon   = new BeepImage();
-            this._titleLabel   = new BeepLabel();
-            this._bodyPanel    = new BeepPanel();
-            this._buttonPanel  = new BeepPanel();
-            this._okButton     = new BeepButton();
-            this._cancelButton = new BeepButton();
-            this.SuspendLayout();
+            _shell = new BeepDialogShell();
+            _headerPanel = new TableLayoutPanel();
+            _dialogIcon = new BeepImage();
+            _titleLabel = new BeepLabel();
+            _okButton = new BeepButton();
+            _cancelButton = new BeepButton();
+            SuspendLayout();
 
-            this._headerPanel.IsFrameless = true;
-            this._headerPanel.ShowTitle = false;
-            this._headerPanel.ShowTitleLine = false;
-            this._headerPanel.UseThemeColors = true;
-            this._headerPanel.Location = new System.Drawing.Point(0, 0);
-            this._headerPanel.Size = new System.Drawing.Size(420, 56);
+            _headerPanel.Dock = DockStyle.Fill;
+            _headerPanel.AutoSize = true;
+            _headerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            _headerPanel.ColumnCount = 2;
+            _headerPanel.RowCount = 1;
+            _headerPanel.Margin = new Padding(0);
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            _headerPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            this._dialogIcon.UseThemeColors = true;
-            this._dialogIcon.ImagePath = Svgs.Information;
-            this._dialogIcon.ScaleMode = ImageScaleMode.Stretch;
-            this._dialogIcon.Location = new System.Drawing.Point(8, 10);
-            this._dialogIcon.Size = new System.Drawing.Size(36, 36);
+            _dialogIcon.UseThemeColors = true;
+            _dialogIcon.ImagePath = Svgs.Information;
+            _dialogIcon.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            _dialogIcon.Size = new System.Drawing.Size(32, 32);
+            _dialogIcon.Margin = new Padding(0, 0, 12, 0);
 
-            this._titleLabel.UseThemeColors = true;
-            this._titleLabel.IsFrameless = true;
-            this._titleLabel.AutoEllipsis = true;
-            this._titleLabel.Location = new System.Drawing.Point(52, 12);
-            this._titleLabel.Size = new System.Drawing.Size(360, 36);
+            _titleLabel.UseThemeColors = true;
+            _titleLabel.IsFrameless = true;
+            _titleLabel.AutoEllipsis = true;
+            _titleLabel.Dock = DockStyle.Fill;
 
-            this._bodyPanel.IsFrameless = true;
-            this._bodyPanel.ShowTitle = false;
-            this._bodyPanel.ShowTitleLine = false;
-            this._bodyPanel.UseThemeColors = true;
-            this._bodyPanel.Location = new System.Drawing.Point(0, 56);
-            this._bodyPanel.Size = new System.Drawing.Size(420, 200);
+            _okButton.UseThemeColors = true;
+            _okButton.Text = "OK";
+            _okButton.AutoSize = true;
+            _okButton.MinimumSize = new System.Drawing.Size(110, 34);
+            _okButton.Click += OkButton_Click;
 
-            this._buttonPanel.IsFrameless = true;
-            this._buttonPanel.ShowTitle = false;
-            this._buttonPanel.ShowTitleLine = false;
-            this._buttonPanel.UseThemeColors = true;
-            this._buttonPanel.Location = new System.Drawing.Point(0, 256);
-            this._buttonPanel.Size = new System.Drawing.Size(420, 54);
+            _cancelButton.UseThemeColors = true;
+            _cancelButton.Text = "Cancel";
+            _cancelButton.AutoSize = true;
+            _cancelButton.MinimumSize = new System.Drawing.Size(110, 34);
+            _cancelButton.Click += CancelButton_Click;
 
-            this._okButton.UseThemeColors = true;
-            this._okButton.Text = "OK";
-            this._okButton.AutoSize = true;
-            this._okButton.MinimumSize = new System.Drawing.Size(110, 34);
-            this._okButton.Location = new System.Drawing.Point(102, 8);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new System.Drawing.Size(420, 310);
+            MinimumSize = new System.Drawing.Size(340, 220);
+            StartPosition = FormStartPosition.CenterParent;
+            ShowInTaskbar = false;
+            // This dialog draws its own header row, so the skinned caption bar would be a
+            // second, empty title band: it reserved 72px of top chrome and painted
+            // owner.Text, which was blank. Text is now the accessible window name instead.
+            ShowCaptionBar = false;
+            Text = string.Empty;
+            Name = "BeepCustomDialog";
 
-            this._cancelButton.UseThemeColors = true;
-            this._cancelButton.Text = "Cancel";
-            this._cancelButton.AutoSize = true;
-            this._cancelButton.MinimumSize = new System.Drawing.Size(110, 34);
-            this._cancelButton.Location = new System.Drawing.Point(220, 8);
+            Controls.Add(_shell);
 
-            this._headerPanel.Controls.Add(this._dialogIcon);
-            this._headerPanel.Controls.Add(this._titleLabel);
-            this._buttonPanel.Controls.Add(this._okButton);
-            this._buttonPanel.Controls.Add(this._cancelButton);
-            this.Controls.Add(this._bodyPanel);
-            this.Controls.Add(this._headerPanel);
-            this.Controls.Add(this._buttonPanel);
-
-            this._okButton.Click += this.OkButton_Click;
-            this._cancelButton.Click += this.CancelButton_Click;
-
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(420, 310);
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.ShowInTaskbar = false;
-            this.Text = string.Empty;
-            this.Name = "BeepCustomDialog";
-
-            this.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
-        internal BeepPanel  _headerPanel;
-        internal BeepImage  _dialogIcon;
-        internal BeepLabel  _titleLabel;
-        internal BeepPanel  _bodyPanel;
-        internal BeepPanel  _buttonPanel;
+        private BeepDialogShell _shell;
+        private TableLayoutPanel _headerPanel;
+        internal BeepImage _dialogIcon;
+        internal BeepLabel _titleLabel;
         internal BeepButton _okButton;
         internal BeepButton _cancelButton;
     }

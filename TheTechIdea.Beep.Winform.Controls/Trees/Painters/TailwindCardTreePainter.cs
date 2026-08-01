@@ -172,8 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
             }
             finally
@@ -206,16 +205,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
 
                     // Card
-                    using (var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor()))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
+                    g.FillPath(brush, path);
 
                     // Ring (border)
-                    using (var pen = PaintersFactory.GetPen(_theme.AccentColor, 2f))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    var pen = PaintersFactory.GetPen(_theme.AccentColor, 2f);
+                    g.DrawPath(pen, path);
                 }
             }
             else if (isHovered)
@@ -304,8 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
             var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
-            TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)

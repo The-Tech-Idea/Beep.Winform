@@ -33,17 +33,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                     // Frameless so the editor's border does not stack on top
                     // of the painter's rounded border.  IsFrameless is read
                     // by the BaseControl painter (ClassicBaseControlPainter)
-                    // and suppresses the border.  The BeepTextBox still
-                    // paints its own background, so we set BackColor=Transparent
-                    // below so the painted search box background shows
-                    // through.
+                    // and suppresses the border.
                     IsFrameless = true,
+                    // IsChild makes ApplyTheme give the editor the parent's BackColor, which is
+                    // what we want: a solid, theme-driven fill that matches the grid.
                     IsChild = true,
-                    // The BackColor is the only "background" the BeepTextBox
-                    // itself fills.  Transparent lets the painted rounded
-                    // background show through so the user sees ONE clean
-                    // search box, not two stacked fills.
-                    BackColor = Color.Transparent,
+                    // The toolbar painter already draws the box AND its focus ring. IsFrameless
+                    // suppresses the static border but not the focus animation, which drew a
+                    // second rounded border just inside the painted one -- two nested boxes.
+                    // The painter owns all the chrome; the editor supplies only text and caret.
+                    EnableFocusAnimation = false,
+                    ShowFocusIndicator = false,
+                    BorderRadius = 0,
+                    // Explicitly the parent's BackColor -- NOT Color.Transparent.
+                    //
+                    // Transparent never worked here anyway (ApplyTheme overwrites it because
+                    // IsChild is set) and it rendered black, because a transparent BackColor makes
+                    // the control paint its parent's background itself rather than showing it
+                    // through. It also forces the child to repaint whenever the parent repaints,
+                    // which is the coupling behind the flicker. A solid parent-matched fill is
+                    // both stable and correct; the painter matches this colour for the box.
+                    BackColor = _grid.BackColor,
                     // Zero padding so the editor's text starts at the
                     // editor's left edge, which the host has already
                     // inset by SearchIconWidth to match the painted
@@ -57,6 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                 _searchEditor.TextChanged += OnSearchEditorTextChanged;
                 _grid.Controls.Add(_searchEditor);
             }
+
 
             // The editor is sized to the right side of the search box,
             // excluding the icon column.  This keeps the search icon
@@ -72,6 +83,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         }
 
         /// <summary>
+        /// The editor's actual background colour, for the toolbar painter to fill the search box
+        /// with while the editor is up.
+        /// <para>
+        /// The painter matches the editor rather than the other way round on purpose. BeepTextBox
+        /// owns its BackColor -- ApplyTheme rewrites it from the theme (and, because IsChild is
+        /// set, from the parent's colour) at times outside this class's control. Assigning it from
+        /// here is either overwritten moments later or, if re-asserted from BackColorChanged, spins
+        /// against ApplyTheme; an earlier attempt at that hung the control. Reading the colour and
+        /// painting to match is stable, needs no coordination, and cannot loop.
+        /// </para>
+        /// </summary>
+        internal Color? SearchEditorBackColor
+            => _searchEditor != null && !_searchEditor.IsDisposed && _searchEditor.Visible
+                ? _searchEditor.BackColor
+                : null;
+
+        /// <summary>
         /// Returns the editor bounds inside the painted search box, leaving
         /// the icon column on the left untouched.  Width is shrunk by the
         /// <see cref="BeepGridToolbarState.SearchIconWidth"/> scaled to DPI
@@ -79,10 +107,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         /// </summary>
         private Rectangle InnerEditorBounds(Rectangle bounds)
         {
-            int pad = (int)(_grid.ToolbarState.SearchIconWidth * (_grid.DeviceDpi / 96f));
+            float dpiScale = _grid.DeviceDpi / 96f;
+            int pad = (int)(_grid.ToolbarState.SearchIconWidth * dpiScale);
+
+            // Sit strictly INSIDE the painted border rather than on top of it.
+            //
+            // The editor used to take the search box's full height and run to its right edge, so
+            // its opaque fill covered the border along the top, bottom and right — the box looked
+            // like it had lost three of its four sides once the editor came up. The left side was
+            // never affected because the icon padding already inset it.
+            int edge = Math.Max(1, (int)Math.Ceiling(Toolbar.BeepGridToolbarPainter.SearchBoxBorderWidth * dpiScale));
+            // The right edge additionally has to clear the corner arc, which curves inward over
+            // the last `radius` pixels.
+            int rightInset = Math.Max(edge, (int)Math.Ceiling(Toolbar.BeepGridToolbarPainter.SearchBoxRadius * dpiScale));
+
+            int x = bounds.X + pad;
+            int y = bounds.Y + edge;
             return new Rectangle(
-                bounds.X + pad, bounds.Y,
-                Math.Max(0, bounds.Width - pad), bounds.Height);
+                x, y,
+                Math.Max(0, bounds.Right - rightInset - x),
+                Math.Max(0, bounds.Height - edge * 2));
         }
 
         private void OnSearchEditorTextChanged(object? sender, EventArgs e)
@@ -214,5 +258,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         /// </summary>
         public bool IsSearchEditorFocused()
             => _searchEditor != null && !_searchEditor.IsDisposed && _searchEditor.Focused;
+
+        /// <summary>
+        /// True while the editor is on screen, whether or not it currently holds focus.
+        /// The toolbar painter reads this to suppress the painted search text so the editor is
+        /// the only thing drawing in the text area.
+        /// </summary>
+        internal bool IsSearchEditorVisible
+            => _searchEditor != null && !_searchEditor.IsDisposed && _searchEditor.Visible;
     }
 }

@@ -141,8 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     var renderFont = isSelected ? new Font(_regularFont, _regularFont.Style | FontStyle.Bold) : _regularFont;
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                     if (isSelected) renderFont.Dispose();
                 }
             }
@@ -222,8 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (string.IsNullOrEmpty(text) || textRect.Width <=0 || textRect.Height <=0) return;
 
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
-            TextRenderer.DrawText(g, text, _regularFont, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)

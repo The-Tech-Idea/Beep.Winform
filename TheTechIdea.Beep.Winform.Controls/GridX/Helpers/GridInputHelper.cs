@@ -99,13 +99,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (_grid.Layout.HoveredHeaderColumnIndex != hoverIndex)
                 {
                     _grid.Layout.HoveredHeaderColumnIndex = hoverIndex;
-                    _grid.SafeInvalidate();
+                    // Header hover only changes header pixels, so repaint the header band rather
+                    // than the whole control -- a full invalidate also repaints the toolbar and
+                    // any activated editor child sitting in it.
+                    _grid.SafeInvalidate(_grid.Layout.HeaderRect);
                 }
             }
             else if (_grid.Layout.HoveredHeaderColumnIndex != -1)
             {
                 _grid.Layout.HoveredHeaderColumnIndex = -1;
-                _grid.SafeInvalidate();
+                _grid.SafeInvalidate(_grid.Layout.HeaderRect);
             }
 
             // Determine and set cursor based on possible action at this location
@@ -298,7 +301,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (colIdx >= 0)
                 {
                     _grid.Layout.HoveredHeaderColumnIndex = colIdx;
-                    _grid.ShowFilterDialog();
+
+                    // The header button now opens the column menu (sort + filter + clear) rather
+                    // than jumping straight into the filter dialog.
+                    var anchor = _grid.Render.HeaderFilterIconRects[colIdx];
+                    _grid.ShowColumnMenu(colIdx, _grid.PointToScreen(new Point(anchor.Left, anchor.Bottom)));
                     return;
                 }
             }
@@ -334,19 +341,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // General column header click (for sorting)
+            // Any remaining header click — the cell's padding strip, or a column that offers no
+            // sort. Sorting is handled above, against the rects the painter published; a second
+            // ToggleColumnSort here was a duplicate that disagreed with it, calling the
+            // non-additive overload so a shift-click landing in the padding replaced the sort
+            // instead of appending to it. The guard stays: a header click must never fall through
+            // to cell selection.
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
             {
-                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
-                if (colIdx >= 0)
-                {
-                    var column = _grid.Data.Columns[colIdx];
-                    if (column != null && column.AllowSort)
-                    {
-                        _grid.ToggleColumnSort(colIdx);
-                    }
-                }
-                return; // Header click — never fall through to cell selection
+                return;
             }
 
             // Row checkbox rectangle click tracking (do not toggle here; toggle on MouseUp)

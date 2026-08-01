@@ -54,9 +54,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// <summary>
         /// Confirm Action - requires user confirmation for important action
         /// Backward compatibility preset, use Question for new code
-        /// </summary>
-        [Obsolete("Use Question preset instead")]
-        ConfirmAction,
 
         /// <summary>
         /// Destructive confirmation flow with explicit consequence labels.

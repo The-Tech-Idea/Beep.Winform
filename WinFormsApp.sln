@@ -3,17 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinformSampleApp", "WinformSampleApp\WinformSampleApp.csproj", "{DF853175-B0BF-42F7-916A-6C0351EFCF42}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Vis.Modules", "TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj", "{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Controls", "TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj", "{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Default.Views", "TheTechIdea.Beep.Winform.Default.Views\TheTechIdea.Beep.Winform.Default.Views.csproj", "{F52C1168-5279-2947-222C-0192616532FC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Controls.Integrated", "TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj", "{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Extensions", "TheTechIdea.Beep.Winform.Extensions\TheTechIdea.Beep.Winform.Extensions.csproj", "{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Vis.Loader", "..\Beep.Branchs\TheTechIdea.Beep.Vis.Loader\TheTechIdea.Beep.Vis.Loader.csproj", "{48A13373-EE93-15DC-042E-737D6CEB8F5B}"
 EndProject
@@ -22,12 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagementModels", "..\BeepDM\DataManagementModelsStandard\DataManagementModels.csproj", "{17D40D63-AE6E-3903-77E5-98E53ECCA25F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagementEngine", "..\BeepDM\DataManagementEngineStandard\DataManagementEngine.csproj", "{8DA73FCC-5A46-36EB-7AAE-158BDED10367}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly_helpers", "..\BeepDM\Assembly_helpersStandard\Assembly_helpers.csproj", "{B5AE3E34-3E33-75FC-9868-874310255F79}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beep.Nugget.Engine", "..\Beep.Nugget\Beep.Nugget.Engine\Beep.Nugget.Engine.csproj", "{1C83742B-27A0-79A2-215D-22C6C3D7C024}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Copilot_Instructions", "Copilot_Instructions", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2AFBC5BA-5EEA-46F5-A2F4-C0A281F5A9A4}"
 	ProjectSection(SolutionItems) = preProject
@@ -41,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -53,18 +35,6 @@ Global
 		{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F52C1168-5279-2947-222C-0192616532FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F52C1168-5279-2947-222C-0192616532FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F52C1168-5279-2947-222C-0192616532FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F52C1168-5279-2947-222C-0192616532FC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -81,14 +51,6 @@ Global
 		{8DA73FCC-5A46-36EB-7AAE-158BDED10367}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DA73FCC-5A46-36EB-7AAE-158BDED10367}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DA73FCC-5A46-36EB-7AAE-158BDED10367}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5AE3E34-3E33-75FC-9868-874310255F79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5AE3E34-3E33-75FC-9868-874310255F79}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5AE3E34-3E33-75FC-9868-874310255F79}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5AE3E34-3E33-75FC-9868-874310255F79}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C83742B-27A0-79A2-215D-22C6C3D7C024}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C83742B-27A0-79A2-215D-22C6C3D7C024}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C83742B-27A0-79A2-215D-22C6C3D7C024}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C83742B-27A0-79A2-215D-22C6C3D7C024}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

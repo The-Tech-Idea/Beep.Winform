@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            if (TabMode == BeepTabMode.Navigation)
+            if (!ModeCapabilities.SupportsMruOrdering)
             {
                 _workspaceMruTracker.ResetCycle();
                 _preserveWorkspaceMruCycle = false;
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepTabPage? ResolveHostedPageAfterClose(BeepTabPage removedPage, int removedIndex)
         {
-            if (TabMode != BeepTabMode.Navigation)
+            if (ModeCapabilities.SupportsMruOrdering)
             {
                 BeepTabPage? mruPage = _workspaceMruTracker.GetMostRecentAvailablePage(GetHostedSourcePagesSnapshot(), removedPage);
                 if (mruPage != null)
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private bool TrySelectWorkspaceMruHeaderTab()
         {
-            if (TabMode == BeepTabMode.Navigation)
+            if (!ModeCapabilities.SupportsMruOrdering)
             {
                 return false;
             }
@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         internal bool TryShowWorkspaceQuickSwitch()
         {
-            if (TabMode == BeepTabMode.Navigation)
+            if (!ModeCapabilities.SupportsMruOrdering)
                 return false;
 
             int count = GetHostedSourceItemCount();

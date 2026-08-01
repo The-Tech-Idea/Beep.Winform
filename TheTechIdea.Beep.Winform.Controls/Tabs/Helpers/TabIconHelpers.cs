@@ -25,8 +25,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
             if (!string.IsNullOrEmpty(customPath))
                 return customPath;
 
-            // Priority 2: Default close icon
-            return "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
+            // Priority 2: Default close icon.
+            // Deliberately x.svg and not close.svg: close.svg is a red rounded-square *badge*
+            // (<rect fill="#dd4752">) with a white cross on top, not a glyph. Recolouring it filled
+            // the whole box with one colour, and tinting it multiplied the badge to near-black —
+            // which is why every tab of every painter showed a solid dark square on the contact
+            // sheet. x.svg is a single polygon with no fill attribute, so it recolours to a clean
+            // monochrome cross in whatever the theme asks for.
+            return "TheTechIdea.Beep.Winform.Controls.GFX.SVG.x.svg";
         }
 
         /// <summary>
@@ -37,6 +43,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
             bool useThemeColors,
             bool isHovered = false)
         {
+            // Single source for the close glyph colour. TabThemeHelpers used to carry a second,
+            // near-identical GetCloseButtonColor that nothing called; it was deleted rather than
+            // left to drift out of step with this one.
+            if (TabThemeHelpers.IsHighContrast)
+            {
+                return isHovered ? SystemColors.HighlightText : SystemColors.WindowText;
+            }
+
             if (useThemeColors && theme != null)
             {
                 if (isHovered)
@@ -91,18 +105,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Create GraphicsPath for icon bounds
-            using (var iconPathShape = CreateIconPath(iconBounds, controlStyle))
-            {
-                // Paint icon with tinting using StyledImagePainter
-                StyledImagePainter.PaintWithTint(
-                    g,
-                    iconPathShape,
-                    iconPath,
-                    iconColor,
-                    1f,
-                    0);
-            }
+            // PaintWithTint multiplies the glyph by the tint colour, so it can only ever darken.
+            // The shipped close glyph is near-black, so multiplying rendered it as a solid black
+            // square on every tab of every painter — visible on the contact sheet. Recolouring
+            // replaces the element colours instead of blending, which is what a themed monochrome
+            // icon needs; this is the same fix already applied to the grid toolbar icons.
+            StyledImagePainter.PaintSvgRecolored(g, iconBounds, iconPath, iconColor);
         }
 
         /// <summary>

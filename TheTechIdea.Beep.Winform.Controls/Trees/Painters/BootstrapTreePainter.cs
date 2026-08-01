@@ -149,8 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
             }
             finally
@@ -274,8 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Bootstrap uses theme font
             var renderFont = GetFont(font.Size);
 
-            TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)

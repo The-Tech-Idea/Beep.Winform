@@ -193,9 +193,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             for (int i = 0; i < itemCount; i++)
             {
                 SizeF tabSize = activePainter.MeasureTab(graphics, i, fontToUse);
+
+                // MeasureTab reports a horizontally laid-out tab: Width is the caption's length,
+                // Height is one line of text plus padding. A Left/Right header rotates the label, so
+                // the extent it needs *along the strip* is still the caption's length — the Width.
+                // Using Height here gave every vertical tab about one line of run (~30px) no matter
+                // how long its caption, so the label ellipsised away entirely and vertical tabs
+                // rendered with no text at all.
+                float desiredExtent = tabSize.Width;
                 sizes[i] = vertical
-                    ? Math.Max(GetScaledMinTabHeight(), Math.Min(GetScaledMaxTabHeight(), tabSize.Height))
-                    : Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), tabSize.Width));
+                    ? Math.Max(GetScaledMinTabHeight(), Math.Min(GetScaledMaxTabHeight(), desiredExtent))
+                    : Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), desiredExtent));
             }
 
             return sizes;

@@ -182,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Show a wizard using the Beep WizardManager.
         /// </summary>
-        public System.Windows.Forms.DialogResult ShowWizard(WizardConfig config)
+        public DialogResult ShowWizard(WizardConfig config)
         {
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             return owner != null
@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             }
         }
 
-        public System.Windows.Forms.DialogResult ShowCommandPalette(IEnumerable<CommandAction> actions)
+        public DialogResult ShowCommandPalette(IEnumerable<CommandAction> actions)
         {
             using var palette = new BeepCommandPaletteDialog();
             palette.SetActions(actions);
@@ -222,10 +222,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             return owner != null ? palette.ShowDialog(owner) : palette.ShowDialog();
         }
 
-        public System.Windows.Forms.DialogResult ShowQuickActions(IEnumerable<CommandAction> actions)
-        {
-            return ShowCommandPalette(actions);
-        }
+        // ShowQuickActions removed: its whole body was `return ShowCommandPalette(actions);`. It had
+        // no callers and is not on IDialogManager, so it was a second name for one behaviour - the
+        // same duplication as the Error/ShowError pairs, but without an [Obsolete] marker to make it
+        // visible. In the reference products "quick actions" is a *scoped* palette, not a synonym;
+        // if that is wanted it belongs as a filter argument to ShowCommandPalette, not a second entry
+        // point that does exactly the same thing.
 
         #endregion
 
@@ -306,8 +308,39 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     }
                 }
 
+                // Validation gate. `ValidationCallback` was declared, documented as "called before
+                // dialog closes on OK/Yes — return false to keep the dialog open", and **never
+                // invoked anywhere**: a caller could set it and nothing would ever call it. It has
+                // to run here rather than beside DataExtractionCallback, because by the time the
+                // result is being built the dialog has already closed and there is nothing left to
+                // cancel.
+                FormClosingEventHandler? validationGate = null;
+                if (config.ValidationCallback != null)
+                {
+                    validationGate = (_, e) =>
+                    {
+                        // Only gate an accept. Cancelling, or closing via the system menu, must
+                        // never be blocked — a dialog the user cannot escape is a worse defect than
+                        // the one this hook exists to prevent.
+                        if (dialog.DialogResult is not (DialogResult.OK
+                                                        or DialogResult.Yes))
+                        {
+                            return;
+                        }
+
+                        var pending = CreateDialogReturn(dialog, dialog.DialogResult);
+                        if (!config.ValidationCallback(pending))
+                        {
+                            e.Cancel = true;
+                        }
+                    };
+                    dialog.FormClosing += validationGate;
+                }
+
                 // Show dialog
                 var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+
+                if (validationGate != null) dialog.FormClosing -= validationGate;
                 var dialogReturn = CreateDialogReturn(dialog, result);
                 if (dialogReturn.Submit) DialogConfirmed?.Invoke(this, dialogReturn);
                 else DialogCancelled?.Invoke(this, dialogReturn);
@@ -380,16 +413,49 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 dialog = dlg;
             }
 
-            dialog.StartPosition = config.Position switch
-            {
-                DialogPosition.CenterParent => FormStartPosition.CenterParent,
-                DialogPosition.CenterScreen => FormStartPosition.CenterScreen,
-                _ => FormStartPosition.CenterParent
-            };
-            if (config.Position == DialogPosition.Custom && config.CustomLocation.HasValue)
-                dialog.Location = config.CustomLocation.Value;
             if (config.CustomSize.HasValue)
                 dialog.Size = config.CustomSize.Value;
+
+            if (config.Position == DialogPosition.Custom && config.CustomLocation.HasValue)
+            {
+                dialog.StartPosition = FormStartPosition.Manual;
+                dialog.Location = config.CustomLocation.Value;
+            }
+            else
+            {
+                // Placed by DialogPlacementEngine rather than FormStartPosition.
+                //
+                // The engine had zero callers while placement was done by hand here and in 16 other
+                // spots. Adopting it was gated on proving it agrees, and it does: for an owner inside
+                // the work area it returns exactly what CenterParent computes — measured identical at
+                // (540, 370) — so no dialog anyone uses today moves.
+                //
+                // What it adds is the two cases CenterParent gets wrong. With the owner against the
+                // right edge, CenterParent puts the dialog at x=3090 on a 3440-wide desktop, hanging
+                // it off the screen; the engine clamps it to 3012. And a dialog larger than the work
+                // area gets an origin of (8, 8) instead of a negative one the user cannot drag back
+                // from. Placement now happens deferred, because the dialog's final size is only known
+                // after its layout has run.
+                DialogPlacementStrategy strategy = config.Position switch
+                {
+                    DialogPosition.CenterScreen => DialogPlacementStrategy.CenterScreen,
+                    _ => DialogPlacementStrategy.CenterOwner
+                };
+
+                Form placementOwner = _hostForm
+                    ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null!);
+
+                dialog.StartPosition = FormStartPosition.Manual;
+
+                Form toPlace = dialog;
+                void PlaceOnLoad(object? sender, EventArgs e)
+                {
+                    toPlace.Load -= PlaceOnLoad;
+                    toPlace.Location = DialogPlacementEngine.Place(placementOwner, toPlace.Size, strategy);
+                }
+
+                dialog.Load += PlaceOnLoad;
+            }
 
             return dialog;
         }
@@ -465,13 +531,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Creates DialogReturn from dialog result
         /// </summary>
-        private DialogReturn CreateDialogReturn(Form dialog, System.Windows.Forms.DialogResult result)
+        private DialogReturn CreateDialogReturn(Form dialog, DialogResult result)
         {
             var dialogReturn = new DialogReturn
             {
                 Result = ConvertDialogResult(result),
-                Cancel = result == System.Windows.Forms.DialogResult.Cancel || result == System.Windows.Forms.DialogResult.No,
-                Submit = result == System.Windows.Forms.DialogResult.OK || result == System.Windows.Forms.DialogResult.Yes,
+                Cancel = result == DialogResult.Cancel || result == DialogResult.No,
+                Submit = result == DialogResult.OK || result == DialogResult.Yes,
             };
 
             if (dialog is BeepMessageDialog msgDialog)
@@ -482,23 +548,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             else if (dialog is BeepQuestionDialog qDialog)
             {
                 dialogReturn.Value = qDialog.ReturnValue;
-                dialogReturn.UserAction = result == System.Windows.Forms.DialogResult.Yes ? BeepDialogButtons.Yes : BeepDialogButtons.No;
+                dialogReturn.UserAction = result == DialogResult.Yes ? BeepDialogButtons.Yes : BeepDialogButtons.No;
             }
             else if (dialog is BeepInputDialog inDialog)
             {
                 dialogReturn.Value = inDialog.ReturnValue;
-                dialogReturn.UserAction = result == System.Windows.Forms.DialogResult.OK ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel;
+                dialogReturn.UserAction = result == DialogResult.OK ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel;
             }
             else if (dialog is BeepListDialog listDialog)
             {
                 dialogReturn.Value = listDialog.ReturnValue;
                 dialogReturn.Tag = listDialog.ReturnItem;
-                dialogReturn.UserAction = result == System.Windows.Forms.DialogResult.OK ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel;
+                dialogReturn.UserAction = result == DialogResult.OK ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel;
             }
             else if (dialog is BeepCustomDialog custDialog)
             {
                 dialogReturn.Value = custDialog.ReturnValue;
-                dialogReturn.UserAction = result == System.Windows.Forms.DialogResult.OK ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel;
+                dialogReturn.UserAction = result == DialogResult.OK ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel;
                 if (_activeDialogConfig?.DataExtractionCallback != null && dialogReturn.Submit)
                     _activeDialogConfig.DataExtractionCallback(dialogReturn);
             }
@@ -584,27 +650,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         /// <summary>
-        /// Shows a success dialog (sync)
-        /// </summary>
-        [Obsolete("Use Success(...) instead.")]
-        public DialogReturn ShowSuccess(string title, string message)
-        {
-            return Show(DialogConfig.CreateSuccess(title, message));
-        }
-
-        /// <summary>
         /// Shows a warning dialog
         /// </summary>
         public DialogReturn Warning(string title, string message)
-        {
-            return Show(DialogConfig.CreateWarning(title, message));
-        }
-
-        /// <summary>
-        /// Shows a warning dialog (sync)
-        /// </summary>
-        [Obsolete("Use Warning(...) instead.")]
-        public DialogReturn ShowWarning(string title, string message)
         {
             return Show(DialogConfig.CreateWarning(title, message));
         }
@@ -618,34 +666,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         /// <summary>
-        /// Shows an error dialog (sync)
-        /// </summary>
-        [Obsolete("Use Error(...) instead.")]
-        public DialogReturn ShowError(string title, string message)
-        {
-            return Show(DialogConfig.CreateDanger(title, message));
-        }
-
-        /// <summary>
         /// Shows an information dialog
         /// </summary>
         public DialogReturn Info(string title, string message)
         {
             return Show(DialogConfig.CreateInformation(title, message));
-        }
-
-        /// <summary>
-        /// Shows an information dialog (sync) — bypasses pipeline for direct BeepMessageDialog construction.
-        /// </summary>
-        public DialogReturn ShowInfo(string title, string message)
-        {
-            using var dialog = new BeepMessageDialog();
-            dialog.Title = title;
-            dialog.Message = message;
-            dialog.StartPosition = FormStartPosition.CenterParent;
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
-            return new DialogReturn { Value = "ok", Submit = result == System.Windows.Forms.DialogResult.OK, UserAction = BeepDialogButtons.Ok };
         }
 
         /// <summary>
@@ -657,29 +682,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         /// <summary>
-        /// Shows a question dialog (sync)
-        /// </summary>
-        [Obsolete("Use Question(...) instead.")]
-        public DialogReturn ShowQuestion(string title, string message)
-        {
-            return Show(DialogConfig.CreateQuestion(title, message));
-        }
-
-        /// <summary>
         /// Shows a confirmation dialog and returns true if confirmed
         /// </summary>
         public bool Confirm(string title, string message)
         {
             return Show(DialogConfig.CreateQuestion(title, message)).Submit;
-        }
-
-        /// <summary>
-        /// Shows a confirmation dialog and returns true if confirmed (sync)
-        /// </summary>
-        public bool ConfirmSync(string title, string message)
-        {
-            var result = Show(DialogConfig.CreateQuestion(title, message));
-            return result.Submit;
         }
 
         #endregion
@@ -944,19 +951,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         /// <summary>
-        /// Converts System.Windows.Forms.DialogResult to BeepDialogResult
+        /// Converts DialogResult to BeepDialogResult
         /// </summary>
-        private BeepDialogResult ConvertDialogResult(System.Windows.Forms.DialogResult result)
+        private BeepDialogResult ConvertDialogResult(DialogResult result)
         {
             return result switch
             {
-                System.Windows.Forms.DialogResult.OK => BeepDialogResult.OK,
-                System.Windows.Forms.DialogResult.Cancel => BeepDialogResult.Cancel,
-                System.Windows.Forms.DialogResult.Yes => BeepDialogResult.Yes,
-                System.Windows.Forms.DialogResult.No => BeepDialogResult.No,
-                System.Windows.Forms.DialogResult.Abort => BeepDialogResult.Abort,
-                System.Windows.Forms.DialogResult.Retry => BeepDialogResult.Retry,
-                System.Windows.Forms.DialogResult.Ignore => BeepDialogResult.Ignore,
+                DialogResult.OK => BeepDialogResult.OK,
+                DialogResult.Cancel => BeepDialogResult.Cancel,
+                DialogResult.Yes => BeepDialogResult.Yes,
+                DialogResult.No => BeepDialogResult.No,
+                DialogResult.Abort => BeepDialogResult.Abort,
+                DialogResult.Retry => BeepDialogResult.Retry,
+                DialogResult.Ignore => BeepDialogResult.Ignore,
                 _ => BeepDialogResult.None
             };
         }

@@ -58,22 +58,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => TrySelectHostedSourceItem(value);
         }
 
-        private int _minTouchTargetWidth = 44;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Minimum touch target width for tabs in pixels (minimum 32).")]
-        [DefaultValue(44)]
-        public int MinTouchTargetWidth
-        {
-            get => _minTouchTargetWidth;
-            set
-            {
-                int normalizedValue = Math.Max(32, value);
-                if (_minTouchTargetWidth == normalizedValue) return;
-                _minTouchTargetWidth = normalizedValue;
-                RefreshHeaderLayoutState(updateItemSize: false);
-            }
-        }
+        // MinTouchTargetWidth was declared here and offered in the designer. It had exactly one
+        // reader — BeepTabLayoutHelper copied it into BeepTabRenderContext.MinTouchTargetWidth,
+        // which nothing consumed. A dead chain rather than an unread property, but the value never
+        // influenced anything either way.
+        //
+        // It went with BeepTabHeaderHost.Touch.cs, whose ExpandToMinTouchTarget / TouchHitTestTabIndex
+        // / MeetsTouchTarget / ScaleTouchTarget had no callers at all: the live hit test (TryHitTab)
+        // uses the painted bounds directly. That API is also unsound for this control — tabs in a run
+        // are contiguous, so centring an expansion on each one makes neighbours overlap, and
+        // TouchHitTestTabIndex returns the first match, which would make the left edge of a tab
+        // select its neighbour.
+        //
+        // Touch ergonomics for a tab strip is a HeaderHeight concern, not a hit-rect one: the default
+        // header is 30px against WCAG 2.5.5's 44dip guidance. Raising HeaderHeight (already a public
+        // property) is the mechanism that actually works.
 
         private TabLabelVisibility _tabTextVisibility = TabLabelVisibility.Always;
         [Browsable(true)]
@@ -168,6 +167,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RefreshHeaderLayoutState();
             }
         }
+
+        /// <summary>
+        /// What the current <see cref="TabMode"/> allows. Every mode-dependent decision in this
+        /// control resolves through here, so the contract is stated once instead of being
+        /// reconstructed from twenty scattered <c>TabMode == BeepTabMode.Navigation</c> checks.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public BeepTabModeCapabilities ModeCapabilities => BeepTabModeCapabilities.For(_tabMode);
 
         [Browsable(true)]
         [Category("Behavior")]

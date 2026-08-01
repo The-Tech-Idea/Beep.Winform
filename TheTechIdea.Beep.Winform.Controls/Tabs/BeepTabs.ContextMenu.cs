@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private bool TryShowHeaderTabContextMenu(System.Drawing.Point location)
         {
-            if (TabMode == BeepTabMode.Navigation || GetHostedSourceItemCount() == 0)
+            if (!ModeCapabilities.SupportsTabContextMenu || GetHostedSourceItemCount() == 0)
             {
                 return false;
             }
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             AddHeaderTabCommand(menu, "Close All", BeepTabCommandRouter.CloseAllCommand, tabIndex, CanCloseAllHeaderTabs());
             AddHeaderTabCommand(menu, "Close to the Right", BeepTabCommandRouter.CloseToRightCommand, tabIndex, CanCloseHeaderTabsToTheRight(tabIndex));
 
-            if (TabMode != BeepTabMode.Navigation)
+            if (ModeCapabilities.SupportsTabContextMenu)
             {
                 menu.Items.Add(new ToolStripSeparator());
                 AddHeaderTabCommand(menu, item.IsPinned ? "Unpin" : "Pin", BeepTabCommandRouter.TogglePinCommand, tabIndex, CanTogglePinHeaderTab(tabIndex));

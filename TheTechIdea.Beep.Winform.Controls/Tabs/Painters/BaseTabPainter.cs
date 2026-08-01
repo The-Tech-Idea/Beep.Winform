@@ -24,20 +24,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             TabControl = tabControl;
         }
 
-        public virtual void PaintBackground(Graphics g, Rectangle bounds)
-        {
-             Color backgroundColor = Theme?.BackgroundColor ?? SystemColors.Control;
-             g.Clear(backgroundColor);
-        }
-
         public virtual void PaintHeaderBackground(Graphics g, Rectangle headerBounds)
         {
-             Color panelColor = Theme?.BackgroundColor ?? SystemColors.Control;
+             // Resolved through the colour seam so high contrast reaches it, and so the header
+             // background is one value rather than two that can drift apart.
+             Color panelColor = TabThemeHelpers.GetHeaderBackgroundColor(Theme, Theme != null);
              var brush = PaintersFactory.GetSolidBrush(panelColor);
              g.FillRectangle(brush, headerBounds);
         }
 
-        public abstract void PaintTab(Graphics g, RectangleF tabRect, int index, bool isSelected, bool isHovered, float alpha = 1.0f);
+        /// <summary>
+        /// Most styles express selection through the tab body itself (fill, border, elevation) and
+        /// draw no separate accent bar. <see cref="UnderlineTabPainter"/> overrides this.
+        /// </summary>
+        public virtual void PaintSelectionAccent(Graphics g, RectangleF accentBounds, float alpha = 1.0f)
+        {
+            // intentionally empty: a style with no selection accent draws nothing here. Overriding
+            // is opt-in, so adding a painter does not require thinking about the accent at all.
+        }
+
+        /// <summary>
+        /// The colour actually behind a tab's text — what the label must remain readable against.
+        /// </summary>
+        /// <remarks>
+        /// Painters that fill a tab body (Classic, Capsule, Card, Segmented, Button) leave this as
+        /// the tab background. Painters that draw no fill at all must override it with the header
+        /// background, otherwise the selected-tab text colour — which is chosen to sit on a filled,
+        /// accented tab — is drawn straight onto the header. That was live: under DefaultTheme the
+        /// Underline and Minimal painters rendered the selected tab's title white on white, so the
+        /// label simply vanished when you selected it. The contact sheet found it; no assertion did.
+        /// </remarks>
+        protected virtual Color GetTabSurfaceColor(BeepTabItem item)
+        {
+            return TabThemeHelpers.GetTabBackgroundColor(
+                Theme, Theme != null, item.IsSelected, item.IsHovered);
+        }
 
         public virtual SizeF MeasureTab(Graphics g, int index, Font font)
         {
@@ -72,6 +93,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
             return new SizeF(width, height);
         }
+
+        /// <summary>
+        /// Scales a design-time pixel value for the current display.
+        /// </summary>
+        /// <remarks>
+        /// Every literal a painter draws with — insets, gaps, corner radii, rule thicknesses — has to
+        /// go through this. A hardcoded 3px gap is 3px on a 200% display too, so at high DPI the
+        /// chrome shrinks to a third of its intended weight while the text scales normally. The rest
+        /// of this control already scales through <c>DpiScalingHelper</c>; painters had no equivalent
+        /// and so were written with raw constants.
+        /// </remarks>
+        protected int Scale(int designPixels) => DpiScalingHelper.ScaleValue(designPixels, TabControl);
 
         protected int GetScaledCloseButtonSize() => DpiScalingHelper.ScaleValue(24, TabControl);
         protected int GetScaledCloseButtonPadding() => DpiScalingHelper.ScaleValue(8, TabControl);
@@ -153,68 +186,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             return path;
         }
         
-        protected void DrawTabText(Graphics g, RectangleF tabRect, string text, int tabIndex, bool isSelected, bool vertical, float alpha = 1.0f)
-        {
-            if (!TabControl.ShouldShowTabText(tabIndex)) return;
-
-            Color baseColor = TabThemeHelpers.GetTabTextColor(Theme, Theme != null, isSelected);
-            Color textColor = Color.FromArgb((int)(alpha * 255), baseColor.R, baseColor.G, baseColor.B);
-
-            // BT-01: Font from theme — never disposed
-            Font font = TabFontHelpers.GetTabFont(Theme, isSelected);
-
-            if (!vertical)
-            {
-                var textRect = new Rectangle(
-                    (int)(tabRect.X + GetScaledTextPadding()),
-                    (int)tabRect.Y,
-                    (int)(tabRect.Width - GetScaledTextPadding() * 2),
-                    (int)tabRect.Height);
-                TextRenderer.DrawText(g, text, font, textRect, textColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
-                    TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
-            }
-            else
-            {
-                GraphicsState state = g.Save();
-                g.TranslateTransform(tabRect.X + tabRect.Width / 2, tabRect.Y + tabRect.Height / 2);
-                g.RotateTransform(90);
-                Size sz = TextRenderer.MeasureText(g, text, font);
-                var vRect = new Rectangle(-sz.Width / 2, -sz.Height / 2, sz.Width, sz.Height);
-                TextRenderer.DrawText(g, text, font, vRect, textColor,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
-                    TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
-                g.Restore(state);
-            }
-        }
-
         /// <summary>
-        /// Phase 2 default implementation. Delegates to the legacy <see cref="PaintTab"/> overload
-        /// using the item's bounds and interaction state. Subclasses may override to draw adornments
-        /// (icon, badge, subtext, dirty marker, busy indicator) using the pre-calculated bounds
-        /// in <paramref name="itemLayout"/>.
+        /// Paints one tab. The default is the shared content pass — icon, title, subtext, close
+        /// button and adornments — with no chrome of its own, which is exactly what a style that
+        /// draws no tab body needs. Styles that draw chrome override this, render their shape, and
+        /// then call <see cref="DrawTabItemContent"/>.
         /// </summary>
+        /// <remarks>
+        /// There used to be a second entry point, <c>PaintTab(Graphics, RectangleF, int, bool, bool,
+        /// float)</c>, declared on the interface and overridden by all seven painters. It was
+        /// unreachable: it is called only from this method's former body, and every painter
+        /// overrides this method, so that body never ran. Each painter therefore carried **two
+        /// implementations of the same visual** — the same colours, radius and fill written once
+        /// against <c>tabRect</c>/<c>isSelected</c> and once against <c>itemLayout.Item</c> — and
+        /// only the second was ever displayed. Measured with a probe subclass, after reading had
+        /// twice given the wrong answer in opposite directions.
+        /// </remarks>
         public virtual void PaintTabItem(Graphics g, BeepTabHeaderItemLayout itemLayout, float alpha = 1.0f)
         {
-            if (g == null || itemLayout == null || itemLayout.Bounds.IsEmpty)
-            {
-                return;
-            }
-
-            bool isHorizontal = TabControl.HeaderPosition == TabHeaderPosition.Top ||
-                TabControl.HeaderPosition == TabHeaderPosition.Bottom;
-            Font baseFont = TabFontHelpers.ResolveSafeFont(TextFont ?? TabControl.Font, TabControl);
-            BeepTabAdornmentLayoutHelper.Calculate(itemLayout, baseFont, itemLayout.HasCloseButton, isHorizontal);
-
-            BeepTabItem item = itemLayout.Item;
-            bool isSelected = item.IsSelected;
-            bool isHovered = item.IsHovered;
-
-            // Fall back to the legacy paint path so existing painters still work.
-            PaintTab(g, itemLayout.Bounds, item.Index, isSelected, isHovered, alpha);
-
-            // Draw adornment elements that the legacy path does not know about.
-            DrawAdornments(g, itemLayout, alpha);
+            DrawTabItemContent(g, itemLayout, alpha);
         }
 
         protected virtual void DrawTabItemContent(Graphics g, BeepTabHeaderItemLayout itemLayout, float alpha, Color? overrideTextColor = null)
@@ -232,6 +222,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             BeepTabItem item = itemLayout.Item;
             float effectiveAlpha = item.IsEnabled ? alpha : alpha * 0.55f;
             Color baseTextColor = overrideTextColor ?? TabThemeHelpers.GetTabTextColor(Theme, Theme != null, item.IsSelected);
+            // Guarantee the label is legible against whatever this painter actually drew behind it.
+            baseTextColor = ColorUtils.EnsureReadable(baseTextColor, GetTabSurfaceColor(item));
             Color textColor = Color.FromArgb((int)(Math.Clamp(effectiveAlpha, 0f, 1f) * 255f), baseTextColor);
 
             if (item.HasIcon && !itemLayout.IconBounds.IsEmpty)
@@ -241,7 +233,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
             if (TabControl.ShouldShowTabText(item.Index))
             {
-                DrawTextInBounds(g, item.Title ?? string.Empty, itemLayout.TextBounds, textColor, isHorizontal);
+                // baseFont is the same font MeasureTab measured this title with.
+                DrawTextInBounds(g, item.Title ?? string.Empty, itemLayout.TextBounds, textColor, baseFont, isHorizontal);
 
                 if (item.HasSubText && !itemLayout.SubTextBounds.IsEmpty)
                 {
@@ -261,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         }
 
         /// <summary>
-        /// Draws the Phase 2 adornment elements using the pre-calculated bounds on
+        /// Draws the adornment elements using the pre-calculated bounds on
         /// <paramref name="itemLayout"/>. Called from <see cref="PaintTabItem"/>.
         /// Subclasses may override for style-specific adornment rendering.
         /// </summary>
@@ -273,19 +266,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             // Dirty dot
             if (adornment.IsDirty && !itemLayout.DirtyMarkerBounds.IsEmpty)
             {
-                DrawDirtyMarker(g, itemLayout.DirtyMarkerBounds, alpha);
+                DrawDirtyMarker(g, itemLayout.DirtyMarkerBounds, alpha, GetTabSurfaceColor(item));
             }
 
             // Badge
             if (adornment.HasBadge && !itemLayout.BadgeBounds.IsEmpty)
             {
-                DrawBadge(g, itemLayout.BadgeBounds, adornment, alpha);
+                DrawBadge(g, itemLayout.BadgeBounds, adornment, alpha, GetTabSurfaceColor(item));
             }
 
             // Busy spinner (simple arc for now; subclasses can draw animated versions)
             if (adornment.IsBusy && !itemLayout.BusyIndicatorBounds.IsEmpty)
             {
-                DrawBusyIndicator(g, itemLayout.BusyIndicatorBounds, alpha);
+                DrawBusyIndicator(g, itemLayout.BusyIndicatorBounds, alpha, GetTabSurfaceColor(item));
             }
         }
 
@@ -294,34 +287,104 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             return TabStyleHelpers.GetControlStyleForTab(TabControl.TabStyle);
         }
 
-        private static void DrawTextInBounds(Graphics g, string text, Rectangle bounds, Color textColor, bool isHorizontal)
+        /// <summary>
+        /// Draws the tab title into its measured bounds.
+        /// </summary>
+        /// <param name="font">
+        /// Must be the font <see cref="MeasureTab"/> measured with — i.e.
+        /// <c>TabFontHelpers.GetTabFont(Theme, item.IsSelected)</c>. This parameter exists because
+        /// the method previously hardcoded <see cref="SystemFonts.DefaultFont"/> while the measure
+        /// side used the theme font, so every tab was sized for one font and painted in another:
+        /// theme fonts never reached the drawn title, and a selected tab measured bold but drew
+        /// regular. That is the same defect that clipped every label in BeepTree.
+        /// </param>
+        /// <param name="isHorizontal">
+        /// <see langword="false"/> for Left/Right header positions, where the label is rotated to run
+        /// down the tab. The deleted <c>DrawTabText</c> handled that rotation and this method did
+        /// not, so removing the unreachable <c>PaintTab</c> path took vertical text with it and
+        /// Left/Right tabs drew their labels horizontally into a tall, narrow rect — clipped to a
+        /// character or two. Restored here, in the one text path that survives.
+        /// </param>
+        private static void DrawTextInBounds(Graphics g, string text, Rectangle bounds, Color textColor,
+                                             Font font, bool isHorizontal)
         {
             if (string.IsNullOrWhiteSpace(text) || bounds.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0) return;
-            TextRenderer.DrawText(g, text, SystemFonts.DefaultFont, bounds, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
-                TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+
+            const TextFormatFlags Flags =
+                TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine;
+
+            if (isHorizontal)
+            {
+                TextRenderer.DrawText(g, text, font, bounds, textColor, TextFormatFlags.Left | Flags);
+                return;
+            }
+
+            // Rotate about the centre of the measured bounds so the label runs down the tab.
+            //
+            // GDI+ (Graphics.DrawString), not TextRenderer, because TextRenderer draws through GDI
+            // and *ignores the world transform entirely*. The rotation silently does nothing and the
+            // text lands at the untransformed rect — off the tab. The deleted DrawTabText had this
+            // same bug, so vertical tabs have never rendered a rotated caption.
+            GraphicsState state = g.Save();
+            try
+            {
+                g.TranslateTransform(bounds.X + bounds.Width / 2f, bounds.Y + bounds.Height / 2f);
+                g.RotateTransform(90f);
+
+                var rotated = new RectangleF(
+                    -bounds.Height / 2f, -bounds.Width / 2f, bounds.Height, bounds.Width);
+
+                using var format = new StringFormat(StringFormatFlags.NoWrap)
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center,
+                    Trimming = StringTrimming.EllipsisCharacter,
+                };
+                using var brush = new SolidBrush(textColor);
+                g.DrawString(text, font, brush, rotated, format);
+            }
+            finally
+            {
+                g.Restore(state);
+            }
         }
 
-        private void DrawDirtyMarker(Graphics g, Rectangle bounds, float alpha)
+        private void DrawDirtyMarker(Graphics g, Rectangle bounds, float alpha, Color surface)
         {
             Color dotColor = Color.FromArgb((int)(alpha * 220),
-                Theme?.PrimaryColor ?? SystemColors.Highlight);
+                SeparateFromSurface(TabThemeHelpers.GetDirtyMarkerColor(Theme, Theme != null), surface));
             using var brush = new SolidBrush(dotColor);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.FillEllipse(brush, bounds);
         }
 
-        private void DrawBadge(Graphics g, Rectangle bounds, BeepTabAdornmentState adornment, float alpha)
+        /// <summary>
+        /// Keeps an adornment visible against the tab it is drawn on. The dirty dot, the busy ring
+        /// and the Info/Count badge all resolve to the theme's primary colour — which is also the
+        /// selected tab's fill, so on a selected tab each of them was drawn blue-on-blue and simply
+        /// disappeared. They were "rendering" the whole time; nothing could see them.
+        /// </summary>
+        private static Color SeparateFromSurface(Color adornment, Color surface)
+        {
+            if (Math.Abs(adornment.R - surface.R) + Math.Abs(adornment.G - surface.G)
+                + Math.Abs(adornment.B - surface.B) > 24)
+            {
+                return adornment;
+            }
+
+            return surface.GetBrightness() > 0.5f
+                ? ControlPaint.Dark(adornment, 0.25f)
+                : ControlPaint.Light(adornment, 0.45f);
+        }
+
+        private void DrawBadge(Graphics g, Rectangle bounds, BeepTabAdornmentState adornment,
+                               float alpha, Color surface)
         {
             int a = (int)(alpha * 220);
-            Color backColor = adornment.BadgeKind switch
-            {
-                BeepTabBadgeKind.Error => Color.FromArgb(a, Theme?.ErrorColor ?? SystemColors.Highlight),
-                BeepTabBadgeKind.Warning => Color.FromArgb(a, Theme?.WarningColor ?? SystemColors.Highlight),
-                BeepTabBadgeKind.Success => Color.FromArgb(a, Theme?.SuccessColor ?? SystemColors.Highlight),
-                BeepTabBadgeKind.Info => Color.FromArgb(a, Theme?.PrimaryColor ?? SystemColors.Highlight),
-                _ => Color.FromArgb(a, Theme?.PrimaryColor ?? SystemColors.Highlight)
-            };
+            Color badgeFill = TabThemeHelpers.GetBadgeColor(Theme, Theme != null, adornment.BadgeKind);
+
+            badgeFill = SeparateFromSurface(badgeFill, surface);
+            Color backColor = Color.FromArgb(a, badgeFill);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             if (adornment.BadgeKind == BeepTabBadgeKind.Dot)
@@ -339,14 +402,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             if (!string.IsNullOrWhiteSpace(adornment.BadgeText))
             {
                 Font font = TabFontHelpers.GetTabFont(Theme);
-                TextRenderer.DrawText(g, adornment.BadgeText, font, bounds, Color.White,
+
+                // The count was drawn in hardcoded white. On a light badge — a pale Warning amber,
+                // or any light theme's Success green — white on light is unreadable, and in high
+                // contrast it ignored the system palette entirely. Pick against the actual fill.
+                Color badgeText = ColorUtils.EnsureReadable(
+                    badgeFill.GetBrightness() > 0.55f ? Color.Black : Color.White, badgeFill);
+
+                TextRenderer.DrawText(g, adornment.BadgeText, font, bounds, badgeText,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
             }
         }
 
-        private static void DrawBusyIndicator(Graphics g, Rectangle bounds, float alpha)
+        private void DrawBusyIndicator(Graphics g, Rectangle bounds, float alpha, Color surface)
         {
-            using var pen = new Pen(Color.FromArgb((int)(alpha * 180), SystemColors.ControlDark), 2f);
+            // Was hardcoded to SystemColors.ControlDark: the only adornment that never responded to
+            // the theme, and invisible against a dark theme's header.
+            Color busy = SeparateFromSurface(
+                TabThemeHelpers.GetBusyIndicatorColor(Theme, Theme != null), surface);
+            using var pen = new Pen(Color.FromArgb((int)(alpha * 180), busy), 2f);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawArc(pen, bounds, 0, 270);
         }

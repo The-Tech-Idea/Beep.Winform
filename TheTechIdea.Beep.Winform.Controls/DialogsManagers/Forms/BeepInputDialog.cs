@@ -19,11 +19,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public BeepInputDialog()
         {
             InitializeComponent();
+            ComposeLayout();
             Helpers.DialogHelpers.FitFormToContent(this);
         }
 
-        public string Title { get => _titleLabel.Text; set => _titleLabel.Text = value ?? string.Empty; }
+        public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
         public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
+
+        /// <summary>Places the controls into the shell's header / body / footer regions.</summary>
+        private void ComposeLayout()
+        {
+            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
+            _headerPanel.Controls.Add(_titleLabel, 1, 0);
+
+            _bodyPanel.Controls.Add(_messageLabel, 0, 0);
+            _bodyPanel.Controls.Add(_inputBox, 0, 1);
+            _bodyPanel.Controls.Add(_validationLabel, 0, 2);
+
+            _shell.SetHeader(_headerPanel);
+            _shell.SetBody(_bodyPanel);
+            _shell.AddAction(_cancelButton);
+            _shell.AddAction(_okButton);
+
+            _okButton.DialogResult = DialogResult.OK;
+            _cancelButton.DialogResult = DialogResult.Cancel;
+            AcceptButton = _okButton;
+            CancelButton = _cancelButton;
+        }
+
         public Func<string, string?>? InputValidator { get; set; }
         // Skill § 1: multiline input height = single-line * 2 + spacing (skill § default-size composition).
         public bool InputBoxMultiline
@@ -56,14 +79,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         private void OkButton_Click(object? sender, EventArgs e)
         {
             ReturnValue = _inputBox.Text;
-            DialogResult = System.Windows.Forms.DialogResult.OK;
+            DialogResult = DialogResult.OK;
             Close();
         }
 
         private void CancelButton_Click(object? sender, EventArgs e)
         {
             ReturnValue = string.Empty;
-            DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
             Close();
         }
 
@@ -89,7 +112,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public override void ApplyTheme()
         {
             if (_headerPanel == null) return;
-            _headerPanel.Theme = Theme; _bodyPanel.Theme = Theme; _buttonPanel.Theme = Theme;
             _dialogIcon.Theme = Theme; _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
             _inputBox.Theme = Theme; _validationLabel.Theme = Theme;
             _okButton.Theme = Theme; _cancelButton.Theme = Theme;

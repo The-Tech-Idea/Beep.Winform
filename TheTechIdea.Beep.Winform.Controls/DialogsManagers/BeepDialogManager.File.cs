@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : null;
+            return result == DialogResult.OK ? ofd.FileName : null;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? ofd.FileNames.ToList() : new List<string>();
+            return result == DialogResult.OK ? ofd.FileNames.ToList() : new List<string>();
         }
 
         #endregion
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? sfd.ShowDialog(owner) : sfd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? sfd.FileName : null;
+            return result == DialogResult.OK ? sfd.FileName : null;
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? fbd.ShowDialog(owner) : fbd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? fbd.SelectedPath : null;
+            return result == DialogResult.OK ? fbd.SelectedPath : null;
         }
 
         #endregion
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
-            return CreatePathReturn(result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : null);
+            return CreatePathReturn(result == DialogResult.OK ? ofd.FileName : null);
         }
 
         List<string> IDialogManager.LoadFilesDialog(string exts, string dir, string filter)

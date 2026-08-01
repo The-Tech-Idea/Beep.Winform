@@ -119,8 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
-                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _monoFont ?? _owner.TextFont, textRect, textColor,
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    DrawNodeLabel(g, textRect, node.Item.Text ?? string.Empty, textColor);
                 }
             }
             finally
@@ -212,8 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
             var fontToUse = _monoFont ?? font;
-            TextRenderer.DrawText(g, text, fontToUse, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            DrawNodeLabel(g, textRect, text, textColor);
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
@@ -234,5 +232,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Vercel compact spacing
             return Math.Max(28, base.GetPreferredRowHeight(item, font));
         }
-    }
+    
+        /// <summary>
+        /// This style renders labels in its own font, so the layout must measure with it too --
+        /// otherwise every text rect is sized for the tree font and the label is clipped.
+        /// </summary>
+        public override Font GetNodeFont(BeepTree owner) => _monoFont ?? base.GetNodeFont(owner);
+}
 }

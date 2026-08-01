@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void PushClosedTabRecord(BeepTabPage page, int removedIndex)
         {
             // Only track in document / workspace mode.
-            if (TabMode == BeepTabMode.Navigation) return;
+            if (!ModeCapabilities.SupportsClosedTabHistory) return;
 
             BeepTabItem meta  = GetOrCreateHostedTabMetadata(page);
             string      title = !string.IsNullOrWhiteSpace(meta.Title)
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         internal bool TryReopenLastClosedTab()
         {
-            if (TabMode == BeepTabMode.Navigation)       return false;
+            if (!ModeCapabilities.SupportsClosedTabHistory) return false;
             if (_closedTabStack.Count == 0)              return false;
 
             BeepTabClosedRecord record = _closedTabStack[_closedTabStack.Count - 1];

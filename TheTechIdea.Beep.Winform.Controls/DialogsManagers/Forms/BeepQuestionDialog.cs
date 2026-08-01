@@ -19,10 +19,41 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public BeepQuestionDialog()
         {
             InitializeComponent();
+            ComposeLayout();
             Helpers.DialogHelpers.FitFormToContent(this);
         }
 
-        public string Title { get => _titleLabel.Text; set => _titleLabel.Text = value ?? string.Empty; }
+        /// <summary>
+        /// Places the controls into the shell's header / body / footer regions.
+        /// </summary>
+        /// <remarks>
+        /// Kept out of <c>InitializeComponent</c>: arranging a variable number of actions wants a
+        /// loop, and control flow in a designer file breaks the VS designer's parser.
+        /// </remarks>
+        private void ComposeLayout()
+        {
+            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
+            _headerPanel.Controls.Add(_titleLabel, 1, 0);
+
+            _bodyPanel.Controls.Add(_messageLabel, 0, 0);
+            _bodyPanel.Controls.Add(_detailsToggleButton, 0, 1);
+            _bodyPanel.Controls.Add(_detailsLabel, 0, 2);
+
+            _shell.SetHeader(_headerPanel);
+            _shell.SetBody(_bodyPanel);
+            _shell.AddAction(_noButton);
+            _shell.AddAction(_yesButton);
+
+            // The framework's dialog contract, available now that BeepButton implements
+            // IButtonControl. Yes accepts, No cancels — so Enter and Escape are routed by the form
+            // itself, and both buttons additionally carry the semantics assistive technology reads.
+            _yesButton.DialogResult = DialogResult.Yes;
+            _noButton.DialogResult = DialogResult.No;
+            AcceptButton = _yesButton;
+            CancelButton = _noButton;
+        }
+
+        public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
         public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
 
         public string DetailsText { get => _detailsLabel.Text; set { _detailsLabel.Text = value ?? string.Empty; UpdateDetailsVisibility(); } }
@@ -41,21 +72,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
         public Dictionary<TheTechIdea.Beep.Vis.Modules.BeepDialogButtons, string>? CustomButtonLabels { get; set; }
 
-        private void YesButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 0 ? (_typedButtons[0].Id ?? "yes") : "yes"; DialogResult = System.Windows.Forms.DialogResult.Yes; Close(); }
-        private void NoButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 1 ? (_typedButtons[1].Id ?? "no") : "no"; DialogResult = System.Windows.Forms.DialogResult.No; Close(); }
+        private void YesButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 0 ? (_typedButtons[0].Id ?? "yes") : "yes"; DialogResult = DialogResult.Yes; Close(); }
+        private void NoButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 1 ? (_typedButtons[1].Id ?? "no") : "no"; DialogResult = DialogResult.No; Close(); }
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (keyData == Keys.Enter) { _yesButton.PerformClick(); return true; }
-            if (keyData == Keys.Escape) { _noButton.PerformClick(); return true; }
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
+        // ProcessCmdKey override removed: AcceptButton and CancelButton, set in ComposeLayout,
+        // route Enter and Escape through the framework.
 
         public override void ApplyTheme()
         {
-            if (_headerPanel == null) return;
-            _headerPanel.Theme = Theme; _bodyPanel.Theme = Theme; _buttonPanel.Theme = Theme;
-            _dialogIcon.Theme = Theme; _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
+            if (_titleLabel == null) return;
+            // _buttonPanel is gone: the shell's footer row owns action placement now.
+            _dialogIcon.Theme = Theme;
+            _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
             _detailsToggleButton.Theme = Theme; _detailsLabel.Theme = Theme;
             _yesButton.Theme = Theme; _noButton.Theme = Theme;
         }

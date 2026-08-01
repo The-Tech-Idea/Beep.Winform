@@ -35,17 +35,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             if (m.Msg != WM_LBUTTONDOWN)
                 return false;
 
-            // Convert the LParam into screen coordinates and compare to the
-            // popover's screen rectangle. Clicks on the popover itself fall
-            // inside the rectangle and are NOT treated as outside clicks.
-            int x = unchecked((short)(long)m.LParam);
-            int y = unchecked((short)((long)m.LParam >> 16));
-            var screenPoint = new Point(x, y);
-
-            // If the target has been disposed (popover closed via Cancel/Esc),
-            // unregister and stop filtering.
+            // Self-remove once the target is gone. The original comment claimed this happened
+            // ("unregister and stop filtering") but the code only returned false, so a popover
+            // disposed without closing left this filter installed in Application's global filter
+            // list for the lifetime of the process, holding a reference to a dead Control.
             if (_target.IsDisposed || !_target.IsHandleCreated)
+            {
+                Application.RemoveMessageFilter(this);
                 return false;
+            }
+
+            // WM_LBUTTONDOWN carries CLIENT coordinates of the window that received it — not
+            // screen coordinates. The previous code unpacked LParam and compared it directly
+            // against the popover's screen rectangle, so the "did the click land inside?" test was
+            // comparing two different coordinate spaces and only worked when the clicked window
+            // happened to sit near the origin. Control.MousePosition is already in screen space.
+            var screenPoint = Control.MousePosition;
 
             var popoverScreen = _target.RectangleToScreen(_target.ClientRectangle);
             if (popoverScreen.Contains(screenPoint))
@@ -53,9 +58,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             // Click landed outside the popover — dismiss.
             // Marshal back to the UI thread to keep Control.* state safe.
-            if (_target.IsHandleCreated)
+            try
             {
                 _target.BeginInvoke(_onOutsideClick);
+            }
+            catch (ObjectDisposedException)
+            {
+                Application.RemoveMessageFilter(this);
             }
             return false;
         }

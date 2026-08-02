@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     public partial class BeepDisplayContainer2
     {
         #region IDisplayContainer Implementation
-        
+
         public async Task<bool> ShowPopup(IDM_Addin view)
         {
             try
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         else
                         {
                             form.StartPosition = FormStartPosition.CenterParent;
-                          
+
                             form.Show();
                         }
                     }
@@ -83,9 +83,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                             popupForm.Controls.Remove(control);
 
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            // Addin should handle OnError internally
+                            OnContainerError("ShowPopup.Detach", ex);
                         }
                     };
                     // Ensure the dialog is shown on the UI thread
@@ -99,8 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
             catch (Exception ex)
             {
-                // Log the error
-              return false;
+                // Returning false told the caller it failed but never why.
+                OnContainerError("ShowPopup", ex);
+                return false;
             }
         }
 
@@ -138,9 +139,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     }
                     Controls.Add(addinControl);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Failed to host the control — roll back and report failure
+                    // Failed to host the control - roll back so the container is not left holding a
+                    // tab for a control it never adopted, and say so.
+                    OnContainerError($"AddControl.Host({titleText})", ex);
                     _tabs.Remove(tab);
                     _addins.Remove(id);
                     return false;
@@ -169,10 +172,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 ActivateTab(tab);
             }
-            catch
+            catch (Exception ex)
             {
-                // Layout/activation failed — the tab is registered but mark it hidden
-                // so the container stays usable with existing tabs.
+                // Layout/activation failed - the tab is registered but marked hidden so the
+                // container stays usable. Silently, this looked like an addin that simply never
+                // appeared.
+                OnContainerError($"AddControl.Activate({titleText})", ex);
                 tab.IsVisible = false;
                 if (addinControl != null) addinControl.Visible = false;
             }
@@ -194,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     PositionActiveAddin();
                 }
             }
-            catch { /* non-fatal */ }
+            catch (Exception ex) { OnContainerError("AddControl.Theme", ex); }
 
             // --- Step 6: notify and repaint ---
             try
@@ -207,12 +212,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Guidid = control?.GuidID
                 });
             }
-            catch { /* non-fatal */ }
-
-            if (!_batchMode && IsHandleCreated)
+            catch (Exception ex)
             {
-                try { Invalidate(); } catch { /* non-fatal */ }
+                // A subscriber throwing from AddinAdded must not undo a successful add, but it is
+                // the subscriber's bug and should be visible as one.
+                OnContainerError("AddControl.Notify", ex);
             }
+
+            if (!_batchMode && IsHandleCreated) Invalidate();
 
             return true;
         }

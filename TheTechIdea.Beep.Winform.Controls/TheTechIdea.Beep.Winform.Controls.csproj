@@ -4678,6 +4678,8 @@
     <Folder Include="Dates\Internal\DaysPainters\" />
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />
+    <Folder Include="DialogsManagers\plans\" />
+    <Folder Include="DisplayContainers\plans\" />
     <Folder Include="Docking\Examples\" />
     <Folder Include="Docking\Plans\" />
     <Folder Include="Examples\" />

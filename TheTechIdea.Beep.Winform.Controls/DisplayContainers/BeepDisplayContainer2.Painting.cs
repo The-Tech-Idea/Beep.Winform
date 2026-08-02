@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     public partial class BeepDisplayContainer2
     {
         #region Painting
-        
+
         /// <summary>
         /// Handles tab transition animation rendering — draws a sliding accent bar
         /// that moves from the previously-active tab to the currently-active one.
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 g.FillPath(brush, path);
             }
         }
-        
+
         /// <summary>
         /// Draws the tab strip background.
         /// Rounds only the outer-boundary corners and extends 1 px into the content area
@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private void DrawTabsDirectlyInOnPaint(Graphics g)
         {
             if (g == null || _tabArea.IsEmpty) return;
-            
+
             // Ensure paint helper exists and is configured
             EnsurePaintHelper();
 
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
                 // Draw tab strip background first
                 DrawTabAreaBackground(g);
-                
+
                 // Draw each visible tab — skip the tab being dragged (it is drawn as a ghost below).
                 foreach (var tab in _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty))
                 {
@@ -247,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         isHovered:  _hoveredScrollButton == 2,
                         isPressed:  _pressedScrollButton == 2,
                         isDisabled: !CanScrollRight());
-                    
+
                     // Enhancement 5: Overflow Dropdown chevron button
                     DrawModernButton(g, _overflowButton,
                         ArrowDirection.Down,
@@ -274,11 +274,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 if (savedClip != null) { g.Clip = savedClip; savedClip.Dispose(); }
                 else g.ResetClip();
             }
-            
+
             // Draw separator line between tabs and content (outside clip — sits on the boundary)
             DrawTabContentSeparator(g);
         }
-        
+
         /// <summary>
         /// Ensures the paint helper is initialized and configured
         /// </summary>
@@ -300,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Keep tab corner radius in sync with the container's overall shape.
             _paintHelper.ContainerBorderRadius   = (IsRounded && BorderRadius > 0) ? BorderRadius : 0;
         }
-      
+
         /// <summary>
         /// DrawContent is called by BaseControl.OnPaint - this is where we draw our tabs.
         /// Pushes a rounded-rect clip that matches the control's overall shape so no
@@ -488,14 +488,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 if (!btnRect.IsEmpty && btnRect.Width > 0 && btnRect.Height > 0)
                 {
                     var btnRadius = Math.Min(btnRect.Height / 2, DpiScalingHelper.ScaleValue(18, this));
-                    
+
                     // Use accent color logic, slightly muted
                     Color btnBgColor = _currentTheme?.AccentColor ?? Color.RoyalBlue;
                     Color btnHoverColor = Color.FromArgb(
                         Math.Min(255, btnBgColor.R + 20),
                         Math.Min(255, btnBgColor.G + 20),
                         Math.Min(255, btnBgColor.B + 20));
-                    
+
                     if (_emptyStateButtonHovered)
                     {
                         btnBgColor = btnHoverColor;
@@ -513,14 +513,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                                 }
                             }
                         }
-                        
+
                         var fmt = new StringFormat
                         {
                             Alignment = StringAlignment.Center,
                             LineAlignment = StringAlignment.Center,
                             Trimming = StringTrimming.EllipsisCharacter
                         };
-                        
+
                         using (var textBrush = new SolidBrush(Color.White))
                         {
                             g.DrawString(EmptyStateActionText, TextFont, textBrush, btnRect, fmt);
@@ -539,11 +539,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private void DrawTabContentSeparator(Graphics g)
         {
             if (_tabArea.IsEmpty || _contentArea.IsEmpty) return;
-            
+
             // Use theme border color
             Color separatorColor = _borderColor;
             float penWidth = Math.Max(1f, DpiScalingHelper.ScaleValue(1f, this));
-            
+
             using (var pen = new Pen(separatorColor, penWidth))
             {
                 switch (_tabPosition)
@@ -598,7 +598,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         // ── Tooltip hover card ──────────────────────────────────────────────────
         private void DrawTabTooltip(Graphics g, AddinTab tab)
         {
-            if (tab == null || string.IsNullOrEmpty(tab.TooltipText)) return;
+            string tooltipText = GetTooltipTextFor(tab);
+            if (tab == null || string.IsNullOrEmpty(tooltipText)) return;
 
             var titleFont = TextFont;
             var descFont  = FontListHelper.GetFont(titleFont.FontFamily.Name, Math.Max(7f, titleFont.Size * 0.85f), FontStyle.Regular) ?? titleFont;
@@ -606,7 +607,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             try
             {
                 string title = tab.Title ?? "Tab";
-                string desc  = tab.TooltipText;
+                string desc  = tooltipText;
 
                 // Measure
                 var titleSize = TextRenderer.MeasureText(title, titleFont, new Size(300, int.MaxValue),
@@ -911,13 +912,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             // Get control style for modern button rendering
             var controlStyle = ControlStyle;
-            
+
             // Draw scroll buttons with modern styling
             DrawModernButton(g, _scrollLeftButton, _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom ? ArrowDirection.Left : ArrowDirection.Up, controlStyle);
             DrawModernButton(g, _scrollRightButton, _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom ? ArrowDirection.Right : ArrowDirection.Down, controlStyle);
             DrawModernButton(g, _newTabButton, null, controlStyle, isPlusButton: true);
         }
-        
+
         /// <summary>
         /// Draws one of the scroll or utility buttons (left/right scroll, new-tab +) with full
         /// hover, pressed, and disabled visual feedback.

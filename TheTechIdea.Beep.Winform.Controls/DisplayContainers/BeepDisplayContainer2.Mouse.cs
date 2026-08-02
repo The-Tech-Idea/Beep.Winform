@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
 
             var hitTab = GetTabAt(e.Location);
-            
+
             if (hitTab != _hoveredTab)
             {
                 // Update hover state
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
 
                 _hoveredTab = hitTab;
-                
+
                 if (_hoveredTab != null)
                 {
                     StartAnimation(_hoveredTab, 1f);
@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
                 // ── Tooltip timer management ──────────────────────────
                 HideTabTooltip();
-                if (hitTab != null && !string.IsNullOrEmpty(hitTab.TooltipText))
+                if (hitTab != null && !string.IsNullOrEmpty(GetTooltipTextFor(hitTab)))
                     StartTooltipTimer(hitTab);
 
                 Invalidate();
@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 var closeRect = GetCloseButtonRect(_hoveredTab.Bounds);
                 bool isCloseHovered = closeRect.Contains(e.Location);
-                
+
                 if (isCloseHovered != _hoveredTab.IsCloseHovered)
                 {
                     _hoveredTab.IsCloseHovered = isCloseHovered;
@@ -377,14 +377,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
             }
         }
-        
+
         /// <summary>
         /// Shows context menu for a tab (follows BaseControl pattern)
         /// </summary>
         private void ShowTabContextMenu(AddinTab tab, Point location)
         {
             if (tab == null) return;
-            
+
             // Create context menu items with MethodName for action handling
             var menuItems = new System.Collections.Generic.List<SimpleItem>();
 
@@ -453,7 +453,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Tag = tab
                 });
             }
-            
+
             // Close other tabs option
             if (_tabs.Count > 1)
             {
@@ -466,7 +466,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Tag = tab
                 });
             }
-            
+
             // Close all tabs option
             if (_tabs.Count > 0)
             {
@@ -479,12 +479,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Tag = tab
                 });
             }
-            
+
             // Show context menu using BaseControl's ShowContextMenu
             // This is a BLOCKING call - it returns when menu closes
             var screenLocation = this.PointToScreen(location);
             var selectedItem = base.ShowContextMenu(menuItems, screenLocation, false, FormStyle.Modern);
-            
+
             // IMPORTANT: Handle action AFTER menu returns (menu is already disposed by ContextMenuManager)
             // We must extract all needed data from selectedItem before any async operations
             if (selectedItem != null && !string.IsNullOrEmpty(selectedItem.MethodName))
@@ -492,7 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 // Extract data synchronously before menu disposal
                 string action = selectedItem.MethodName;
                 AddinTab targetTab = selectedItem.Tag as AddinTab ?? tab;
-                
+
                 // Use BeginInvoke to handle action after menu is fully disposed
                 this.BeginInvoke(new Action(() =>
                 {
@@ -500,14 +500,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }));
             }
         }
-        
+
         /// <summary>
         /// Handles context menu actions for tabs
         /// </summary>
         private void HandleTabContextMenuAction(string action, AddinTab tab)
         {
             if (tab == null) return;
-            
+
             switch (action)
             {
                 case "CloseTab":
@@ -540,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     break;
             }
         }
-        
+
         /// <summary>
         /// Closes all tabs except the specified one
         /// </summary>
@@ -560,7 +560,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 EndUpdate();
             }
         }
-        
+
         private void CloseAllTabs()
         {
             BeginUpdate();
@@ -613,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
             }
         }
-        
+
 
         private void ScrollTabs(int direction)
         {

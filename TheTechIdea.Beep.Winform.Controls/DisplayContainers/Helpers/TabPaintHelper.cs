@@ -144,9 +144,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // Clamp animation progress
             animationProgress = Math.Max(0f, Math.Min(1f, animationProgress));
 
-            try
             {
-                // Get theme colors
+                // A second tab renderer used to live in a catch around this block, drawing with
+                // SystemColors, centred rather than left-aligned text, and without NoPadding. When
+                // the real painter threw, tabs did not disappear - they silently changed alignment,
+                // lost the theme and began ellipsising early, which reads as a styling bug rather
+                // than an error, so nobody investigated. Painting failures now surface.
                 var colors = GetTabColors(isActive, isHovered, animationProgress);
 
                 // Draw tab background with gradient or style-specific background
@@ -292,34 +295,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 if ((_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal) && isActive)
                 {
                     DrawUnderline(g, bounds, colors, tabPosition);
-                }
-            }
-            catch
-            {
-                // Fallback to simple rectangle drawing
-                try
-                {
-                    using (var brush = new SolidBrush(isActive ? ColorUtils.MapSystemColor(SystemColors.ControlLight) : ColorUtils.MapSystemColor(SystemColors.Control)))
-                    {
-                        g.FillRectangle(brush, bounds);
-                    }
-                    using (var pen = new Pen(ColorUtils.MapSystemColor(SystemColors.ControlDark)))
-                    {
-                        g.DrawRectangle(pen, bounds);
-                    }
-
-                    // Simple text rendering as fallback
-                    if (!string.IsNullOrEmpty(title) && bounds.Width > 20 && bounds.Height > 10)
-                    {
-                        var textRect = new Rectangle(bounds.X + 4, bounds.Y + 2, bounds.Width - 8, bounds.Height - 4);
-                        TextRenderer.DrawText(g, title, font, textRect, ColorUtils.MapSystemColor(SystemColors.ControlText),
-                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
-                            TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
-                    }
-                }
-                catch
-                {
-                    // If even the fallback fails, give up gracefully
                 }
             }
         }

@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         // Tab transition animation
         private AddinTab? _previousTab;
-        
+
         // Batch update mode to prevent flickering when adding multiple tabs
         private bool _batchMode = false;
         private int _batchUpdateDepth = 0;
@@ -110,6 +110,30 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private bool  _useTabStripGradient     = false;
         // Color.Empty = auto-derive a slightly darker shade from _tabBackColor.
         private Color _tabStripGradientEndColor = Color.Empty;
+
+        /// <summary>
+        /// True when this tab shows no caption, so its icon is the only thing identifying it.
+        /// </summary>
+        /// <remarks>
+        /// Pinned tabs and every tab in a Left/Right rail are icon-only - see
+        /// <c>TabHeaderMetrics.GetSlotLayout</c>. A rail of unlabelled icons with no hover text is
+        /// not navigable, so these tabs fall back to their title for the hover card.
+        /// </remarks>
+        internal bool IsIconOnlyTab(AddinTab tab)
+            => tab != null
+               && (tab.IsPinned || _tabPosition == TabPosition.Left || _tabPosition == TabPosition.Right);
+
+        /// <summary>What the hover card should say for a tab, or null when it should not appear.</summary>
+        /// <remarks>
+        /// A labelled tab shows a card only when one was explicitly set, so the card does not simply
+        /// repeat a caption the user can already read. An icon-only tab always gets one.
+        /// </remarks>
+        internal string GetTooltipTextFor(AddinTab tab)
+        {
+            if (tab == null) return null;
+            if (!string.IsNullOrEmpty(tab.TooltipText)) return tab.TooltipText;
+            return IsIconOnlyTab(tab) ? tab.Title : null;
+        }
 
         // ---- Tooltip hover card ----
         private System.Windows.Forms.Timer? _tooltipTimer;
@@ -160,10 +184,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     // Update helpers immediately â€” do NOT rely on PropertyChanged which fires late.
                     UpdateTabPainterStyle();
                     ApplyThemeColorsToTabs();
-                    
+
                     // Crucial: border/shadow bounds changed, recompute areas
                     RecalculateLayout();
-                    
+
                     // Propagation happens inside ApplyTheme() (called by the base class after the
                     // setter) with a fully-refreshed _currentTheme.  Calling it here would push the
                     // OLD theme to addins because _currentTheme has not been updated yet for the
@@ -231,39 +255,39 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 
             // Follow BaseControl patterns for painting setup
-            SetStyle(ControlStyles.SupportsTransparentBackColor | 
-                     ControlStyles.ResizeRedraw | 
-                     ControlStyles.UserPaint | 
-                     ControlStyles.AllPaintingInWmPaint | 
+            SetStyle(ControlStyles.SupportsTransparentBackColor |
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.UserPaint |
+                     ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.Selectable, true);  // P4: allow keyboard focus
-            
+
             DoubleBuffered = true;
             UseExternalBufferedGraphics = true;
             TabStop = true; // P4: allow Tab-key focus cycling
-            
+
             // Enable high-quality rendering like BaseControl
             EnableHighQualityRendering = true;
-            
+
             // Use form style paint for modern appearance (like BeepMenuBar)
             UseFormStylePaint = false; // Container paints its own background, tabs use BeepStyling
-            
+
             // Set modern defaults for better appearance
             IsRounded = true;
             BorderRadius = 8;
             BorderThickness = 1;
-            
+
             // Set default ControlStyle for tabs (can be overridden by user)
             if (ControlStyle == BeepControlStyle.None)
             {
                 ControlStyle = BeepControlStyle.Modern;
             }
-            
+
             // Disable BaseControl splash/ripple effects for this container
             EnableSplashEffect = false;
             // Transparent background support (like BeepMenuBar)
             IsTransparentBackground = false; // Default to opaque for containers
-            
+
             // Set initial BackColor from theme
             //if (IsTransparentBackground)
             //{
@@ -284,12 +308,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         {
             // Get control style from FormStyle for modern appearance
             var controlStyle = ControlStyle;
-            
+
             // Initialize helpers with modern styling
             _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground) { OwnerControl = this };
             _layoutHelper = new TabLayoutHelper { OwnerControl = this };
             _animationHelper = new TabAnimationHelper(() => Invalidate());
-            
+
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 }; // 60 FPS
             _animationTimer.Tick += AnimationTimer_Tick;
 
@@ -302,10 +326,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             // Calculate initial layout
             RecalculateLayout();
-            
+
             // Hook into handle creation to force initial paint
             HandleCreated += (s, e) => Invalidate(true);
-            
+
             // Hook into visible changed to force paint when control becomes visible
             VisibleChanged += (s, e) =>
             {
@@ -314,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Invalidate(true);
                 }
             };
-            
+
             // Subscribe to ControlStyle changes to update tab appearance
             PropertyChanged += (s, e) =>
             {
@@ -325,7 +349,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
             };
         }
-        
+
         /// <summary>
         /// Updates the tab painter and layout when ControlStyle changes
         /// </summary>
@@ -336,13 +360,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _paintHelper.ControlStyle = ControlStyle;
                 _paintHelper.IsTransparent = IsTransparentBackground;
             }
-            
+
             // Update layout helper with new style and font for proper tab sizing
             if (_layoutHelper != null)
             {
                 _layoutHelper.UpdateStyle(ControlStyle, TextFont);
             }
-            
+
             // Recalculate layout with new metrics
             RecalculateLayout();
         }
@@ -634,7 +658,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _animationTimer.Stop();
             }
         }
-        
+
         /// <summary>
         /// Begin batch mode to add multiple tabs without flickering.
         /// Call EndUpdate() when done to trigger a single repaint.
@@ -649,7 +673,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 SuspendLayout();
             }
         }
-        
+
         /// <summary>
         /// End batch mode and trigger a single repaint for all changes.
         /// </summary>

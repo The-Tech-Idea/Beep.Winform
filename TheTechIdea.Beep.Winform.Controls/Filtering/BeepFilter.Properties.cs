@@ -157,14 +157,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         #region Data Source Configuration
 
         /// <summary>
-        /// Gets or sets the data source for the filter
-        /// Can be any enumerable collection (grid data, list, etc.)
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public object? DataSource { get; set; }
-
-        /// <summary>
         /// Gets or sets the entity structure describing the data
         /// Contains field names, types, and metadata for building filters
         /// </summary>

@@ -22,12 +22,31 @@ BeepFilter is a **generic, reusable filter UI component** that generates `Filter
 │                 │     - Uses FilterEngine<ExpandoObject> to apply filter
 └─────────────────┘     - Updates visible rows
 
-┌─────────────────┐
-│   BeepListBox   │  ← Another Consumer
-│ (Filter Applier)│     - Subscribes to BeepFilter.FilterApplied
-│                 │     - Uses FilterEngine<T> to apply filter
-└─────────────────┘     - Updates visible items
 ```
+
+`BeepGridPro` is currently the **only** consumer. `FilterEngine<T>` is generic and any control can
+adopt the same pattern — subscribe to `FilterApplied`, apply with `FilterEngine<T>` — but no other
+control does today. An earlier version of this diagram showed `BeepListBox` as a second consumer;
+`ListBoxes/` contains no reference to `BeepFilter` or `FilterEngine`, so it was removed rather than
+left describing something that does not exist.
+
+## Configuration surface
+
+`FilterStyle` — eight values, each with its own painter, all reachable through
+`FilterPainterFactory`. Verified rendering distinctly from one another.
+
+`FilterDisplayMode` — three values, all honoured:
+
+| value | behaviour |
+|---|---|
+| `AlwaysVisible` | the filter occupies its full height |
+| `Collapsible` | collapsed to its header until expanded by click |
+| `OnHover` | collapsed until the pointer enters, expanded while inside |
+
+`FilterPosition` was removed. It was a public enum and a browsable property whose backing field was
+read only by its own accessors — setting it changed nothing. `FilterDisplayMode.Modal` and
+`.SlideIn` were removed for the same reason: never compared anywhere, and so indistinguishable from
+`AlwaysVisible` at runtime.
 
 ## Responsibilities
 
@@ -76,7 +95,7 @@ beepFilter.FilterApplied += (s, e) =>
 
 ```
 Filtering/
-├── FilterStyle.cs              # Enums: FilterStyle, FilterDisplayMode, FilterPosition
+├── FilterStyle.cs              # Enums: FilterStyle, FilterDisplayMode
 ├── FilterPainterMetrics.cs     # Layout metrics (no colors - from BeepStyling)
 ├── FilterOperator.cs           # 17 filter operators enum + extensions
 ├── FilterCriteria.cs           # FilterCriteria + FilterConfiguration models

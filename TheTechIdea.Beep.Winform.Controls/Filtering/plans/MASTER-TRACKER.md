@@ -11,7 +11,7 @@ and works — this program is about the surface around it that does not.
 | [01](01-dead-configuration-surface.md) | Dead configuration surface | `FilterPosition`, `FilterDisplayMode` | ☑ **done** |
 | [02](02-painter-distinctness.md) | Painter distinctness | the 8 `IFilterPainter` implementations | ☑ **done** |
 | [03](03-beepfilter-decomposition.md) | `BeepFilter` decomposition | 1,358-line partial | ☑ **done** |
-| [04](04-filter-systems-duplication.md) | Competing filter systems | `Filtering/` vs `GridX` | ☐ not started |
+| [04](04-filter-systems-duplication.md) | Competing filter systems | `Filtering/` vs `GridX` | ☑ **done** |
 | [05](05-engine-and-operators.md) | Engine and operator coverage | `FilterEngine`, `FilterOperator` | ☐ not started |
 | [06](06-input-and-accessibility.md) | Keyboard, autocomplete, a11y | popup, keyboard handler | ☐ not started |
 | [07](07-exception-policy.md) | Exception policy | folder-wide | ☐ not started |

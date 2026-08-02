@@ -49,8 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// Gets the count of filtered (visible) rows when a filter is active
         /// </summary>
         [Browsable(false)]
-        public int FilteredRowCount => _isFiltered && _filteredRowIndices != null 
-            ? _filteredRowIndices.Count 
+        public int FilteredRowCount => _isFiltered && _filteredRowIndices != null
+            ? _filteredRowIndices.Count
             : Data.Rows.Count;
 
         [Browsable(false)]
@@ -408,20 +408,44 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// <summary>
         /// Clears the active filter and shows all rows
         /// </summary>
+        /// <summary>
+        /// Clears every filter on the grid, whichever route applied it.
+        /// </summary>
+        /// <remarks>
+        /// The grid reaches a filtered state through two systems that share no state: this one,
+        /// which owns <see cref="ActiveFilter"/>, and <c>GridSortFilterHelper</c>, which owns the
+        /// per-column contains/in filters behind the header popups. Both write
+        /// <c>row.IsVisible</c> and neither used to read the other, so clearing through one left
+        /// the other's criteria in force - or, worse, left this one reporting
+        /// <see cref="IsFiltered"/> as true over a grid showing every row.
+        ///
+        /// <c>_isClearingAllFilters</c> guards the mutual call: each route now clears the other,
+        /// and without it they would call back and forth.
+        /// </remarks>
         public void ClearFilter()
         {
             _filteredRowIndices = null;
             _isFiltered = false;
-            
+
             if (_activeFilter != null)
             {
                 _activeFilter.IsActive = false;
                 _activeFilter = null;
             }
 
+            if (!_isClearingAllFilters)
+            {
+                _isClearingAllFilters = true;
+                try { SortFilter?.ClearFilters(); }
+                finally { _isClearingAllFilters = false; }
+            }
+
             UpdateFilteredDisplay();
             OnFilterCleared();
         }
+
+        /// <summary>Guards the mutual clear between the grid's two filter systems.</summary>
+        internal bool _isClearingAllFilters;
 
         /// <summary>
         /// Adds a filter criterion to the active filter
@@ -567,7 +591,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 // Hide rows that don't match the filter
                 var visibleSet = new HashSet<int>(_filteredRowIndices);
-                
+
                 for (int i = 0; i < Data.Rows.Count; i++)
                 {
                     Data.Rows[i].IsVisible = visibleSet.Contains(i);

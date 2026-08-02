@@ -123,9 +123,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             ApplyFilterState();
         }
 
+        /// <summary>
+        /// Clears the per-column contains/in filters, and the grid's ActiveFilter with them.
+        /// </summary>
+        /// <remarks>
+        /// See <c>BeepGridPro.ClearFilter</c>: the two filter systems share no state but write the
+        /// same <c>row.IsVisible</c>. Clearing here without clearing there left the grid showing
+        /// every row while still reporting IsFiltered = true.
+        /// </remarks>
         public void ClearFilters()
         {
             TryCommitPendingEdit();
+
+            if (!_grid._isClearingAllFilters && _grid.IsFiltered)
+            {
+                _grid._isClearingAllFilters = true;
+                try { _grid.ClearFilter(); }
+                finally { _grid._isClearingAllFilters = false; }
+            }
 
             _containsFilters.Clear();
             _inFilters.Clear();

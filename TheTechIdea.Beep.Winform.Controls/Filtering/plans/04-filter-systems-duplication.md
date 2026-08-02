@@ -50,3 +50,59 @@ callers so they become adapters rather than parallel implementations.
 - Apply through one route then another; assert the second **replaces** rather than silently
   compounding
 - Clear through one route; assert every route reports cleared
+
+---
+
+## Outcome
+
+### The map
+
+Two systems, no shared state, **the same output field**:
+
+| | route A | route B |
+|---|---|---|
+| owner | `BeepGridPro.Filtering.cs` | `GridSortFilterHelper` |
+| state | `ActiveFilter`, `_isFiltered`, `_filteredRowIndices` | `_containsFilters`, `_inFilters`, `column.Filter` |
+| driven by | `BeepFilter` via `FilterApplied` | header popups, quick search |
+| writes | `Data.Rows[i].IsVisible` | `row.IsVisible` |
+| reads the other | **no** | **no** |
+
+Route B's `SetAllRowsVisible()` recomputes visibility from its own criteria alone. Route A's
+`UpdateFilteredDisplay()` does the same from its own. Whichever ran last decided what the user saw,
+and the other system's state stayed behind claiming otherwise.
+
+### Demonstrated, not asserted
+
+A grid bound to five rows:
+
+| step | visible | `IsFiltered` |
+|---|---|---|
+| unfiltered | 5 | — |
+| route A quick-filter `"Norway"` | 2 | `True` |
+| route B `ClearFilters()` | **5** | **`True`** |
+
+The grid showed every row while reporting an active filter, with `ActiveFilter` still holding the
+Norway criterion. Anything reading `IsFiltered` — a clear-filter chip, the toolbar's active-filter
+badge — advertised a filter that was not applied.
+
+The mirror was equally broken: route A's `ClearFilter()` left route B's per-column filters and
+`column.Filter` strings in force.
+
+### The fix
+
+Each route's clear now clears the other, guarded by `_isClearingAllFilters` against the mutual call.
+This does **not** collapse the two systems — `GridX/CLAUDE.md` documents them as deliberately
+separate and that stands. It makes them agree on the one thing they share: whether the grid is
+filtered.
+
+| step | visible | `IsFiltered` |
+|---|---|---|
+| route A filter, route B clear | 5 | `False` |
+| route B filter, route A clear | 5 | — |
+
+### Not done
+
+Unifying application (as opposed to clearing) is left alone. Route A and route B still compute
+visibility independently, so applying through both in one session still means the last one wins.
+That is a larger change inside `GridX` and belongs to a `GridX` program, not this one — but it is now
+a known, bounded gap rather than an invisible one.

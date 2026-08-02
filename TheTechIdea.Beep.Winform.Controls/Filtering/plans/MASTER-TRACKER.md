@@ -13,10 +13,10 @@ and works — this program is about the surface around it that does not.
 | [03](03-beepfilter-decomposition.md) | `BeepFilter` decomposition | 1,358-line partial | ☑ **done** |
 | [04](04-filter-systems-duplication.md) | Competing filter systems | `Filtering/` vs `GridX` | ☑ **done** |
 | [05](05-engine-and-operators.md) | Engine and operator coverage | `FilterEngine`, `FilterOperator` | ☑ **done** |
-| [06](06-input-and-accessibility.md) | Keyboard, autocomplete, a11y | popup, keyboard handler | ◐ **partial** — accessible tree, focus ring and Shift+Tab done; popup semantics, hit targets, high contrast open |
+| [06](06-input-and-accessibility.md) | Keyboard, autocomplete, a11y | popup, keyboard handler | ☑ **done** |
 | [07](07-exception-policy.md) | Exception policy | folder-wide | ☑ **done** |
 | [08](08-documentation-accuracy.md) | Documentation accuracy | `README.md` | ☑ **done** |
-| [09](09-verification-harness.md) | Verification harness | `scratchpad/FilterProbe` | ☑ **done** — 48 checks |
+| [09](09-verification-harness.md) | Verification harness | `scratchpad/FilterProbe` | ☑ **done** — 52 checks |
 
 Mark a phase done only when its verification section passes **and** the harness has been shown
 capable of failing on the defect the phase fixed.

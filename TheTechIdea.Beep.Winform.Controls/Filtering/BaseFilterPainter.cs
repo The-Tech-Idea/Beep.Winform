@@ -351,6 +351,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// <summary>
         /// Get colors from BeepStyling based on control style
         /// </summary>
+        /// <summary>
+        /// Guarantees the caption is legible on the surface it is drawn over.
+        /// </summary>
+        /// <remarks>
+        /// Two situations need this, and one seam covers both. Under
+        /// <see cref="SystemInformation.HighContrast"/> the system substitutes extreme colours that
+        /// a theme's own foreground may not survive; and a few shipped themes pair a foreground with
+        /// a near-identical background, which reads as a filter with no text rather than as a
+        /// styling choice. The same fix was applied to the grid header for the same reason.
+        /// </remarks>
+        protected static Color Readable(Color text, Color background)
+            => Helpers.ColorUtils.EnsureReadable(text, background);
+
         protected (Color background, Color border, Color text, Color accent) GetStyleColors(BeepControlStyle style)
         {
             var theme = BeepThemesManager.CurrentTheme;
@@ -359,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 return (
                     background: theme.BackColor,
                     border: theme.BorderColor,
-                    text: theme.ForeColor,
+                    text: Readable(theme.ForeColor, theme.BackColor),
                     accent: theme.AccentColor
                 );
             }
@@ -367,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             return (
                 background: Color.White,
                 border: Color.FromArgb(224, 224, 224),
-                text: Color.FromArgb(33, 33, 33),
+                text: Readable(Color.FromArgb(33, 33, 33), Color.White),
                 accent: Color.FromArgb(33, 150, 243)
             );
         }
@@ -383,7 +396,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 return (
                     background: theme.BackColor,
                     border: theme.BorderColor,
-                    text: theme.ForeColor,
+                    text: Readable(theme.ForeColor, theme.BackColor),
                     accent: theme.AccentColor
                 );
             }

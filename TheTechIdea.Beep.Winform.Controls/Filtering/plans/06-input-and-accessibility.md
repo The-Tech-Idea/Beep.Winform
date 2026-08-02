@@ -211,3 +211,44 @@ check that never paints sees only the first kind. The probe now renders before m
 `DropdownMultiSelect` and `SidebarPanel` still publish none; they register no remove hit area at all.
 Whether those styles should offer per-criterion removal is a product question, not a defect, and is
 left open rather than guessed.
+
+---
+
+## Outcome — phase complete
+
+### Autocomplete popup
+
+Three of the four required semantics were already correct: `Enter` commits, `Escape` dismisses
+without committing, arrows move within the list, and `Tab` commits.
+
+The fourth was missing and was a real defect. The popup called `_suggestionList.Focus()` on show and
+**never gave focus back** — both `Escape` and the commit path called `Hide()` while still holding
+focus, so the next keystroke went to a hidden control instead of the field being edited.
+
+`HideAndRestoreFocus()` now records the previously-focused control on show and restores it on every
+dismissal path. No public signature changed.
+
+### High contrast and unreadable themes
+
+The folder had **no** high-contrast handling. Rather than add a special case, the fix went in at the
+single seam every painter already uses: `GetStyleColors`, with 21 callers across the eight painters,
+now returns its text colour through `ColorUtils.EnsureReadable(text, background)`.
+
+That covers both failure modes with one change — the system substituting extreme colours under
+`SystemInformation.HighContrast`, and shipped themes that pair a foreground with a near-identical
+background, which reads as a filter with no caption rather than as a styling choice. The same fix was
+applied to the grid header for the same reason.
+
+Verified against four pathological pairings — near-identical, identical, white-on-white,
+black-on-black — all resolving to a 21:1 contrast ratio.
+
+### Phase 06 complete
+
+| item | outcome |
+|---|---|
+| accessible tree | criteria exposed as named `Row` children |
+| focus ring | drawn once after the active painter; verified by pixels |
+| `Shift+Tab` | bound — `NavigateToPreviousFilter` had no caller at all |
+| hit targets | all five painters single-sourced, ≥24px |
+| popup semantics | focus returned on dismissal |
+| high contrast | legibility guaranteed at the shared colour seam |

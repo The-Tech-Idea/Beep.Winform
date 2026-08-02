@@ -19,23 +19,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         private IBeepTheme _theme;
         private const int ItemHeight = 36;
         private const int MaxVisibleItems = 8;
-        
+
         /// <summary>
         /// Event fired when a suggestion is selected
         /// </summary>
         public event EventHandler<FilterSuggestion> SuggestionSelected;
-        
+
         /// <summary>
         /// Initializes the autocomplete popup
         /// </summary>
         public FilterAutocompletePopup(IBeepTheme theme = null)
         {
             _theme = theme;
-            
+
             InitializeForm();
             InitializeListBox();
         }
-        
+
         private void InitializeForm()
         {
             // Form setup
@@ -46,13 +46,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             Size = new Size(320, ItemHeight * Math.Min(MaxVisibleItems, 5) + 4);
             BackColor = Color.White;
             Padding = new Padding(2);
-            
+
             // Make it look like a dropdown
-            SetStyle(ControlStyles.AllPaintingInWmPaint | 
-                     ControlStyles.UserPaint | 
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
         }
-        
+
         private void InitializeListBox()
         {
             _suggestionList = new ListBox
@@ -63,15 +63,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 BorderStyle = BorderStyle.None,
                 IntegralHeight = false
             };
-            
+
             _suggestionList.DrawItem += OnDrawItem;
             _suggestionList.SelectedIndexChanged += OnSelectedIndexChanged;
             _suggestionList.MouseClick += OnMouseClick;
             _suggestionList.KeyDown += OnKeyDown;
-            
+
             Controls.Add(_suggestionList);
         }
-        
+
         /// <summary>
         /// Shows suggestions at the specified location
         /// </summary>
@@ -82,40 +82,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 Hide();
                 return;
             }
-            
+
             _suggestions = suggestions;
             _suggestionList.Items.Clear();
-            
+
             foreach (var suggestion in suggestions)
             {
                 _suggestionList.Items.Add(suggestion);
             }
-            
+
             // Adjust size based on item count
             int visibleItems = Math.Min(suggestions.Count, MaxVisibleItems);
             Height = (ItemHeight * visibleItems) + 4;
-            
+
             // Position popup
             Location = AdjustLocationToScreen(screenLocation);
-            
+
             // Show and focus
             Show();
+            // Remember who had focus so it can be handed back. The popup used to take focus and
+            // never return it: after Escape or a commit it hid itself while still holding focus, so
+            // the next keystroke went to a hidden control instead of the field the user was editing.
+            _focusReturnsTo = FindFocusedControl();
             _suggestionList.Focus();
-            
+
             // Select first item
             if (_suggestionList.Items.Count > 0)
             {
                 _suggestionList.SelectedIndex = 0;
             }
         }
-        
+
         /// <summary>
         /// Adjusts location to keep popup on screen
         /// </summary>
         private Point AdjustLocationToScreen(Point location)
         {
             var screen = Screen.FromPoint(location);
-            
+
             // Adjust horizontal position
             if (location.X + Width > screen.WorkingArea.Right)
             {
@@ -125,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             {
                 location.X = screen.WorkingArea.Left + 8;
             }
-            
+
             // Adjust vertical position
             if (location.Y + Height > screen.WorkingArea.Bottom)
             {
@@ -136,10 +140,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             {
                 location.Y = screen.WorkingArea.Top + 8;
             }
-            
+
             return location;
         }
-        
+
         /// <summary>
         /// Draws each suggestion item
         /// </summary>
@@ -147,27 +151,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             if (e.Index < 0 || e.Index >= _suggestions.Count)
                 return;
-            
+
             var suggestion = _suggestions[e.Index];
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            
+
             // Background
             var isSelected = e.State.HasFlag(DrawItemState.Selected);
-            var bgColor = isSelected 
+            var bgColor = isSelected
                 ? _theme?.ButtonHoverBackColor ?? Color.FromArgb(240, 245, 255)
                 : _theme?.BackColor ?? Color.White;
-            
+
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, e.Bounds);
             }
-            
+
             // Icon (emoji or drawn icon)
             int iconSize = 20;
             var iconBounds = new Rectangle(e.Bounds.X + 8, e.Bounds.Y + (e.Bounds.Height - iconSize) / 2, iconSize, iconSize);
-            
+
             if (!string.IsNullOrEmpty(suggestion.Icon))
             {
                 var iconFont = BeepThemesManager.ToFont("Segoe UI Emoji", 12f, FontWeight.Normal, FontStyle.Regular);
@@ -208,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     Color.FromArgb(160, 160, 160),
                     TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
             }
-            
+
             // Focus rectangle
             if (isSelected)
             {
@@ -220,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 }
             }
         }
-        
+
         /// <summary>
         /// Handles selection change
         /// </summary>
@@ -228,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             // Just repaint - actual selection happens on click or enter
         }
-        
+
         /// <summary>
         /// Handles mouse click on suggestion
         /// </summary>
@@ -239,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 SelectSuggestion(_suggestions[_suggestionList.SelectedIndex]);
             }
         }
-        
+
         /// <summary>
         /// Handles keyboard input
         /// </summary>
@@ -254,17 +258,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                         e.Handled = true;
                     }
                     break;
-                
+
                 case Keys.Escape:
-                    Hide();
+                    // Dismiss without committing, and give focus back to the field being edited.
+                    HideAndRestoreFocus();
                     e.Handled = true;
                     break;
-                
+
                 case Keys.Up:
                 case Keys.Down:
                     // Let listbox handle it
                     break;
-                
+
                 case Keys.Tab:
                     // Tab selects current and closes
                     if (_suggestionList.SelectedIndex >= 0 && _suggestionList.SelectedIndex < _suggestions.Count)
@@ -275,38 +280,65 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     break;
             }
         }
-        
+
         /// <summary>
         /// Selects a suggestion and raises event
         /// </summary>
+        private Control? _focusReturnsTo;
+
+        /// <summary>The control holding focus right now, if any.</summary>
+        private static Control? FindFocusedControl()
+        {
+            var form = Form.ActiveForm;
+            if (form == null) return null;
+
+            Control? c = form.ActiveControl;
+            while (c is ContainerControl container && container.ActiveControl != null)
+                c = container.ActiveControl;
+            return c;
+        }
+
+        /// <summary>
+        /// Hides the popup and hands focus back to whatever had it.
+        /// </summary>
+        private void HideAndRestoreFocus()
+        {
+            Hide();
+
+            var target = _focusReturnsTo;
+            _focusReturnsTo = null;
+            if (target != null && !target.IsDisposed && target.CanFocus)
+                target.Focus();
+        }
+
         private void SelectSuggestion(FilterSuggestion suggestion)
         {
             SuggestionSelected?.Invoke(this, suggestion);
-            Hide();
+            HideAndRestoreFocus();
         }
-        
+
         /// <summary>
         /// Paints the popup border
         /// </summary>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            
+
             var g = e.Graphics;
-            
+
             // Draw shadow
             for (int i = 3; i > 0; i--)
             {
                 var shadowRect = ClientRectangle;
                 shadowRect.Inflate(i, i);
-                
+
                 int alpha = 20 - (i * 5);
                 using (var pen = new Pen(Color.FromArgb(alpha, 0, 0, 0)))
                 {
                     g.DrawRectangle(pen, shadowRect);
                 }
             }
-            
+
             // Draw border
             using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f))
             {
@@ -315,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 g.DrawRectangle(pen, borderRect);
             }
         }
-        
+
         /// <summary>
         /// Handles focus loss
         /// </summary>
@@ -324,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             base.OnDeactivate(e);
             Hide();
         }
-        
+
         protected override CreateParams CreateParams
         {
             get

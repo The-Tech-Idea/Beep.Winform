@@ -173,9 +173,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 FilterOperator.LessThanOrEqual => CompareLessThanOrEqual(propertyValue, criterion.Value),
                 FilterOperator.Between => CompareBetween(propertyValue, criterion.Value, criterion.Value2),
                 FilterOperator.NotBetween => !CompareBetween(propertyValue, criterion.Value, criterion.Value2),
+                // IsNull deliberately covers empty strings too: a blank cell and an absent value
+                // are the same thing to someone filtering a grid. The operator's name does not say
+                // so, which is why it is spelled out here - a caller expecting strict null equality
+                // will also match "" and cannot currently distinguish the two.
                 FilterOperator.IsNull => IsNullOrEmpty(propertyValue),
                 FilterOperator.IsNotNull => !IsNullOrEmpty(propertyValue),
-                FilterOperator.Regex => MatchesRegex(propertyValue, criterion.Value),
+                FilterOperator.Regex => MatchesRegex(propertyValue, criterion.Value, criterion.CaseSensitive),
                 FilterOperator.In => CompareIn(propertyValue, criterion.Value, criterion.CaseSensitive),
                 FilterOperator.NotIn => !CompareIn(propertyValue, criterion.Value, criterion.CaseSensitive),
                 _ => false
@@ -344,13 +348,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             return false;
         }
 
-        private bool MatchesRegex(object? cellValue, object? pattern)
+        private bool MatchesRegex(object? cellValue, object? pattern, bool caseSensitive)
         {
             if (cellValue == null || pattern == null) return false;
 
             try
             {
-                var regex = new Regex(pattern.ToString()!, RegexOptions.IgnoreCase);
+                // Honours the criterion's CaseSensitive flag, like every other string operator.
+                // This was hardcoded to IgnoreCase and the flag was never passed in, so setting
+                // CaseSensitive = true changed Equals, Contains, StartsWith, EndsWith and In - and
+                // silently did nothing here.
+                var options = caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase;
+                var regex = new Regex(pattern.ToString()!, options);
                 return regex.IsMatch(cellValue.ToString()!);
             }
             catch
@@ -363,8 +372,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             if (cellValue == null || filterValue == null) return false;
 
-            // Parse comma-separated list
-            var values = filterValue.ToString()!.Split(',').Select(v => v.Trim());
+            // Accepts either a collection or a comma-separated string. Only the string form was
+            // handled, so passing a List or an array fell through ToString() - yielding
+            // "System.Object[]" - and matched nothing at all. A set filter that silently returns no
+            // rows is indistinguishable from one that correctly excludes everything.
+            IEnumerable<string> values =
+                filterValue is System.Collections.IEnumerable seq && filterValue is not string
+                    ? seq.Cast<object?>().Select(v => v?.ToString()?.Trim() ?? string.Empty)
+                    : filterValue.ToString()!.Split(',').Select(v => v.Trim());
+
             var cellStr = cellValue.ToString()!;
 
             var comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;

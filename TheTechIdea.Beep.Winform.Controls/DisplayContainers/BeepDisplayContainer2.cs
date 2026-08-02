@@ -435,18 +435,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // --- 1. Ensure _currentTheme is current ---
             // _currentTheme is set by the Theme property setter before ApplyTheme() is called,
             // but guard defensively for direct calls (e.g. from InitializeContainer).
+            // BeepThemesManager.GetTheme is `FirstOrDefault(...) ?? GetDefaultTheme()`, so it
+            // cannot return null and cannot fail on an unknown name - it already falls back
+            // internally. Both the `?? GetDefaultTheme()` and the catch that repeated it were
+            // guarding against a shape this API does not have.
             if (_currentTheme == null)
-            {
-                try
-                {
-                    _currentTheme = BeepThemesManager.GetTheme(BeepThemesManager.CurrentThemeName)
-                                    ?? BeepThemesManager.GetDefaultTheme();
-                }
-                catch
-                {
-                    _currentTheme = BeepThemesManager.GetDefaultTheme();
-                }
-            }
+                _currentTheme = BeepThemesManager.GetTheme(BeepThemesManager.CurrentThemeName);
 
             if (_currentTheme == null)
             {
@@ -471,7 +465,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 DisabledBorderColor     = _currentTheme.DisabledBorderColor;
                 UpdateTooltipTheme();
             }
-            catch { /* non-fatal â€” continue with tab-specific updates */ }
+            catch (Exception ex)
+            {
+                // These are plain property copies off a non-null theme, so a failure here means a
+                // setter or UpdateTooltipTheme misbehaved - a real defect, not an expected outcome.
+                OnContainerError("ApplyTheme.Colors", ex);
+            }
 
             // --- 3. Update tab helpers with latest theme + style ---
             var controlStyle = ControlStyle;
@@ -503,7 +502,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     if (tabFont != null)
                         TextFont = tabFont;
                 }
-                catch { /* keep existing font on error */ }
+                catch (Exception ex) when (ex is ArgumentException || ex is System.IO.IOException)
+                {
+                    // A theme naming a font family that is not installed is recoverable - the
+                    // previous font stays - but it means the container is not rendering in the
+                    // typography the theme asked for, which is worth knowing.
+                    OnContainerError($"ApplyTheme.Font('{tabTypography.FontFamily}')", ex);
+                }
             }
 
             // --- 6. Sync layout helper + recalculate ---
@@ -551,7 +556,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         PropagateThemeToControlTree(ctrl, _currentTheme, targetStyle);
                     }
                 }
-                catch { /* don't let a single bad addin break the whole update */ }
+                catch (Exception ex)
+                {
+                    // Deliberate isolation: an addin is third-party content and one badly-behaved
+                    // control must not stop the others being themed. Reported so a permanently
+                    // mis-themed addin is diagnosable rather than just looking wrong.
+                    OnContainerError($"ApplyTheme.Addin({addin?.GetType().Name})", ex);
+                }
             }
         }
 

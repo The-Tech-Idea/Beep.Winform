@@ -62,8 +62,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             bool isHorizontal = position == TabPosition.Top || position == TabPosition.Bottom;
             int stripLength = isHorizontal ? tabArea.Width : tabArea.Height;
 
-            // Calculate actual tab widths based on content and style metrics
-            var tabWidths = CalculateTabWidths(tabs, minWidth, maxWidth);
+            // Extent along the strip: a caption width for Top/Bottom, a uniform row height for
+            // Left/Right. Previously the horizontal caption measurement was used for both, so a
+            // vertical tab's HEIGHT was however wide its caption would have been - a number with
+            // no meaning on that axis.
+            var tabWidths = CalculateTabWidths(tabs, minWidth, maxWidth, isHorizontal,
+                                               crossExtent: isHorizontal ? tabArea.Height : tabArea.Width);
             // Include inter-tab gaps in the overflow check (previously they were missing,
             // causing the scroll path to trigger too late and cram tabs together).
             int gap = TabHeaderMetrics.TabGap(OwnerControl);
@@ -74,7 +78,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // strip jumped straight to paging the moment they overflowed, so a user with a dozen
             // tabs had to page through them. Every comparable document host narrows tabs toward a
             // floor first and only pages once even the floor will not fit.
-            ShrinkTabsToFit(tabs, tabWidths, minWidth, noScrollAvailableSpace - gapTotal, activeTab);
+            // Vertical strips are uniform icon rows and have nothing to give up, so shrinking
+            // applies only along a horizontal strip.
+            if (isHorizontal)
+                ShrinkTabsToFit(tabs, tabWidths, minWidth, noScrollAvailableSpace - gapTotal, activeTab);
 
             int totalTabWidth = tabWidths.Sum() + gapTotal;
             bool needsScrolling = totalTabWidth > noScrollAvailableSpace;
@@ -188,9 +195,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// <summary>
         /// Calculates the width for each tab based on text content and BeepStyling metrics
         /// </summary>
-        private List<int> CalculateTabWidths(List<AddinTab> tabs, int minWidth, int maxWidth)
+        private List<int> CalculateTabWidths(List<AddinTab> tabs, int minWidth, int maxWidth,
+            bool isHorizontal = true, int crossExtent = 0)
         {
             var widths = new List<int>();
+
+            // Left/Right strips are icon rails: every tab is a uniform square the width of the
+            // strip, so the rail reads as a column of buttons rather than a stack of odd-sized
+            // slabs whose height came from a caption they never show.
+            if (!isHorizontal)
+            {
+                int square = Math.Max(TabHeaderMetrics.MinTouchTarget(OwnerControl), crossExtent);
+                for (int i = 0; i < tabs.Count; i++) widths.Add(square);
+                return widths;
+            }
 
             // Get style metrics from BeepStyling
             float borderWidth = BeepStyling.GetBorderThickness(_controlStyle);

@@ -31,20 +31,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // Default to Modern style for tabs - will be updated by container if needed
             _controlStyle = BeepControlStyle.Modern;
         }
-        
+
         public TabPaintHelper(IBeepTheme theme, BeepControlStyle controlStyle)
         {
             _theme = theme;
             _controlStyle = controlStyle;
         }
-        
+
         public TabPaintHelper(IBeepTheme theme, BeepControlStyle controlStyle, bool isTransparent)
         {
             _theme = theme;
             _controlStyle = controlStyle;
             _isTransparent = isTransparent;
         }
-        
+
         public BeepControlStyle ControlStyle
         {
             get => _controlStyle;
@@ -148,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             {
                 // Get theme colors
                 var colors = GetTabColors(isActive, isHovered, animationProgress);
-                
+
                 // Draw tab background with gradient or style-specific background
                 switch (_tabStyle)
                 {
@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                         DrawTabBackground(g, bounds, colors, isActive, isHovered, isFirst, isLast, tabPosition);
                         break;
                 }
-                
+
                 // Draw tab border
                 DrawTabBorder(g, bounds, colors.BorderColor, isActive);
 
@@ -236,8 +236,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // Every slot is computed once, together, so the caption, badge, modified dot and
                 // close button cannot disagree about who owns which pixels.
                 int badgeTextWidth = MeasureBadgeTextWidth(badgeText, font);
+                // A Left/Right strip is an icon rail - see TabHeaderMetrics.GetSlotLayout. Captions,
+                // badges and close glyphs are suppressed there rather than crammed into ~36px.
+                bool verticalStrip = tabPosition == TabPosition.Left || tabPosition == TabPosition.Right;
                 var slots = TabHeaderMetrics.GetSlotLayout(
-                    bounds, hasIcon, showCloseButton, badgeTextWidth, isModified, OwnerControl, isPinned);
+                    bounds, hasIcon, showCloseButton, badgeTextWidth, isModified, OwnerControl,
+                    iconOnly: isPinned || verticalStrip);
 
                 if (hasIcon)
                 {
@@ -245,8 +249,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 }
 
                 // ── Title text ────────────────────────────────────────────────
-                // Pinned tabs are icon-only — skip the title.
-                if (!isPinned)
+                // Pinned tabs and vertical rails are icon-only — skip the title.
+                if (!isPinned && !verticalStrip)
                 {
                     if (slots.TextRect.Width > 10 && slots.TextRect.Height > 10)
                     {
@@ -261,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                             g.FillEllipse(dotBrush, slots.ModifiedDotRect);
                     }
                 }
-                
+
                 // ── Close button (fade-in with animation) ────────────────────
                 int closeW = TabHeaderMetrics.CloseButtonSlotWidth(OwnerControl);
                 int closeSize = TabHeaderMetrics.CloseButtonSize(OwnerControl);
@@ -303,13 +307,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     {
                         g.DrawRectangle(pen, bounds);
                     }
-                    
+
                     // Simple text rendering as fallback
                     if (!string.IsNullOrEmpty(title) && bounds.Width > 20 && bounds.Height > 10)
                     {
                         var textRect = new Rectangle(bounds.X + 4, bounds.Y + 2, bounds.Width - 8, bounds.Height - 4);
-                        TextRenderer.DrawText(g, title, font, textRect, ColorUtils.MapSystemColor(SystemColors.ControlText), 
-                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | 
+                        TextRenderer.DrawText(g, title, font, textRect, ColorUtils.MapSystemColor(SystemColors.ControlText),
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
                             TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
                     }
                 }
@@ -675,7 +679,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // BeepStyling.PaintControl already handles borders based on ControlStyle
             // This method is now a no-op since borders are painted by BeepStyling
             // Keeping it for backward compatibility but it does nothing
-            
+
             // If you need custom border logic beyond what BeepStyling provides,
             // you can add it here, but typically BeepStyling handles all border rendering
         }
@@ -804,12 +808,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         private GraphicsPath CreateRoundedPath(Rectangle rect, int radius)
         {
             var path = new GraphicsPath();
-            
+
             if (rect.Width <= 0 || rect.Height <= 0)
             {
                 return path;
             }
-            
+
             if (radius <= 0)
             {
                 path.AddRectangle(rect);
@@ -819,9 +823,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // Ensure radius doesn't exceed rectangle dimensions
             int maxRadius = Math.Min(rect.Width / 2, rect.Height / 2);
             radius = Math.Min(radius, maxRadius);
-            
+
             int diameter = radius * 2;
-            
+
             if (diameter <= 0 || diameter > Math.Min(rect.Width, rect.Height))
             {
                 path.AddRectangle(rect);
@@ -831,7 +835,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             try
             {
                 var arc = new Rectangle(rect.X, rect.Y, diameter, diameter);
-                
+
                 path.AddArc(arc, 180, 90);
                 arc.X = rect.Right - diameter;
                 path.AddArc(arc, 270, 90);
@@ -839,7 +843,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 path.AddArc(arc, 0, 90);
                 arc.X = rect.Left;
                 path.AddArc(arc, 90, 90);
-                
+
                 path.CloseFigure();
             }
             catch
@@ -857,7 +861,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         private Color InterpolateColor(Color color1, Color color2, float progress)
         {
             progress = Math.Max(0, Math.Min(1, progress));
-            
+
             return Color.FromArgb(
                 (int)(color1.A + (color2.A - color1.A) * progress),
                 (int)(color1.R + (color2.R - color1.R) * progress),

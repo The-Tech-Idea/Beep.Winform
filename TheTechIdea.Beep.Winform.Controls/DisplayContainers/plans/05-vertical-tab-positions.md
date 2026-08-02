@@ -76,3 +76,46 @@ it is the most work and the least used pattern in this codebase's reference prod
   Top strip. A vertical tab showing fewer glyph bands than its horizontal equivalent is clipping
 - Assert tab height in a vertical strip does not vary with caption *width* once fixed
 - Confirm the active indicator still lands on the inner edge for both Left and Right
+
+---
+
+## Outcome — option 2 (icon rail), not option 3
+
+The plan recommended **option 3** (horizontal captions in a wide vertical strip) as the smallest
+correct fix. Measuring the container before implementing changed that answer.
+
+`BeepDisplayContainer2.Layout.cs:82-89` builds a Left/Right strip as:
+
+```csharp
+case TabPosition.Left:
+    _tabArea = new Rectangle(0, 0, effectiveTabHeight, Height);
+```
+
+The strip's **width** is `effectiveTabHeight` — one line of text plus chrome, so roughly 32–40px.
+Option 3 assumed a strip wide enough for a horizontal caption; there is no such strip. Choosing it
+would have meant widening the rail to ~160px and reflowing `_contentArea` — a far larger change than
+"smallest correct fix", and a different product decision rather than a defect repair.
+
+At ~36px the strip already *is* an icon rail, which is what VS Code uses at that width. Option 2 was
+therefore implemented:
+
+- `GetSlotLayout`'s `isPinned` parameter became `iconOnly`, covering pinned tabs **and** every tab in
+  a Left/Right strip. Caption, badge and close glyph are suppressed there rather than crammed in.
+- `CalculateTabWidths` is axis-aware: horizontal strips measure caption width, vertical strips return
+  a uniform square the width of the rail.
+- The shrink pass applies only to horizontal strips — uniform icon rows have nothing to give up.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| tab entry, caption "A" | 36 x 36 | 36 x 36 |
+| tab entry, caption "Customer Transactions Ledger" | 36 x **204** | 36 x 36 |
+
+204px was the caption's *horizontal* width applied as a *vertical* height. Vertical tab extent no
+longer tracks caption width at all.
+
+### Still open
+
+Icon-only tabs need tooltips to be usable — a rail of unlabelled icons with no hover text is not
+navigable. That belongs with the state/affordance work in [06](06-painting-and-state.md).

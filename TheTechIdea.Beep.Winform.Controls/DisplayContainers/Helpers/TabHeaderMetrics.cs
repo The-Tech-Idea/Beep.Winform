@@ -136,16 +136,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// it needs, and the caption receives exactly what is left.
         /// </remarks>
         public static TabSlotLayout GetSlotLayout(Rectangle bounds, bool hasIcon, bool showCloseButton,
-            int badgeTextWidth, bool isModified, Control ownerControl, bool isPinned = false)
+            int badgeTextWidth, bool isModified, Control ownerControl, bool iconOnly = false)
         {
             int hPad = HorizontalPadding(ownerControl);
             int vPad = VerticalPadding(ownerControl);
 
             var layout = new TabSlotLayout();
 
-            // A pinned tab is icon-only, and that contract is enforced here so no draw site has to
-            // remember it. Its width comes from PinnedTabWidth, which has room for nothing else.
-            if (isPinned)
+            // Icon-only tabs: pinned tabs, and every tab in a Left/Right strip. The strip in those
+            // positions is only as wide as a tab is tall (~36px), which is an icon rail, not a
+            // surface a caption can sit on. Enforced here so no draw site has to remember it.
+            if (iconOnly)
             {
                 int pinIcon = IconSize(ownerControl);
                 layout.IconRect = new Rectangle(

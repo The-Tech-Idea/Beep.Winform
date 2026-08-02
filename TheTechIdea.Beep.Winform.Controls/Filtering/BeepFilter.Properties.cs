@@ -234,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
         #endregion
 
-        #region Phase 1 Enhancement Properties
+        #region Keyboard, autocomplete and suggestion settings
 
         /// <summary>
         /// Gets or sets whether keyboard shortcuts are enabled

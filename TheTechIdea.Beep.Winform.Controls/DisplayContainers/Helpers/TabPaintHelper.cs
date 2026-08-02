@@ -654,8 +654,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     useThemeColors: true, state: state, IsTransparentBackground: _isTransparent);
                 content?.Dispose();
             }
-            catch
+            catch (Exception ex)
             {
+                // BeepStyling is a separate subsystem, so this call really can fail for reasons
+                // outside this painter. The plain fill keeps the tab visible, but the substitution
+                // is now traceable instead of looking like an intentional style.
+                System.Diagnostics.Trace.WriteLine(
+                    $"TabPaintHelper: BeepStyling.PaintControl failed for {_controlStyle}: {ex}");
                 using var brush = new SolidBrush(colors.BackgroundColor);
                 g.FillRectangle(brush, insetBounds);
             }
@@ -776,23 +781,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             int rBL = Math.Min(bl ? containerRadius : tabRadius, Math.Min(bounds.Width / 2, bounds.Height / 2));
             int rBR = Math.Min(br ? containerRadius : tabRadius, Math.Min(bounds.Width / 2, bounds.Height / 2));
 
-            try
-            {
-                if (rTL > 0) path.AddArc(bounds.X, bounds.Y, rTL * 2, rTL * 2, 180, 90);
-                path.AddLine(bounds.X + (rTL > 0 ? rTL : 0), bounds.Y, bounds.Right - (rTR > 0 ? rTR : 0), bounds.Y);
-                if (rTR > 0) path.AddArc(bounds.Right - rTR * 2, bounds.Y, rTR * 2, rTR * 2, 270, 90);
-                path.AddLine(bounds.Right, bounds.Y + (rTR > 0 ? rTR : 0), bounds.Right, bounds.Bottom - (rBR > 0 ? rBR : 0));
-                if (rBR > 0) path.AddArc(bounds.Right - rBR * 2, bounds.Bottom - rBR * 2, rBR * 2, rBR * 2, 0, 90);
-                path.AddLine(bounds.Right - (rBR > 0 ? rBR : 0), bounds.Bottom, bounds.X + (rBL > 0 ? rBL : 0), bounds.Bottom);
-                if (rBL > 0) path.AddArc(bounds.X, bounds.Bottom - rBL * 2, rBL * 2, rBL * 2, 90, 90);
-                path.AddLine(bounds.X, bounds.Bottom - (rBL > 0 ? rBL : 0), bounds.X, bounds.Y + (rTL > 0 ? rTL : 0));
-                path.CloseFigure();
-            }
-            catch
-            {
-                path.Reset();
-                path.AddRectangle(bounds);
-            }
+            // No guard needed: bounds are non-degenerate (checked above), every radius is clamped
+            // to half the smaller side, and each AddArc is gated on r > 0 so no arc rectangle can be
+            // empty. AddLine cannot throw. The catch that stood here replaced a correct path with a
+            // plain rectangle for a failure that the preconditions already exclude - and if that
+            // ever stops being true, OnPaint reports it rather than silently squaring the corners.
+            if (rTL > 0) path.AddArc(bounds.X, bounds.Y, rTL * 2, rTL * 2, 180, 90);
+            path.AddLine(bounds.X + (rTL > 0 ? rTL : 0), bounds.Y, bounds.Right - (rTR > 0 ? rTR : 0), bounds.Y);
+            if (rTR > 0) path.AddArc(bounds.Right - rTR * 2, bounds.Y, rTR * 2, rTR * 2, 270, 90);
+            path.AddLine(bounds.Right, bounds.Y + (rTR > 0 ? rTR : 0), bounds.Right, bounds.Bottom - (rBR > 0 ? rBR : 0));
+            if (rBR > 0) path.AddArc(bounds.Right - rBR * 2, bounds.Bottom - rBR * 2, rBR * 2, rBR * 2, 0, 90);
+            path.AddLine(bounds.Right - (rBR > 0 ? rBR : 0), bounds.Bottom, bounds.X + (rBL > 0 ? rBL : 0), bounds.Bottom);
+            if (rBL > 0) path.AddArc(bounds.X, bounds.Bottom - rBL * 2, rBL * 2, rBL * 2, 90, 90);
+            path.AddLine(bounds.X, bounds.Bottom - (rBL > 0 ? rBL : 0), bounds.X, bounds.Y + (rTL > 0 ? rTL : 0));
+            path.CloseFigure();
             return path;
         }
 
@@ -823,28 +825,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 return path;
             }
 
-            try
-            {
-                var arc = new Rectangle(rect.X, rect.Y, diameter, diameter);
+            // As above: zero-size rects, non-positive radii and over-large diameters have all
+            // returned by this point, so the arcs are well-formed by construction.
+            var arc = new Rectangle(rect.X, rect.Y, diameter, diameter);
 
-                path.AddArc(arc, 180, 90);
-                arc.X = rect.Right - diameter;
-                path.AddArc(arc, 270, 90);
-                arc.Y = rect.Bottom - diameter;
-                path.AddArc(arc, 0, 90);
-                arc.X = rect.Left;
-                path.AddArc(arc, 90, 90);
+            path.AddArc(arc, 180, 90);
+            arc.X = rect.Right - diameter;
+            path.AddArc(arc, 270, 90);
+            arc.Y = rect.Bottom - diameter;
+            path.AddArc(arc, 0, 90);
+            arc.X = rect.Left;
+            path.AddArc(arc, 90, 90);
 
-                path.CloseFigure();
-            }
-            catch
-            {
-                path.Reset();
-                if (rect.Width > 0 && rect.Height > 0)
-                {
-                    path.AddRectangle(rect);
-                }
-            }
+            path.CloseFigure();
 
             return path;
         }

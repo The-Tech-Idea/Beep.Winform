@@ -174,3 +174,40 @@ check already covers them — they currently report "publishes no remove rects",
 
 `DropdownMultiSelect` and `SidebarPanel` register no remove hit area at all; whether that is
 intentional needs deciding rather than assuming.
+
+---
+
+## Hit targets — all five completed
+
+Every painter that offers a per-criterion remove affordance now single-sources its geometry, and all
+five publish a target at or above the comfortable minimum:
+
+| painter | target | pattern used |
+|---|---|---|
+| `TagPills` | 24x24 | already published from layout |
+| `GroupedRows` | 28x28 | `RemoveRectFor(rowRect, owner)` — derivable from the row |
+| `QueryBuilder` | 24x24 | `RemoveRectFor(rowRect, owner)` — derivable from the row |
+| `InlineRow` | 24x24 | draw returns what it drew — depends on a running cursor |
+| `AdvancedDialog` | 24x24 | draw returns what it drew — depends on a running cursor |
+
+Two patterns, chosen by whether the rect is derivable from the row rectangle alone. Where it depends
+on a cursor accumulated across the row, recomputing it in the layout pass would duplicate that
+arithmetic — the exact duplication being removed — so the draw reports what it drew instead.
+
+### `BaseFilterPainter.ToHitTarget`
+
+`InlineRow` draws a 22px glyph, which is legitimate for a compact row. Growing the glyph would crowd
+it. The published hit rect is instead inflated about its centre to the 24px minimum: **the glyph
+stays small; what responds to the pointer does not.** Same separation as `CloseGlyphRect` versus
+`CloseHitRect` in the container tab strip.
+
+### A measurement error worth recording
+
+The check first reported `InlineRow` as "publishes no remove rects" **after** the fix. The probe was
+measuring without forcing a paint — and the two patterns publish at different times: the
+`RemoveRectFor` painters publish during the layout pass, the cursor-based ones during `Paint`. A
+check that never paints sees only the first kind. The probe now renders before measuring.
+
+`DropdownMultiSelect` and `SidebarPanel` still publish none; they register no remove hit area at all.
+Whether those styles should offer per-criterion removal is a product question, not a defect, and is
+left open rather than guessed.

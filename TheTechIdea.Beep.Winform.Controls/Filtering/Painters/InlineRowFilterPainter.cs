@@ -99,10 +99,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             var config = owner.ActiveFilter;
 
             // Paint each inline row
+            var removeRects = new Rectangle[layout.RowRects.Length];
             for (int i = 0; i < layout.RowRects.Length && i < config.Criteria.Count; i++)
             {
-                PaintInlineRow(g, layout.RowRects[i], config.Criteria[i], owner);
+                removeRects[i] = ToHitTarget(PaintInlineRow(g, layout.RowRects[i], config.Criteria[i], owner), owner);
             }
+            layout.RemoveButtonRects = removeRects;
 
             // Paint "Add" button
             if (owner.ShowActionButtons && !layout.AddFilterButtonRect.IsEmpty)
@@ -122,7 +124,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
         }
 
-        private void PaintInlineRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)
+        /// <summary>
+        /// Draws one inline row and returns the remove affordance it drew.
+        /// </summary>
+        /// <remarks>
+        /// The remove rect sits at the end of a running cursor accumulated across the row, so the
+        /// layout pass cannot recompute it without duplicating that arithmetic - which is exactly
+        /// the duplication being removed. The draw is therefore the single source: it reports what
+        /// it drew, Paint publishes that into RemoveButtonRects, and HitTest reads it.
+        ///
+        /// HitTest previously computed its own rect from raw literals (Right - 16, 14x14), which
+        /// was both a different position from the drawn glyph and below the 24px comfortable
+        /// minimum. The user aimed at one rectangle and a different one responded.
+        /// </remarks>
+        private Rectangle PaintInlineRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
             int sColumnWidth = DpiScalingHelper.ScaleValue(ColumnWidth, owner);
@@ -151,6 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             // Remove button
             var removeRect = new Rectangle(currentX, rect.Y + (sRowHeight - sButtonSize) / 2, sButtonSize, sButtonSize);
             PaintRemoveButton(g, removeRect, owner);
+            return removeRect;
         }
 
         private void PaintCompactDropdown(Graphics g, Rectangle rect, string text, BeepFilter owner)
@@ -281,7 +297,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 int currentX = rowRect.X;
 
                 // Remove button (right side)
-                Rectangle removeRect = new Rectangle(rowRect.Right - 16, rowRect.Y + (rowRect.Height - 14) / 2, 14, 14);
+                if (i >= layout.RemoveButtonRects.Length) continue;
+                Rectangle removeRect = layout.RemoveButtonRects[i];
                 if (removeRect.Contains(point))
                     return new FilterHitArea { Name = $"Remove_{i}", Bounds = removeRect, Type = FilterHitAreaType.RemoveButton, Tag = i };
 

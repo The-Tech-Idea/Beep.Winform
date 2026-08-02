@@ -89,6 +89,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// <summary>
         /// Paint style-specific UI
         /// </summary>
+        /// <summary>Smallest comfortable pointer target, per WCAG 2.5.5 and platform guidance.</summary>
+        protected const int MinTouchTarget = 24;
+
+        /// <summary>
+        /// Grows a drawn rectangle to the comfortable minimum, about its own centre.
+        /// </summary>
+        /// <remarks>
+        /// A glyph may legitimately be small - a compact inline row draws a 22px remove button - but
+        /// what responds to the pointer must not be. Publishing the glyph rect as the hit rect is
+        /// how the grid header and the container tab strip both ended up with 13px targets.
+        /// </remarks>
+        protected static Rectangle ToHitTarget(Rectangle drawn, BeepFilter owner)
+        {
+            if (drawn.IsEmpty) return drawn;
+
+            int min = Helpers.DpiScalingHelper.ScaleValue(MinTouchTarget, owner);
+            int growX = Math.Max(0, min - drawn.Width);
+            int growY = Math.Max(0, min - drawn.Height);
+            if (growX == 0 && growY == 0) return drawn;
+
+            return Rectangle.Inflate(drawn, (growX + 1) / 2, (growY + 1) / 2);
+        }
+
         public abstract void Paint(Graphics g, BeepFilter owner, FilterLayoutInfo layout);
 
         /// <summary>

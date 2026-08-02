@@ -77,6 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             );
 
             layout.RowRects = rowRects.ToArray();
+            layout.RemoveButtonRects = rowRects.Select(r => ToHitTarget(RemoveRectFor(r, owner), owner)).ToArray();
             layout.ConnectorRects = connectorRects.ToArray();
             layout.DragHandleRects = dragHandleRects.ToArray();
 
@@ -308,15 +309,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             PaintValueInput(g, valueRect, criterion.Value?.ToString() ?? "", colors, owner);
 
             // Remove button (X) on the right
-            int removeButtonSize = Helpers.DpiScalingHelper.ScaleValue(20, owner);
-            int removeOffset = Helpers.DpiScalingHelper.ScaleValue(8, owner);
-            Rectangle removeRect = new Rectangle(
-                rowRect.Right - removeButtonSize - removeOffset,
-                centerY - removeButtonSize / 2,
-                removeButtonSize,
-                removeButtonSize
-            );
+            Rectangle removeRect = RemoveRectFor(rowRect, owner);
             PaintRemoveButton(g, removeRect, colors, owner);
+        }
+
+        /// <summary>
+        /// The remove affordance for a criterion row — the single expression for it.
+        /// </summary>
+        /// <remarks>
+        /// Drawn from DPI-scaled values and hit-tested from raw literals (Right - 28, 20x20), the
+        /// two disagreed at 100% and diverged with DPI. The published rect is grown to the
+        /// comfortable minimum: the glyph stays 20px, what responds does not.
+        /// </remarks>
+        internal static Rectangle RemoveRectFor(Rectangle rowRect, BeepFilter owner)
+        {
+            int size = Helpers.DpiScalingHelper.ScaleValue(20, owner);
+            int offset = Helpers.DpiScalingHelper.ScaleValue(8, owner);
+            int centerY = rowRect.Y + rowRect.Height / 2;
+            return new Rectangle(rowRect.Right - size - offset, centerY - size / 2, size, size);
         }
 
         private void PaintDropdown(Graphics g, Rectangle rect, string text, (Color BackColor, Color ForeColor, Color BorderColor, Color AccentColor) colors, BeepFilter owner)
@@ -458,7 +468,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 Rectangle rowRect = layout.RowRects[i];
 
                 // Remove button (right side of row)
-                Rectangle removeRect = new Rectangle(rowRect.Right - 28, rowRect.Y + (rowRect.Height - 20) / 2, 20, 20);
+                if (i >= layout.RemoveButtonRects.Length) continue;
+                Rectangle removeRect = layout.RemoveButtonRects[i];
                 if (removeRect.Contains(point))
                     return new FilterHitArea { Name = $"Remove_{i}", Bounds = removeRect, Type = FilterHitAreaType.RemoveButton, Tag = i };
 

@@ -51,9 +51,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         public static int UtilityButtonPadding(Control ownerControl) => DpiScalingHelper.ScaleValue(4, ownerControl);
 
-        public static int UtilityButtonsReservedWidth(Control ownerControl) => DpiScalingHelper.ScaleValue(140, ownerControl);
+        /// <summary>
+        /// Number of buttons in the utility cluster when the strip is scrolling:
+        /// scroll-left, scroll-right, overflow chevron, new-tab.
+        /// </summary>
+        private const int UtilityClusterButtonCount = 4;
 
-        public static int NewTabButtonReservedWidth(Control ownerControl) => DpiScalingHelper.ScaleValue(40, ownerControl);
+        /// <summary>
+        /// Width the full utility cluster claims at the end of the strip.
+        /// </summary>
+        /// <remarks>
+        /// Derived from the buttons that are actually laid out rather than asserted as a constant.
+        /// It was a flat 140px against a cluster that really needs
+        /// <c>4 * (28 + 4) + 4 = 132px</c>; the two agreed closely enough to look right and would
+        /// have drifted silently the moment the cluster gained or lost a button, leaving either a
+        /// gap or an overlap at the strip's right edge.
+        /// </remarks>
+        public static int UtilityButtonsReservedWidth(Control ownerControl)
+        {
+            int size = UtilityButtonSize(ownerControl);
+            int pad = UtilityButtonPadding(ownerControl);
+            return UtilityClusterButtonCount * (size + pad) + pad;
+        }
+
+        /// <summary>Width claimed when only the new-tab button is shown.</summary>
+        public static int NewTabButtonReservedWidth(Control ownerControl)
+            => UtilityButtonSize(ownerControl) + UtilityButtonPadding(ownerControl) * 2;
 
         public static int ScrollAreaOffset(Control ownerControl) => DpiScalingHelper.ScaleValue(40, ownerControl);
 

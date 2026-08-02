@@ -50,21 +50,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         public Rectangle ContentRect { get; set; }
         public Rectangle HeaderRect { get; set; }
         public Rectangle FooterRect { get; set; }
-        
+
         // For tag pills
         public Rectangle[] TagRects { get; set; } = new Rectangle[0];
         public Rectangle[] RemoveButtonRects { get; set; } = new Rectangle[0];
-        
+
         // For grouped rows
         public Rectangle[] RowRects { get; set; } = new Rectangle[0];
         public Rectangle[] ConnectorRects { get; set; } = new Rectangle[0];
         public Rectangle[] DragHandleRects { get; set; } = new Rectangle[0];
-        
+
         // For dropdowns
         public Rectangle[] FieldDropdownRects { get; set; } = new Rectangle[0];
         public Rectangle[] OperatorDropdownRects { get; set; } = new Rectangle[0];
         public Rectangle[] ValueDropdownRects { get; set; } = new Rectangle[0];
-        
+
         // Action buttons
         public Rectangle AddFilterButtonRect { get; set; }
         public Rectangle AddGroupButtonRect { get; set; }
@@ -72,11 +72,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         public Rectangle SaveButtonRect { get; set; }
         public Rectangle LoadButtonRect { get; set; }
         public Rectangle ApplyButtonRect { get; set; }
-        
+
         // Search/quick filter
         public Rectangle SearchInputRect { get; set; }
         public Rectangle SearchIconRect { get; set; }
-        
+
         // Badge/counter
         public Rectangle CountBadgeRect { get; set; }
 
@@ -123,17 +123,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// Gets the metrics/measurements for this painter style
         /// </summary>
         FilterPainterMetrics GetMetrics(BeepFilter owner);
-
-        /// <summary>
-        /// Whether this painter supports animations
-        /// </summary>
-        bool SupportsAnimations { get; }
-
-        /// <summary>
-        /// Whether this painter supports drag and drop reordering
-        /// </summary>
-        bool SupportsDragDrop { get; }
-
         /// <summary>
         /// Gets the filter style this painter implements
         /// </summary>

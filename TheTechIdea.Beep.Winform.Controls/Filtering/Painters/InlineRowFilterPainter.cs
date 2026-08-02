@@ -22,8 +22,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         private const int ItemSpacing = 4;
 
         public override FilterStyle FilterStyle => FilterStyle.InlineRow;
-        public override bool SupportsDragDrop => false;
-
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
             int sButtonSize = DpiScalingHelper.ScaleValue(ButtonSize, owner);
@@ -278,10 +276,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             for (int i = 0; i < layout.RowRects.Length; i++)
             {
                 Rectangle rowRect = layout.RowRects[i];
-                
+
                 // Calculate positions within inline row
                 int currentX = rowRect.X;
-                
+
                 // Remove button (right side)
                 Rectangle removeRect = new Rectangle(rowRect.Right - 16, rowRect.Y + (rowRect.Height - 14) / 2, 14, 14);
                 if (removeRect.Contains(point))

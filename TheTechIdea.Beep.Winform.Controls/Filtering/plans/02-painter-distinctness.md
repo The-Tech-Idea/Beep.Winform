@@ -43,3 +43,50 @@ also mean seven painters inherit most of their appearance. **Pixels decide.**
   anything: compare a render against itself and confirm the check goes red
 - Per-style PNGs written for eyeball review, since "different" is necessary but not sufficient — two
   styles can differ numerically and still both look wrong
+
+---
+
+## Outcome
+
+### The suspicion was not supported
+
+All 8 styles rendered at 520x220 with identical criteria and theme, compared pairwise:
+
+**28 pairs, 0 identical.**
+
+The Filtering painters genuinely differ. The uniform "5 overrides each" signal that prompted the
+suspicion turned out to mean the base does the right thing and each subclass changes what matters —
+not that seven inherit their appearance. Recorded plainly, because the pattern held in three previous
+folders and it would be easy for a later reader to assume it holds here too.
+
+Per-style PNGs are written to `scratchpad/filter-renders` for eyeball review; numerically distinct is
+necessary but not sufficient.
+
+### What the phase did find: four pieces of dead surface
+
+| member | shape | disposition |
+|---|---|---|
+| `IFilterPainter.SupportsAnimations` | declared, defaulted, overridden — **no reader** | removed |
+| `IFilterPainter.SupportsDragDrop` | declared, defaulted, overridden by all 8 — **no reader** | removed |
+| `FilterPainterFactory.IsFullyImplemented` | `public static`, **0 callers**, and vacuous once every style is mapped | removed |
+| `FilterPainterFactory.GetStyleDescription` | `public static`, **0 callers** | removed |
+
+Twelve declarations in total, plus two factory methods. Cross-repo sweep confirmed no consumer in
+`Beep.Winform.Data.Integrated` or `Beep.Sample` before removing anything public.
+
+**Intent preserved here in case drag-drop is implemented later:** the painters that declared
+`SupportsDragDrop => true` were `AdvancedDialogFilterPainter` and `GroupedRowsFilterPainter`; the
+other six declared `false`. Reordering criteria by drag is a reasonable feature, but a capability
+flag with no consumer is not a partial implementation of it — it is eight painters answering a
+question nobody asks.
+
+### A measurement error worth recording
+
+`SupportsAnimations` first appeared to have one real caller, at
+`Forms/ModernForm/BeepiFormPro.Events.cs:92`. That is a **different** `SupportsAnimations` — the form
+painters declare an identically-named property, and ~37 of them do. Scoping the search to files that
+reference `IFilterPainter` showed the Filtering one has no reader at all.
+
+Fourth instance in this program of a search matching across a boundary and producing a wrong count.
+The others: counting enum values across three declarations in one file, an exclusion pattern that
+also stripped the evidence, and a `timeout` truncating a cross-repo sweep into a false "no consumers".

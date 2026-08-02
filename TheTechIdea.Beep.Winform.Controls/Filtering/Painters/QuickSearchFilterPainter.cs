@@ -19,8 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         private const int ItemSpacing = 8;
 
         public override FilterStyle FilterStyle => FilterStyle.QuickSearch;
-        public override bool SupportsDragDrop => false;
-
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
             var layout = new FilterLayoutInfo

@@ -68,17 +68,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// Gets the filter style supported by this painter implementation.
         /// </summary>
         public abstract FilterStyle FilterStyle { get; }
-
-        /// <summary>
-        /// Gets whether this painter supports animated transitions.
-        /// </summary>
-        public virtual bool SupportsAnimations => true;
-
-        /// <summary>
-        /// Gets whether this painter supports drag and drop interactions.
-        /// </summary>
-        public virtual bool SupportsDragDrop => false;
-
         #endregion
 
         #region Abstract Methods - Must be implemented by derived classes
@@ -109,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             // Default implementation - derived painters should override for full functionality
             if (layout == null || config == null || theme == null) return;
-            
+
             // Basic fallback rendering
             g.FillRectangle(GetBrush(theme.BackColor), bounds);
             g.DrawRectangle(GetPen(theme.BorderColor), bounds);
@@ -310,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         protected GraphicsPath CreateRoundedRectanglePath(Rectangle rect, int cornerRadius)
         {
             var path = new GraphicsPath();
-            
+
             if (cornerRadius <= 0)
             {
                 path.AddRectangle(rect);
@@ -318,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
 
             int diameter = cornerRadius * 2;
-            
+
             // Ensure corner radius doesn't exceed rectangle dimensions
             diameter = Math.Min(diameter, Math.Min(rect.Width, rect.Height));
             cornerRadius = diameter / 2;
@@ -331,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
             // Bottom left
             path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
-            
+
             path.CloseFigure();
             return path;
         }

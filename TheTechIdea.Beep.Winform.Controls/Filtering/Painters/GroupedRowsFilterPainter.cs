@@ -22,10 +22,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         /// <summary>Gets the filter style this painter implements.</summary>
         public override FilterStyle FilterStyle => FilterStyle.GroupedRows;
-        
-        /// <summary>Gets whether this painter supports drag-drop reordering.</summary>
-        public override bool SupportsDragDrop => true;
-
         /// <summary>Calculates layout positions for all filter elements.</summary>
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
@@ -369,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             for (int i = 0; i < layout.RowRects.Length; i++)
             {
                 Rectangle rowRect = layout.RowRects[i];
-                
+
                 // Check remove button (right side of row)
                 Rectangle removeRect = new Rectangle(rowRect.Right - 30, rowRect.Y + (rowRect.Height - 24) / 2, 24, 24);
                 if (removeRect.Contains(point))

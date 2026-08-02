@@ -27,10 +27,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         /// <summary>Gets the filter style this painter implements.</summary>
         public override FilterStyle FilterStyle => FilterStyle.SidebarPanel;
-        
-        /// <summary>Gets whether this painter supports drag-drop reordering.</summary>
-        public override bool SupportsDragDrop => false;
-
         /// <summary>Calculates layout positions for sidebar sections and items.</summary>
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
@@ -88,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
             // Action buttons at bottom
             currentY = Math.Max(currentY, availableRect.Bottom - ButtonHeight * 2 - Padding * 3);
-            
+
             layout.AddFilterButtonRect = new Rectangle(
                 availableRect.X + Padding,
                 availableRect.Bottom - ButtonHeight * 2 - Padding * 2,
@@ -372,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             for (int i = 0; i < layout.RowRects.Length; i++)
             {
                 Rectangle rowRect = layout.RowRects[i];
-                
+
                 if (rowRect.Height == Helpers.DpiScalingHelper.ScaleValue(SectionHeaderHeight, layout.DpiScale))
                 {
                     // Section header - check expand toggle

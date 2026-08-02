@@ -26,10 +26,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         /// <summary>Gets the filter style this painter implements.</summary>
         public override FilterStyle FilterStyle => FilterStyle.DropdownMultiSelect;
-        
-        /// <summary>Gets whether this painter supports drag-drop reordering.</summary>
-        public override bool SupportsDragDrop => false;
-
         /// <summary>Calculates layout positions for dropdown and expanded list.</summary>
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {

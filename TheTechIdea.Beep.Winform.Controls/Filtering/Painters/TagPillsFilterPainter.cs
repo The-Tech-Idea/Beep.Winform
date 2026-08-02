@@ -22,10 +22,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         /// <summary>Gets the filter style this painter implements.</summary>
         public override FilterStyle FilterStyle => FilterStyle.TagPills;
-        
-        /// <summary>Gets whether this painter supports drag-drop reordering.</summary>
-        public override bool SupportsDragDrop => true;
-
         /// <summary>Calculates layout positions for all filter elements.</summary>
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
@@ -62,10 +58,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             for (int i = 0; i < config.Criteria.Count; i++)
             {
                 var criterion = config.Criteria[i];
-                
+
                 // Build pill text: "ColumnName Operator Value"
                 var pillText = $"{criterion.ColumnName} {criterion.Operator.GetSymbol()} {criterion.Value}";
-                
+
                 // Measure pill size
                 using (var g = Graphics.FromHwnd(IntPtr.Zero))
                 {
@@ -133,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 return;
 
             var config = owner.ActiveFilter;
-            
+
             // Paint each tag pill
             for (int i = 0; i < layout.TagRects.Length && i < config.Criteria.Count; i++)
             {

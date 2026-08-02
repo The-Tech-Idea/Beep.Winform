@@ -51,10 +51,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         /// <summary>Gets the filter style this painter implements.</summary>
         public override FilterStyle FilterStyle => FilterStyle.AdvancedDialog;
-        
-        /// <summary>Gets whether this painter supports drag-drop reordering.</summary>
-        public override bool SupportsDragDrop => true;
-
         /// <summary>Calculates layout positions for dialog sections and controls.</summary>
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
@@ -573,7 +569,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             {
                 int currentX = layout.ContainerRect.X + Helpers.DpiScalingHelper.ScaleValue(Padding, layout.DpiScale);
                 string[] tabNames = { "Basic", "Advanced", "Saved Filters" };
-                
+
                 for (int i = 0; i < tabNames.Length; i++)
                 {
                     Rectangle tabRect = new Rectangle(currentX, layout.ContainerRect.Y + 8, TabButtonWidth, Helpers.DpiScalingHelper.ScaleValue(TabHeight, layout.DpiScale) - 8);
@@ -614,7 +610,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             for (int i = 0; i < layout.RowRects.Length; i++)
             {
                 Rectangle rowRect = layout.RowRects[i];
-                
+
                 // Remove button (right side)
                 Rectangle removeRect = new Rectangle(rowRect.Right - 32, rowRect.Y + (rowRect.Height - 24) / 2, 24, 24);
                 if (removeRect.Contains(point))

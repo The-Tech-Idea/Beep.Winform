@@ -30,10 +30,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         /// <summary>Gets the filter style this painter implements.</summary>
         public override FilterStyle FilterStyle => FilterStyle.QueryBuilder;
-        
-        /// <summary>Gets whether this painter supports drag-drop reordering.</summary>
-        public override bool SupportsDragDrop => true;
-
         /// <summary>Calculates layout positions for all filter elements in tree structure.</summary>
         public override FilterLayoutInfo CalculateLayout(BeepFilter owner, Rectangle availableRect)
         {
@@ -136,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             for (int i = 0; i < criteria.Count; i++)
             {
                 var criterion = criteria[i];
-                
+
                 // Drag handle
                 if (owner.EnableDragDrop)
                 {
@@ -400,7 +396,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 pen.EndCap = LineCap.Round;
 
                 int padding = Helpers.DpiScalingHelper.ScaleValue(5, owner);
-                g.DrawLine(pen, 
+                g.DrawLine(pen,
                     rect.Left + padding, rect.Top + padding,
                     rect.Right - padding, rect.Bottom - padding);
                 g.DrawLine(pen,
@@ -460,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             for (int i = 0; i < layout.RowRects.Length; i++)
             {
                 Rectangle rowRect = layout.RowRects[i];
-                
+
                 // Remove button (right side of row)
                 Rectangle removeRect = new Rectangle(rowRect.Right - 28, rowRect.Y + (rowRect.Height - 20) / 2, 20, 20);
                 if (removeRect.Contains(point))

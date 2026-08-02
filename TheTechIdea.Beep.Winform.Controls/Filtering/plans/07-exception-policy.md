@@ -36,3 +36,33 @@ where the truth was 32), and once deflating it by anchoring on `^\s*catch`, whic
 - Every remaining catch names a specific exception type or reports
 - **Expect new failures.** If removing five guards surfaces nothing, they may not be tested hard
   enough — though at five, "nothing" is a more plausible honest outcome than it was at twenty-two.
+
+---
+
+## Outcome
+
+**Bare `catch { }` in the folder: 5 → 0.**
+
+| site | disposition | reason |
+|---|---|---|
+| `FilterEngine` — 5 value comparisons | narrowed | `IComparable.CompareTo` throws when runtime types disagree. That means "does not match"; a disposed source or out-of-memory does not, and now propagates. |
+| `FilterEngine.GetPropertyValue` | narrowed | Indexed or inaccessible properties cannot be read — `TargetException` and friends. Anything else is a real fault. |
+| `FilterEngine` regex | narrowed to `ArgumentException` | An invalid pattern is user input, not a fault. |
+| `BeepFilter.InlineEditing` conversion | narrowed | The user is mid-type — `"12"` on the way to `"12.5"`. Keeping raw text is right for cast/format/overflow only. |
+| `BeepFilter` OnPaint, Draw | **reported** | See below. |
+| `BeepFilter.Keyboard` import/export | left alone | Already report through `NotifyImportFailure` / `NotifyExportFailure` — they tell the user, which is the point. |
+
+### The one that mattered
+
+The two paint guards logged through `System.Diagnostics.Debug.WriteLine`. **The compiler strips
+`Debug` from Release builds**, so in a shipped application a painter failure produced a blank filter
+and left no trace anywhere — not a log, not an event, nothing. It was a bare catch wearing a
+diagnostic.
+
+They now report through `FilterError` / `FilterErrorEventArgs` and `Trace`, which survives Release.
+Absorbing is still correct — throwing from `OnPaint` tears down the host form's paint cycle — but
+absorbing silently was not.
+
+This is the same shape as `DisplayContainers`, where six per-step catches in `OnPaint` hid a failing
+tab strip. Different symptom, same cause: a control that cannot afford to throw, and nobody deciding
+what it should do instead.

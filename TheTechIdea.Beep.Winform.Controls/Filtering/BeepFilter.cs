@@ -233,8 +233,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
             catch (Exception ex)
             {
-                // Log error but don't crash
-                System.Diagnostics.Debug.WriteLine($"BeepFilter paint error: {ex.Message}");
+                // Absorbed deliberately: throwing from OnPaint tears down the host form's paint
+                // cycle. Reported through Trace and FilterError rather than Debug.WriteLine, which
+                // the compiler strips from Release builds - so in a shipped application this
+                // failure produced a blank filter and no trace of why.
+                OnFilterError("OnPaint", ex);
             }
         }
 
@@ -266,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"BeepFilter Draw error: {ex.Message}");
+                OnFilterError("Draw", ex);
             }
             finally
             {

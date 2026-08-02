@@ -9,6 +9,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
     /// </summary>
     public partial class BeepFilter
     {
+        /// <summary>Raised when the filter absorbed a failure instead of propagating it.</summary>
+        public event EventHandler<FilterErrorEventArgs> FilterError;
+
+        /// <summary>Reports an absorbed failure. Never throws from the reporting path itself.</summary>
+        protected virtual void OnFilterError(string context, Exception exception)
+        {
+            if (exception == null) return;
+            System.Diagnostics.Trace.WriteLine($"BeepFilter [{context}]: {exception}");
+            FilterError?.Invoke(this, new FilterErrorEventArgs(context, exception));
+        }
+
         #region Filter Events
 
         /// <summary>

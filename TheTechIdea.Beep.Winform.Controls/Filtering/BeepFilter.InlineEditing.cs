@@ -252,8 +252,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
                 return Convert.ChangeType(text, nonNullableType);
             }
-            catch
+            catch (Exception ex) when (ex is InvalidCastException
+                                       || ex is FormatException
+                                       || ex is OverflowException)
             {
+                // The user is mid-type: "12" on the way to "12.5", or a date not yet complete.
+                // Keeping the raw text is correct, and these are the only failures that mean
+                // "not convertible yet" rather than "something is broken".
                 return text;
             }
         }

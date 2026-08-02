@@ -211,8 +211,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 {
                     return prop.GetValue(item);
                 }
-                catch
+                catch (Exception ex) when (ex is TargetException
+                                           || ex is TargetParameterCountException
+                                           || ex is MethodAccessException)
                 {
+                    // Indexed or inaccessible properties cannot be read; treat as absent.
                     return null;
                 }
             }
@@ -283,7 +286,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     return comparable.CompareTo(converted) > 0;
                 }
             }
-            catch { }
+            catch (Exception ex) when (ex is ArgumentException
+                                       || ex is InvalidCastException
+                                       || ex is FormatException
+                                       || ex is OverflowException)
+            {
+                // A value that cannot be compared to the criterion does not match. Anything else -
+                // a disposed source, an out-of-memory - is a real fault and now propagates rather
+                // than being reported as "row does not match".
+            }
             return false;
         }
 
@@ -296,7 +307,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     return comparable.CompareTo(converted) >= 0;
                 }
             }
-            catch { }
+            catch (Exception ex) when (ex is ArgumentException
+                                       || ex is InvalidCastException
+                                       || ex is FormatException
+                                       || ex is OverflowException)
+            {
+                // A value that cannot be compared to the criterion does not match. Anything else -
+                // a disposed source, an out-of-memory - is a real fault and now propagates rather
+                // than being reported as "row does not match".
+            }
             return false;
         }
 
@@ -309,7 +328,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     return comparable.CompareTo(converted) < 0;
                 }
             }
-            catch { }
+            catch (Exception ex) when (ex is ArgumentException
+                                       || ex is InvalidCastException
+                                       || ex is FormatException
+                                       || ex is OverflowException)
+            {
+                // A value that cannot be compared to the criterion does not match. Anything else -
+                // a disposed source, an out-of-memory - is a real fault and now propagates rather
+                // than being reported as "row does not match".
+            }
             return false;
         }
 
@@ -322,7 +349,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     return comparable.CompareTo(converted) <= 0;
                 }
             }
-            catch { }
+            catch (Exception ex) when (ex is ArgumentException
+                                       || ex is InvalidCastException
+                                       || ex is FormatException
+                                       || ex is OverflowException)
+            {
+                // A value that cannot be compared to the criterion does not match. Anything else -
+                // a disposed source, an out-of-memory - is a real fault and now propagates rather
+                // than being reported as "row does not match".
+            }
             return false;
         }
 
@@ -337,7 +372,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     return comparable.CompareTo(converted1) >= 0 && comparable.CompareTo(converted2) <= 0;
                 }
             }
-            catch { }
+            catch (Exception ex) when (ex is ArgumentException
+                                       || ex is InvalidCastException
+                                       || ex is FormatException
+                                       || ex is OverflowException)
+            {
+                // A value that cannot be compared to the criterion does not match. Anything else -
+                // a disposed source, an out-of-memory - is a real fault and now propagates rather
+                // than being reported as "row does not match".
+            }
             return false;
         }
 
@@ -362,8 +405,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 var regex = new Regex(pattern.ToString()!, options);
                 return regex.IsMatch(cellValue.ToString()!);
             }
-            catch
+            catch (ArgumentException)
             {
+                // An invalid regular expression is user input, not a fault. No row matches it.
                 return false;
             }
         }

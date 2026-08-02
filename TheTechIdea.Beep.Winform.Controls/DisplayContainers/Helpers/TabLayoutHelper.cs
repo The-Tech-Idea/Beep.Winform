@@ -26,16 +26,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// </summary>
         public TheTechIdea.Beep.Vis.Modules.IBeepTheme Theme { get; set; }
         public Font TextFont { get => _font; set => _font = value ?? SystemFonts.MessageBoxFont; }
-        
+
         public struct TabLayoutResult
         {
             public bool NeedsScrolling;
             public Rectangle ScrollLeftButton;
-            public Rectangle ScrollRightButton; 
+            public Rectangle ScrollRightButton;
             public Rectangle OverflowButton;
             public Rectangle NewTabButton;
         }
-        
+
         /// <summary>
         /// Updates the control style and font used for calculating tab metrics
         /// </summary>
@@ -45,8 +45,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             _font = font ?? SystemFonts.MessageBoxFont;
         }
 
-        public TabLayoutResult CalculateTabLayout(List<AddinTab> tabs, Rectangle tabArea, 
-            TabPosition position, int minWidth, int maxWidth, int scrollOffset)
+        /// <summary>
+        /// Lays out the tab strip, shrinking tabs toward <paramref name="minWidth"/> before
+        /// resorting to scrolling.
+        /// </summary>
+        /// <param name="activeTab">
+        /// Shrunk last, so the tab being read is never the first to collapse into an ellipsis.
+        /// </param>
+        public TabLayoutResult CalculateTabLayout(List<AddinTab> tabs, Rectangle tabArea,
+            TabPosition position, int minWidth, int maxWidth, int scrollOffset,
+            AddinTab activeTab = null)
         {
             if (tabs == null || tabs.Count == 0)
                 return CalculateUtilityButtonLayout(tabArea, position, false);
@@ -59,8 +67,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // Include inter-tab gaps in the overflow check (previously they were missing,
             // causing the scroll path to trigger too late and cram tabs together).
             int gap = TabHeaderMetrics.TabGap(OwnerControl);
-            int totalTabWidth = tabWidths.Sum() + gap * Math.Max(0, tabs.Count - 1);
+            int gapTotal = gap * Math.Max(0, tabs.Count - 1);
             int noScrollAvailableSpace = stripLength - TabHeaderMetrics.NewTabButtonReservedWidth(OwnerControl);
+
+            // Shrink before scrolling. Tabs were previously clamped to their natural width and the
+            // strip jumped straight to paging the moment they overflowed, so a user with a dozen
+            // tabs had to page through them. Every comparable document host narrows tabs toward a
+            // floor first and only pages once even the floor will not fit.
+            ShrinkTabsToFit(tabs, tabWidths, minWidth, noScrollAvailableSpace - gapTotal, activeTab);
+
+            int totalTabWidth = tabWidths.Sum() + gapTotal;
             bool needsScrolling = totalTabWidth > noScrollAvailableSpace;
             int reservedSpace = needsScrolling
                 ? TabHeaderMetrics.UtilityButtonsReservedWidth(OwnerControl)
@@ -100,33 +116,101 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 NewTabButton = GetNewTabButtonRect(tabArea, position)
             };
         }
-        
+
+        /// <summary>
+        /// Reduces tab widths toward <paramref name="minWidth"/> until they fit, in priority order.
+        /// </summary>
+        /// <remarks>
+        /// Pinned tabs never shrink - their width is fixed and icon-only, with nothing to give up.
+        /// The active tab shrinks only after every other tab has reached the floor, so the document
+        /// the user is actually looking at keeps its caption longest.
+        /// </remarks>
+        private static void ShrinkTabsToFit(List<AddinTab> tabs, List<int> widths, int minWidth,
+            int available, AddinTab activeTab)
+        {
+            if (available <= 0) return;
+
+            int overflow = widths.Sum() - available;
+            if (overflow <= 0) return;
+
+            overflow = ShrinkGroup(tabs, widths, minWidth, overflow, activeTab, includeActive: false);
+            if (overflow > 0)
+                ShrinkGroup(tabs, widths, minWidth, overflow, activeTab, includeActive: true);
+        }
+
+        /// <summary>
+        /// Takes up to <paramref name="overflow"/> pixels from one group of tabs, in proportion to
+        /// the slack each has above <paramref name="minWidth"/>. Returns what could not be taken.
+        /// </summary>
+        private static int ShrinkGroup(List<AddinTab> tabs, List<int> widths, int minWidth,
+            int overflow, AddinTab activeTab, bool includeActive)
+        {
+            var candidates = new List<int>();
+            for (int i = 0; i < tabs.Count && i < widths.Count; i++)
+            {
+                if (tabs[i].IsPinned) continue;
+                if (!includeActive && ReferenceEquals(tabs[i], activeTab)) continue;
+                if (widths[i] > minWidth) candidates.Add(i);
+            }
+            if (candidates.Count == 0) return overflow;
+
+            int slack = candidates.Sum(i => widths[i] - minWidth);
+            if (slack <= 0) return overflow;
+
+            int take = Math.Min(overflow, slack);
+            int remaining = take;
+
+            // Proportional pass: each tab gives up in proportion to what it has spare.
+            foreach (int i in candidates)
+            {
+                if (remaining <= 0) break;
+                int mySlack = widths[i] - minWidth;
+                int share = (int)Math.Round((double)take * mySlack / slack);
+                share = Math.Min(Math.Min(share, mySlack), remaining);
+                widths[i] -= share;
+                remaining -= share;
+            }
+
+            // Mop-up: integer rounding can leave a few pixels unallocated.
+            foreach (int i in candidates)
+            {
+                if (remaining <= 0) break;
+                int mySlack = widths[i] - minWidth;
+                if (mySlack <= 0) continue;
+                int share = Math.Min(mySlack, remaining);
+                widths[i] -= share;
+                remaining -= share;
+            }
+
+            return overflow - (take - remaining);
+        }
+
         /// <summary>
         /// Calculates the width for each tab based on text content and BeepStyling metrics
         /// </summary>
         private List<int> CalculateTabWidths(List<AddinTab> tabs, int minWidth, int maxWidth)
         {
             var widths = new List<int>();
-            
+
             // Get style metrics from BeepStyling
             float borderWidth = BeepStyling.GetBorderThickness(_controlStyle);
             int padding = BeepStyling.GetPadding(_controlStyle);
-            int shadowDepth = StyleShadows.HasShadow(_controlStyle) ? 
+            int shadowDepth = StyleShadows.HasShadow(_controlStyle) ?
                 Math.Max(2, StyleShadows.GetShadowBlur(_controlStyle) / 2) : 0;
-            
+
             // Total chrome (border + padding + shadow) on each side
             int totalChromeWidth = (int)Math.Ceiling(borderWidth * 2) + (padding * 2) + (shadowDepth * 2);
-            
+
             foreach (var tab in tabs)
             {
                 int contentWidth = CalculateTabContentWidth(tab, totalChromeWidth);
                 int finalWidth = Math.Max(minWidth, Math.Min(maxWidth, contentWidth));
                 widths.Add(finalWidth);
             }
-            
+
             return widths;
         }
-        
+
         /// <summary>
         /// Calculates the content width for a single tab including text and close button
         /// </summary>
@@ -139,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // Pinned tabs are compact (icon-only width)
             if (tab.IsPinned)
                 return TabHeaderMetrics.PinnedTabWidth(OwnerControl) + chromeWidth;
-            
+
             // Measured with the flags the painter draws with. The previous version wrapped this in
             // a bare catch that substituted title.Length * 7px -- a fabricated width that is wrong
             // for any non-monospace font, applied silently to every tab.
@@ -160,26 +244,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
             int contentWidth = iconWidth + textWidth + closeButtonWidth
                                + badgeWidth + modifiedWidth + internalPadding;
-            
+
             // Add chrome width (border + padding + shadow)
             return contentWidth + chromeWidth;
         }
-        
+
         /// <summary>
         /// Calculates fixed layout with individual tab widths based on content
         /// </summary>
-        private void CalculateFixedLayoutWithMetrics(List<AddinTab> tabs, Rectangle tabArea, 
+        private void CalculateFixedLayoutWithMetrics(List<AddinTab> tabs, Rectangle tabArea,
             TabPosition position, List<int> tabWidths, int availableSpace)
         {
             bool isHorizontal = position == TabPosition.Top || position == TabPosition.Bottom;
             int currentX = tabArea.X;
             int currentY = tabArea.Y;
-            
+
             for (int i = 0; i < tabs.Count; i++)
             {
                 var tab = tabs[i];
                 int tabWidth = tabWidths[i];
-                
+
                 if (isHorizontal)
                 {
                     tab.Bounds = new Rectangle(
@@ -288,13 +372,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             int size = TabHeaderMetrics.UtilityButtonSize(OwnerControl);
             return position switch
             {
-                TabPosition.Top or TabPosition.Bottom => 
+                TabPosition.Top or TabPosition.Bottom =>
                     new Rectangle(
                         tabArea.Right - (size * 4 + pad),
                         tabArea.Y + pad,
                         size,
                         tabArea.Height - pad * 2),
-                TabPosition.Left or TabPosition.Right => 
+                TabPosition.Left or TabPosition.Right =>
                     new Rectangle(
                         tabArea.X + pad,
                         tabArea.Bottom - (size * 4 + pad),
@@ -310,13 +394,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             int size = TabHeaderMetrics.UtilityButtonSize(OwnerControl);
             return position switch
             {
-                TabPosition.Top or TabPosition.Bottom => 
+                TabPosition.Top or TabPosition.Bottom =>
                     new Rectangle(
                         tabArea.Right - (size * 3 + pad),
                         tabArea.Y + pad,
                         size,
                         tabArea.Height - pad * 2),
-                TabPosition.Left or TabPosition.Right => 
+                TabPosition.Left or TabPosition.Right =>
                     new Rectangle(
                         tabArea.X + pad,
                         tabArea.Bottom - (size * 3 + pad),
@@ -332,13 +416,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             int size = TabHeaderMetrics.UtilityButtonSize(OwnerControl);
             return position switch
             {
-                TabPosition.Top or TabPosition.Bottom => 
+                TabPosition.Top or TabPosition.Bottom =>
                     new Rectangle(
                         tabArea.Right - (size * 2 + pad),
                         tabArea.Y + pad,
                         size,
                         tabArea.Height - pad * 2),
-                TabPosition.Left or TabPosition.Right => 
+                TabPosition.Left or TabPosition.Right =>
                     new Rectangle(
                         tabArea.X + pad,
                         tabArea.Bottom - (size * 2 + pad),
@@ -354,13 +438,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             int size = TabHeaderMetrics.UtilityButtonSize(OwnerControl);
             return position switch
             {
-                TabPosition.Top or TabPosition.Bottom => 
+                TabPosition.Top or TabPosition.Bottom =>
                     new Rectangle(
                         tabArea.Right - (size + pad),
                         tabArea.Y + pad,
                         size,
                         tabArea.Height - pad * 2),
-                TabPosition.Left or TabPosition.Right => 
+                TabPosition.Left or TabPosition.Right =>
                     new Rectangle(
                         tabArea.X + pad,
                         tabArea.Bottom - (size + pad),

@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 return;
             }
-            
+
             // Skip if in batch mode - will recalculate once at EndUpdate
             if (_batchMode)
             {
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 effectiveTabHeight = Math.Max(1, DpiScalingHelper.ScaleValue(_tabHeight, this));
             }
-            
+
             switch (_tabPosition)
             {
                 case TabPosition.Top:
@@ -88,17 +88,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     _tabArea = new Rectangle(Width - effectiveTabHeight, 0, effectiveTabHeight, Height);
                     break;
             }
-            
+
             CalculateTabLayout();
             PositionActiveAddin();
-            
+
             // Don't invalidate here - let caller handle it to avoid excessive repaints
         }
 
         private void CalculateTabLayout()
         {
             if (_layoutHelper == null) return;
-            
+
             // If tab area is empty, we can't layout tabs
             if (_tabArea.IsEmpty)
             {
@@ -129,21 +129,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _newTabButton = utilityLayout.NewTabButton;
                 return;
             }
-            
+
             // Update layout helper with current style and font before calculating layout
             _layoutHelper.UpdateStyle(ControlStyle, TextFont);
 
             int scaledMinWidth = DpiScalingHelper.ScaleValue(_tabMinWidth, this);
             int scaledMaxWidth = DpiScalingHelper.ScaleValue(_tabMaxWidth, this);
-            var result = _layoutHelper.CalculateTabLayout(_tabs, _tabArea, _tabPosition, 
-                scaledMinWidth, scaledMaxWidth, _scrollOffset);
-            
+            var result = _layoutHelper.CalculateTabLayout(_tabs, _tabArea, _tabPosition,
+                scaledMinWidth, scaledMaxWidth, _scrollOffset, _activeTab);
+
             _needsScrolling = result.NeedsScrolling;
             _scrollLeftButton = result.ScrollLeftButton;
             _scrollRightButton = result.ScrollRightButton;
             _overflowButton = result.OverflowButton;
             _newTabButton = result.NewTabButton;
-            
+
             // Ensure all tabs have valid bounds and visibility after layout calculation
             foreach (var tab in _tabs)
             {
@@ -191,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
                 return;
             }
-            
+
             // Ensure all tab controls are in the Controls collection and properly positioned
             foreach (var tab in _tabs)
             {
@@ -204,10 +204,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     {
                         Controls.Add(control);
                     }
-                    
+
                     // Check if this is the active tab - simple immediate switch, no transitions
                     bool isActive = (tab == _activeTab);
-                    
+
                     // Position control in content area
                     if (_displayMode == ContainerDisplayMode.Single)
                     {
@@ -224,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                             Math.Max(0, _contentArea.Width),
                             Math.Max(0, _contentArea.Height)
                         );
-                        
+
                         // IMPORTANT: Set Dock=None BEFORE Bounds.
                         // If the child had Dock=Fill, setting Bounds first has no effect
                         // (dock manager overrides it). This caused child controls to cover
@@ -234,14 +234,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         control.Bounds = targetBounds;
                         control.Region = null; // Don't clip with Region - causes rendering issues
                     }
-                    
+
                     // Simple visibility: show only active control, hide all others
                     // Force visibility change even if it seems redundant - ensures proper state
                     if (control.Visible != isActive)
                     {
                         control.Visible = isActive;
                     }
-                    
+
                     // Don't invalidate during positioning - let caller handle it
                 }
                 catch { /* skip controls that fail positioning */ }

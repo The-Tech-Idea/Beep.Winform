@@ -1,4 +1,5 @@
 using System;
+using IO = System.IO;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -308,9 +309,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             {
                 StyledImagePainter.PaintWithTint(g, iconRect, iconPath, tintColor, 1f, 0);
             }
-            catch
+            catch (Exception ex) when (ex is IO.IOException
+                                       || ex is ArgumentException
+                                       || ex is NotSupportedException)
             {
-                // If StyledImagePainter cannot resolve the path, silently skip.
+                // An unreadable or malformed icon path leaves the tab without its icon, which is
+                // recoverable. Anything else - a disposed Graphics, an out-of-memory bitmap - is a
+                // real fault and now propagates instead of leaving a blank tab with no explanation.
+                System.Diagnostics.Trace.WriteLine($"TabPaintHelper: icon '{iconPath}' failed: {ex.Message}");
             }
         }
 

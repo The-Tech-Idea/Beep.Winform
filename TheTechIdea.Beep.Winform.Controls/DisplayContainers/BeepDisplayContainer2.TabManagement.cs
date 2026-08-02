@@ -15,53 +15,57 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             var oldTab = _activeTab;
             var oldControl = oldTab?.Addin as Control;
-            
+
             // CRITICAL: Hide and invalidate old control FIRST before changing active tab
             if (oldControl != null && !oldControl.IsDisposed)
             {
-                try { oldControl.Visible = false; } catch { /* ignore */ }
-                try { oldControl.Invalidate(true); } catch { /* ignore */ }
+                try { oldControl.Visible = false; }
+                catch (ObjectDisposedException) { /* the hosted control outlived its tab */ }
+                try { oldControl.Invalidate(true); }
+                catch (ObjectDisposedException) { /* the hosted control outlived its tab */ }
             }
 
             _indicatorProgress = 1f; // no animation — prevent timer from invalidating only _tabArea
             _previousTab = null;
-            
+
             _activeTab = tab;
 
             // Raise events
             if (oldTab != null)
             {
-                OnAddinChanging(new ContainerEvents 
-                { 
-                    TitleText = oldTab.Id, 
-                    Control = oldTab.Addin, 
-                    ContainerType = _containerType, 
-                    Guidid = oldTab.Addin?.GuidID 
+                OnAddinChanging(new ContainerEvents
+                {
+                    TitleText = oldTab.Id,
+                    Control = oldTab.Addin,
+                    ContainerType = _containerType,
+                    Guidid = oldTab.Addin?.GuidID
                 });
             }
 
             // Recalculate layout to ensure tab bounds are correct
             RecalculateLayout();
-            
+
             // Position controls immediately - this will set visibility for all controls
             PositionActiveAddin();
-            
+
             // Ensure active control is visible and properly positioned
             var activeControl = tab?.Addin as Control;
             if (activeControl != null && !activeControl.IsDisposed)
             {
-                try { activeControl.Visible = true; } catch { /* ignore */ }
-                try { activeControl.Invalidate(true); } catch { /* ignore */ }
+                try { activeControl.Visible = true; }
+                catch (ObjectDisposedException) { /* the hosted control outlived its tab */ }
+                try { activeControl.Invalidate(true); }
+                catch (ObjectDisposedException) { /* the hosted control outlived its tab */ }
             }
-            
-            OnAddinChanged(new ContainerEvents 
-            { 
-                TitleText = tab.Id, 
-                Control = tab.Addin, 
-                ContainerType = _containerType, 
-                Guidid = tab.Addin?.GuidID 
+
+            OnAddinChanged(new ContainerEvents
+            {
+                TitleText = tab.Id,
+                Control = tab.Addin,
+                ContainerType = _containerType,
+                Guidid = tab.Addin?.GuidID
             });
-            
+
             // Force full repaint of container including content area and tabs
             Invalidate(true);
 
@@ -83,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             var wasActive = (tab == _activeTab);
             var control = tab.Addin as Control;
-            
+
             // Remove the associated control from the container
             if (control != null)
             {
@@ -97,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Remove from tab collections
             _tabs.Remove(tab);
             _addins.Remove(tab.Id);
-            
+
             // Clear hover reference if this was the hovered tab
             if (tab == _hoveredTab)
             {
@@ -107,12 +111,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // DO NOT dispose the addin - controls should persist
 
             // Raise event before activating another tab
-            OnAddinRemoved(new ContainerEvents 
-            { 
-                TitleText = tab.Id, 
-                Control = tab.Addin, 
-                ContainerType = _containerType, 
-                Guidid = tab.Addin?.GuidID 
+            OnAddinRemoved(new ContainerEvents
+            {
+                TitleText = tab.Id,
+                Control = tab.Addin,
+                ContainerType = _containerType,
+                Guidid = tab.Addin?.GuidID
             });
 
             // If this was the active tab, activate another
@@ -139,13 +143,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             // Recalculate layout to update tab positions and remove the tab header
             RecalculateLayout();
-            
+
             // Invalidate the tab area specifically to redraw headers (removed tab won't be drawn)
             if (!_tabArea.IsEmpty && _displayMode == ContainerDisplayMode.Tabbed)
             {
                 Invalidate(_tabArea, false);
             }
-            
+
             // Invalidate entire control to ensure everything is redrawn
             Invalidate(true);
         }

@@ -46,6 +46,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private int _tabMaxWidth = 200;
         private int _scrollOffset = 0;
         private bool _needsScrolling = false;
+        /// <summary>
+        /// Drives <c>TabPaintHelper.ShowFocusRing</c>. Set from focus changes below.
+        /// </summary>
+        /// <remarks>
+        /// This was declared, read once by the painter and never assigned, so the focus ring the
+        /// painter already implements could not draw under any circumstance - a complete WCAG 2.4.7
+        /// affordance that nothing switched on.
+        /// </remarks>
         private bool _keyboardFocusActive = false;
         private bool _emptyStateButtonHovered = false;
         private Rectangle _scrollLeftButton;
@@ -261,6 +269,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                      ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.Selectable, true);  // P4: allow keyboard focus
+
+            // The focus ring only means anything if something turns it on.
+            GotFocus += (_, __) => SetKeyboardFocusActive(true);
+            LostFocus += (_, __) => SetKeyboardFocusActive(false);
 
             DoubleBuffered = true;
             UseExternalBufferedGraphics = true;
@@ -748,5 +760,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         }
 
         #endregion
+        /// <summary>Turns the focus ring on or off and repaints the strip if it changed.</summary>
+        private void SetKeyboardFocusActive(bool active)
+        {
+            if (_keyboardFocusActive == active) return;
+            _keyboardFocusActive = active;
+            if (!_tabArea.IsEmpty) Invalidate(_tabArea);
+            else Invalidate();
+        }
+
     }
 }

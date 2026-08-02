@@ -6,6 +6,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 {
     public partial class BeepDisplayContainer2
     {
+        /// <summary>
+        /// Raised when the container absorbed a failure instead of propagating it.
+        /// </summary>
+        /// <remarks>
+        /// Subscribe to see failures that would otherwise be invisible. A container that cannot
+        /// paint must not tear down the form's paint cycle, but it must not fail silently either.
+        /// </remarks>
+        public event EventHandler<ContainerErrorEventArgs> ContainerError;
+
+        /// <summary>Reports an absorbed failure. Never throws from the reporting path itself.</summary>
+        protected virtual void OnContainerError(string context, Exception exception)
+        {
+            if (exception == null) return;
+            System.Diagnostics.Trace.WriteLine($"BeepDisplayContainer2 [{context}]: {exception}");
+            ContainerError?.Invoke(this, new ContainerErrorEventArgs(context, exception));
+        }
+
         #region Event Handlers
 
         protected virtual void OnAddinAdded(ContainerEvents e)

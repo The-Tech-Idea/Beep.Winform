@@ -329,41 +329,51 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         g.Clip = newClip;
                     }
                 }
-                catch { /* non-fatal — continue without clip */ }
+                catch (Exception ex)
+                {
+                    // A degenerate rounded path leaves the container unclipped, which is cosmetic
+                    // rather than fatal - but it is still a defect worth seeing.
+                    OnContainerError("OnPaint.RoundedClip", ex);
+                }
             }
 
+            // Each of these steps used to be wrapped in its own bare catch, so a container that
+            // failed to draw its tabs drew everything else and said nothing - the symptom was a
+            // missing tab strip with no error anywhere. One guard reports instead of six hiding.
             try
             {
-                try { DrawContentAreaBackground(g); } catch { }
+                DrawContentAreaBackground(g);
 
                 if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
                 {
-                    try { DrawTabsDirectlyInOnPaint(g); } catch { }
+                    DrawTabsDirectlyInOnPaint(g);
 
                     // ── Tooltip hover card (drawn outside tab clip) ─────────
                     if (_showTooltip && _tooltipTab != null && !_tooltipTab.Bounds.IsEmpty)
-                        try { DrawTabTooltip(g, _tooltipTab); } catch { }
+                        DrawTabTooltip(g, _tooltipTab);
                 }
                 if (_displayMode == ContainerDisplayMode.Tabbed
                          && (_tabs == null || _tabs.Count == 0)
                          && _showEmptyState)
                 {
-                    try { DrawEmptyState(g); } catch { }
+                    DrawEmptyState(g);
                 }
 
                 // ── Quick switcher overlay (Ctrl+P) ─────────────────────
                 if (_showQuickSwitcher && !_quickSwitcherBounds.IsEmpty)
-                    try { DrawQuickSwitcher(g); } catch { }
+                    DrawQuickSwitcher(g);
 
-                try { HandleTabTransition(g); } catch { }
+                HandleTabTransition(g);
+            }
+            catch (Exception ex)
+            {
+                // Absorbed deliberately: throwing from OnPaint tears down the host form's paint
+                // cycle. Reported so the failure is observable rather than invisible.
+                OnContainerError("OnPaint", ex);
             }
             finally
             {
-                if (previousClip != null)
-                {
-                    try { g.Clip = previousClip; }
-                    catch { }
-                }
+                if (previousClip != null) g.Clip = previousClip;
             }
         }
 
@@ -597,32 +607,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 tab.IconPath, tab.BadgeText, tab.BadgeColor, tab.IsPinned,
                 groupColor, tab.IsModified);
 
-            // Keyboard focus indicator (WCAG 2.4.7). The container is Selectable, so it can hold
-            // focus, but nothing marked which tab that focus was on: a keyboard user saw the active
-            // tab and no indication the strip was focused at all.
-            if (isActive && Focused)
-                DrawTabFocusIndicator(g, tab.Bounds);
-        }
-
-        /// <summary>
-        /// Draws the keyboard-focus ring inside a tab, distinct from both hover and active.
-        /// </summary>
-        /// <remarks>
-        /// Inset by two pixels so it reads as a ring around the tab's content rather than as a
-        /// border change, which is what distinguishes it from the active tab's own border.
-        /// </remarks>
-        private void DrawTabFocusIndicator(Graphics g, Rectangle bounds)
-        {
-            if (g == null || bounds.Width <= 6 || bounds.Height <= 6) return;
-
-            var ring = Rectangle.Inflate(bounds, -3, -3);
-            Color accent = _currentTheme?.AccentColor ?? Color.FromArgb(0, 120, 212);
-
-            using var pen = new Pen(accent, Math.Max(1f, DpiScalingHelper.ScaleValue(1, this)))
-            {
-                DashStyle = System.Drawing.Drawing2D.DashStyle.Dot
-            };
-            g.DrawRectangle(pen, ring);
         }
 
         // ── Tooltip hover card ──────────────────────────────────────────────────

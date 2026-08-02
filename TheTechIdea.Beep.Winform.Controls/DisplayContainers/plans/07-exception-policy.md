@@ -57,3 +57,54 @@ Adopted from the dialogs program, where it worked:
 - the container still renders after an intentionally-thrown painter fault, and raises `ContainerError`
 - **expect new failures.** If removing 44 catches surfaces nothing, the removal is not being tested
   hard enough
+
+---
+
+## Outcome
+
+### Correction to the count above
+
+This document opened by claiming **44** catch blocks. That figure came from `grep -c catch`, which
+counts the *word* — including comments, prose, and the word appearing twice on one line. The
+accurate figures, counting `catch` followed by `(` or `{` in code:
+
+| | before (`93b5488e`) | after |
+|---|---|---|
+| catch statements | **32** | **20** |
+| bare `catch {` | **22** | **10** |
+
+The direction was right and roughly twelve were removed either way, but the starting number was
+overstated. Recorded because a plan that opens with a wrong number invites the next reader to
+"verify" it and reach a different total.
+
+An earlier grep in this program made the opposite error: `^\s*catch` missed the inline
+`try { … } catch { }` form entirely — which is precisely the shape the six `OnPaint` guards used —
+and reported no change across a commit that removed eight of them.
+
+### What was done
+
+- **Reported, not swallowed.** `ContainerError` / `ContainerErrorEventArgs` added. `OnPaint` held six
+  bare catches, one per drawing step, so a container that failed to draw its tab strip drew
+  everything else and said nothing. Those six are one reporting guard.
+- **Narrowed** where a specific failure is expected: hosted-control `Visible`/`Invalidate` to
+  `ObjectDisposedException`; icon painting to `IOException` / `ArgumentException` /
+  `NotSupportedException`.
+- **Deleted** two path guards proven unreachable. `CreateRoundedPath` and `CreateTabCornerPath`
+  return early on zero and negative sizes, clamp every radius to half the smaller side, return early
+  on over-large diameters, and gate each `AddArc` on a positive radius. Tested against the eight
+  degenerate inputs those guards existed for — zero size, negative width, negative height, radius
+  500 on a 10x10 rect, a 1px sliver, zero radius, negative radius, exact-half radius. All handled
+  without throwing.
+- **Traced** the one genuine cross-subsystem fallback: `BeepStyling.PaintControl` can fail for
+  reasons outside this painter, so the plain-fill substitution stays — but it is now visible rather
+  than passing for an intentional style.
+
+### The remaining 20
+
+Left deliberately. They sit in paths this program never exercised — addin hosting, theme propagation
+across a control tree, layout under a disposed handle. Removing a catch that cannot be tested trades
+a silent wrong result for an unhandled throw, which is not obviously an improvement. They are a known
+quantity now, and `ContainerError` exists for whichever turn out to need it.
+
+Evidence the removals were safe: a populated container rendered with `ContainerError` subscribed
+reports **zero** errors and draws 23 distinct colours.

@@ -584,6 +584,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             if (!string.IsNullOrEmpty(tab.TabGroup))
                 groupColor = GetGroupColor(tab.TabGroup);
 
+            // tab.IsModified is forwarded explicitly. This previously bound to the shorter overload,
+            // where isModified defaults to false, so the unsaved-changes dot could never appear no
+            // matter what the tab reported - the painter drew it, nothing ever asked for it.
             _paintHelper.DrawProfessionalTab(
                 g, tab.Bounds, tab.Title,
                 TextFont,
@@ -592,7 +595,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 tab.IsCloseHovered, tab.AnimationProgress,
                 isFirst, isLast, _tabPosition,
                 tab.IconPath, tab.BadgeText, tab.BadgeColor, tab.IsPinned,
-                groupColor);
+                groupColor, tab.IsModified);
+
+            // Keyboard focus indicator (WCAG 2.4.7). The container is Selectable, so it can hold
+            // focus, but nothing marked which tab that focus was on: a keyboard user saw the active
+            // tab and no indication the strip was focused at all.
+            if (isActive && Focused)
+                DrawTabFocusIndicator(g, tab.Bounds);
+        }
+
+        /// <summary>
+        /// Draws the keyboard-focus ring inside a tab, distinct from both hover and active.
+        /// </summary>
+        /// <remarks>
+        /// Inset by two pixels so it reads as a ring around the tab's content rather than as a
+        /// border change, which is what distinguishes it from the active tab's own border.
+        /// </remarks>
+        private void DrawTabFocusIndicator(Graphics g, Rectangle bounds)
+        {
+            if (g == null || bounds.Width <= 6 || bounds.Height <= 6) return;
+
+            var ring = Rectangle.Inflate(bounds, -3, -3);
+            Color accent = _currentTheme?.AccentColor ?? Color.FromArgb(0, 120, 212);
+
+            using var pen = new Pen(accent, Math.Max(1f, DpiScalingHelper.ScaleValue(1, this)))
+            {
+                DashStyle = System.Drawing.Drawing2D.DashStyle.Dot
+            };
+            g.DrawRectangle(pen, ring);
         }
 
         // ── Tooltip hover card ──────────────────────────────────────────────────

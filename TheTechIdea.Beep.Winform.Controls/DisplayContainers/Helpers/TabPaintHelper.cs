@@ -561,6 +561,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 backColor = ResolveNonEmpty(_theme?.ActiveTabBackColor, _theme?.TabSelectedBackColor, Color.White);
                 textColor = ResolveNonEmpty(_theme?.ActiveTabForeColor, _theme?.TabSelectedForeColor, Color.FromArgb(32, 32, 32));
                 borderColor = ResolveNonEmpty(_theme?.TabSelectedBorderColor, _theme?.ActiveBorderColor, Color.FromArgb(120, 120, 120));
+
+                // The active branch used to consume isHovered without reading it, so pointing at the
+                // active tab produced no feedback at all - rendered side by side, active and
+                // active+hover were 0.00% different. A slight shift toward the hover colour keeps
+                // the active treatment dominant while confirming the pointer is over it.
+                if (isHovered)
+                {
+                    var hoverColor = ResolveNonEmpty(_theme?.TabHoverBackColor, Color.FromArgb(225, 225, 225));
+                    backColor = InterpolateColor(backColor, hoverColor, 0.25f * Math.Max(0.4f, animationProgress));
+                }
             }
             else if (isHovered)
             {

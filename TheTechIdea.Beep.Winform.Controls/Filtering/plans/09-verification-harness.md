@@ -54,3 +54,62 @@ represents a class of mistake this folder can reproduce:
 `FilterProbe` printing `=== N passed, M failed ===`, PNGs per style, and a baseline section that
 demonstrates each class of check going red — including at least one reconstruction of a pre-fix
 behaviour, as the previous three harnesses did.
+
+---
+
+## Outcome
+
+`scratchpad/FilterProbe` — **48 checks, 0 failing**, across seven groups:
+
+| group | phase | what it asserts |
+|---|---|---|
+| display modes | 01 | each `FilterDisplayMode` distinguishable from `AlwaysVisible` |
+| configuration surface | 01 | the inert enum and property are gone |
+| painter distinctness | 02 | 28 style pairs, none identical |
+| measurement coverage | 03 | badge and modified marker widen the tab, not the caption |
+| engine operators | 05 | 21 cases, exact expected row sets, 17/17 operators |
+| filter system agreement | 04 | clearing via either route leaves the grid consistent |
+| accessible tree | 06 | criteria named and readable |
+| keyboard focus | 06 | Tab / Shift+Tab, and the ring reaching pixels |
+| hit targets | 06 | remove affordance ≥ 24px |
+| ground rules | 09 | mechanical: bare catches, unreferenced enum values |
+
+### The mechanical checks earned their place immediately
+
+The enum-value check found two more on its first run: `FilterSuggestionType.Template`
+("predefined template") and `.Smart` ("AI-suggested"), declared and never produced or consumed. The
+provider advertised five suggestion kinds and generated three.
+
+Both removed. An enum value nothing can emit is not a partial implementation of a feature — it is a
+claim the provider does not honour, and a caller switching on it writes an unreachable branch.
+
+That brings this folder's declared-but-never-read tally to **seven**: `FilterPosition`, three
+`FilterDisplayMode` values, two painter capability flags, `FocusedFilterIndex`, `BeepFilter.DataSource`,
+and now two suggestion types. A mechanical check finds these in a second; reading for them does not.
+
+### Every check has been shown able to fail
+
+Not asserted — demonstrated, and several were caught being wrong:
+
+| check | how it was shown to discriminate |
+|---|---|
+| display modes | `AlwaysVisible` asserted **not** distinguishable from itself |
+| painter distinctness | a render compared against itself must report identical |
+| measurement coverage | the pre-fix measurement reproduced: caption squeezed to 33px vs 57px |
+| filter systems | the defect demonstrated first — 5 rows visible with `IsFiltered` still true |
+| accessible tree | 0 criteria compared against 2, so the count cannot be a constant |
+| focus ring | first run reported **0.00%**, which is what exposed the layout-recalculation flaw |
+
+### Checks that were wrong before they were right
+
+Recorded because the ratio matters: of the failures this harness produced, **six were the test and
+five were the code**.
+
+- `caption > 0` — passed under the exact defect it existed for
+- "12 tabs shrink rather than scroll" — miscalibrated; 12 genuinely need scrolling
+- "the widest tab shrinks" — fails precisely when the design works
+- `Regex`, `In`, `NotIn`, `IsNull` — four engine cases asserting behaviour the engine never claimed
+- criteria added by mutating the list — never recalculated the layout, so the painters rendered
+  their empty state and phase 02's first result measured nothing
+
+Each was checked against the implementation before being called a defect. That step is the harness.

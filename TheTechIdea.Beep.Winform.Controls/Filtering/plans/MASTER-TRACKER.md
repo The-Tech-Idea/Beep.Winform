@@ -16,7 +16,7 @@ and works — this program is about the surface around it that does not.
 | [06](06-input-and-accessibility.md) | Keyboard, autocomplete, a11y | popup, keyboard handler | ◐ **partial** — accessible tree, focus ring and Shift+Tab done; popup semantics, hit targets, high contrast open |
 | [07](07-exception-policy.md) | Exception policy | folder-wide | ☑ **done** |
 | [08](08-documentation-accuracy.md) | Documentation accuracy | `README.md` | ☑ **done** |
-| [09](09-verification-harness.md) | Verification harness | `scratchpad/FilterProbe` | ☐ not started |
+| [09](09-verification-harness.md) | Verification harness | `scratchpad/FilterProbe` | ☑ **done** — 48 checks |
 
 Mark a phase done only when its verification section passes **and** the harness has been shown
 capable of failing on the defect the phase fixed.

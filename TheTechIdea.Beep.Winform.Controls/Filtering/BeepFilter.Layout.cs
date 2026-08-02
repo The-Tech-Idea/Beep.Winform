@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 var rect = ClientRectangle;
 
                 // Adjust based on display mode
-                if (_displayMode == FilterDisplayMode.Collapsible && !_isExpanded)
+                if (CollapsesWhenInactive && !_isExpanded)
                 {
                     // Collapsed - only show header
                     var metrics = GetCurrentMetrics();
@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         public Size GetPreferredSize()
         {
             var metrics = GetCurrentMetrics();
-            
+
             // Base size depends on filter style
             switch (_filterStyle)
             {
@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         public void AutoSize()
         {
             var preferredSize = GetPreferredSize();
-            
+
             // Only adjust height by default, preserve width
             if (Size.Height != preferredSize.Height)
             {
@@ -161,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
             var metrics = GetCurrentMetrics();
             var tags = new Rectangle[tagCount];
-            
+
             int x = availableRect.X + metrics.Padding;
             int y = availableRect.Y + (availableRect.Height - metrics.RowHeight) / 2;
             int tagWidth = 120; // Default tag width
@@ -194,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
             var metrics = GetCurrentMetrics();
             var rows = new Rectangle[rowCount];
-            
+
             int x = availableRect.X + metrics.Padding + (indentLevel * metrics.GroupIndentation);
             int y = availableRect.Y + metrics.Padding;
             int rowWidth = availableRect.Width - metrics.Padding * 2 - (indentLevel * metrics.GroupIndentation);

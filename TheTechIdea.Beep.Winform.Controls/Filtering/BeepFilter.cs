@@ -33,7 +33,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
         private FilterStyle _filterStyle = FilterStyle.TagPills;
         private FilterDisplayMode _displayMode = FilterDisplayMode.AlwaysVisible;
-        private FilterPosition _position = FilterPosition.Top;
         private IFilterPainter? _activePainter;
         private FilterLayoutInfo _currentLayout = new FilterLayoutInfo();
         private FilterConfiguration _activeFilter = new FilterConfiguration();
@@ -75,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             this.DoubleBuffered = true;
             this.ResizeRedraw = true;
             this.UseThemeColors = true;
-            
+
             // BaseControl properties
             this.ApplyThemeToChilds = false;
 
@@ -89,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             // Initialize painter
             UpdatePainter();
-            
+
             // Initialize active filter
             _activeFilter = new FilterConfiguration
             {
@@ -131,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             // Create painter using factory
             _activePainter = FilterPainterFactory.CreatePainter(_filterStyle,ControlStyle);
-            
+
             // Recalculate layout with new painter
             RecalculateLayout();
             Invalidate();
@@ -294,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             {
                 _hoveredArea = hitArea;
                 Invalidate();
-                
+
                 // Update cursor
                 Cursor = hitArea != null ? Cursors.Hand : Cursors.Default;
             }
@@ -303,15 +302,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// <summary>
         /// Clears hover state when pointer leaves the control.
         /// </summary>
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (_displayMode == FilterDisplayMode.OnHover) IsExpanded = true;
+        }
+
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            
+
             if (_hoveredArea != null)
             {
                 _hoveredArea = null;
                 Cursor = Cursors.Default;
                 Invalidate();
+            }
+
+            // Collapse only once the pointer has genuinely left. A suggestion popup or a child
+            // editor takes the pointer outside this control's bounds while the user is still
+            // working, and collapsing then would close the filter mid-edit.
+            if (_displayMode == FilterDisplayMode.OnHover
+                && !ClientRectangle.Contains(PointToClient(Cursor.Position)))
+            {
+                IsExpanded = false;
             }
         }
 
@@ -327,7 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
             // Perform hit test
             _pressedArea = _activePainter.HitTest(e.Location, _currentLayout);
-            
+
             if (_pressedArea != null)
             {
                 Invalidate();
@@ -346,8 +360,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
             // Check if we released on the same area we pressed
             var hitArea = _activePainter.HitTest(e.Location, _currentLayout);
-            
-            if (hitArea != null && _pressedArea != null && 
+
+            if (hitArea != null && _pressedArea != null &&
                 hitArea.Name == _pressedArea.Name)
             {
                 // Handle click on hit area
@@ -586,10 +600,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         private void ToggleLogicOperator(int index)
         {
             // Toggle global logic operator
-            _activeFilter.Logic = _activeFilter.Logic == FilterLogic.And 
-                ? FilterLogic.Or 
+            _activeFilter.Logic = _activeFilter.Logic == FilterLogic.And
+                ? FilterLogic.Or
                 : FilterLogic.And;
-            
+
             OnFilterChanged();
             RecalculateLayout();
             Invalidate();
@@ -1096,7 +1110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
                 _activeFilter.Criteria.Insert(index + 1, duplicate);
                 _filterCount = _activeFilter.Criteria.Count;
-                
+
                 RecalculateLayout();
                 Invalidate();
                 OnFilterAdded();
@@ -1227,7 +1241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 var item = _activeFilter.Criteria[fromIndex];
                 _activeFilter.Criteria.RemoveAt(fromIndex);
                 _activeFilter.Criteria.Insert(toIndex, item);
-                
+
                 RecalculateLayout();
                 Invalidate();
             }
@@ -1263,7 +1277,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             {
                 _activeFilter.Criteria.RemoveAt(index);
                 _filterCount = _activeFilter.Criteria.Count;
-                
+
                 RecalculateLayout();
                 Invalidate();
                 OnFilterRemoved(index);
@@ -1275,12 +1289,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void CloseFilterUI()
         {
-            // Collapse if in collapsible mode
-            if (DisplayMode == FilterDisplayMode.Collapsible)
+            if (CollapsesWhenInactive)
             {
                 IsExpanded = false;
             }
         }
+
+        /// <summary>
+        /// True when this display mode shows only the header until the filter is engaged.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="FilterDisplayMode.Collapsible"/> and <see cref="FilterDisplayMode.OnHover"/>
+        /// share one collapse behaviour and differ only in what expands them - a click or the
+        /// pointer. OnHover previously had no implementation at all: it was declared, exposed as a
+        /// browsable property, and never compared anywhere, so selecting it produced an always-
+        /// visible filter indistinguishable from the default.
+        /// </remarks>
+        internal bool CollapsesWhenInactive
+            => _displayMode == FilterDisplayMode.Collapsible
+               || _displayMode == FilterDisplayMode.OnHover;
+
 
         /// <summary>
         /// Edits a filter by index (F2)

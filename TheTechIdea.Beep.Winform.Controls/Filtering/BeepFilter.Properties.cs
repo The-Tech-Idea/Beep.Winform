@@ -43,7 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// Gets or sets the display mode
         /// </summary>
         [Category("Filter")]
-        [Description("How the filter is displayed (AlwaysVisible, Collapsible, Modal, etc.)")]
+        [Description("How the filter is displayed: always visible, collapsible by click, or " +
+                     "collapsed until hovered.")]
         [DefaultValue(FilterDisplayMode.AlwaysVisible)]
         public FilterDisplayMode DisplayMode
         {
@@ -53,26 +54,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 if (_displayMode != value)
                 {
                     _displayMode = value;
-                    Invalidate();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the filter position
-        /// </summary>
-        [Category("Filter")]
-        [Description("Position relative to parent control (Top, Bottom, Left, Right, etc.)")]
-        [DefaultValue(FilterPosition.Top)]
-        public FilterPosition Position
-        {
-            get => _position;
-            set
-            {
-                if (_position != value)
-                {
-                    _position = value;
-                    RecalculateLayout();
                     Invalidate();
                 }
             }

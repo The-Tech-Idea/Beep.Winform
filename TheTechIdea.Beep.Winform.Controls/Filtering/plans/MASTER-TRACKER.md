@@ -8,7 +8,7 @@ and works — this program is about the surface around it that does not.
 
 | # | Phase | Scope | Status |
 |---|---|---|---|
-| [01](01-dead-configuration-surface.md) | Dead configuration surface | `FilterPosition`, `FilterDisplayMode` | ☐ not started |
+| [01](01-dead-configuration-surface.md) | Dead configuration surface | `FilterPosition`, `FilterDisplayMode` | ☑ **done** |
 | [02](02-painter-distinctness.md) | Painter distinctness | the 8 `IFilterPainter` implementations | ☐ not started |
 | [03](03-beepfilter-decomposition.md) | `BeepFilter` decomposition | 1,358-line partial | ☐ not started |
 | [04](04-filter-systems-duplication.md) | Competing filter systems | `Filtering/` vs `GridX` | ☐ not started |

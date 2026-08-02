@@ -73,3 +73,49 @@ wanted at all — if it is not, deleting five enum values and a property is the 
 - No `[Browsable(true)]` property on `BeepFilter` whose value never reaches behaviour — worth
   enforcing mechanically in [09](09-verification-harness.md), since this is the second folder in a
   row where a complete feature was missing only its last wire.
+
+---
+
+## Outcome
+
+Swept all consuming repositories first, as this document requires. `FilterPosition` had **zero**
+references outside this folder; `FilterDisplayMode` had two, both in `GridX`, both setting
+`AlwaysVisible` — the default. Nothing external depended on what was removed.
+
+*(The first sweep returned zero for both, including for `FilterDisplayMode`, which was known to have
+GridX consumers. A `timeout` was killing the traversal mid-way and reporting the partial result as
+empty — a silent truncation indistinguishable from "no consumers". Re-run scoped per repository.)*
+
+### Decisions
+
+| value | decision | reason |
+|---|---|---|
+| `FilterPosition` (whole enum) | **deleted** | Entirely inert, no consumers. A docked filter region is a product decision, not a defect repair. |
+| `FilterDisplayMode.OnHover` | **implemented** | Collapse machinery already existed for `Collapsible`; OnHover differs only in what expands it. |
+| `FilterDisplayMode.Modal` | **deleted** | Hosting the filter in a dialog is the caller's concern, and `BeepGridPro.ShowAdvancedFilterDialog` already does it. A control-level flag would be a second way to do the same thing. |
+| `FilterDisplayMode.SlideIn` | **deleted** | `Collapsible` with an animation, not a distinct mode. |
+
+`FilterDisplayMode` now declares three values and honours all three.
+
+### Implementation
+
+`Collapsible` and `OnHover` share one predicate, `CollapsesWhenInactive`, so the layout cannot honour
+one and forget the other. `OnHover` expands on `MouseEnter` and collapses on `MouseLeave` — but only
+after confirming the pointer has genuinely left the client rectangle, because a suggestion popup or a
+child editor takes the pointer outside the control while the user is still working, and collapsing
+then would close the filter mid-edit.
+
+The new handler was folded into `BeepFilter`'s **existing** `OnMouseLeave` rather than added beside
+it; the compiler caught the duplicate. Worth noting because the previous program shipped a duplicate
+focus ring for exactly this reason — a complete implementation already existed and was not looked for.
+
+### Measured
+
+| mode | collapsed height |
+|---|---|
+| `AlwaysVisible` | 200 (full) |
+| `Collapsible` | 32 (header only) |
+| `OnHover` | 32 (header only) — **was 200**, indistinguishable from the default |
+
+Asserted in `scratchpad/FilterProbe`, with a baseline confirming the check reports `AlwaysVisible` as
+*not* distinguishable from itself.

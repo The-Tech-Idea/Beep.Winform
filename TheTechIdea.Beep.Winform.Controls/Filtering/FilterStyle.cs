@@ -95,54 +95,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         Collapsible,
 
         /// <summary>
-        /// Show on hover
+        /// Collapsed until the pointer enters, expanded while it is inside.
         /// </summary>
-        OnHover,
-
-        /// <summary>
-        /// Modal popup
-        /// </summary>
-        Modal,
-
-        /// <summary>
-        /// Slide-in panel
-        /// </summary>
-        SlideIn
+        OnHover
     }
 
-    /// <summary>
-    /// Filter position relative to the parent control
-    /// </summary>
-    public enum FilterPosition
-    {
-        /// <summary>
-        /// Top of parent control
-        /// </summary>
-        Top,
-
-        /// <summary>
-        /// Bottom of parent control
-        /// </summary>
-        Bottom,
-
-        /// <summary>
-        /// Left side of parent control
-        /// </summary>
-        Left,
-
-        /// <summary>
-        /// Right side of parent control
-        /// </summary>
-        Right,
-
-        /// <summary>
-        /// Floating/overlay
-        /// </summary>
-        Floating,
-
-        /// <summary>
-        /// Embedded inline
-        /// </summary>
-        Inline
-    }
 }

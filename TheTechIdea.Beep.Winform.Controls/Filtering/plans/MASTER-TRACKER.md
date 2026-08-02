@@ -13,7 +13,7 @@ and works — this program is about the surface around it that does not.
 | [03](03-beepfilter-decomposition.md) | `BeepFilter` decomposition | 1,358-line partial | ☑ **done** |
 | [04](04-filter-systems-duplication.md) | Competing filter systems | `Filtering/` vs `GridX` | ☑ **done** |
 | [05](05-engine-and-operators.md) | Engine and operator coverage | `FilterEngine`, `FilterOperator` | ☑ **done** |
-| [06](06-input-and-accessibility.md) | Keyboard, autocomplete, a11y | popup, keyboard handler | ◐ **partial** — accessible tree done; focus painting, popup semantics, hit targets, high contrast open |
+| [06](06-input-and-accessibility.md) | Keyboard, autocomplete, a11y | popup, keyboard handler | ◐ **partial** — accessible tree, focus ring and Shift+Tab done; popup semantics, hit targets, high contrast open |
 | [07](07-exception-policy.md) | Exception policy | folder-wide | ☑ **done** |
 | [08](08-documentation-accuracy.md) | Documentation accuracy | `README.md` | ☐ not started |
 | [09](09-verification-harness.md) | Verification harness | `scratchpad/FilterProbe` | ☐ not started |

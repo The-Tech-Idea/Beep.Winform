@@ -230,6 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             {
                 // Paint using active painter
                 _activePainter.Paint(e.Graphics, this, _currentLayout);
+                DrawFocusIndicator(e.Graphics, _currentLayout);
             }
             catch (Exception ex)
             {
@@ -480,6 +481,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         }
 
         #endregion
+
+        /// <summary>
+        /// Rings the criterion that holds keyboard focus (WCAG 2.4.7).
+        /// </summary>
+        /// <remarks>
+        /// Drawn here rather than in each painter: the eight styles position criteria in two
+        /// different arrays, and <c>FilterLayoutInfo.GetCriterionRect</c> already reconciles them.
+        /// One call site after the active painter has run gives every style the same indicator
+        /// without eight separate implementations to keep in step.
+        ///
+        /// The keyboard handler has always tracked a focused index - Alt+Up and Alt+Down reorder
+        /// relative to it - but nothing read it and nothing drew it, so the focus was invisible and
+        /// unreachable.
+        /// </remarks>
+        private void DrawFocusIndicator(Graphics g, FilterLayoutInfo layout)
+        {
+            if (g == null || layout == null || !Focused) return;
+
+            int index = FocusedCriterionIndex;
+            if (index < 0) return;
+
+            var rect = layout.GetCriterionRect(index);
+            if (rect.Width <= 2 || rect.Height <= 2) return;
+
+            var ring = Rectangle.Inflate(rect, 1, 1);
+            Color accent = _currentTheme?.AccentColor ?? Color.FromArgb(0, 120, 212);
+
+            using var pen = new Pen(accent, 1f)
+            {
+                DashStyle = System.Drawing.Drawing2D.DashStyle.Dot
+            };
+            g.DrawRectangle(pen, ring);
+        }
 
         #region Criteria list operations and interaction entry points
 

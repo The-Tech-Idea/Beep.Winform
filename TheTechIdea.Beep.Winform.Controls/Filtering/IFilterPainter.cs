@@ -85,6 +85,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// scale any raw layout constants so hit areas stay aligned with the DPI-scaled painting.
         /// </summary>
         public float DpiScale { get; set; } = 1f;
+
+        /// <summary>
+        /// Bounds of criterion <paramref name="index"/> as this style drew it, or empty.
+        /// </summary>
+        /// <remarks>
+        /// Styles position criteria in one of two arrays - TagPills fills <see cref="TagRects"/>,
+        /// the six row-based styles fill <see cref="RowRects"/> - so anything that needs to point at
+        /// a criterion without knowing the style asks here. DropdownMultiSelect fills neither: its
+        /// criteria live inside a dropdown and have no standing rectangle, so it returns empty and
+        /// callers draw nothing rather than guessing.
+        /// </remarks>
+        public Rectangle GetCriterionRect(int index)
+        {
+            if (index < 0) return Rectangle.Empty;
+            if (index < TagRects.Length && !TagRects[index].IsEmpty) return TagRects[index];
+            if (index < RowRects.Length && !RowRects[index].IsEmpty) return RowRects[index];
+            return Rectangle.Empty;
+        }
     }
 
     /// <summary>

@@ -90,3 +90,28 @@ reference `IFilterPainter` showed the Filtering one has no reader at all.
 Fourth instance in this program of a search matching across a boundary and producing a wrong count.
 The others: counting enum values across three declarations in one file, an exclusion pattern that
 also stripped the evidence, and a `timeout` truncating a cross-repo sweep into a false "no consumers".
+
+---
+
+## Correction — what the first comparison actually rendered
+
+The phase-06 work exposed a flaw in this phase's evidence.
+
+`FilterLayoutInfo.TagRects` and `.RowRects` are populated by each painter's **layout** pass, which
+`BeepFilter.RecalculateLayout()` drives — and that method is `private`. The probe had built its test
+data with `f.ActiveFilter.Criteria.Add(...)`, mutating the list in place. That never triggers a
+recalculation, so the layout still described **zero criteria** and every style rendered its empty
+"Add Filter" state.
+
+So the original "28 pairs, 0 identical" measured the styles' *empty-state chrome*, not their
+rendering of criteria. The claim was right; the evidence behind it was much weaker than stated.
+
+Re-run correctly — assigning through the `ActiveFilter` **setter**, which calls
+`RecalculateLayout()` — with criteria genuinely laid out (`TagRects.Length = 3`, criterion 0 at
+`{8,8,161,32}`):
+
+**28 pairs, 0 identical.** The conclusion holds, now on evidence that supports it.
+
+The lesson generalises past this folder: *a render test proves nothing about content the control was
+never given.* A populated-looking API call that skips the recalculation path produces a confident
+green result about an empty control.

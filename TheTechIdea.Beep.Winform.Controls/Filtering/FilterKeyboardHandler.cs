@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
     {
         private readonly BeepFilter _filter;
         private int _focusedFilterIndex = -1;
-        
+
         /// <summary>
         /// Gets or sets the index of the currently focused filter
         /// </summary>
@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 }
             }
         }
-        
+
         /// <summary>
         /// Initializes the keyboard handler
         /// </summary>
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             _filter = filter ?? throw new ArgumentNullException(nameof(filter));
         }
-        
+
         /// <summary>
         /// Processes keyboard input for filter operations
         /// </summary>
@@ -46,28 +46,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             {
                 return ProcessControlShortcuts(e.KeyCode);
             }
-            
+
             // Ctrl+Shift+ shortcuts
             if (e.Control && e.Shift && !e.Alt)
             {
                 return ProcessControlShiftShortcuts(e.KeyCode);
             }
-            
+
             // Alt+ shortcuts
             if (e.Alt && !e.Control && !e.Shift)
             {
                 return ProcessAltShortcuts(e.KeyCode);
             }
-            
+
+            // Shift+Tab walks the criteria backwards. NavigateToPreviousFilter existed and was
+            // never called from anywhere, so navigation only ever went forwards and a user who
+            // overshot had to Tab all the way round.
+            if (e.Shift && !e.Control && !e.Alt && e.KeyCode == Keys.Tab)
+            {
+                NavigateToPreviousFilter();
+                return true;
+            }
+
             // Direct keys (no modifiers)
             if (!e.Control && !e.Shift && !e.Alt)
             {
                 return ProcessDirectKeys(e.KeyCode);
             }
-            
+
             return false;
         }
-        
+
         /// <summary>
         /// Processes Ctrl+ shortcuts
         /// </summary>
@@ -79,42 +88,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     // Ctrl+F: Focus quick search
                     _filter.FocusQuickSearch();
                     return true;
-                
+
                 case Keys.K:
                     // Ctrl+K: Show command palette (VS Code style)
                     _filter.ShowCommandPalette();
                     return true;
-                
+
                 case Keys.N:
                     // Ctrl+N: Add new filter
                     _filter.AddNewFilterViaKeyboard();
                     return true;
-                
+
                 case Keys.Z:
                     // Ctrl+Z: Undo
                     _filter.UndoLastChange();
                     return true;
-                
+
                 case Keys.Y:
                     // Ctrl+Y: Redo
                     _filter.RedoLastChange();
                     return true;
-                
+
                 case Keys.S:
                     // Ctrl+S: Save current filter view
                     _filter.SaveCurrentView();
                     return true;
-                
+
                 case Keys.O:
                     // Ctrl+O: Open saved filter view
                     _filter.OpenSavedView();
                     return true;
-                
+
                 case Keys.A:
                     // Ctrl+A: Select all filters (for bulk operations)
                     _filter.SelectAllFilters();
                     return true;
-                
+
                 case Keys.D:
                     // Ctrl+D: Duplicate focused filter
                     if (_focusedFilterIndex >= 0)
@@ -124,10 +133,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     }
                     break;
             }
-            
+
             return false;
         }
-        
+
         /// <summary>
         /// Processes Ctrl+Shift+ shortcuts
         /// </summary>
@@ -139,36 +148,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     // Ctrl+Shift+F: Advanced filter dialog
                     _filter.ShowAdvancedFilterDialog();
                     return true;
-                
+
                 case Keys.Z:
                     // Ctrl+Shift+Z: Redo (alternative to Ctrl+Y)
                     _filter.RedoLastChange();
                     return true;
-                
+
                 case Keys.C:
                     // Ctrl+Shift+C: Clear all filters
                     _filter.ClearAllFiltersViaKeyboard();
                     return true;
-                
+
                 case Keys.D:
                     // Ctrl+Shift+D: Delete selected filters
                     _filter.DeleteSelectedFilters();
                     return true;
-                
+
                 case Keys.E:
                     // Ctrl+Shift+E: Export filters
                     _filter.ExportFilters();
                     return true;
-                
+
                 case Keys.I:
                     // Ctrl+Shift+I: Import filters
                     _filter.ImportFilters();
                     return true;
             }
-            
+
             return false;
         }
-        
+
         /// <summary>
         /// Processes Alt+ shortcuts
         /// </summary>
@@ -185,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                         return true;
                     }
                     break;
-                
+
                 case Keys.Down:
                     // Alt+Down: Move focused filter down
                     if (_focusedFilterIndex >= 0 && _focusedFilterIndex < _filter.ActiveFilter.Criteria.Count - 1)
@@ -195,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                         return true;
                     }
                     break;
-                
+
                 case Keys.D1:
                 case Keys.D2:
                 case Keys.D3:
@@ -210,10 +219,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     _filter.ActivateSavedView(viewIndex);
                     return true;
             }
-            
+
             return false;
         }
-        
+
         /// <summary>
         /// Processes direct key presses (no modifiers)
         /// </summary>
@@ -232,12 +241,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                         _filter.CloseFilterUI();
                     }
                     return true;
-                
+
                 case Keys.Enter:
                     // Enter: Apply filters
                     _filter.ApplyFiltersViaKeyboard();
                     return true;
-                
+
                 case Keys.Delete:
                     // Delete: Remove focused filter
                     if (_focusedFilterIndex >= 0)
@@ -246,17 +255,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                         return true;
                     }
                     break;
-                
+
                 case Keys.Tab:
                     // Tab: Navigate to next filter
                     NavigateToNextFilter();
                     return true;
-                
+
                 case Keys.F1:
                     // F1: Show help/shortcuts
                     _filter.ShowKeyboardShortcutsHelp();
                     return true;
-                
+
                 case Keys.F2:
                     // F2: Edit focused filter
                     if (_focusedFilterIndex >= 0)
@@ -266,41 +275,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     }
                     break;
             }
-            
+
             return false;
         }
-        
+
         /// <summary>
         /// Navigates to the next filter in the list
         /// </summary>
         private void NavigateToNextFilter()
         {
             if (_filter?.ActiveFilter?.Criteria == null) return;
-            
+
             int count = _filter.ActiveFilter.Criteria.Count;
             if (count == 0) return;
-            
+
             _focusedFilterIndex = (_focusedFilterIndex + 1) % count;
             _filter.Invalidate();
         }
-        
+
         /// <summary>
         /// Navigates to the previous filter in the list
         /// </summary>
         private void NavigateToPreviousFilter()
         {
             if (_filter?.ActiveFilter?.Criteria == null) return;
-            
+
             int count = _filter.ActiveFilter.Criteria.Count;
             if (count == 0) return;
-            
+
             _focusedFilterIndex--;
             if (_focusedFilterIndex < 0)
                 _focusedFilterIndex = count - 1;
-            
+
             _filter.Invalidate();
         }
-        
+
         /// <summary>
         /// Gets a description of all available shortcuts
         /// </summary>

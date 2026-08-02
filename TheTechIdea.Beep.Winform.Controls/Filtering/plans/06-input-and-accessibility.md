@@ -86,3 +86,48 @@ which is worse than none.
 - [ ] Hit targets ≥ 24 logical px on the remove/edit affordances — `FilterPainterMetrics` has no
       minimum-target concept at all
 - [ ] Legibility under `SystemInformation.HighContrast`
+
+---
+
+## Outcome — focus ring and reverse navigation
+
+### My estimate in this document was wrong twice
+
+It said a focus indicator meant "touching all eight painters and verifying each — a phase-sized piece
+of work". Both halves were wrong:
+
+1. **`FilterLayoutInfo` already reconciles criterion bounds.** Seven of eight painters populate either
+   `TagRects` (TagPills) or `RowRects` (the six row styles). One `GetCriterionRect(index)` helper plus
+   **one call site** after the active painter runs gives every style the same indicator. The eighth,
+   `DropdownMultiSelect`, positions no per-criterion rect — its criteria live inside a dropdown — so
+   it correctly gets nothing rather than a guess.
+2. **Focus establishment already worked.** `NavigateToNextFilter` exists and `Tab` already called it.
+   Only the drawing was missing.
+
+Deferring on a wrong size estimate is still deferring. Worth recording alongside the finding.
+
+### What was found while wiring it
+
+`NavigateToPreviousFilter` was declared and **never called from anywhere** — `Shift+Tab` was not
+bound. Navigation only ever went forwards, so overshooting meant tabbing all the way round. Now
+bound.
+
+### Verified by driving keys and comparing pixels
+
+```
+focus before any key: -1
+after Tab, Tab:        0 -> 1     Tab advances
+after Shift+Tab:       0          Shift+Tab walks back
+focus on criterion 0 vs 2: 0.13% of pixels differ
+```
+
+The pixel comparison is the part that matters: a draw call added is not a ring rendered. Its first
+run reported **0.00%** — the ring was not reaching the pixels — which led to the layout-recalculation
+discovery recorded in [02](02-painter-distinctness.md).
+
+### Still remaining
+
+- [ ] Autocomplete popup semantics: `Escape` dismisses without committing, `Enter` commits, arrows
+      move, focus returns to the field on close
+- [ ] Hit targets ≥ 24 logical px — `FilterPainterMetrics` still has no minimum-target concept
+- [ ] Legibility under `SystemInformation.HighContrast`

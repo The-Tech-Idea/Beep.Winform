@@ -131,3 +131,46 @@ discovery recorded in [02](02-painter-distinctness.md).
       move, focus returns to the field on close
 - [ ] Hit targets ≥ 24 logical px — `FilterPainterMetrics` still has no minimum-target concept
 - [ ] Legibility under `SystemInformation.HighContrast`
+
+---
+
+## Hit targets — a real defect, one painter fixed
+
+Measuring the rectangles the painters publish (not the constants in their source) found that **four
+painters compute the remove affordance twice**: once at paint time from DPI-scaled values, and again
+inside `HitTest` from raw literals. The two disagree.
+
+| painter | draws | hit-tests | at 100% |
+|---|---|---|---|
+| `GroupedRows` | `Right - s36`, `s28²` | `Right - 30`, `24²` | different rect |
+| `InlineRow` | `currentX`, `sButtonSize²` | `Right - 16`, **`14²`** | different rect, **below 24px** |
+| `QueryBuilder` | — | `Right - 28`, **`20²`** | **below 24px** |
+| `AdvancedDialog` | `currentX`, `s24²` | `Right - 32`, `24²` | different rect |
+
+The glyph the user aims at and the region that responds are **different rectangles**, and they
+diverge further with DPI because one side scales and the other does not. This is the same
+measure-here / draw-there family as the grid header and the container tab strip, where the glyph rect
+was being used as the hit rect and produced 13px targets.
+
+### `GroupedRows` — fixed
+
+One expression, `RemoveRectFor(rowRect, owner)`. The layout publishes it into
+`layout.RemoveButtonRects`, the paint reads it, and `HitTest` reads the published array — so the
+three cannot drift. Measured: **28×28**, above the minimum.
+
+The `HitTest` fallback that recomputed the rect was dropped rather than kept: a fallback that
+computes geometry a second way is the defect this fix removes.
+
+### Remaining — same pattern, three painters
+
+- [ ] `InlineRowFilterPainter` — draw `:152`, hit `:284`. **14×14** target
+- [ ] `QueryBuilderFilterPainter` — hit `:461`. **20×20** target
+- [ ] `AdvancedDialogFilterPainter` — draw `:352`, hit `:615`
+
+Each is the same change: extract the draw expression into a `RemoveRectFor` helper, publish it from
+the layout pass into `RemoveButtonRects`, and have `HitTest` read the published array. The harness
+check already covers them — they currently report "publishes no remove rects", and will assert a
+≥24px target as soon as they do.
+
+`DropdownMultiSelect` and `SidebarPanel` register no remove hit area at all; whether that is
+intentional needs deciding rather than assuming.

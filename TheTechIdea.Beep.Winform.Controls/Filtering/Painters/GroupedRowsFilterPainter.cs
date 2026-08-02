@@ -104,6 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
 
             layout.RowRects = rowRects.ToArray();
+            layout.RemoveButtonRects = rowRects.Select(r => RemoveRectFor(r, owner)).ToArray();
             layout.ConnectorRects = connectorRects.ToArray();
             layout.DragHandleRects = dragHandleRects.ToArray();
 
@@ -180,6 +181,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
         }
 
+        /// <summary>
+        /// The remove affordance for a criterion row — the single expression for it.
+        /// </summary>
+        /// <remarks>
+        /// This rectangle used to be computed twice: once here at paint time from DPI-scaled values,
+        /// and again inside GetHitArea from raw literals (Right - 30, 24x24). They disagreed at 100%
+        /// and diverged further with DPI, so the glyph the user aimed at and the region that
+        /// responded were different rectangles. The layout now publishes it and both read it.
+        /// </remarks>
+        internal static Rectangle RemoveRectFor(Rectangle rowRect, BeepFilter owner)
+        {
+            int s36 = DpiScalingHelper.ScaleValue(36, owner);
+            int s28 = DpiScalingHelper.ScaleValue(28, owner);
+            return new Rectangle(rowRect.Right - s36, rowRect.Y + (rowRect.Height - s28) / 2, s28, s28);
+        }
+
         private void PaintFilterRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)
         {
             var colors = GetStyleColors(owner, owner.ControlStyle);
@@ -199,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             var columnRect = new Rectangle(rect.X + dragOffset, rect.Y + s4, columnWidth - s4, rect.Height - s8);
             var operatorRect = new Rectangle(columnRect.Right + s4, rect.Y + s4, operatorWidth - s4, rect.Height - s8);
             var valueRect = new Rectangle(operatorRect.Right + s4, rect.Y + s4, valueWidth - s4, rect.Height - s8);
-            var removeRect = new Rectangle(rect.Right - s36, rect.Y + (rect.Height - s28) / 2, s28, s28);
+            var removeRect = RemoveRectFor(rect, owner);
 
             // Background
             g.FillRectangle(GetBrush(colors.background), rect);
@@ -367,7 +384,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 Rectangle rowRect = layout.RowRects[i];
 
                 // Check remove button (right side of row)
-                Rectangle removeRect = new Rectangle(rowRect.Right - 30, rowRect.Y + (rowRect.Height - 24) / 2, 24, 24);
+                if (i >= layout.RemoveButtonRects.Length) continue;
+                Rectangle removeRect = layout.RemoveButtonRects[i];
                 if (removeRect.Contains(point))
                     return new FilterHitArea { Name = $"Remove_{i}", Bounds = removeRect, Type = FilterHitAreaType.RemoveButton, Tag = i };
 

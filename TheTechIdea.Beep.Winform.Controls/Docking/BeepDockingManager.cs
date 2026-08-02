@@ -19,14 +19,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 {
     /// <summary>
     /// Core orchestrator for the WinForms-control docking system.
-    /// 
+    ///
     /// Responsibilities:
     /// - Owns the panel registry and layout tree
     /// - Hosts dock panels as WinForms child controls on the host form
     /// - Provides high-level API for panel operations (add, remove, activate)
     /// - Integrates with BeepThemesManager for live theme switching
     /// - Orchestrates rendering and layout updates
-    /// 
+    ///
     /// Design-time usage: Add manager to form, then add DockPanel components,
     /// and set their 'Manager' property. Panels auto-register at design time.
     /// </summary>
@@ -99,6 +99,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// <summary>
         /// Raised when a panel is activated (becomes the active panel in its group).
         /// </summary>
+        /// <summary>
+        /// Raised when the manager absorbed a failure instead of propagating it.
+        /// </summary>
+        /// <remarks>
+        /// Layout restore is best-effort by design - one panel that cannot be floated must not
+        /// abort the whole restore. Subscribe to see which part failed; without this the layout
+        /// simply comes back subtly wrong and nothing says why.
+        /// </remarks>
+        public event EventHandler<DockingErrorEventArgs> DockingError;
+
+        /// <summary>Reports an absorbed failure. Never throws from the reporting path itself.</summary>
+        protected virtual void OnDockingError(string context, string panelKey, Exception exception)
+        {
+            if (exception == null) return;
+            System.Diagnostics.Trace.WriteLine($"BeepDockingManager [{context}] {panelKey}: {exception}");
+            DockingError?.Invoke(this, new DockingErrorEventArgs(context, panelKey, exception));
+        }
+
         public event EventHandler<DockPanel> PanelActivated;
 
         /// <summary>

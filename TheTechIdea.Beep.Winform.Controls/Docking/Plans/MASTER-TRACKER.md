@@ -35,7 +35,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ☐ |
 | [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ☐ |
 | [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ☐ |
-| [09](09-dead-surface.md) | Dead and duplicated surface | — | ☐ |
+| [09](09-dead-surface.md) | Dead and duplicated surface | — | ☑ **done** |
 | [10](10-verification-harness.md) | Verification harness | — | ☐ |
 
 Features 01–07 add capability. 08–09 are the structural work that makes them safe to build.

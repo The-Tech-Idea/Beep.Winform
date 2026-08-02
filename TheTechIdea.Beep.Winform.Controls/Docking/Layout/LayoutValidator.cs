@@ -373,8 +373,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         InconsistentReference,
         CircularReference,
         EmptyGroup,
-        MixedContent,
-        OverlappingBounds
+        MixedContent
     }
 
     /// <summary>

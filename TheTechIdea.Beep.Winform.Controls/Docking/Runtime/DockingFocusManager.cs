@@ -48,7 +48,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             if (BringToFrontOnFocus)
             {
                 try { panel.BringToFront(); }
-                catch { /* parenting may have changed; safe to skip */ }
+                catch (Exception ex) when (ex is ObjectDisposedException
+                                           || ex is InvalidOperationException)
+                {
+                    // The panel was disposed or reparented between the focus request and this call;
+                    // there is nothing to raise. Anything else is a real fault and propagates.
+                }
             }
 
             // If the panel hosts user content, find the first focusable child inside it.

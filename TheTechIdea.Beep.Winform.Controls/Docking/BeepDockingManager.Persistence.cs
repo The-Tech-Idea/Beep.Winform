@@ -179,7 +179,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     panel.DockPosition = info.LastDockPosition;
                     if (panel.State != DockPanelState.Floating && panel.CanFloat)
                     {
-                        try { FloatPanel(info.Key, info.Bounds); } catch { /* best-effort restore */ }
+                        try { FloatPanel(info.Key, info.Bounds); }
+                        catch (Exception ex) { OnDockingError("RestoreLayout.Float", info.Key, ex); }
                     }
                 }
             }
@@ -194,7 +195,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     panel.DockPosition = info.Edge;
                     if (panel.State != DockPanelState.AutoHidden && panel.CanAutoHide)
                     {
-                        try { AutoHidePanel(info.Key); } catch { /* best-effort restore */ }
+                        try { AutoHidePanel(info.Key); }
+                        catch (Exception ex) { OnDockingError("RestoreLayout.AutoHide", info.Key, ex); }
                     }
                 }
             }

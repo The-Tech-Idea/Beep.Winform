@@ -17,7 +17,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | Drop guides overlay | 9 refs | present, worth modernising |
 | Floating windows | `FloatWindow.cs`, 372 lines | present, single-monitor |
 | Layout persistence | 2 refs | thin |
-| **Split editor groups** | **0** | absent — the defining modern feature |
+| **Split editor groups** | present | **the audit was wrong** — see [01](01-split-editor-groups.md) |
 | **Multi-monitor awareness** | **0** (`Screen.AllScreens`) | absent |
 | **Layout perspectives / presets** | **0** | absent |
 | **Panel maximise / zen** | 1 ref | effectively absent |
@@ -27,7 +27,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 
 | # | Feature | Reference products | Status |
 |---|---|---|---|
-| [01](01-split-editor-groups.md) | Split editor groups | VS Code, Dockview, Rider | ☐ |
+| [01](01-split-editor-groups.md) | Split editor groups | VS Code, Dockview, Rider | ◐ **partial** — model and drag-split already existed; command API added |
 | [02](02-layout-perspectives.md) | Named layout perspectives | Rider layouts, Blender workspaces, VS | ☐ |
 | [03](03-multi-monitor-floating.md) | Multi-monitor floating windows | VS, Rider, Figma | ☐ |
 | [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☐ |

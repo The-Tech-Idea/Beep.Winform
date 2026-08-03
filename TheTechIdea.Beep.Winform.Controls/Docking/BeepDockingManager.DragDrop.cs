@@ -160,6 +160,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// Checks whether the given <see cref="DockPosition"/> is permitted by the panel's
         /// <see cref="DockPanel.AllowedAreas"/>.
         /// </summary>
+        /// <summary>
+        /// Splits the group containing <paramref name="panelKey"/> and moves that panel into the
+        /// new half — the command behind Split Right / Split Down.
+        /// </summary>
+        /// <remarks>
+        /// Splitting already worked by dragging a caption onto a group's edge, but nothing exposed
+        /// it as an operation, so it could not be bound to a key, invoked from a menu, or scripted.
+        /// The layout model has supported nested groups all along: <c>DockGroup</c> carries
+        /// <c>Children</c>, <c>SplitOrientation</c> and <c>SplitRatio</c>, and the drag path builds
+        /// exactly this shape. This is the same call with a name.
+        /// </remarks>
+        /// <param name="panelKey">The panel to move into the new half.</param>
+        /// <param name="direction">Which side of the current group the new half occupies.</param>
+        /// <returns><see langword="false"/> when the panel is unknown, has no group, or the
+        /// direction is not permitted for it.</returns>
+        public bool SplitPanel(string panelKey, DockPosition direction)
+        {
+            var panel = GetPanel(panelKey);
+            if (panel?.Group == null)
+                return false;
+
+            return CommitGroupEdge(panel, panel.Group, direction);
+        }
+
+        /// <summary>Splits the panel's group horizontally, placing the panel on the right.</summary>
+        public bool SplitPanelRight(string panelKey) => SplitPanel(panelKey, DockPosition.Right);
+
+        /// <summary>Splits the panel's group vertically, placing the panel below.</summary>
+        public bool SplitPanelDown(string panelKey) => SplitPanel(panelKey, DockPosition.Bottom);
+
         internal static bool IsPositionAllowed(DockPanel panel, DockPosition position)
         {
             if (panel == null)
@@ -193,7 +223,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         bool IDockDragHost.CommitCenterStack(DockPanel panel, DockGroup targetGroup, int insertIndex) =>
             CommitDragCenterStack(panel, targetGroup, insertIndex);
 
-        bool IDockDragHost.CommitGroupEdge(DockPanel panel, DockGroup targetGroup, DockPosition position)
+        bool IDockDragHost.CommitGroupEdge(DockPanel panel, DockGroup targetGroup, DockPosition position) =>
+            CommitGroupEdge(panel, targetGroup, position);
+
+        /// <summary>
+        /// Splits <paramref name="targetGroup"/> along <paramref name="position"/>, placing
+        /// <paramref name="panel"/> in the new half.
+        /// </summary>
+        /// <remarks>
+        /// This was reachable only through <c>IDockDragHost</c>, so splitting a group required a
+        /// pointer: there was no way to do it from a command or a keyboard binding. The logic is
+        /// unchanged - it is simply no longer private to the drag path.
+        /// </remarks>
+        private bool CommitGroupEdge(DockPanel panel, DockGroup targetGroup, DockPosition position)
         {
             if (panel == null || targetGroup == null)
                 return false;

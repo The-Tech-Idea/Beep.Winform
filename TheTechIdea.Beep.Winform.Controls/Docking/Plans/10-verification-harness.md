@@ -199,3 +199,34 @@ The console formatter was written three times with an escaped newline that becam
 breaking the build each time. It now goes through a single `Flat()` helper. Trivial, but it is the
 fourth time in this session that inline string escaping in a generated edit produced a syntax error —
 one shared helper removes the whole class of it.
+
+---
+
+## Addendum — why a paint failure reads as a hang
+
+Worth recording as its own finding, because it cost three misdiagnoses in this program and it will
+recur.
+
+**A paint exception inside a WinForms window procedure never reaches the caller.** It travels
+`WmPrintClient`/`WmPaint` → `WndProc` → `NativeWindow.Callback`, where WinForms raises it as an
+*unhandled* exception and shows a **modal error dialog**. On a harness window parked off-screen at
+`-2400,-2400`, that dialog is invisible and unclickable — so the process stops dead with no output
+and no stack. It reads as a hang; it is a dialog waiting for a click that cannot be given.
+
+That is exactly what the `PaintResourceCache` defect did: the caption painter threw on its second
+use of a cached colour, and `DrawToBitmap` turned it into a stall with climbing memory rather than a
+crash. Three readings of the code were spent on it before bisecting the paint path found it.
+
+Two consequences, both now built in:
+
+- **The harness converts it into output.** `Application.SetUnhandledExceptionMode(CatchException)`
+  plus `ThreadException` and `UnhandledException` handlers print the stack and exit non-zero. A
+  silent stall becomes a stack trace.
+- **A deliberately-throwing baseline must never be painted through `WM_PRINT`.** The first version of
+  the paint-surface check did exactly that and produced the invisible dialog itself — the harness
+  reproducing the defect it was written to detect. The baseline now drives `OnPaint` directly, which
+  returns the failure to the caller.
+
+`PaintSurfaceChecks` paints every docking surface — dockspaces at all five header positions, panels,
+splitters, float windows — **twice**, because the defect required a cached colour to be requested a
+second time. A single paint of each would have passed throughout.

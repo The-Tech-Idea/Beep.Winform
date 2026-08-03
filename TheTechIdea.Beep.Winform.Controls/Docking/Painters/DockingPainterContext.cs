@@ -21,15 +21,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
 
         public bool IsActive { get; set; }
         public bool IsHover { get; set; }
-        public bool IsPressed { get; set; }
         public bool IsFocused { get; set; }
         public bool IsDragging { get; set; }
         public bool IsDesignTime { get; set; }
 
-        public bool CanClose { get; set; }
-        public bool CanFloat { get; set; }
-        public bool CanAutoHide { get; set; }
-        public bool CanPin { get; set; }
 
         /// <summary>Per-style chrome tuning (corner radii, accent width, grip style).</summary>
         public DockingStyleFlavor Flavor { get; set; } = DockingStyleFlavor.Default;
@@ -50,7 +45,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
             Flavor = DockingPainterFactory.ResolveFlavor(style);
             IsActive = false;
             IsHover = false;
-            IsPressed = false;
             IsFocused = false;
             IsDragging = false;
         }

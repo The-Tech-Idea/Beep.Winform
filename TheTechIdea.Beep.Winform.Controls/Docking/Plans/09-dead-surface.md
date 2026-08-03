@@ -120,3 +120,53 @@ Bare `catch { }`: **3 → 0.**
   comes back subtly wrong and nothing says which part failed.
 - One around `BringToFront` narrowed to `ObjectDisposedException` / `InvalidOperationException`. The
   panel being disposed or reparented mid-focus is expected; anything else is a real fault.
+
+---
+
+## Addendum — what this pass missed, found while building 06
+
+Two classes of dead surface survived the sweep above. Both were found by working on
+[06](06-keyboard-and-accessibility.md) rather than by another grep, which is worth recording: the
+sweep looked for *unreferenced enum values* and *bare catches*, and neither of these is either.
+
+### Five flags on `DockingPainterContext` with no reader
+
+`IsPressed`, `CanClose`, `CanFloat`, `CanAutoHide` and `CanPin` were declared — and `IsPressed` also
+dutifully reset in `Update()` — but nothing ever assigned them meaningfully and nothing ever read
+them. Their neighbours are genuinely live (`IsHover` is written by `BeepDockSplitter` and read by
+`SplitterRenderer`; `IsActive`, `IsDragging` and `UseThemeColors` all have real consumers), which is
+exactly what made them easy to miss: they sit in the middle of a working type.
+
+Deleted. **The clean compile is the evidence**, not the grep — a `Can*` name collides with
+identically-named members on other types across this project, so a search alone could not have
+settled it. That hazard has now produced a false reading twice in this session.
+
+`IsFocused` was in the same state and was **implemented instead of deleted**, because
+[06](06-keyboard-and-accessibility.md) needs a focus indicator. Implement-or-remove, decided per
+member rather than in bulk.
+
+### A shared cache that every caller disposed
+
+Not dead code — *actively harmful* code, and the more serious of the two. `PaintResourceCache` hands
+out `SolidBrush` and `Pen` instances it owns and releases in `Clear()`. All **32** call sites across
+`CaptionRenderer`, `AutoHideStripRenderer` and `SplitterRenderer` wrapped them in `using`.
+
+So the first draw disposed the cached instance, and the next request for the same colour returned a
+disposed object: painting a dockspace header threw `ArgumentException: Parameter is not valid` as
+soon as any colour was used twice, which is immediately, since tabs share an inactive background.
+Under `DrawToBitmap` the exception was absorbed and retried, presenting as a hang with climbing
+memory rather than a crash — which is why it read as an environment problem for three attempts.
+
+The cache also saved nothing, its entire purpose: every entry was destroyed just after being created.
+
+Located by bisecting the paint path — `header=None` painted in 2 ms, `header=Top` threw at
+`CaptionRenderer.PaintDefaultTabs:183` — after first measuring the tab rectangles as healthy
+(160x26), which ruled out the degenerate-geometry reading of the same GDI+ error. The
+borrowed-not-owned contract is now documented on `GetBrush`/`GetPen`, and `DockProbe` paints a header
+twice so a cached colour is definitely reused.
+
+### What the sweep should have asked
+
+Both defects share a shape the original sweep had no question for: **a member that is written but
+never read, or read but never honoured.** Unreferenced-enum-value and bare-catch scans do not find
+it. The structural check now reported by the harness should grow one for it.

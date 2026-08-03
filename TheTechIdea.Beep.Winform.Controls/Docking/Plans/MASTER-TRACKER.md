@@ -16,7 +16,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | Auto-hide / fly-out | 145 refs | **strong** |
 | Drop guides overlay | 9 refs | present, worth modernising |
 | Floating windows | `FloatWindow.cs`, 372 lines | present, single-monitor |
-| Layout persistence | 2 refs | thin |
+| Layout persistence | 2 refs | thin — **hardened**, see [07](07-persistence-and-migration.md) |
 | **Split editor groups** | present | **the audit was wrong** — see [01](01-split-editor-groups.md) |
 | **Multi-monitor awareness** | **0** (`Screen.AllScreens`) | absent |
 | **Layout perspectives / presets** | **0** | absent |
@@ -33,7 +33,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☑ **done** — transient maximise, tree never mutated; input wiring deferred to 06 |
 | [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ◐ **partial** — result preview done; Esc-cancel already existed; tab-index drop and hover animation open |
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ◐ **partial** — accessible tree, command set, focus ring; high-contrast open |
-| [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ☐ |
+| [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ◐ **partial** — schema v2, version guard, hidden panels, no more stranding; 02/03 state pending |
 | [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ◐ **partial** — 3,317 → 2,742; four partials extracted, further seams identified |
 | [09](09-dead-surface.md) | Dead and duplicated surface | — | ☑ **done** |
 | [10](10-verification-harness.md) | Verification harness | — | ☑ **done** — capture primitive + ground rules; found a hide/show defect on first run, now fixed |

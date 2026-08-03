@@ -85,9 +85,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
     {
         public DockLayoutDefinition() { }
 
+        /// <summary>
+        /// Highest schema version this build understands.
+        /// </summary>
+        /// <remarks>
+        /// <list type="bullet">
+        /// <item><b>1</b> — groups, floating and auto-hidden panels.</item>
+        /// <item><b>2</b> — adds <see cref="Hidden"/>. Before it, a group's
+        /// <see cref="DockGroupDefinition.PanelKeys"/> held only docked panels, so a hidden panel
+        /// was dropped from the layout entirely and did not come back when shown.</item>
+        /// </list>
+        /// A version 1 definition loads unchanged: it simply has no hidden panels, which is what an
+        /// absent <see cref="Hidden"/> list already means. Migration forward is therefore the
+        /// identity, and is asserted rather than assumed.
+        /// </remarks>
+        public const int CurrentSchemaVersion = 2;
+
         /// <summary>Schema version for forward-compatible migration.</summary>
-        [DefaultValue(1)]
-        public int SchemaVersion { get; set; } = 1;
+        [DefaultValue(CurrentSchemaVersion)]
+        public int SchemaVersion { get; set; } = CurrentSchemaVersion;
 
         /// <summary>Top-level docked groups (mirrors <c>DockLayoutTree.Root.Children</c>).</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -100,6 +116,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         /// <summary>Panels currently auto-hidden on an edge strip.</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public List<AutoHiddenPanelInfo> AutoHidden { get; } = new List<AutoHiddenPanelInfo>();
+
+        /// <summary>
+        /// Keys of panels that are members of a group but currently hidden.
+        /// </summary>
+        /// <remarks>
+        /// Hidden panels stay in their group's <see cref="DockGroupDefinition.PanelKeys"/> - hiding
+        /// does not change membership, only visibility - and are listed here so the state is
+        /// restored rather than silently promoted back to visible.
+        /// </remarks>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<string> Hidden { get; } = new List<string>();
 
         /// <summary>True when there is nothing meaningful to serialize.</summary>
         [System.ComponentModel.Browsable(false)]

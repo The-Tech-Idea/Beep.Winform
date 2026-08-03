@@ -59,16 +59,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// <summary>Populates the supplied definition in place from the current live tree + runtime state.</summary>
         private void FillDefinition(DockLayoutDefinition def)
         {
-            def.SchemaVersion = _layoutTree.SchemaVersion;
+            def.SchemaVersion = DockLayoutDefinition.CurrentSchemaVersion;
             def.Groups.Clear();
             def.Floating.Clear();
             def.AutoHidden.Clear();
+            def.Hidden.Clear();
 
             // Skip empty edge groups: panels that float/auto-hide/close are removed from their
             // group but the (now empty) group lingers in the tree. Serializing it would add noise
             // and recreate dead groups on load.
             foreach (var group in _layoutTree.Root.Children)
-                if (GroupHasPersistableContent(group))
+                if (GroupHasMembers(group))
                     def.Groups.Add(CaptureGroup(group));
 
             if (_hostForm != null)
@@ -107,6 +108,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 foreach (var panel in kv.Value.Panels)
                     def.AutoHidden.Add(new AutoHiddenPanelInfo { Key = panel.Key, Edge = kv.Key });
             }
+
+            foreach (var panel in _panelsByKey.Values)
+            {
+                if (panel?.Key != null && panel.State == DockPanelState.Hidden)
+                    def.Hidden.Add(panel.Key);
+            }
         }
 
         private static DockGroupDefinition CaptureGroup(DockGroup group)
@@ -120,36 +127,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 HeaderPosition = group.HeaderPosition
             };
 
+            // Membership, not visibility. Floating, auto-hiding and closing all detach the panel
+            // from its group, so group.Panels is exactly the set that belongs here; hidden panels
+            // are still members and are recorded as hidden separately.
             foreach (var panel in group.Panels)
             {
-                if (panel?.Key != null && panel.State == DockPanelState.Docked)
+                if (panel?.Key != null)
                     def.PanelKeys.Add(panel.Key);
             }
 
             foreach (var child in group.Children)
-                if (GroupHasPersistableContent(child))
+                if (GroupHasMembers(child))
                     def.Children.Add(CaptureGroup(child));
 
             return def;
         }
-
-        /// <summary>
-        /// True when the group (or any descendant) holds at least one panel the definition can
-        /// express. That means a <see cref="DockPanelState.Docked"/> panel: floating and auto-hidden
-        /// panels are serialized separately (<see cref="DockLayoutDefinition.Floating"/>,
-        /// <see cref="DockLayoutDefinition.AutoHidden"/>) and hidden panels have no representation
-        /// in the schema at all, so a group holding only hidden panels captures as nothing.
-        /// </summary>
-        /// <remarks>
-        /// This is deliberately <b>not</b> the same question as
-        /// <see cref="GroupHasMembers"/>, which governs whether the live tree keeps a group.
-        /// A hidden panel is still a member of its group — it just cannot be written to disk yet.
-        /// Persisting hidden panels needs a <c>Hidden</c> collection and a schema-version bump,
-        /// which belongs with feature 07 (persistence and migration).
-        /// </remarks>
-        private static bool GroupHasPersistableContent(DockGroup group)
-            => group != null &&
-               group.GetAllPanelsRecursive().Any(p => p != null && p.State == DockPanelState.Docked);
 
         /// <summary>
         /// Rebuilds the live docking tree from a definition. Panels are matched by key against the
@@ -160,14 +152,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (def == null)
                 return;
 
+            // Refuse a definition this build cannot fully understand, before touching anything.
+            // Materialising it would apply the parts we recognise and silently drop the rest,
+            // producing an arrangement that is subtly wrong rather than obviously absent - which is
+            // what users report as "it forgot my windows". The current layout is left intact,
+            // because it is strictly better than the alternative.
+            if (def.SchemaVersion > DockLayoutDefinition.CurrentSchemaVersion)
+            {
+                OnDockingError("RestoreLayout.Version", null, new NotSupportedException(
+                    $"Layout schema version {def.SchemaVersion} is newer than the supported "
+                    + $"version {DockLayoutDefinition.CurrentSchemaVersion}; the layout was not "
+                    + "applied and the current arrangement was kept."));
+                return;
+            }
+
             CloseAllFloatWindows();
             ClearAllAutoHidePanels();
 
             var root = _layoutTree.Root;
 
             // Tear down the current group structure (panels stay registered; we re-attach them).
+            // Detaching each panel matters: a panel the incoming definition does not mention would
+            // otherwise keep pointing at a group that has been removed from the tree and
+            // unregistered, leaving it docked, unplaced and unreachable - the same stranding shape
+            // that pruning a hidden panel's group produced.
             foreach (var child in root.Children.ToList())
             {
+                foreach (var panel in child.GetAllPanelsRecursive())
+                {
+                    if (panel != null)
+                        panel.Group = null;
+                }
+
                 root.RemoveChild(child);
                 _layoutTree.UnregisterGroup(child.Id);
             }
@@ -214,8 +230,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 }
             }
 
+            // Hidden panels: members of their group, restored to Hidden rather than left visible.
+            // A version 1 definition has an empty list, which is the correct reading of "no hidden
+            // panels were recorded" - that is what makes the v1 -> v2 migration the identity.
+            if (def.Hidden != null)
+            {
+                foreach (var key in def.Hidden)
+                {
+                    var panel = GetPanel(key);
+                    if (panel == null || panel.State != DockPanelState.Docked)
+                        continue;
+
+                    try { HidePanel(key); }
+                    catch (Exception ex) { OnDockingError("RestoreLayout.Hide", key, ex); }
+                }
+            }
+
+            ReHomeUnplacedPanels();
+
             _layoutController?.InvalidateLayout();
             ApplyLayout();
+        }
+
+        /// <summary>
+        /// Gives a group back to every docked panel the definition left out.
+        /// </summary>
+        /// <remarks>
+        /// A definition need not mention every registered panel - it may predate one, or a plugin
+        /// may have added panels since it was written. Those panels are still docked and still
+        /// expected on screen, so they rejoin the group for their own
+        /// <see cref="DockPanel.DockPosition"/> rather than being left with no group and no bounds.
+        /// Without this, loading a definition that places nothing left <i>every</i> panel unplaced.
+        /// </remarks>
+        private void ReHomeUnplacedPanels()
+        {
+            foreach (var panel in _panelsByKey.Values.ToList())
+            {
+                if (panel == null || panel.Group != null)
+                    continue;
+                if (panel.State != DockPanelState.Docked && panel.State != DockPanelState.Hidden)
+                    continue;
+
+                var group = GetOrCreateGroupAtPosition(panel.DockPosition);
+                group.AddPanel(panel);
+                group.ActivePanel ??= panel;
+
+                if (panel.State == DockPanelState.Docked)
+                    EnsurePanelHosted(panel, makeActive: false);
+            }
         }
 
         private DockGroup BuildGroup(DockGroupDefinition def)

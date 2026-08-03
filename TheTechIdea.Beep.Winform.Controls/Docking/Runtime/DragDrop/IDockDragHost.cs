@@ -34,6 +34,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
         /// <summary>Stacks the panel as a tab in the center/document group. Returns false if vetoed.</summary>
         bool CommitCenterStack(DockPanel panel, DockGroup targetGroup, int insertIndex);
 
+        /// <summary>
+        /// Index a panel dropped at <paramref name="screenPoint"/> should take within
+        /// <paramref name="targetGroup"/>'s tab strip, or <c>-1</c> to append.
+        /// </summary>
+        /// <remarks>
+        /// The host answers this rather than the resolver because it is the only party that knows
+        /// where the tabs were drawn: the strip's geometry lives on the panels
+        /// (<see cref="DockPanel.TabBounds"/>), not in the layout result the resolver works from.
+        /// </remarks>
+        int ResolveTabInsertIndex(DockGroup targetGroup, Point screenPoint);
+
         /// <summary>Splits an existing group along one edge. Returns false if vetoed.</summary>
         bool CommitGroupEdge(DockPanel panel, DockGroup targetGroup, DockPosition position);
     }

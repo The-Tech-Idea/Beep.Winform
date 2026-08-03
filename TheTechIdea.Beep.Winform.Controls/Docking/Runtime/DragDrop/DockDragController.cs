@@ -72,6 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
             var result = _resolver.Resolve(_session.Panel, screenPoint,
                 _host.GroupBounds, _host.GetGroup);
             _session.Current = result;
+            _session.CurrentScreen = screenPoint;
             _ghost.MoveTo(result.PreviewBounds);
 
             if (_showSnapGuides &&
@@ -150,8 +151,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
                     break;
 
                 case DockDropKind.GroupCenterStack:
-                    _host.CommitCenterStack(panel, result.TargetGroup, result.InsertIndex);
+                {
+                    // The resolver works from the layout result, which carries no tab geometry, so
+                    // it can only say "into this group". Ask the host where between the tabs the
+                    // cursor actually landed - without this the index stayed at its -1 default and
+                    // every drop appended, however carefully the user aimed.
+                    int insertIndex = result.InsertIndex >= 0
+                        ? result.InsertIndex
+                        : _host.ResolveTabInsertIndex(result.TargetGroup, session.CurrentScreen);
+                    _host.CommitCenterStack(panel, result.TargetGroup, insertIndex);
                     break;
+                }
 
                 default:
                     _host.CommitFloat(panel);

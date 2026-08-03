@@ -39,5 +39,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
 
         /// <summary>Latest resolved drop target (updated on each move).</summary>
         public DockDropResult Current { get; set; }
+
+        /// <summary>
+        /// Cursor position (screen) the latest <see cref="Current"/> was resolved at.
+        /// </summary>
+        /// <remarks>
+        /// Kept because the drop target alone cannot say <i>where within</i> a group the cursor was.
+        /// Deciding which two tabs a drop fell between needs the point, and reading
+        /// <c>Cursor.Position</c> at commit time would answer a slightly different question - where
+        /// the mouse is now, rather than where the drop was resolved.
+        /// </remarks>
+        public Point CurrentScreen { get; set; }
     }
 }

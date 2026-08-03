@@ -31,7 +31,7 @@ must be completed and undone.
 - [ ] Centre and edge targets over the hovered group, once [01](01-split-editor-groups.md) provides
       groups to split
 - [ ] `Esc` cancels an in-flight drag and restores the pre-drag layout
-- [ ] Drop between two tabs to choose the insertion index, not only "into this group"
+- [x] Drop between two tabs to choose the insertion index — done, see below
 - [ ] Hover growth animation on the guide targets, respecting a reduced-motion preference
 - [ ] Guides target the monitor under the cursor ([03](03-multi-monitor-floating.md))
 
@@ -87,10 +87,59 @@ Per-position PNGs are written to `scratchpad/dock-renders`.
 
 - [ ] `Esc` cancels an in-flight drag and restores the pre-drag layout — the capture primitive from
       [10](10-verification-harness.md) makes this a one-line assertion once implemented
-- [ ] Drop between two tabs to choose the insertion index, not only "into this group"
+- [x] Drop between two tabs to choose the insertion index — done, see below
 - [ ] Centre and edge targets over the hovered *group* — needs [01](01-split-editor-groups.md)
 - [ ] Hover growth animation on the guide targets, respecting reduced-motion
 - [ ] Guides target the monitor under the cursor — needs [03](03-multi-monitor-floating.md)
 
 Three of the five depend on features not yet built, which is why this one stops here rather than
 being carried further now.
+
+---
+
+## Outcome — tab-index drop
+
+`DockDropResult.InsertIndex` already existed, was already plumbed through to `CommitCenterStack`,
+and `CommitDragCenterStack` already honoured it via `MovePanelToIndex`. The only missing piece was
+the computation: `DockTargetResolver` set it to **`-1` unconditionally**, so every drop appended no
+matter where the user aimed. Declared, carried, honoured — and never once computed.
+
+### Where the computation belongs
+
+Not in the resolver. It works from the layout result, which carries group rectangles but no tab
+geometry; the strip's rectangles live on the panels (`DockPanel.TabBounds`, mirrored there by the
+caption layout). So the host answers instead, through a new `IDockDragHost.ResolveTabInsertIndex`
+— the interface is `internal` with one implementer, so extending it costs nothing.
+
+The comparison is against each tab's **midpoint**, not its leading edge. Using the leading edge
+would make the last position unreachable: there is no tab to the right of the final one to drop in
+front of.
+
+`DockDragSession` now records the screen point its current target was resolved at. Reading
+`Cursor.Position` at commit time would have answered a slightly different question — where the mouse
+is *now*, rather than where the drop was resolved.
+
+### Measured
+
+```
+tabs:  a: x -2392..-2232   b: x -2232..-2072   c: x -2072..-1912
+drop before first  -> 0
+drop on 2nd's left -> 1
+drop on 3rd's left -> 2
+drop past the last -> -1  (append)
+distinct indices across four drop points: 4
+order a,b,c -> moving 'c' to index 0 -> c,a,b
+```
+
+The assertion that matters is the fifth: **different drop positions produce different indices**. A
+resolver that always returned `0`, or always `-1`, satisfies "an index came back" — which is exactly
+what shipped. The baseline asserts the all-same case is not what happens.
+
+`DockProbe`: **195 passed, 0 failed**. Docking suite 48/48. Solution 0 errors.
+
+### Remaining in this feature
+
+- [ ] Hover growth animation on the guide targets, respecting reduced-motion
+- [ ] Centre and edge targets over the hovered *group* — the group-edge path exists
+      ([01](01-split-editor-groups.md)); what is missing is the rosette rendering over a group
+      rather than the host

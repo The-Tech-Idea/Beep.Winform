@@ -223,8 +223,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         bool IDockDragHost.CommitCenterStack(DockPanel panel, DockGroup targetGroup, int insertIndex) =>
             CommitDragCenterStack(panel, targetGroup, insertIndex);
 
+        int IDockDragHost.ResolveTabInsertIndex(DockGroup targetGroup, Point screenPoint) =>
+            ResolveTabInsertIndex(targetGroup, screenPoint);
+
         bool IDockDragHost.CommitGroupEdge(DockPanel panel, DockGroup targetGroup, DockPosition position) =>
             CommitGroupEdge(panel, targetGroup, position);
+
+        /// <summary>
+        /// Index a tab dropped at <paramref name="screenPoint"/> should take in
+        /// <paramref name="targetGroup"/>, or <c>-1</c> to append.
+        /// </summary>
+        /// <remarks>
+        /// Works from the rectangles the caption actually laid out, mirrored onto each panel's
+        /// <see cref="DockPanel.TabBounds"/>, so the insertion point agrees with what the user can
+        /// see rather than with a recomputed idea of where the tabs ought to be.
+        /// <para>
+        /// The comparison is against each tab's <b>midpoint</b>: dropping on the left half of a tab
+        /// inserts before it, the right half after it. Using the tab's leading edge instead would
+        /// make the last position in a strip unreachable, because there is no tab to the right of
+        /// the final one to drop in front of.
+        /// </para>
+        /// </remarks>
+        private int ResolveTabInsertIndex(DockGroup targetGroup, Point screenPoint)
+        {
+            if (targetGroup == null || targetGroup.Panels.Count == 0)
+                return -1;
+
+            // Ordered as the strip draws them, skipping panels whose tab was not laid out (an
+            // overflowed tab has no rectangle, and cannot be dropped between).
+            var tabs = targetGroup.Panels
+                .Where(p => p != null && !p.IsDisposed && p.TabBounds.Width > 0)
+                .Select(p => new { Panel = p, Screen = p.Parent != null
+                                                      ? p.Parent.RectangleToScreen(p.TabBounds)
+                                                      : p.TabBounds })
+                .ToList();
+
+            if (tabs.Count == 0)
+                return -1;
+
+            bool vertical = targetGroup.HeaderPosition == HeaderPosition.Left ||
+                            targetGroup.HeaderPosition == HeaderPosition.Right;
+
+            for (int i = 0; i < tabs.Count; i++)
+            {
+                var r = tabs[i].Screen;
+                int midpoint = vertical ? r.Top + r.Height / 2 : r.Left + r.Width / 2;
+                int probe = vertical ? screenPoint.Y : screenPoint.X;
+
+                if (probe < midpoint)
+                    return targetGroup.GetPanelIndex(tabs[i].Panel);
+            }
+
+            return -1;   // past the last tab: append
+        }
 
         /// <summary>
         /// Splits <paramref name="targetGroup"/> along <paramref name="position"/>, placing

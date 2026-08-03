@@ -817,6 +817,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
         }
 
+        /// <summary>
+        /// Closes every float window and returns its panel to the docked pool.
+        /// </summary>
+        /// <remarks>
+        /// The state reset is the point. Leaving a panel at
+        /// <see cref="DockPanelState.Floating"/> after its window has been destroyed leaves a state
+        /// nothing backs, and every subsequent decision reads it: <see cref="FloatPanel"/> returns
+        /// early because "it is already floating", and restore skips it for the same reason - so a
+        /// float saved on a display that no longer exists is never re-placed and stays unreachable.
+        /// The panel becomes <see cref="DockPanelState.Docked"/>; whatever is applied next decides
+        /// where it actually goes, including floating it again.
+        /// </remarks>
         private void CloseAllFloatWindows()
         {
             foreach (var fw in _floatWindowsByKey.Values.ToList())
@@ -824,9 +836,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 if (fw == null || fw.IsDisposed)
                     continue;
 
+                // Captured before extraction, which detaches the panel from the window.
+                var panel = fw.Panel;
+
                 fw.PanelRedocked -= OnFloatWindowRedocked;
                 fw.ExtractHostedPanel();
                 fw.Close();
+
+                if (panel != null && panel.State == DockPanelState.Floating)
+                    panel.State = DockPanelState.Docked;
             }
 
             _floatWindowsByKey.Clear();
@@ -2185,7 +2203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private void OnFloatWindowMoved(FloatWindow floatWindow)
         {
             if (_guideOverlay == null || _hostForm == null) return;
-            _guideOverlay.ShowOver(_hostForm);
+            _guideOverlay.ShowOver(_hostForm, Monitors.GetMonitors());
             DockingDropTarget.HitTest(_guideOverlay, Control.MousePosition);
         }
 

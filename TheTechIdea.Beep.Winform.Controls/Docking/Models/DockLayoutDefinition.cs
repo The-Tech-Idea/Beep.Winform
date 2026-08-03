@@ -60,6 +60,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         /// <summary>The dock position to return to when re-docked.</summary>
         [DefaultValue(DockPosition.Left)]
         public DockPosition LastDockPosition { get; set; } = DockPosition.Left;
+
+        /// <summary>
+        /// Device name of the display the float was on, e.g. <c>\.\DISPLAY2</c>. Empty for a
+        /// layout written before this was recorded, which restore treats as "match by geometry".
+        /// </summary>
+        /// <remarks>
+        /// Stored alongside <see cref="Bounds"/> because a rectangle alone cannot say <i>which</i>
+        /// display it belonged to. Rearranging two monitors changes every coordinate while the
+        /// identity is unchanged, and a bare rectangle restores such a float to the wrong screen -
+        /// or to no screen at all, if the display it referred to has been detached.
+        /// </remarks>
+        public string DeviceName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Working area of that display when the layout was saved. Kept so a restore can tell a
+        /// display that merely moved from one that was replaced by a different size.
+        /// </summary>
+        public Rectangle MonitorWorkingArea { get; set; }
     }
 
     /// <summary>Designer-serializable record of an auto-hidden panel (key + edge).</summary>

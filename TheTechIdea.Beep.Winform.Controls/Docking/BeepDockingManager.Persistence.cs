@@ -1,5 +1,8 @@
+using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Docking.Layout;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Docking.Runtime;
 
@@ -80,12 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     if (fw?.Panel == null)
                         continue;
 
-                    def.Floating.Add(new FloatingPanelInfo
-                    {
-                        Key = fw.Panel.Key,
-                        Bounds = fw.Bounds,
-                        LastDockPosition = fw.Panel.DockPosition
-                    });
+                    def.Floating.Add(DescribeFloat(fw));
                 }
 
                 foreach (var owned in _hostForm.OwnedForms)
@@ -93,12 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     if (owned is FloatWindow fw && fw.Panel != null &&
                         !_floatWindowsByKey.ContainsKey(fw.Panel.Key))
                     {
-                        def.Floating.Add(new FloatingPanelInfo
-                        {
-                            Key = fw.Panel.Key,
-                            Bounds = fw.Bounds,
-                            LastDockPosition = fw.Panel.DockPosition
-                        });
+                        def.Floating.Add(DescribeFloat(fw));
                     }
                 }
             }
@@ -114,6 +107,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 if (panel?.Key != null && panel.State == DockPanelState.Hidden)
                     def.Hidden.Add(panel.Key);
             }
+        }
+
+        /// <summary>
+        /// Describes a float for persistence, including which display it is on.
+        /// </summary>
+        private FloatingPanelInfo DescribeFloat(FloatWindow fw)
+        {
+            var monitor = MonitorFor(fw.Bounds);
+            return new FloatingPanelInfo
+            {
+                Key = fw.Panel.Key,
+                Bounds = fw.Bounds,
+                LastDockPosition = fw.Panel.DockPosition,
+                DeviceName = monitor.DeviceName,
+                MonitorWorkingArea = monitor.WorkingArea
+            };
+        }
+
+        /// <summary>The display a rectangle mostly sits on, or the primary when it sits on none.</summary>
+        private MonitorInfo MonitorFor(Rectangle bounds)
+        {
+            var monitors = Monitors.GetMonitors();
+            if (monitors.Count == 0)
+                return default;
+
+            MonitorInfo best = default;
+            long bestArea = -1;
+            foreach (var m in monitors)
+            {
+                var overlap = Rectangle.Intersect(bounds, m.Bounds);
+                long area = (long)Math.Max(0, overlap.Width) * Math.Max(0, overlap.Height);
+                if (area > bestArea)
+                {
+                    bestArea = area;
+                    best = m;
+                }
+            }
+
+            return bestArea > 0
+                ? best
+                : monitors.FirstOrDefault(m => m.IsPrimary) is { } p && !string.IsNullOrEmpty(p.DeviceName)
+                    ? p
+                    : monitors[0];
         }
 
         private static DockGroupDefinition CaptureGroup(DockGroup group)
@@ -208,7 +244,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     panel.DockPosition = info.LastDockPosition;
                     if (panel.State != DockPanelState.Floating && panel.CanFloat)
                     {
-                        try { FloatPanel(info.Key, info.Bounds); }
+                        // Where the float lands is decided against the displays that exist now, not
+                        // the ones that existed when it was saved. Restoring the raw rectangle is
+                        // what puts a tool window onto a monitor the user has since unplugged.
+                        var placement = FloatBoundsResolver.Resolve(info, Monitors.GetMonitors());
+                        if (placement.Match != FloatBoundsResolver.MatchKind.DeviceName ||
+                            placement.Clamped)
+                        {
+                            OnFloatRelocated(panel, info, placement);
+                        }
+
+                        try { FloatPanel(info.Key, placement.Bounds); }
                         catch (Exception ex) { OnDockingError("RestoreLayout.Float", info.Key, ex); }
                     }
                 }

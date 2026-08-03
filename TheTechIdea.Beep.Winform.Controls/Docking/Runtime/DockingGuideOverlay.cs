@@ -7,6 +7,10 @@ using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
+using System.Collections.Generic;
+
+using TheTechIdea.Beep.Winform.Controls.Docking.Layout;
+
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 {
     /// <summary>
@@ -75,14 +79,63 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         /// <summary>
         /// Centres the overlay on the given host-form client area and shows it.
         /// </summary>
-        public void ShowOver(Form hostForm)
+        public void ShowOver(Form hostForm) => ShowOver(hostForm, null);
+
+        /// <summary>
+        /// Centres the guide rosette over <paramref name="hostForm"/>, kept inside the working area
+        /// of whichever display it lands on.
+        /// </summary>
+        /// <param name="monitors">
+        /// Displays to reason about; the real ones when null. Supplied so the placement can be
+        /// resolved against a given set rather than the machine's.
+        /// </param>
+        /// <remarks>
+        /// Centring alone is not enough once more than one display is involved: a host form
+        /// straddling two monitors, or positioned so its centre falls near an edge, puts part of the
+        /// rosette where the user cannot see or hit it. Clamping goes through
+        /// <see cref="FloatBoundsResolver.ClampInto"/> - the same rule float restore uses - rather
+        /// than a second implementation that could disagree about what "on screen" means.
+        /// </remarks>
+        public void ShowOver(Form hostForm, IReadOnlyList<MonitorInfo> monitors)
         {
             if (hostForm == null) return;
+
             var centre = hostForm.RectangleToScreen(
                 new Rectangle(hostForm.DisplayRectangle.Width  / 2 - Width  / 2,
                               hostForm.DisplayRectangle.Height / 2 - Height / 2, Width, Height));
+
+            var screens = monitors ?? SystemMonitorProvider.Instance.GetMonitors();
+            var target = MonitorUnder(centre, screens);
+            if (target.WorkingArea.Width > 0)
+                centre = FloatBoundsResolver.ClampInto(centre, target.WorkingArea);
+
             Location = centre.Location;
             if (!Visible) Show(hostForm);
+        }
+
+        /// <summary>The display a rectangle's centre falls on, else the one it most overlaps.</summary>
+        private static MonitorInfo MonitorUnder(Rectangle rect, IReadOnlyList<MonitorInfo> monitors)
+        {
+            if (monitors == null || monitors.Count == 0)
+                return default;
+
+            var centre = new Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+            foreach (var m in monitors)
+            {
+                if (m.Bounds.Contains(centre))
+                    return m;
+            }
+
+            MonitorInfo best = default;
+            long bestArea = 0;
+            foreach (var m in monitors)
+            {
+                var overlap = Rectangle.Intersect(rect, m.Bounds);
+                long area = (long)Math.Max(0, overlap.Width) * Math.Max(0, overlap.Height);
+                if (area > bestArea) { bestArea = area; best = m; }
+            }
+
+            return bestArea > 0 ? best : monitors[0];
         }
 
         /// <summary>

@@ -34,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private const int WM_NCHITTEST     = 0x0084;
         private const int WM_NCLBUTTONDOWN = 0x00A1;
         private const int WM_EXITSIZEMOVE  = 0x0232;
+        private const int WM_DPICHANGED    = 0x02E0;
         private const int HTCLIENT     = 1;
         private const int HTCAPTION    = 2;
         private const int HTLEFT       = 10;
@@ -46,8 +47,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private const int HTBOTTOMRIGHT= 17;
 
         // ── Layout constants ────────────────────────────────────────────────
-        private const int CaptionHeight = 28;
-        private const int ResizeMargin  = 5;
+        // Baselines at 96 DPI. Scaled per-monitor rather than fixed: a float dragged from a 100%
+        // display to a 200% one keeps its pixel caption height otherwise, so the caption ends up
+        // half the size of every other window's on that screen and the resize border becomes a
+        // 2-3px target.
+        private const int BaseCaptionHeight = 28;
+        private const int BaseResizeMargin  = 5;
+
+        private int CaptionHeight => ScaleForDpi(BaseCaptionHeight);
+        private int ResizeMargin  => ScaleForDpi(BaseResizeMargin);
+
+        private int ScaleForDpi(int value)
+        {
+            int dpi = DeviceDpi > 0 ? DeviceDpi : 96;
+            return (int)Math.Round(value * (dpi / 96.0));
+        }
         private const int SnapThreshold = 14;
 
         // ── Fields ──────────────────────────────────────────────────────────
@@ -84,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             ShowIcon        = false;
             Text            = panel.Title;
             DoubleBuffered  = true;
-            Padding         = new Padding(ResizeMargin, CaptionHeight, ResizeMargin, ResizeMargin);
+            ApplyDpiMetrics();
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
@@ -130,6 +144,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         }
 
         // ── Caption painting ──────────────────────────────────────────────────
+
+        /// <summary>
+        /// Re-applies the metrics that depend on DPI. Called at construction, when the handle is
+        /// created (before which <see cref="Control.DeviceDpi"/> reports the default), and on every
+        /// <c>WM_DPICHANGED</c>.
+        /// </summary>
+        private void ApplyDpiMetrics()
+        {
+            var desired = new Padding(ResizeMargin, CaptionHeight, ResizeMargin, ResizeMargin);
+            if (Padding != desired)
+                Padding = desired;
+
+            RecomputeCaption();
+            Invalidate();
+        }
+
+        /// <summary>Moves and resizes to the rectangle Windows suggests for the new scale.</summary>
+        private void ApplySuggestedDpiBounds(IntPtr lParam)
+        {
+            if (lParam == IntPtr.Zero)
+                return;
+
+            var suggested = System.Runtime.InteropServices.Marshal.PtrToStructure<NativeRect>(lParam);
+            var bounds = new Rectangle(suggested.Left, suggested.Top,
+                                       suggested.Right - suggested.Left,
+                                       suggested.Bottom - suggested.Top);
+
+            if (bounds.Width > 0 && bounds.Height > 0)
+                Bounds = bounds;
+        }
+
+        [System.Runtime.InteropServices.StructLayout(
+            System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct NativeRect
+        {
+            public int Left, Top, Right, Bottom;
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            ApplyDpiMetrics();
+        }
 
         private Rectangle CaptionBounds => new Rectangle(0, 0, Width, CaptionHeight);
 
@@ -240,6 +297,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                     var p = PointToClient(screen);
                     m.Result = (IntPtr)HitTestResize(p);
                 }
+                return;
+            }
+
+            if (m.Msg == WM_DPICHANGED)
+            {
+                // The window moved to a display with a different scale. LParam points at the
+                // rectangle Windows suggests - honouring it is what keeps the window the same
+                // physical size and under the cursor; computing our own would fight the shell.
+                base.WndProc(ref m);
+                ApplySuggestedDpiBounds(m.LParam);
+                ApplyDpiMetrics();
                 return;
             }
 

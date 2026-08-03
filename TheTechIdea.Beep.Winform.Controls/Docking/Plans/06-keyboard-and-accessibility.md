@@ -238,7 +238,22 @@ it is drawn rather than referenced.
 
 ### Remaining
 
-- [ ] The active tab is a solid accent block, which also makes the accent underline and the keyboard
-      focus ring invisible on it — both are drawn and neither can be seen. Modern convention is a
-      surface-coloured tab with an accent underline. **A design decision, not a defect; not changed
-      unilaterally.**
+### The active tab — changed, on approval
+
+It was a filled accent block. Now a **raised surface with the accent carried by its underline**.
+
+The reason it mattered beyond taste: the active-tab accent bar and the keyboard focus ring are both
+painted in the accent colour, so on an accent background **neither could be seen**. The focus ring
+drew its rectangle and changed not one pixel — that is how it was found. Making the tab a surface
+makes both visible without touching either painter.
+
+Inactive tab text also dropped from pure white to a dimmed grey, so the active tab reads as selected
+rather than merely differently shaped.
+
+The blue block was coming from the `Default` palette — the one used when no Beep theme is in force.
+Themed paths already resolved the active tab to a surface colour (`WhiteSmoke` in the theme measured),
+because `FirstValid` tries the theme's colours first and only falls back to `Default`. So this was a
+defect in the unthemed fallback, not in the theming.
+
+Verified across all four tab styles: `Default` and `VsIde2022` show the accent as an underline,
+`JetBrains` on top, `VsCode` as a pill — each style's own convention, all now visible.

@@ -27,6 +27,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         public Color BorderColor { get; set; }
         public Color AccentColor { get; set; }
 
+        /// <summary>
+        /// Palette used when no Beep theme is in force.
+        /// </summary>
+        /// <remarks>
+        /// The active tab is a <b>raised surface</b> with the accent carried by its underline, not a
+        /// filled accent block. Three reasons, in order of how much they matter:
+        /// <list type="number">
+        /// <item>A filled accent tab hides the things drawn on top of it. The active-tab accent bar
+        /// and the keyboard focus ring are both painted in the accent colour, so on an accent
+        /// background neither can be seen — measured: the focus ring drew its rectangle and changed
+        /// not one pixel.</item>
+        /// <item>It is what VS Code, Visual Studio and Rider all do. A tab the same colour as the
+        /// content below it reads as continuous with the panel it selects; a coloured block reads as
+        /// a button.</item>
+        /// <item>Accent-on-white text tends to fail contrast. White on this blue is 3.12:1, below
+        /// WCAG AA.</item>
+        /// </list>
+        /// </remarks>
         public static DockingThemeColors Default => new DockingThemeColors
         {
             HeaderBackColor = Color.FromArgb(37, 37, 38),
@@ -35,10 +53,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             HeaderButtonForeColor = Color.White,
             PanelBackColor = SystemColors.Control,
             PanelForeColor = SystemColors.ControlText,
-            ActiveTabBackColor = Color.FromArgb(0, 122, 204),
+
+            // Raised a step above the strip, so the selected tab reads as lifted out of it.
+            ActiveTabBackColor = Color.FromArgb(30, 30, 31),
             ActiveTabForeColor = Color.White,
             InactiveTabBackColor = Color.FromArgb(45, 45, 48),
-            InactiveTabForeColor = Color.White,
+            InactiveTabForeColor = Color.FromArgb(190, 190, 190),
             TabBorderColor = Color.FromArgb(63, 63, 70),
             HoverBackColor = Color.FromArgb(62, 62, 66),
             SplitterBackColor = Color.FromArgb(60, 60, 65),

@@ -172,3 +172,73 @@ Accessibility, every assertion paired against a stock `Panel` measured the same 
 - [ ] `IsPressed`, `CanClose`, `CanFloat`, `CanAutoHide`, `CanPin` on `DockingPainterContext` have
       **zero readers** — dead surface [09](09-dead-surface.md) missed. Implement or remove
 - [ ] Move-between-groups by keyboard; `MoveActivePanel` reorders within a stack only
+
+---
+
+## Outcome — high contrast, and the header appearance work it led into
+
+### High contrast strengthens the theme rather than replacing it
+
+The first attempt swapped in a `SystemColors` palette. That was wrong for this library: the theme and
+the control style are the source of the look, so high contrast now takes the **theme's own colours**
+and pushes any pair that is too close together until it is legible. Backgrounds are never moved —
+they carry the theme's identity, and a high-contrast dock that looked like nothing else in the
+application would be a different product, not an accessible one.
+
+`BeepDockingManager.HighContrast` is a `bool?` overriding `SystemInformation.HighContrast`, for the
+same reason the display set is an input: otherwise none of it is testable without changing a
+machine-wide Windows setting.
+
+### Two findings
+
+**`ColorUtils.GetContrastColor` chooses the wrong colour.** It picks black or white from a
+*brightness* threshold rather than from the contrast each actually achieves. Measured on this theme's
+header: `#2196F3` sits at brightness 0.49, so it returned white at **3.12:1** where black gives
+**6.72:1** — below WCAG AA in a default theme. Docking now resolves by ratio. The shared helper is
+left alone deliberately: it is used across the library, and correcting it would change text colour on
+mid-tone surfaces everywhere, which is a decision to take deliberately rather than as a side effect.
+
+**AAA is not always reachable.** With the background fixed, the best any foreground can do is black
+or white; against a mid-tone surface that caps below 7:1 — `#2196F3` tops out at 6.72, mid-grey at
+5.32. The requirement is therefore the achievable ceiling, not a flat number that would only be met
+by repainting the theme.
+
+```
+normal  header 6.72:1   panel 14.77:1   active tab 14.94:1   inactive tab 10.88:1
+high    header 6.72:1 (ceiling 6.72)    panel 14.77 (19.26)  inactive 10.88 (14.03)
+```
+
+### The header, looked at rather than reasoned about
+
+Rendering the strip at 3x and reading the image found three things no amount of code review would
+have:
+
+**Every tab was the same width.** `LayoutVisibleHorizontalTabs` used `tabsWidth / count` clamped to
+`MaxTabWidth`, so a three-letter title occupied the same 160px as a long one, each carrying a block
+of dead space. Tabs now size to their content and compress proportionally only when the strip runs
+out of room, which is what VS Code, Visual Studio and Rider all do.
+
+**Sizing to content immediately produced "Expl…", "Out…", "Proble…".** The measurement used
+`TextRenderer` (GDI) while the renderer draws with `Graphics.DrawString` (GDI+), and GDI+ needs more
+width for the same string — so every tab was laid out fractionally too small and ellipsised its own
+title. Measure-here/draw-there, caught only because the render was inspected. The font **and** the
+`StringFormat` are now single-sourced on `CaptionLayoutManager` and consumed by the renderer;
+trimming and wrapping both change how much width a string needs, so sharing one is not optional.
+
+**The auto-hide pin was a lollipop.** `PaintPinFallback` drew a filled circle with a line rising out
+of it, and `CaptionIcons.Pin` pointed at `fi-tr-map-pin.svg` — a location marker. "Pin this panel"
+means a thumbtack; a map pin means "a place". Now drawn as a thumbtack seen side-on: a head bar, a
+markedly narrower parallel shaft, and a needle. The step between head and shaft is what makes it read
+as a pin rather than a funnel — the first attempt tapered and looked like one.
+
+The icon set has no plain thumbtack, only `fi-tr-thumbtack-slash` (the *unpin* state), which is why
+it is drawn rather than referenced.
+
+`DockProbe`: **203 passed, 0 failed**. Docking suite 48/48. Solution 0 errors.
+
+### Remaining
+
+- [ ] The active tab is a solid accent block, which also makes the accent underline and the keyboard
+      focus ring invisible on it — both are drawn and neither can be seen. Modern convention is a
+      surface-coloured tab with an accent underline. **A design decision, not a defect; not changed
+      unilaterally.**

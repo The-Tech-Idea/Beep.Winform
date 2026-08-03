@@ -18,7 +18,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
     /// </summary>
     internal sealed class CaptionRenderer : System.IDisposable
     {
-        private static Font SafeFont => BeepFontManager.DefaultFont ?? SystemFonts.DefaultFont;
+        // Single-sourced with the layout: measuring and drawing must use the same font, or tab
+        // text is clipped or adrift by a few pixels and nobody notices until the theme font changes.
+        private static Font SafeFont => Layoutmanagers.CaptionLayoutManager.CaptionFont;
         private readonly PaintResourceCache _cache = new PaintResourceCache();
 
         public void Dispose() => _cache.Dispose();
@@ -156,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
         {
             var colors = ctx.Colors;
             Font font = SafeFont;
-            using var sf = TabStringFormat();
+            var sf = TabStringFormat();
             foreach (var kv in layout.TabRects)
             {
                 var tab = kv.Key;
@@ -245,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
         {
             var colors = ctx.Colors;
             Font font = SafeFont;
-            using var sf = TabStringFormat();
+            var sf = TabStringFormat();
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             foreach (var kv in layout.TabRects)
@@ -289,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
         {
             var colors = ctx.Colors;
             Font font = SafeFont;
-            using var sf = TabStringFormat();
+            var sf = TabStringFormat();
 
             foreach (var kv in layout.TabRects)
             {
@@ -356,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
         {
             var colors = ctx.Colors;
             Font font = SafeFont;
-            using var sf = TabStringFormat();
+            var sf = TabStringFormat();
 
             foreach (var kv in layout.TabRects)
             {
@@ -404,7 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
         {
             var colors = ctx.Colors;
             Font font = SafeFont;
-            using var sf = TabStringFormat();
+            var sf = TabStringFormat();
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             foreach (var kv in layout.TabRects)
@@ -448,12 +450,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             }
         }
 
-        private static StringFormat TabStringFormat() => new StringFormat
-        {
-            LineAlignment = StringAlignment.Center,
-            Trimming = StringTrimming.EllipsisCharacter,
-            FormatFlags = StringFormatFlags.NoWrap
-        };
+        // The layout measures with this exact format; a second definition here would let the two
+        // drift, and trimming/wrapping both change how much width a string needs.
+        private static StringFormat TabStringFormat()
+            => Layoutmanagers.CaptionLayoutManager.TabFormat;
 
         private void DrawTabContent(Graphics g, Rectangle r, CaptionTabModel tab, Color fore, Font font, StringFormat sf, DockingThemeColors colors)
         {

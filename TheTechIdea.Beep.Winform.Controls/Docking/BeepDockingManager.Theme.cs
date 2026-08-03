@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -35,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                                Color hover, Color accent)
         {
             ApplyDockingThemeColors(
-                DockingThemeColors.FromExplicit(background, foreground, border, hover, accent),
+                ResolveContrast(DockingThemeColors.FromExplicit(background, foreground, border, hover, accent)),
                 updatePainter: true);
         }
 
@@ -53,7 +54,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 if (string.IsNullOrWhiteSpace(_themeName))
                     _themeName = BeepThemesManager.GetThemeName(_currentTheme);
 
-                ApplyDockingThemeColors(DockingThemeColors.FromTheme(_currentTheme, _useThemeColors), updatePainter: true);
+                ApplyDockingThemeColors(
+                    ResolveContrast(DockingThemeColors.FromTheme(_currentTheme, _useThemeColors)),
+                    updatePainter: true);
             }
             catch (Exception ex)
             {
@@ -77,6 +80,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// the host application's <c>IBeepTheme</c> changes at runtime. Use this from a theme
         /// change handler when you want a single call to refresh all managed surfaces.
         /// </summary>
+        /// <summary>
+        /// Overrides high-contrast detection. <c>null</c> (the default) follows the operating
+        /// system; <c>true</c>/<c>false</c> force it.
+        /// </summary>
+        /// <remarks>
+        /// Settable so the behaviour can be exercised without changing a machine-wide Windows
+        /// setting — the same reason the display set is an input rather than an ambient fact.
+        /// </remarks>
+        [Browsable(false)]
+        public bool? HighContrast { get; set; }
+
+        /// <summary>True when docking chrome should be drawn for high contrast.</summary>
+        [Browsable(false)]
+        public bool IsHighContrast => HighContrast ?? SystemInformation.HighContrast;
+
+        /// <summary>
+        /// Minimum contrast ratio text and separators are held to. WCAG AA for normal text is 4.5;
+        /// high contrast raises it to AAA.
+        /// </summary>
+        public const double MinimumContrastRatio = 4.5;
+        public const double HighContrastRatio = 7.0;
+
+        /// <summary>
+        /// Raises the theme's colours to the required contrast without replacing them.
+        /// </summary>
+        /// <remarks>
+        /// The theme and the control style remain the source of the look. High contrast changes how
+        /// far apart a pair has to be, not which palette is used — a theme that already meets the
+        /// ratio comes back unchanged, so this costs nothing for the common case.
+        /// </remarks>
+        private DockingThemeColors ResolveContrast(DockingThemeColors colors)
+            => colors?.WithMinimumContrast(IsHighContrast ? HighContrastRatio : MinimumContrastRatio);
+
         public void RefreshTheme()
         {
             try

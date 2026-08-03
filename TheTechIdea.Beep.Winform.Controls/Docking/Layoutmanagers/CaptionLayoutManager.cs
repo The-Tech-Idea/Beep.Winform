@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Managers;
+using TheTechIdea.Beep.Winform.Controls.Docking.Helpers;
+using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
 {
@@ -156,19 +159,114 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
             }
         }
 
+        /// <summary>
+        /// The font tab text is measured and drawn with.
+        /// </summary>
+        /// <remarks>
+        /// One definition, used by both this layout and <c>CaptionRenderer</c>. Measuring with a
+        /// different font than the one that draws is the defect that produces tabs whose text is
+        /// clipped or adrift by a few pixels, and it is invisible until someone changes the theme
+        /// font.
+        /// </remarks>
+        internal static Font CaptionFont => BeepFontManager.DefaultFont ?? SystemFonts.DefaultFont;
+
+        /// <summary>
+        /// Natural width of a tab: its text, plus the room the renderer reserves for the icon,
+        /// padding and dirty marker.
+        /// </summary>
+        internal static int MeasureTabWidth(CaptionTabModel tab)
+        {
+            if (tab == null) return 0;
+
+            // GDI+, matching the renderer's Graphics.DrawString. Measuring with TextRenderer (GDI)
+            // instead reports a narrower string, and the tab is then laid out fractionally too
+            // small - so every title draws with an ellipsis. Measured: "Explorer" came back as
+            // "Expl...". The measurement has to use the same technology, font and format as the
+            // draw, not merely a similar one.
+            SizeF text;
+            lock (MeasureLock)
+            {
+                using var g = Graphics.FromImage(MeasureSurface);
+                text = g.MeasureString(tab.Title ?? "Panel", CaptionFont, int.MaxValue, TabFormat);
+            }
+
+            int chrome = DockingCaptionPainter.GetTabContentLeft(
+                             DockingCaptionPainter.HasTabIcon(tab.IconPath))
+                         + DockingCaptionPainter.TabTextPadding;
+
+            // The dirty dot is drawn inside the tab's right edge; without room for it the text
+            // runs underneath.
+            if (tab.IsDirty)
+                chrome += DirtyMarkerAllowance;
+
+            return (int)Math.Ceiling(text.Width) + chrome;
+        }
+
+        /// <summary>Room reserved at a tab's right edge for the unsaved-changes dot.</summary>
+        private const int DirtyMarkerAllowance = 12;
+
+        // A 1x1 surface is enough to measure against; it exists only to supply a Graphics with the
+        // same text rendering as the one that paints.
+        private static readonly Bitmap MeasureSurface = new Bitmap(1, 1);
+        private static readonly object MeasureLock = new object();
+
+        /// <summary>
+        /// Format tab text is measured and drawn with. Shared with <c>CaptionRenderer</c> so the
+        /// two cannot drift - trimming and wrapping both change the width a string needs.
+        /// </summary>
+        internal static readonly StringFormat TabFormat = new StringFormat
+        {
+            LineAlignment = StringAlignment.Center,
+            Trimming = StringTrimming.EllipsisCharacter,
+            FormatFlags = StringFormatFlags.NoWrap
+        };
+
+        /// <summary>
+        /// Lays tabs out at their natural width, shrinking them evenly only when they do not fit.
+        /// </summary>
+        /// <remarks>
+        /// Previously every tab got <c>tabsWidth / count</c> clamped to <see cref="MaxTabWidth"/>,
+        /// so all tabs were the same width whatever their label: a three-letter title occupied the
+        /// same 160px as a long one and carried a block of dead space. Every reference product -
+        /// VS Code, Visual Studio, Rider - sizes a tab to its title and only compresses when the
+        /// strip runs out of room, which is what this does.
+        /// <para>
+        /// Compression is proportional rather than truncating the last tab, so the strip degrades
+        /// evenly instead of one tab absorbing the whole shortfall.
+        /// </para>
+        /// </remarks>
         private void LayoutVisibleHorizontalTabs(IReadOnlyList<CaptionTabModel> tabs, int tabsWidth, int height)
         {
             int count = tabs.Count;
             if (count == 0) return;
 
-            int tabWidth = Math.Max(MinTabWidth, Math.Min(MaxTabWidth, tabsWidth / count));
+            var natural = new int[count];
+            long total = 0;
+            for (int i = 0; i < count; i++)
+            {
+                natural[i] = Math.Max(MinTabWidth, Math.Min(MaxTabWidth, MeasureTabWidth(tabs[i])));
+                total += natural[i];
+            }
+
+            // Shrink only if they genuinely do not fit, and never below the overflow floor - past
+            // that the strip should be overflowing rather than showing unreadable stubs.
+            double scale = total > tabsWidth && total > 0 ? tabsWidth / (double)total : 1.0;
+
             int tx = 0;
-            foreach (var tab in tabs)
+            for (int i = 0; i < count; i++)
             {
                 if (tx >= tabsWidth) break;
-                var rect = new Rectangle(tx, 0, Math.Min(tabWidth, tabsWidth - tx), height);
-                _tabRects.Add(new KeyValuePair<CaptionTabModel, Rectangle>(tab, rect));
-                tx += rect.Width;
+
+                int w = scale < 1.0
+                    ? Math.Max(Math.Min(OverflowMinTabWidth, natural[i]), (int)Math.Floor(natural[i] * scale))
+                    : natural[i];
+
+                w = Math.Min(w, tabsWidth - tx);
+                if (w <= 0) break;
+
+                _tabRects.Add(new KeyValuePair<CaptionTabModel, Rectangle>(
+                    tabs[i], new Rectangle(tx, 0, w, height)));
+                tx += w;
             }
         }
 

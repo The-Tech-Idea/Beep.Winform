@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking
@@ -181,6 +182,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 SlidePanelBackColor = panelBack,
                 BorderColor = resolvedBorder,
                 AccentColor = activeBack
+            };
+        }
+
+        /// <summary>
+        /// Returns these colours with every text/background pair raised to at least
+        /// <paramref name="minimumRatio"/>, leaving the theme's hues in place.
+        /// </summary>
+        /// <remarks>
+        /// High contrast is applied to the <b>theme's own colours</b> rather than by swapping in a
+        /// system palette. The theme and the control style stay the source of the look; what changes
+        /// is that any pair too close together is pushed apart until it is legible. Swapping to
+        /// system colours would make a high-contrast dock look like nothing else in the
+        /// application, which is a different product, not an accessible one.
+        /// <para>
+        /// Backgrounds are never altered — moving them would change the layout's appearance for
+        /// everyone looking at it. Only foregrounds move, and only when they fall below the ratio,
+        /// so a theme that is already legible comes back untouched.
+        /// </para>
+        /// </remarks>
+        public DockingThemeColors WithMinimumContrast(double minimumRatio)
+        {
+            // Local rather than ColorUtils.EnsureReadable, which resolves a failing pair through
+            // ColorUtils.GetContrastColor - and that picks black or white from a *brightness*
+            // threshold rather than from the contrast each actually achieves. Measured on this
+            // theme's header: #2196F3 sits at brightness 0.49, so it chose white at 3.12:1 when
+            // black would have given 6.72:1. Choosing by the ratio is the whole job here.
+            Color Readable(Color fore, Color back)
+            {
+                if (back.IsEmpty) return fore;
+                if (!fore.IsEmpty && fore.A == 255 &&
+                    ColorUtils.ContrastRatio(fore, back) >= minimumRatio)
+                    return fore;
+
+                return ColorUtils.ContrastRatio(Color.Black, back) >=
+                       ColorUtils.ContrastRatio(Color.White, back)
+                    ? Color.Black
+                    : Color.White;
+            }
+
+            return new DockingThemeColors
+            {
+                HeaderBackColor = HeaderBackColor,
+                HeaderForeColor = Readable(HeaderForeColor, HeaderBackColor),
+                HeaderButtonBackColor = HeaderButtonBackColor,
+
+                // Header buttons paint over the header itself when their own face is transparent.
+                HeaderButtonForeColor = Readable(
+                    HeaderButtonForeColor,
+                    HeaderButtonBackColor.A == 0 ? HeaderBackColor : HeaderButtonBackColor),
+
+                PanelBackColor = PanelBackColor,
+                PanelForeColor = Readable(PanelForeColor, PanelBackColor),
+
+                ActiveTabBackColor = ActiveTabBackColor,
+                ActiveTabForeColor = Readable(ActiveTabForeColor, ActiveTabBackColor),
+                InactiveTabBackColor = InactiveTabBackColor,
+                InactiveTabForeColor = Readable(InactiveTabForeColor, InactiveTabBackColor),
+
+                // Borders and separators are not text, but they still have to be findable against
+                // the surface they divide - a border that vanishes is what makes a dock layout
+                // unreadable at high contrast even when every label passes.
+                TabBorderColor = Readable(TabBorderColor, HeaderBackColor),
+                BorderColor = Readable(BorderColor, PanelBackColor),
+                SplitterBackColor = SplitterBackColor,
+
+                HoverBackColor = HoverBackColor,
+                AutoHideStripBackColor = AutoHideStripBackColor,
+                AutoHideTabBackColor = AutoHideTabBackColor,
+                AutoHideActiveTabBackColor = AutoHideActiveTabBackColor,
+                SlidePanelBackColor = SlidePanelBackColor,
+                AccentColor = Readable(AccentColor, PanelBackColor),
             };
         }
 

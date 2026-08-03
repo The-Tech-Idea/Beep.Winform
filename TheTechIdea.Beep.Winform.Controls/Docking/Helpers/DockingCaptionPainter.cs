@@ -23,7 +23,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Helpers
             public static string Close => SvgsUIcons.Window.Close;
             public static string DropDown => SvgsUIcons.Carets.Down;
             public static string Float => SvgsUIcons.Window.Maximize;
-            public static string Pin => SvgsUIcons.Map.Pin;
+            // Deliberately empty: the icon set has no plain thumbtack, and fi-tr-map-pin.svg is a
+            // location marker, not a pin you press into a board. An empty path makes PaintIcon
+            // no-op so PaintPinFallback's drawn thumbtack is what appears.
+            public static string Pin => string.Empty;
             public static string DefaultTab => SvgsUIcons.Common.Document;
         }
 
@@ -99,16 +102,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Helpers
             g.DrawLine(pen, inset.Right, inset.Top, inset.Left, inset.Bottom);
         }
 
+        /// <summary>
+        /// Draws the auto-hide affordance as a thumbtack seen side-on: a head bar, a tapering
+        /// barrel and a needle.
+        /// </summary>
+        /// <remarks>
+        /// The previous glyph was a filled circle with a line rising out of it, which reads as a
+        /// lollipop or a map marker rather than a pin — and <c>CaptionIcons.Pin</c> compounded it by
+        /// pointing at <c>fi-tr-map-pin.svg</c>, a location marker. "Pin this panel" means a
+        /// thumbtack; a map pin means "a place", which is a different idea entirely.
+        /// <para>
+        /// Drawn rather than taken from the icon set because the set has no plain thumbtack — only
+        /// <c>fi-tr-thumbtack-slash</c>, which is the <i>unpin</i> state. Geometry is proportional
+        /// so it stays correct as the button scales with DPI.
+        /// </para>
+        /// </remarks>
         public static void PaintPinFallback(Graphics g, Rectangle bounds, Color color)
         {
             if (bounds.IsEmpty)
                 return;
 
-            var c = new Point(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2 + 2);
+            var box = Inset(bounds, Math.Max(2, bounds.Width / 6));
+            if (box.Width < 6 || box.Height < 6)
+                box = bounds;
+
+            int cx = box.Left + box.Width / 2;
+            int headTop = box.Top;
+            int headHeight = Math.Max(2, box.Height / 5);
+            int headHalf = Math.Max(3, box.Width / 2 - 1);
+
+            // The shaft is deliberately much narrower than the head, and parallel-sided. A shaft
+            // that merely tapers from the head reads as a funnel: the step is what identifies a
+            // thumbtack.
+            int barrelTop = headTop + headHeight;
+            int barrelBottom = box.Top + (box.Height * 3) / 5;
+            int barrelHalf = Math.Max(1, headHalf / 3);
+
+            var prior = g.SmoothingMode;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
             using var brush = new SolidBrush(color);
-            g.FillEllipse(brush, c.X - 3, c.Y - 1, 6, 6);
-            using var pen = new Pen(color, 1.5f);
-            g.DrawLine(pen, c.X, bounds.Top + 2, c.X, c.Y - 1);
+
+            // Head: the flat cap the thumb presses.
+            g.FillRectangle(brush, cx - headHalf, headTop, headHalf * 2, headHeight);
+
+            // Barrel: tapering toward the needle, which is what makes it read as a pin rather
+            // than a nail.
+            g.FillRectangle(brush, cx - barrelHalf, barrelTop, barrelHalf * 2, barrelBottom - barrelTop);
+
+            // Needle.
+            using var pen = new Pen(color, Math.Max(1f, box.Width / 12f));
+            g.DrawLine(pen, cx, barrelBottom, cx, box.Bottom);
+
+            g.SmoothingMode = prior;
         }
 
         public static void PaintFloatFallback(Graphics g, Rectangle bounds, Color color)

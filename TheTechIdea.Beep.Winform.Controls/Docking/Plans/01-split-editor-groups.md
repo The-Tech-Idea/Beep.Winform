@@ -205,7 +205,44 @@ width rule on a vertical split's heights.
 
 `DockProbe`: **143 passed, 0 failed**. Docking test suite: **48/48**. Solution builds with 0 errors.
 
+### Per-group tab strips — verified, and it found a sizing defect
+
+Each group does carry its own strip and its own active tab. Every `DockPanel` builds its strip from
+its own `Group.Panels` and highlights its own `Group.ActivePanel`, and the two groups are
+independent: activating a tab in one leaves the other's active panel untouched.
+
+```
+doc1  strip: [Doc 1, Doc 3]   group holds: [doc1, doc3]
+doc2  strip: [Doc 2]          group holds: [doc2]
+doc3  strip: [Doc 1, Doc 3]   group holds: [doc1, doc3]
+```
+
+**The check was wrong twice before it was right**, and both corrections are the point.
+
+*First*, it read the strip of a panel that was not on screen. An inactive panel in a stack sits at
+its default size, and a 200px strip genuinely cannot fit two 160px tabs — so it overflows and drops
+one. That measured the overflow rule, not the grouping, and reported a defect where the design was
+working. The overflow rule is now asserted directly instead (200px overflows, full width does not).
+
+*Second*, after correcting it to activate each panel first, `doc3` **still** reported one tab — and
+this time it was real:
+
+```
+doc3  control=200x100   engine=1400x398   parent=Form   state=Docked   vis=True
+```
+
+The layout engine had the right rectangle; the control never received it. An explicit `ApplyLayout()`
+fixed it, which separated "geometry is wrong" from "geometry is right but never applied".
+
+`AddPanel` called `ApplyLayout()` **before** `_layoutController.InvalidateLayout()`. So the apply
+consumed a cached layout computed before the panel joined the group, found no bounds for it, and
+skipped it. Adding the first panel to an edge was masked, because the host form's own layout pass
+re-triggered a recalculation; joining an existing stack was not. Invalidation now happens as soon as
+the tree changes.
+
+A panel added to an occupied group was therefore left at 200x100 until something unrelated forced a
+relayout — visible to any user who opens a second document in the same tab group.
+
 ### Still open
 
-- [ ] Per-group tab strip with its own active tab — `DockGroup.ActivePanel` exists and nested groups
-      now genuinely receive panels, but whether each renders its own strip is unverified
+Nothing. Feature 01 is complete.

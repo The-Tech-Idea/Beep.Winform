@@ -59,6 +59,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             var group = GetOrCreateGroupAtPosition(dockPosition);
             group.AddPanel(panel);
 
+            // Invalidate as soon as the tree changes, not after the layout has been applied.
+            // ApplyLayout below consumes the controller's cached result; with the invalidation
+            // afterwards it consumed one computed before this panel existed, found no bounds for
+            // it, and skipped it - leaving the control at its default 200x100 while the engine
+            // reported the correct rectangle. Joining an existing stack showed it most clearly,
+            // because adding the first panel to an edge happened to be masked by the host form's
+            // own layout pass re-triggering a recalculation.
+            _layoutController?.InvalidateLayout();
+
             if (_hostForm != null && !IsDesignHosted)
             {
                 // Preferred path: place the panel inside a matching BeepDockspace, exactly like
@@ -93,7 +102,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             // Register tab for interaction handling
             _tabHandler?.RegisterTab(panelKey, title ?? "Panel");
 
-            _layoutController?.InvalidateLayout();
             OnPanelAdded(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel added: {panelKey}");

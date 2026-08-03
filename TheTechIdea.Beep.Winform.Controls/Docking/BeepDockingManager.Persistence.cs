@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             // group but the (now empty) group lingers in the tree. Serializing it would add noise
             // and recreate dead groups on load.
             foreach (var group in _layoutTree.Root.Children)
-                if (GroupHasContent(group))
+                if (GroupHasPersistableContent(group))
                     def.Groups.Add(CaptureGroup(group));
 
             if (_hostForm != null)
@@ -127,14 +127,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             foreach (var child in group.Children)
-                if (GroupHasContent(child))
+                if (GroupHasPersistableContent(child))
                     def.Children.Add(CaptureGroup(child));
 
             return def;
         }
 
-        /// <summary>True when the group (or any descendant) holds at least one docked panel.</summary>
-        private static bool GroupHasContent(DockGroup group)
+        /// <summary>
+        /// True when the group (or any descendant) holds at least one panel the definition can
+        /// express. That means a <see cref="DockPanelState.Docked"/> panel: floating and auto-hidden
+        /// panels are serialized separately (<see cref="DockLayoutDefinition.Floating"/>,
+        /// <see cref="DockLayoutDefinition.AutoHidden"/>) and hidden panels have no representation
+        /// in the schema at all, so a group holding only hidden panels captures as nothing.
+        /// </summary>
+        /// <remarks>
+        /// This is deliberately <b>not</b> the same question as
+        /// <see cref="GroupHasMembers"/>, which governs whether the live tree keeps a group.
+        /// A hidden panel is still a member of its group — it just cannot be written to disk yet.
+        /// Persisting hidden panels needs a <c>Hidden</c> collection and a schema-version bump,
+        /// which belongs with feature 07 (persistence and migration).
+        /// </remarks>
+        private static bool GroupHasPersistableContent(DockGroup group)
             => group != null &&
                group.GetAllPanelsRecursive().Any(p => p != null && p.State == DockPanelState.Docked);
 

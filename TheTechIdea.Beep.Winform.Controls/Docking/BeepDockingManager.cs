@@ -1530,17 +1530,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         /// <summary>Removes root-level groups that no longer contain any docked panels.</summary>
+        /// <summary>
+        /// Drops root groups that no longer own any panel. Floating, auto-hiding and closing a panel
+        /// all detach it from its group (<c>Group.RemovePanel</c>), so a group emptied that way is
+        /// genuinely dead and would otherwise linger in the tree.
+        /// </summary>
+        /// <remarks>
+        /// The test is <b>membership</b>, not visibility. <see cref="HidePanel"/> leaves the panel in
+        /// its group and only flips <see cref="DockPanel.State"/> — so a group whose panels are all
+        /// hidden is still a live group waiting for them to come back, and pruning it strands the
+        /// panel: <see cref="ShowPanel"/>'s re-join branch is guarded on <c>panel.Group == null</c>,
+        /// which a pruned-but-still-referenced group does not satisfy, leaving the panel with no
+        /// allocation and its former siblings holding the space forever.
+        /// <para>
+        /// Keeping such a group costs no space: <c>DockingLayoutController</c> independently skips
+        /// groups with no <see cref="DockPanelState.Docked"/> panel when it allocates bounds, so the
+        /// edge collapses while hidden and is restored when the panel returns.
+        /// </para>
+        /// </remarks>
         private void PruneEmptyRootGroups()
         {
             foreach (var child in _layoutTree.Root.Children.ToList())
             {
-                if (GroupHasContent(child))
+                if (GroupHasMembers(child))
                     continue;
 
                 _layoutTree.Root.RemoveChild(child);
                 _layoutTree.UnregisterGroup(child.Id);
             }
         }
+
+        /// <summary>True when the group, or any descendant, still owns at least one panel.</summary>
+        private static bool GroupHasMembers(DockGroup group)
+            => group != null && group.GetAllPanelsRecursive().Any(p => p != null);
 
         /// <summary>
         /// Back-compat shim: any legacy caller that asked to position a single panel now

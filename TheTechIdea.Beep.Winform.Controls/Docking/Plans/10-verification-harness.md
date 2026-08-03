@@ -125,19 +125,63 @@ after show:   Group=group_Bottom_… Parent=Form Visible=True
 The group is retained (so the guard correctly skips), and the panel is re-parented to exactly what it
 had before — `Parent=Form` is normal in this configuration, and it carried real bounds initially.
 
-The actual fault is one level down. `BeepDockingManager.GetPanelBounds` delegates to
-`_layoutController.GetPanelBounds(panelKey)`, and **the layout controller holds no allocation for a
-panel returning from `Hidden`**. That is also why the siblings keep the full 600px height: the
-controller still believes the bottom edge is empty. Control-level hosting is correct throughout.
+The third reading — *"the layout controller holds no allocation for a panel returning from
+`Hidden`"* — described the symptom correctly but still named the wrong component. Instrumenting one
+level further up settled it:
 
-**Not fixed here.** The fix belongs in `Layout/DockingLayoutController` — restoring an edge
-allocation when a panel leaves `Hidden` — and that is the same allocation logic features
-[01](01-split-editor-groups.md) and [04](04-maximise-and-zen.md) touch. It is committed as a
-reproducing check that currently fails, which is a better handoff than a third guess.
+```
+group still under Root while hidden: False
+```
 
-Two wrong mechanisms published before the right one is worth recording on its own: both were
-*plausible readings of the code* that the measurement contradicted. Reading suggests a cause;
-only instrumenting the transition establishes one.
+**The group is pruned out of the tree.** `ApplyLayout` calls `PruneEmptyRootGroups` on every pass,
+and its test — `GroupHasContent` — counted only panels in state `Docked`. Hiding the bottom edge's
+only panel therefore made its group look empty, so the group was removed from `Root` and
+unregistered. The panel kept its now-orphaned `Group` reference, so `ShowPanel`'s re-join branch
+(guarded on `panel.Group == null`) correctly skipped — and there was no longer any group in the tree
+to allocate space to. The layout controller was never at fault; it was asked to lay out a tree the
+panel had been cut out of.
+
+### The fix: membership is not visibility
+
+`GroupHasContent` answered a visibility question where a **structural** one was needed. The three
+operations its comment names — float, auto-hide, close — each call `Group.RemovePanel`, so a group
+emptied by them holds no panels at all. `HidePanel` does not: it flips `State` and `Visible` and
+leaves membership intact. So `group.Panels` membership was already the exact test the comment
+described, and the `State == Docked` filter was redundant for the cases it was written for and
+wrong for the one it was not.
+
+The predicate served two genuinely different questions, so it is now two:
+
+| | asks | used by |
+|---|---|---|
+| `GroupHasMembers` | does this group still own any panel? | live-tree pruning |
+| `GroupHasPersistableContent` | does it hold anything the schema can express? | `FillDefinition`, `CaptureGroup` |
+
+Keeping a hidden-only group costs no space: `DockingLayoutController` independently skips groups
+with no `Docked` panel when allocating bounds, so the edge still collapses while hidden. That
+separation is what makes the structural test safe.
+
+### Measured
+
+```
+original:            explorer:Docked:Left:249x447 | output:Docked:Bottom:900x149 | props:Docked:Right:179x447
+after hide → show:   explorer:Docked:Left:249x447 | output:Docked:Bottom:900x149 | props:Docked:Right:179x447
+```
+
+Byte-identical. The sensitivity baseline still passes, so the check remains able to fail.
+
+**Three wrong mechanisms published before the right one** is the finding worth keeping. Each was a
+*plausible reading of the code*, and each was contradicted by measurement — including the third,
+which was already written up as the diagnosis. Reading suggests a cause; only instrumenting
+establishes one, and "I have now instrumented it" was itself wrong once. The check that finally
+localised it asked about a single object's presence in a container, not about behaviour.
+
+### Left open
+
+Persistence still cannot express a hidden panel — `DockLayoutDefinition` has `Floating` and
+`AutoHidden` collections but no `Hidden`, so a save/load loses the membership this fix restores.
+That needs a schema-version bump and belongs with [07](07-persistence-and-migration.md); it is
+recorded in `GroupHasPersistableContent`'s remarks rather than half-built here.
 
 ### Ground rules, enforced mechanically
 

@@ -50,7 +50,9 @@ public class BeepDialogManagerCreationTests
 
             using var dialog = manager.CreateDialog(config);
 
-            Assert.Same(content, dialog.CustomContent);
+            // CreateDialog returns Form, and no CustomContent property has ever existed on it -
+            // this line predates the current API and never compiled against it. The relationship
+            // it was asserting is covered from the other end by FindForm below.
             Assert.Same(dialog, content.FindForm());
             Assert.Equal(DockStyle.Fill, content.Dock);
         });

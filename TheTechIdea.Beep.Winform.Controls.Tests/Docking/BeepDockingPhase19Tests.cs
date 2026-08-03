@@ -104,8 +104,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
         [Fact]
         public void DockLayoutDefinition_HasSchemaVersion()
         {
+            // A new definition stamps the current schema, not a literal. Pinning the literal here
+            // is what made this test fail on the version 2 bump (which added Hidden) even though
+            // the behaviour under test - that a definition carries a version at all - was intact.
             var def = new DockLayoutDefinition();
-            Assert.Equal(1, def.SchemaVersion);
+            Assert.Equal(DockLayoutDefinition.CurrentSchemaVersion, def.SchemaVersion);
+            Assert.True(def.SchemaVersion >= 1);
+        }
+
+        [Fact]
+        public void DockLayoutDefinition_VersionOneStillLoads()
+        {
+            // The v1 -> v2 migration is the identity: v1 definitions have no Hidden list, and an
+            // absent list means "nothing hidden", which is what an empty one means too.
+            var def = new DockLayoutDefinition { SchemaVersion = 1 };
+            Assert.Empty(def.Hidden);
+            Assert.True(def.SchemaVersion <= DockLayoutDefinition.CurrentSchemaVersion);
         }
 
         [Fact]

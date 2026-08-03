@@ -1268,6 +1268,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 floatWindow = new FloatWindow(panel, _hostForm, initialBounds);
             }
             floatWindow.ControlStyle = _style;
+            // Same display set the manager resolves saved float bounds against, so snapping and
+            // restoring cannot disagree about which screens exist.
+            floatWindow.Monitors = Monitors;
             floatWindow.ApplyDockingTheme(_themeColors);
             floatWindow.PanelRedocked += OnFloatWindowRedocked;
 

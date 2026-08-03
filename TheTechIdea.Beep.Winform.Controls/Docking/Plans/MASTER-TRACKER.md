@@ -29,7 +29,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 |---|---|---|---|
 | [01](01-split-editor-groups.md) | Split editor groups | VS Code, Dockview, Rider | ☑ **done** — command API, minimum group size, overlap validation, validator wired in, per-group tab strips verified |
 | [02](02-layout-perspectives.md) | Named layout perspectives | Rider layouts, Blender workspaces, VS | ◐ **partial** — model, commands, Ctrl+Alt+1..9, capture-before-switch; picker UI open |
-| [03](03-multi-monitor-floating.md) | Multi-monitor floating windows | VS, Rider, Figma | ◐ **partial** — injectable monitor set, device-name restore with clamping, DPI scaling; mixed-DPI unverified, display-edge snapping open |
+| [03](03-multi-monitor-floating.md) | Multi-monitor floating windows | VS, Rider, Figma | ◐ **partial** — injectable monitor set, device-name restore with clamping, DPI scaling, display-edge snapping; mixed-DPI verification needs real hardware |
 | [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☑ **done** — transient maximise, tree never mutated; input wiring deferred to 06 |
 | [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ◐ **partial** — result preview, Esc-cancel and tab-index drop done; hover animation and group-level rosette open |
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ◐ **partial** — accessible tree, command set, focus ring; high-contrast open |

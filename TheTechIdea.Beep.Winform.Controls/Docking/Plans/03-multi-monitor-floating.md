@@ -139,5 +139,29 @@ execution (passes in isolation; unrelated to floats).
 ### Remaining
 
 - [ ] `WM_DPICHANGED` behaviour verified on real mixed-DPI displays
-- [ ] Snap-to-owner-edges (`FloatWindow.SnapToOwnerEdges`) still reasons only about the owner form;
-      snapping to *display* edges is the other half of what this document's last work item asks for
+### Snapping now catches display edges
+
+`SnapToOwnerEdges` considered only the owner form, so a float dragged to the top of a second monitor
+caught nothing — the owner is on another screen entirely, and the edge a user most expects a window
+to catch is the one belonging to the screen it is on.
+
+The decision moved into `FloatSnapCalculator`, a pure function of (window, owner, displays), for the
+same reason as `FloatBoundsResolver`: it can then be exercised against a supplied display list rather
+than by dragging a window across real monitors. `FloatWindow` takes the manager's `IMonitorProvider`,
+so snapping and restore cannot disagree about which screens exist.
+
+The owner is tried first — a float aligned to the application window is almost always what was meant
+— and each axis decides independently, so a window can catch the owner's left edge and the screen's
+top edge at once.
+
+```
+near the owner's left edge:     {100,300}  via Left        (owner)
+near the second screen's corner:{1920,0}   via Left, Top   (display)
+owner's left + screen's top:    {100,0}    via Left, Top
+away from every edge:           {1000,300} (no snap)
+```
+
+**The "away from every edge" check failed first, and the fixture was wrong.** The window was placed
+at y=400 with height 300, putting its bottom on exactly 700 — the owner's bottom edge. It snapped,
+correctly. "Away from every edge" has to be checked against the numbers rather than assumed from the
+picture in one's head.

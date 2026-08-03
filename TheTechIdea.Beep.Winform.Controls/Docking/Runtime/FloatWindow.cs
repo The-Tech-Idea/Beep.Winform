@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers;
+using TheTechIdea.Beep.Winform.Controls.Docking.Layout;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption;
@@ -266,23 +267,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             SnapToOwnerEdges();
         }
 
+        /// <summary>
+        /// Snaps to the owner's edges, and to the edges of the display the window is on.
+        /// </summary>
+        /// <remarks>
+        /// Display edges matter as much as the owner's: a float dragged to the top of a second
+        /// monitor previously caught nothing, because only the owner form was considered and the
+        /// owner is on another screen entirely. The decision itself lives in
+        /// <see cref="FloatSnapCalculator"/> so it can be exercised against a supplied display list
+        /// rather than by dragging a window across real monitors.
+        /// </remarks>
         private void SnapToOwnerEdges()
         {
-            if (Owner == null || Owner.IsDisposed)
-                return;
+            Rectangle owner = Owner != null && !Owner.IsDisposed ? Owner.Bounds : Rectangle.Empty;
 
-            Rectangle dock = Owner.Bounds;     // screen coordinates
-            Rectangle me   = Bounds;
-            int x = me.X, y = me.Y;
+            var result = FloatSnapCalculator.Snap(
+                Bounds, owner, Monitors.GetMonitors(), SnapThreshold);
 
-            if (Math.Abs(me.Left   - dock.Left)   <= SnapThreshold) x = dock.Left;
-            else if (Math.Abs(me.Right  - dock.Right)  <= SnapThreshold) x = dock.Right  - me.Width;
-            if (Math.Abs(me.Top    - dock.Top)    <= SnapThreshold) y = dock.Top;
-            else if (Math.Abs(me.Bottom - dock.Bottom) <= SnapThreshold) y = dock.Bottom - me.Height;
-
-            if (x != me.X || y != me.Y)
-                Location = new Point(x, y);
+            if (result.Location != Location)
+                Location = result.Location;
         }
+
+        /// <summary>
+        /// Displays this window snaps against. Defaults to the real ones; the owning manager
+        /// assigns its own provider so both agree on what screens exist.
+        /// </summary>
+        internal IMonitorProvider Monitors
+        {
+            get => _monitors ??= SystemMonitorProvider.Instance;
+            set => _monitors = value;
+        }
+
+        private IMonitorProvider _monitors;
 
         // ── WndProc — resize-border hit testing ───────────────────────────────
 

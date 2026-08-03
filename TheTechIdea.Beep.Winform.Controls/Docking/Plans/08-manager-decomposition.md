@@ -57,3 +57,59 @@ Target: no partial much over 400 lines, each named for what it holds.
   this repository alone has already missed cross-repo consumers once
 - The harness ([10](10-verification-harness.md)) reports the same results before and after each
   extraction — the point of doing it first
+
+---
+
+## Outcome (partial)
+
+### What reading found
+
+This document said to read the file before proposing a split, because the `Filtering` decomposition
+began with a hypothesis that reading disproved. Reading found a clear order — construction, host-form
+wiring, panel registration, layout application, direct panel operations, bulk/request API, event
+raisers, MRU/navigator, dispose — with no duplication of the layout helpers. The problem is size and
+the absence of any stated boundary, not layering.
+
+### Extracted
+
+| file | lines | concern |
+|---|---|---|
+| `BeepDockingManager.Events.cs` | 137 | the 26 event raisers |
+| `BeepDockingManager.Theme.cs` | 125 | theme application across panels, strips, floats, splitters |
+| `BeepDockingManager.Navigation.cs` | 189 | MRU tracking and the Ctrl+Tab navigator it drives |
+| `BeepDockingManager.PanelRequests.cs` | 238 | bulk operations, store/restore, state-change requests |
+
+`BeepDockingManager.cs`: **3,317 → 2,742**. Four partials, each named for what it holds.
+
+The `PanelRequests` grouping is a real seam rather than a convenience: those members share a shape —
+each is a request that may be refused — as distinct from the direct operations that simply act.
+
+### An extraction error worth recording
+
+The first attempt's end-detection walked past the last event raiser and pulled `PushMrPanel` into
+`Events.cs` with it. Caught by grepping for the declaration afterwards, not by the compiler — the
+code still compiled, it was simply in the wrong file. It was moved into `Navigation.cs`, where it
+belongs, and the extraction helper was rewritten to track brace depth from the last member's opening
+brace rather than guessing.
+
+**A partial split that compiles is not evidence the boundary is right.** Verify by asking where each
+member landed, not by asking whether it builds.
+
+### Remaining
+
+`BeepDockingManager.cs` is still 2,742 lines — above the ~400 target. The seams are identified and
+each is a contiguous block:
+
+- [ ] host-form wiring — `ManageControl`, `Attach`/`DetachHostFormHandlers`, `OnHostFormLayoutChanged`,
+      `EnsurePanelHosted`, `DetachPanelFromParent` (~120 lines)
+- [ ] float-window and auto-hide-strip lifecycle — `CloseFloatWindowFor`, `CloseAllFloatWindows`,
+      `ClearAllAutoHidePanels`, `DetachFromAutoHideStrip`, `CreateAutoHideStrips` (~220 lines)
+- [ ] splitters — `SyncSplitters`, `OnEngineSplitterMoved` (~120 lines)
+- [ ] panel registration — `AddPanel`, `Register`/`UnregisterExistingPanel`, the `Notify*` trio,
+      `RegisterDesignerCreatedPanels`, `RemovePanel` (~280 lines)
+- [ ] layout application — `ApplyLayout`, `SyncDockspaceDockStyles`, `SeedEdgeRatios`,
+      `PruneEmptyRootGroups`, `ApplyLayoutBounds` and helpers (~200 lines)
+
+Stopping here rather than continuing is deliberate: each extraction is cheap individually, but the
+one error above shows they need checking one at a time, and the value of the remaining five is lower
+than the value of feature 10's harness existing before feature work begins.

@@ -34,7 +34,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ☐ |
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ☐ |
 | [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ☐ |
-| [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ☐ |
+| [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ◐ **partial** — 3,317 → 2,742; four partials extracted, further seams identified |
 | [09](09-dead-surface.md) | Dead and duplicated surface | — | ☑ **done** |
 | [10](10-verification-harness.md) | Verification harness | — | ☐ |
 

@@ -31,7 +31,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | [02](02-layout-perspectives.md) | Named layout perspectives | Rider layouts, Blender workspaces, VS | ☐ |
 | [03](03-multi-monitor-floating.md) | Multi-monitor floating windows | VS, Rider, Figma | ☐ |
 | [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☐ |
-| [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ☐ |
+| [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ◐ **partial** — result preview done; Esc-cancel, tab-index drop, hover animation open |
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ☐ |
 | [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ☐ |
 | [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ◐ **partial** — 3,317 → 2,742; four partials extracted, further seams identified |

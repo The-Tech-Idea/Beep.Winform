@@ -46,3 +46,51 @@ nothing. Three previous programs found painters whose distinct code produced ide
   1px — a preview that lies is worse than no preview
 - Drive a drag and press `Esc`; assert the layout tree is byte-identical to the pre-drag capture
 - Confirm the comparison reports a render against itself as identical, before trusting any pass
+
+---
+
+## Outcome (partial)
+
+### What `ShowSnapGuide` actually rendered
+
+This document's first task was to establish that rather than assume it. `DrawSnapLine` drew a **3px
+bar** on one edge of the target rectangle. Only `DockPosition.Fill` showed the whole region; the four
+edge positions each showed a sliver.
+
+So a user dragging to `Left` saw a thin blue line and had to infer how much space the panel would
+take. Every reference product — Visual Studio, VS Code, Dockview, Golden Layout — previews the
+resulting rectangle.
+
+### The preview was already truthful; only the drawing was not
+
+`DockDragController` passes `result.PreviewBounds` — the rectangle the drop actually produces, and
+the same one positioning the drag ghost (`_ghost.MoveTo(result.PreviewBounds)`). Nothing needed
+recomputing: the overlay simply had to fill what it was already given.
+
+It now fills the region translucently, keeps an accent bar on the edge the split lands against, and
+outlines the whole rectangle. `Fill` gets no edge bar, because it has no side.
+
+### Measured
+
+| position | covered, before | covered, now |
+|---|---|---|
+| Left / Right / Top / Bottom | ~1.3% | **98–99%** |
+| Fill | ~98% | ~98% |
+
+All 10 position pairs render differently. Two baselines confirm the checks discriminate: the
+comparison reports a render against itself as identical, and the reconstructed 3px-bar rendering is
+correctly measured at **1.3%** — so the coverage check would have caught the old behaviour.
+
+Per-position PNGs are written to `scratchpad/dock-renders`.
+
+### Remaining in this feature
+
+- [ ] `Esc` cancels an in-flight drag and restores the pre-drag layout — the capture primitive from
+      [10](10-verification-harness.md) makes this a one-line assertion once implemented
+- [ ] Drop between two tabs to choose the insertion index, not only "into this group"
+- [ ] Centre and edge targets over the hovered *group* — needs [01](01-split-editor-groups.md)
+- [ ] Hover growth animation on the guide targets, respecting reduced-motion
+- [ ] Guides target the monitor under the cursor — needs [03](03-multi-monitor-floating.md)
+
+Three of the five depend on features not yet built, which is why this one stops here rather than
+being carried further now.

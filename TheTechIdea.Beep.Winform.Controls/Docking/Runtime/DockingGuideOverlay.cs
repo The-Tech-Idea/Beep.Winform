@@ -184,22 +184,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             if (local.Width <= 0 || local.Height <= 0)
                 return;
 
+            // The whole region the panel will occupy, filled translucently - not a sliver of its
+            // edge. `local` is the caller's PreviewBounds, the same rectangle that positions the
+            // drag ghost and the same one the drop actually produces, so filling it is truthful.
+            //
+            // Previously only DockPosition.Fill showed the region; every edge position drew a 3px
+            // bar, so a user dropping Left saw a thin line and had to infer how much space the
+            // panel would take. Every comparable product - Visual Studio, VS Code, Dockview, Golden
+            // Layout - previews the resulting rectangle.
+            using (var region = new SolidBrush(Color.FromArgb(64, 0, 122, 204)))
+                g.FillRectangle(region, local);
+
             const int thickness = 3;
-            Rectangle bar;
+            Rectangle edge;
             switch (_snapLinePosition)
             {
-                case DockPosition.Left:   bar = new Rectangle(local.X, local.Y, thickness, local.Height); break;
-                case DockPosition.Right:  bar = new Rectangle(local.Right - thickness, local.Y, thickness, local.Height); break;
-                case DockPosition.Top:    bar = new Rectangle(local.X, local.Y, local.Width, thickness); break;
-                case DockPosition.Bottom: bar = new Rectangle(local.X, local.Bottom - thickness, local.Width, thickness); break;
-                case DockPosition.Fill:   bar = local; break;
+                case DockPosition.Left:   edge = new Rectangle(local.X, local.Y, thickness, local.Height); break;
+                case DockPosition.Right:  edge = new Rectangle(local.Right - thickness, local.Y, thickness, local.Height); break;
+                case DockPosition.Top:    edge = new Rectangle(local.X, local.Y, local.Width, thickness); break;
+                case DockPosition.Bottom: edge = new Rectangle(local.X, local.Bottom - thickness, local.Width, thickness); break;
+                case DockPosition.Fill:   edge = Rectangle.Empty; break;
                 default: return;
             }
 
-            using (var fill = new SolidBrush(Color.FromArgb(160, 0, 122, 204)))
-                g.FillRectangle(fill, bar);
-            using (var pen = new Pen(Color.White, 1f))
-                g.DrawRectangle(pen, bar);
+            // The accent edge says which side the split lands on - Fill has no side, so none.
+            if (!edge.IsEmpty)
+                using (var accent = new SolidBrush(Color.FromArgb(200, 0, 122, 204)))
+                    g.FillRectangle(accent, edge);
+
+            using (var pen = new Pen(Color.FromArgb(220, 255, 255, 255), 1f))
+                g.DrawRectangle(pen, new Rectangle(local.X, local.Y, local.Width - 1, local.Height - 1));
         }
 
         private void DrawDiamond(Graphics g, Rectangle r, DockPosition target)

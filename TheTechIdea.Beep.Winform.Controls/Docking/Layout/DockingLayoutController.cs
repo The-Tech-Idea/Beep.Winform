@@ -26,6 +26,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
 
         private DockLayoutResult _result;
 
+        // Transient: which panel currently owns the whole container. Never persisted, never
+        // reflected into the tree - see MaximisedPanelKey.
+        private string _maximisedPanelKey;
+
         // Constants
         private const int MIN_PANEL_WIDTH = 50;
         private const int MIN_PANEL_HEIGHT = 50;
@@ -60,6 +64,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
                 }
             }
         }
+
+        /// <summary>
+        /// Key of the panel that temporarily occupies the whole container, or <c>null</c> when the
+        /// layout is arranged normally.
+        /// </summary>
+        /// <remarks>
+        /// Maximising is a <b>transient property of the layout pass, never a change to the tree</b>.
+        /// Nothing about groups, split ratios, active tabs or panel states is touched while a panel
+        /// is maximised, so restoring is a matter of clearing this key and laying out again — not a
+        /// reconstruction that can drift. Implementations that maximise by rearranging the tree are
+        /// exactly the ones that lose splitter positions on restore.
+        /// </remarks>
+        public string MaximisedPanelKey
+        {
+            get => _maximisedPanelKey;
+            set
+            {
+                string normalized = string.IsNullOrWhiteSpace(value) ? null : value;
+                if (_maximisedPanelKey == normalized)
+                    return;
+
+                _maximisedPanelKey = normalized;
+                InvalidateLayout();
+            }
+        }
+
+        /// <summary>True while a panel is maximised.</summary>
+        public bool IsMaximised => _maximisedPanelKey != null;
 
         /// <summary>
         /// Metrics used for layout calculations (tab height, chrome height, splitter width).
@@ -249,6 +281,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
             if (container.Width <= 0 || container.Height <= 0 || _layoutTree.Root == null)
                 return new DockLayoutResult(container, panelBounds, groupBounds, splitters);
 
+            // A maximised panel takes the whole container and nothing else is allocated. The tree is
+            // read but never written, so clearing MaximisedPanelKey and laying out again reproduces
+            // the previous arrangement exactly, ratios included.
+            if (_maximisedPanelKey != null &&
+                BuildMaximisedLayout(container, panelBounds, groupBounds, out var maximisedResult))
+                return maximisedResult;
+
             var remaining = container;
 
             // Resolve the edge groups that actually have visible panels.
@@ -320,6 +359,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
             }
 
             return new DockLayoutResult(container, panelBounds, groupBounds, splitters);
+        }
+
+        /// <summary>
+        /// Allocates the whole container to the maximised panel and its ancestor groups.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> when the maximised key resolved to a panel that can hold the container.
+        /// <c>false</c> means the key is stale — the panel was closed, floated or auto-hidden while
+        /// maximised — and the caller falls through to the normal arrangement rather than producing
+        /// an empty layout. Ancestor groups get the container too, because a dockspace hosting
+        /// several groups positions each from <see cref="DockLayoutResult.GetGroupBounds"/>.
+        /// </returns>
+        private bool BuildMaximisedLayout(Rectangle container,
+            Dictionary<string, Rectangle> panelBounds,
+            Dictionary<string, Rectangle> groupBounds,
+            out DockLayoutResult result)
+        {
+            result = null;
+
+            var panel = _layoutTree.GetPanel(_maximisedPanelKey);
+            if (panel == null || panel.State != DockPanelState.Docked)
+                return false;
+
+            panelBounds[panel.Key] = container;
+
+            for (var group = panel.Group; group != null; group = group.Parent)
+                groupBounds[group.Id] = container;
+
+            // No splitters: with one panel filling the container there is no boundary to drag.
+            result = new DockLayoutResult(container, panelBounds, groupBounds,
+                                          new List<DockSplitterHit>());
+            return true;
         }
 
         // A group reserves layout space only when it holds at least one docked panel.

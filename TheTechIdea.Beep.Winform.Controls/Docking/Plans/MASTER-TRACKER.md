@@ -20,7 +20,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | **Split editor groups** | present | **the audit was wrong** — see [01](01-split-editor-groups.md) |
 | **Multi-monitor awareness** | **0** (`Screen.AllScreens`) | absent |
 | **Layout perspectives / presets** | **0** | absent |
-| **Panel maximise / zen** | 1 ref | effectively absent |
+| **Panel maximise / zen** | 1 ref | absent — **built**, see [04](04-maximise-and-zen.md) |
 | **Accessibility** | **0** | absent |
 
 ## Features
@@ -30,13 +30,13 @@ Measured, not assumed — each figure is a reference count across the folder.
 | [01](01-split-editor-groups.md) | Split editor groups | VS Code, Dockview, Rider | ◐ **partial** — model and drag-split already existed; command API added |
 | [02](02-layout-perspectives.md) | Named layout perspectives | Rider layouts, Blender workspaces, VS | ☐ |
 | [03](03-multi-monitor-floating.md) | Multi-monitor floating windows | VS, Rider, Figma | ☐ |
-| [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☐ |
+| [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☑ **done** — transient maximise, tree never mutated; input wiring deferred to 06 |
 | [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ◐ **partial** — result preview done; Esc-cancel, tab-index drop, hover animation open |
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ☐ |
 | [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ☐ |
 | [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ◐ **partial** — 3,317 → 2,742; four partials extracted, further seams identified |
 | [09](09-dead-surface.md) | Dead and duplicated surface | — | ☑ **done** |
-| [10](10-verification-harness.md) | Verification harness | — | ☑ **done** — capture primitive + ground rules; found a hide/show defect on first run |
+| [10](10-verification-harness.md) | Verification harness | — | ☑ **done** — capture primitive + ground rules; found a hide/show defect on first run, now fixed |
 
 Features 01–07 add capability. 08–09 are the structural work that makes them safe to build.
 10 is how any of it is known to work.

@@ -1884,6 +1884,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel.State == DockPanelState.Hidden)
                 return;
 
+            // A panel that owns the whole container cannot simply leave it: every other panel
+            // is concealed and nothing would occupy the space. Restore first, then proceed
+            // against the normal arrangement.
+            RestoreIfMaximised(panelKey);
+
             panel.State = DockPanelState.Hidden;
             panel.Visible = false;
 
@@ -1918,6 +1923,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             if (!_panelsByKey.TryGetValue(panelKey, out var panel))
                 throw new ArgumentException($"Panel '{panelKey}' not found", nameof(panelKey));
+
+
+            // A panel that owns the whole container cannot simply leave it: every other panel
+            // is concealed and nothing would occupy the space. Restore first, then proceed
+            // against the normal arrangement.
+            RestoreIfMaximised(panelKey);
 
             // HideOnClose: keep the panel in the manager and just hide it. ShowPanel will
             // re-attach it to the layout tree. Mirrors DockContent.HideOnClose behavior.
@@ -2054,6 +2065,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             if (!panel.CanFloat)
                 throw new InvalidOperationException($"Panel '{panelKey}' does not allow floating");
+
+            // A panel that owns the whole container cannot simply leave it: every other panel
+            // is concealed and nothing would occupy the space. Restore first, then proceed
+            // against the normal arrangement.
+            RestoreIfMaximised(panelKey);
 
             // Fire the UI-level cancelable request so subscribers (e.g. host application
             // that wants to confirm before floating) can veto. MakeFloatingRequest also fires
@@ -2258,6 +2274,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             if (!panel.CanAutoHide)
                 throw new InvalidOperationException($"Panel '{panelKey}' does not allow auto-hide");
+
+            // A panel that owns the whole container cannot simply leave it: every other panel
+            // is concealed and nothing would occupy the space. Restore first, then proceed
+            // against the normal arrangement.
+            RestoreIfMaximised(panelKey);
 
             var hideArgs = new CancelPanelRequestEventArgs(panelKey, panel);
             OnPageAutoHiddenRequest(hideArgs);

@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
     [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers.DockPanelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     [DefaultEvent(nameof(Activated))]
     [DefaultProperty(nameof(Title))]
-    public class DockPanel : Panel
+    public partial class DockPanel : Panel
     {
         // ── dockspace header / tab strip ───────────────────────────────────
         private const int CaptionHeight = 24;

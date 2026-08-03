@@ -30,6 +30,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         // reflected into the tree - see MaximisedPanelKey.
         private string _maximisedPanelKey;
 
+        // Axis extent each edge group's SplitRatio was applied to, recorded by BuildLayout and read
+        // by DragSplitter. Single-sourcing this is what makes a drag move the divider by exactly
+        // the requested pixels: the ratio means "this fraction of the space still available at the
+        // point this edge was allocated", which only BuildLayout knows.
+        private readonly Dictionary<string, int> _edgeAxisExtent = new Dictionary<string, int>();
+
         // Constants
         private const int MIN_PANEL_WIDTH = 50;
         private const int MIN_PANEL_HEIGHT = 50;
@@ -217,11 +223,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
             bool horizontalAxis = adjustGroup.Position == DockPosition.Left || adjustGroup.Position == DockPosition.Right
                 || (adjustGroup.Children.Count >= 2 && adjustGroup.SplitOrientation == SplitOrientation.Horizontal);
 
-            // For nested groups, use the parent group's laid-out bounds as the axis reference.
+            // The ratio must be adjusted against the same extent BuildLayout multiplied it by,
+            // otherwise the divider moves by the requested delta scaled by an unrelated ratio.
+            // For a root edge that extent is the space still unallocated when the edge was placed -
+            // recorded by BuildLayout, because nothing else can know it. Reading the group's own
+            // laid-out rectangle here instead made every drag overshoot by
+            // (available / groupExtent): a 16px drag on a 249px-wide edge of a 900px host moved it
+            // 57px, and the inverse drag did not return to where it started.
             int axisSize;
-            var cachedResult = _result;
-            if (cachedResult != null && cachedResult.GroupBounds.TryGetValue(adjustGroup.Id, out var parentBounds) && !parentBounds.IsEmpty)
+            if (_edgeAxisExtent.TryGetValue(adjustGroup.Id, out int recorded) && recorded > 0)
             {
+                axisSize = recorded;
+            }
+            else if (_result != null &&
+                     _result.GroupBounds.TryGetValue(adjustGroup.Id, out var parentBounds) &&
+                     !parentBounds.IsEmpty)
+            {
+                // Nested child splitter: the parent group's laid-out bounds are the axis the child
+                // ratios divide, so they are the correct reference here.
                 axisSize = horizontalAxis ? parentBounds.Width : parentBounds.Height;
             }
             else
@@ -289,6 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
                 return maximisedResult;
 
             var remaining = container;
+            _edgeAxisExtent.Clear();
 
             // Resolve the edge groups that actually have visible panels.
             var edgeGroups = _layoutTree.Root.Children
@@ -311,6 +331,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
 
                 int desired = (int)Math.Round(available * group.SplitRatio);
                 int size = _calculator.ClampSplit(desired, available, minThis, minOther);
+
+                // Remember what the ratio was measured against, so a drag of N pixels moves the
+                // divider by N pixels rather than by N scaled by some unrelated rectangle.
+                _edgeAxisExtent[group.Id] = available;
 
                 Rectangle groupRect;
                 Rectangle splitterRect;

@@ -100,17 +100,88 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     e.SuppressKeyPress = true;
                 }
             }
-            else if (e.Control && e.Shift && e.KeyCode == Keys.Left)
+            else if (e.Control && e.Shift && !e.Alt && e.KeyCode == Keys.Left)
             {
+                // !e.Alt matters: Ctrl+Alt+Shift+Left is the edge-resize binding below, and this
+                // is an else-if chain - a guard loose enough to match it would consume the key,
+                // decline to act, and leave the resize branch unreachable.
                 if (MoveActivePanel(-1))
                 {
                     e.Handled = true;
                     e.SuppressKeyPress = true;
                 }
             }
-            else if (e.Control && e.Shift && e.KeyCode == Keys.Right)
+            else if (e.Control && e.Shift && !e.Alt && e.KeyCode == Keys.Right)
             {
+                // !e.Alt matters: Ctrl+Alt+Shift+Right is the edge-resize binding below, and this
+                // is an else-if chain - a guard loose enough to match it would consume the key,
+                // decline to act, and leave the resize branch unreachable.
                 if (MoveActivePanel(1))
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
+            else if (e.Alt && !e.Control && !e.Shift &&
+                     e.KeyCode >= Keys.D1 && e.KeyCode <= Keys.D9)
+            {
+                // Rider's Alt+1..9. Indexes the docked panels in a stable order so the same key
+                // reaches the same panel between presses.
+                if (FocusPanelByIndex(e.KeyCode - Keys.D1))
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
+            else if (e.Control && e.Shift && e.KeyCode == Keys.F12)
+            {
+                // Rider's Ctrl+Shift+F12 - maximise the active panel, or restore it.
+                string activeKey = GetActivePanelKey();
+                if (!string.IsNullOrEmpty(activeKey) && ToggleMaximise(activeKey))
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
+            else if (e.Control && e.Alt && e.KeyCode == Keys.Z)
+            {
+                // VS Code binds zen to the Ctrl+K Z chord; WinForms key handling has no chord
+                // support, so this is the single-stroke equivalent.
+                string activeKey = GetActivePanelKey();
+                if (!string.IsNullOrEmpty(activeKey) && ToggleZenMode(activeKey))
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
+            else if (e.Control && e.Alt && !e.Shift &&
+                     (e.KeyCode == Keys.Right || e.KeyCode == Keys.Down))
+            {
+                // Rider's Split Right / Split Down, driving the same CommitGroupEdge the drag path
+                // uses rather than a second split implementation.
+                string activeKey = GetActivePanelKey();
+                bool split = !string.IsNullOrEmpty(activeKey) &&
+                             (e.KeyCode == Keys.Right
+                              ? SplitPanelRight(activeKey)
+                              : SplitPanelDown(activeKey));
+                if (split)
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
+            else if (e.Control && e.Alt && e.Shift &&
+                     (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right ||
+                      e.KeyCode == Keys.Up || e.KeyCode == Keys.Down))
+            {
+                // Resize the active panel's edge without a pointer. Ctrl+Shift+arrows is already
+                // taken by MoveActivePanel, so resize takes the Shift-extended chord.
+                int delta = (e.KeyCode == Keys.Left || e.KeyCode == Keys.Up)
+                    ? -KeyboardResizeStep
+                    : KeyboardResizeStep;
+
+                bool horizontalKey = e.KeyCode == Keys.Left || e.KeyCode == Keys.Right;
+                if (ResizeActivePanelEdge(delta, horizontalKey))
                 {
                     e.Handled = true;
                     e.SuppressKeyPress = true;
@@ -131,12 +202,100 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                         dockspace.CancelDrag();
                     handled = true;
                 }
+                else if (IsMaximised)
+                {
+                    // Last of the three, not first: cancelling an in-flight drag or a navigator
+                    // is the more urgent reading of Escape, and a maximise is still on screen to
+                    // dismiss afterwards.
+                    RestoreFromMaximise();
+                    handled = true;
+                }
 
                 // Only consume Escape if we actually had something to cancel; otherwise let
                 // the focused control (e.g. a TextBox) see the key and clear its content.
                 if (handled)
                     e.Handled = true;
             }
+        }
+
+        /// <summary>Pixels an edge moves per keyboard resize keystroke.</summary>
+        private const int KeyboardResizeStep = 16;
+
+        /// <summary>
+        /// Focuses the docked panel at <paramref name="index"/> in a stable order — Rider's
+        /// <c>Alt+1..9</c>.
+        /// </summary>
+        /// <remarks>
+        /// Ordered by dock position then key rather than by registration order, so the same
+        /// keystroke reaches the same panel every time. Registration order would shuffle the
+        /// bindings as panels are closed and reopened, which is worse than no binding.
+        /// </remarks>
+        public bool FocusPanelByIndex(int index)
+        {
+            if (index < 0)
+                return false;
+
+            var ordered = _panelsByKey.Values
+                .Where(p => p != null && p.State == DockPanelState.Docked)
+                .OrderBy(p => (int)p.DockPosition)
+                .ThenBy(p => p.Key, StringComparer.Ordinal)
+                .ToList();
+
+            if (index >= ordered.Count)
+                return false;
+
+            return ActivatePanel(ordered[index].Key);
+        }
+
+        /// <summary>
+        /// Moves the active panel's edge divider by <paramref name="deltaPx"/>, the keyboard
+        /// equivalent of dragging its splitter.
+        /// </summary>
+        /// <remarks>
+        /// The delta is in screen-axis terms: positive moves the divider right or down. That means
+        /// the arrow key moves the <b>divider</b>, not the panel's size — pressing Right widens a
+        /// Left-docked panel and narrows a Right-docked one, which is what dragging the same
+        /// splitter does and what Visual Studio and Rider both do.
+        /// <para>
+        /// A keystroke on the wrong axis is refused rather than applied to the other one: Up/Down
+        /// does nothing to a Left-docked panel, so the key falls through to the focused control
+        /// instead of silently resizing something the user was not pointing at.
+        /// </para>
+        /// </remarks>
+        /// <param name="deltaPx">Pixels to move the divider; positive is right or down.</param>
+        /// <param name="horizontal">
+        /// True for a Left/Right arrow, false for Up/Down. The edge is only resized when its axis
+        /// matches.
+        /// </param>
+        public bool ResizeActivePanelEdge(int deltaPx, bool horizontal)
+        {
+            if (deltaPx == 0 || _layoutController == null)
+                return false;
+
+            string key = GetActivePanelKey();
+            if (string.IsNullOrEmpty(key))
+                return false;
+
+            var panel = GetPanel(key);
+            if (panel?.Group == null)
+                return false;
+
+            // Walk to the root edge group: that is the one carrying the splitter ratio.
+            var group = panel.Group;
+            while (group.Parent != null && group.Parent != _layoutTree.Root)
+                group = group.Parent;
+
+            if (group.Position == DockPosition.Fill)
+                return false;
+
+            bool horizontalEdge = group.Position == DockPosition.Left ||
+                                  group.Position == DockPosition.Right;
+            if (horizontalEdge != horizontal)
+                return false;
+
+            _layoutController.DragSplitter(group.Id, deltaPx);
+            ApplyLayout();
+            return true;
         }
 
         private void OnHostFormKeyUp(object sender, KeyEventArgs e)

@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
     [DesignTimeVisible(false)]
     [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers.BeepDockspaceDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     [DefaultProperty(nameof(DockPosition))]
-    public class BeepDockspace : Panel
+    public partial class BeepDockspace : Panel
     {
         protected override Size DefaultSize => BeepLayoutMetrics.Panel;
         public const int HeaderHeight = 26;

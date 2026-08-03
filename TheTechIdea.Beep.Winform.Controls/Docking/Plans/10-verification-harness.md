@@ -110,16 +110,34 @@ Hide a panel, then show it again, and the layout does not come back:
 `ShowPanel` restores the panel's `State` and `DockPosition` — the capture shows `output:Docked:Bottom`
 — but the panel is given no bounds, and its siblings never yield the space back.
 
-`HidePanel` removes the panel from its **parent control** (`ds.Controls.Remove(panel)`) and never
-from its **layout group**, so `panel.Group` stays non-null. `ShowPanel`'s `if (panel.Group == null)`
-guard is therefore false and the re-join branch is skipped; the panel is marked docked while the
-layout has no live allocation for it.
+**Correction — the mechanism first recorded here was wrong, twice.**
 
-**Not fixed here.** The mechanism above is read from the code and consistent with every observed
-value, but the fix is in the layout-group lifecycle — the same area features
-[01](01-split-editor-groups.md) and [04](04-maximise-and-zen.md) will rework. Fixing it in isolation
-now risks doing it twice. It is recorded with a reproducing check that currently fails, which is a
-better handoff than a fix nobody verified.
+The first guess was that `HidePanel` leaves `panel.Group` non-null so `ShowPanel`'s
+`if (panel.Group == null)` re-join branch is skipped. The second was that `EnsurePanelHosted` falls
+back to parenting the panel onto the form. Measuring the transition disproved both:
+
+```
+initially:    Group=group_Bottom_… Parent=Form Visible=True Bounds=900x149
+while hidden: Group=group_Bottom_… Parent=null Visible=False
+after show:   Group=group_Bottom_… Parent=Form Visible=True
+```
+
+The group is retained (so the guard correctly skips), and the panel is re-parented to exactly what it
+had before — `Parent=Form` is normal in this configuration, and it carried real bounds initially.
+
+The actual fault is one level down. `BeepDockingManager.GetPanelBounds` delegates to
+`_layoutController.GetPanelBounds(panelKey)`, and **the layout controller holds no allocation for a
+panel returning from `Hidden`**. That is also why the siblings keep the full 600px height: the
+controller still believes the bottom edge is empty. Control-level hosting is correct throughout.
+
+**Not fixed here.** The fix belongs in `Layout/DockingLayoutController` — restoring an edge
+allocation when a panel leaves `Hidden` — and that is the same allocation logic features
+[01](01-split-editor-groups.md) and [04](04-maximise-and-zen.md) touch. It is committed as a
+reproducing check that currently fails, which is a better handoff than a third guess.
+
+Two wrong mechanisms published before the right one is worth recording on its own: both were
+*plausible readings of the code* that the measurement contradicted. Reading suggests a cause;
+only instrumenting the transition establishes one.
 
 ### Ground rules, enforced mechanically
 

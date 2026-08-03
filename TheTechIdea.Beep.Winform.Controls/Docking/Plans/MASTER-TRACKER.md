@@ -27,7 +27,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 
 | # | Feature | Reference products | Status |
 |---|---|---|---|
-| [01](01-split-editor-groups.md) | Split editor groups | VS Code, Dockview, Rider | ◐ **partial** — model and drag-split already existed; command API added |
+| [01](01-split-editor-groups.md) | Split editor groups | VS Code, Dockview, Rider | ◐ **partial** — command API, minimum group size, overlap validation, validator wired in; per-group tab strip unverified |
 | [02](02-layout-perspectives.md) | Named layout perspectives | Rider layouts, Blender workspaces, VS | ◐ **partial** — model, commands, Ctrl+Alt+1..9, capture-before-switch; picker UI open |
 | [03](03-multi-monitor-floating.md) | Multi-monitor floating windows | VS, Rider, Figma | ☐ |
 | [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☑ **done** — transient maximise, tree never mutated; input wiring deferred to 06 |

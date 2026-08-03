@@ -243,6 +243,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (!IsPositionAllowed(panel, position))
                 return false;
 
+            // Refuse before mutating anything. A split with no room left divides the group's extent
+            // past zero, and layout then assigns no bounds to any child - the group and everything
+            // in it vanishes rather than merely becoming thin. Checked here rather than in the
+            // layout pass because by then the tree has been rearranged and there is nothing left to
+            // refuse.
+            if (_layoutController != null && !_layoutController.CanAcceptAdditionalChild(targetGroup.Id))
+            {
+                OnDockingError("Split.MinimumSize", panel.Key, new InvalidOperationException(
+                    $"Group '{targetGroup.Id}' has no room for another split without pushing a "
+                    + "child below the minimum usable size; the split was refused."));
+                return false;
+            }
+
             var args = new CancelPanelRequestEventArgs(panel.Key, panel);
             OnPageDockedRequest(args);
             if (args.Cancel)
@@ -329,6 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             _layoutController?.InvalidateLayout();
             ActivatePanel(panel.Key);
             RecalculateLayout();
+            ValidateAfterStructuralChange("Split");
             return true;
         }
     }

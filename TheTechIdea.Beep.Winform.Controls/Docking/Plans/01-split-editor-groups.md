@@ -121,3 +121,91 @@ A genuine nested split from a command, with the panel still reachable afterwards
       rather than produce a sliver
 - [ ] Overlapping-bounds validation, moved here from [09](09-dead-surface.md): `LayoutValidator`
       declared an `OverlappingBounds` error it never raised, and splitting is what creates the risk
+
+---
+
+## Outcome — the remaining items
+
+### Minimum group size
+
+`CommitGroupEdge` now refuses a split before mutating anything, via
+`DockingLayoutController.CanAcceptAdditionalChild`, and reports it through `DockingError`.
+
+The failure being guarded against is worse than this document assumed. It says a bad split would
+"produce a 3px group"; it does not. `AssignPanelsRecursive` computes
+`available = extent - splitters` and, when that reaches zero, **returns having assigned no bounds at
+all** — so the group and everything in it disappears rather than becoming thin. A sliver would at
+least be visible.
+
+Checked before the mutation because afterwards the tree has already been rearranged and there is
+nothing left to refuse.
+
+Measured as a **pair**, which is the only way the result means anything:
+
+| scenario | splits accepted |
+|---|---|
+| 249px Left edge (halves are 68px; 50+50+4 does not fit) | **1 of 19** |
+| 1600x900 Fill area | **7 of 7** |
+
+A guard that refused everything would also produce the first row. Without the second, "the guard
+works" and "the guard is broken" look identical.
+
+### Overlapping bounds
+
+`ErrorType.OverlappingBounds` could not be raised because overlap is a property of the **computed
+result**, not of the tree, and `LayoutValidator` only ever saw the tree. It now has
+`Validate(DockLayoutResult)`.
+
+Verified against a deliberately overlapping result built by hand — the layout engine is not supposed
+to be able to produce one, which is precisely why a check that silently never fires would go
+unnoticed:
+
+```
+High - OverlappingBounds: Panels 'editor' {200,200,400,400} and 'explorer' {0,0,400,400}
+                          overlap over 200x200 [editor,explorer]
+```
+
+and against a disjoint arrangement of adjacent panels, which reports nothing.
+
+### The validator now runs
+
+`LayoutValidator` implements real checks — unreachable groups, circular parents, panels registered to
+one group while belonging to another — and **nothing in the product ever constructed one**. It was
+reachable only from the test project, so a tree that drifted stayed broken silently.
+
+`ValidateAfterStructuralChange` runs it where the tree is genuinely rearranged (split, restore),
+reporting through `DockingError`, with `ValidateLayoutOnChange` to switch it off and a public
+`ValidateLayout()` for on-demand use. Deliberately not on every layout pass: it walks the tree and
+compares every pair of placed panels, which is wasted work when nothing structural changed.
+
+### Wiring it in immediately found two defects
+
+**The validator was wrong.** `RatioWithoutSplit` fired on every healthy layout. Its rule assumed
+`SplitRatio` only ever means "the split between my children" — but a **root edge group** uses it as
+its share of the container (`BuildLayout` computes the edge size as `available * SplitRatio`), so a
+Left group with one panel and no children legitimately carries one. It passed against synthetic trees
+in the test project and would have reported errors on every real layout. Now excluded for root edges.
+
+**Adding a panel to a split edge stranded it.** `GetOrCreateGroupAtPosition` returned the root edge
+group even when that group had children, and all twelve callers use the result to place a panel in.
+A panel added to an already-split edge therefore sat directly on a parent group — and
+`AssignPanelsRecursive` allocates a group's own panels only when it has no visible children, so the
+panel was docked, registered, and had no bounds:
+
+```
+Fill(Left[p5](Left[a] Left[p2] Left[p3] Left[p4]))     p5 unplaced
+```
+
+That is the `MixedContent` state the validator already names — it predicted the bug it was being
+wired in to catch. `GetOrCreateGroupAtPosition` now descends to a leaf, preferring the branch holding
+an active panel so a new panel joins the group the user was last working in.
+
+Also fixed in passing: `AssignPanelsRecursive` clamped both axes with `MIN_PANEL_WIDTH`, enforcing a
+width rule on a vertical split's heights.
+
+`DockProbe`: **143 passed, 0 failed**. Docking test suite: **48/48**. Solution builds with 0 errors.
+
+### Still open
+
+- [ ] Per-group tab strip with its own active tab — `DockGroup.ActivePanel` exists and nested groups
+      now genuinely receive panels, but whether each renders its own strip is unverified

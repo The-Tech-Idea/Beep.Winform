@@ -2408,12 +2408,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// <summary>
         /// Gets or creates a docking group at the specified position.
         /// </summary>
+        /// <summary>
+        /// Returns a <b>leaf</b> group at <paramref name="position"/>, creating the edge group if it
+        /// does not exist yet. Every caller uses the result to place a panel in.
+        /// </summary>
+        /// <remarks>
+        /// The leaf part matters. Once an edge has been split it is a parent of child groups, and
+        /// <c>AssignPanelsRecursive</c> allocates bounds to a group's own panels only when it has no
+        /// visible children — so a panel added directly to a split edge is docked, registered, and
+        /// invisible, with no bounds at all. That is the <see cref="Layout.ErrorType.MixedContent"/>
+        /// state the layout validator already names; this stops it being produced in the first
+        /// place. Descending prefers the child holding an active panel, so a new panel joins the
+        /// group the user was last working in rather than an arbitrary one.
+        /// </remarks>
         private DockGroup GetOrCreateGroupAtPosition(DockPosition position)
         {
             // Try to find existing group at this position
             var existingGroup = _layoutTree.Root.Children.FirstOrDefault(g => g.Position == position);
             if (existingGroup != null)
-                return existingGroup;
+                return ResolveLeafGroup(existingGroup);
 
             // Create new group
             var newGroup = new DockGroup
@@ -2427,6 +2440,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             _layoutTree.Root.AddChild(newGroup);
 
             return newGroup;
+        }
+
+        /// <summary>Descends to a leaf group, preferring the branch holding an active panel.</summary>
+        private static DockGroup ResolveLeafGroup(DockGroup group)
+        {
+            // Bounded by the tree depth; a cycle would be a MissingRoot/CircularReference fault the
+            // validator reports separately, and is not worth a second guard here.
+            while (group.Children.Count > 0)
+            {
+                group = group.Children.FirstOrDefault(c => c.ActivePanel != null)
+                        ?? group.Children[0];
+            }
+            return group;
         }
 
         /// <summary>

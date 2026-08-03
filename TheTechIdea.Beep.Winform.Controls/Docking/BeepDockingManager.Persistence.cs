@@ -250,6 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             _layoutController?.InvalidateLayout();
             ApplyLayout();
+            ValidateAfterStructuralChange("RestoreLayout");
         }
 
         /// <summary>

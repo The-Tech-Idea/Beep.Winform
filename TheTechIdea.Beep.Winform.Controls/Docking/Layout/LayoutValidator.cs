@@ -42,6 +42,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         }
 
         /// <summary>
+        /// Validates a computed layout in addition to the tree: that no two panels were given
+        /// rectangles which intersect.
+        /// </summary>
+        /// <remarks>
+        /// Overlap is a property of the <b>result</b>, not of the tree, so it cannot be found by
+        /// <see cref="Validate"/> alone — which is why <see cref="ErrorType.OverlappingBounds"/>
+        /// existed as a name with nothing able to raise it. Panels that are not
+        /// <see cref="DockPanelState.Docked"/> are skipped: a floating or hidden panel is not
+        /// competing for the docked area.
+        /// </remarks>
+        public bool Validate(DockLayoutResult result)
+        {
+            bool treeValid = Validate();
+            if (result == null)
+                return treeValid;
+
+            var placed = result.PanelBounds
+                .Where(kv => kv.Value.Width > 0 && kv.Value.Height > 0)
+                .Where(kv => _layoutTree.GetPanel(kv.Key)?.State == DockPanelState.Docked)
+                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                .ToList();
+
+            for (int i = 0; i < placed.Count; i++)
+            {
+                for (int j = i + 1; j < placed.Count; j++)
+                {
+                    var a = placed[i];
+                    var b = placed[j];
+                    if (!a.Value.IntersectsWith(b.Value))
+                        continue;
+
+                    var overlap = Rectangle.Intersect(a.Value, b.Value);
+                    _errors.Add(new ValidationError
+                    {
+                        ErrorType = ErrorType.OverlappingBounds,
+                        Message = $"Panels '{a.Key}' {a.Value} and '{b.Key}' {b.Value} overlap "
+                                  + $"over {overlap.Width}x{overlap.Height}",
+                        Severity = ErrorSeverity.High,
+                        AffectedElement = $"{a.Key},{b.Key}"
+                    });
+                }
+            }
+
+            return _errors.Count == 0;
+        }
+
+        /// <summary>
         /// Gets all validation errors found.
         /// </summary>
         public List<ValidationError> GetErrors() => new List<ValidationError>(_errors);
@@ -135,8 +182,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
                     });
                 }
 
-                // Check that ratio is only used when group has child groups
-                if (group.Children.Count < 2 && group.SplitRatio != 0.5f)
+                // A ratio is meaningful in two different places, and this check used to know about
+                // only one of them. For a nested group it is the split between its children. For a
+                // root edge group it is that edge's share of the container - BuildLayout computes
+                // the edge size as (available * SplitRatio) - so a Left group holding one panel and
+                // no children legitimately carries a ratio. Flagging those made every real layout
+                // report errors, which is why this ran clean only against synthetic trees.
+                bool isRootEdge = ReferenceEquals(group.Parent, _layoutTree.Root) &&
+                                  group.Position != DockPosition.Fill;
+
+                if (!isRootEdge && group.Children.Count < 2 && group.SplitRatio != 0.5f)
                 {
                     _errors.Add(new ValidationError
                     {
@@ -373,7 +428,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         InconsistentReference,
         CircularReference,
         EmptyGroup,
-        MixedContent
+        MixedContent,
+
+        /// <summary>
+        /// Two panels were allocated rectangles that intersect. Splitting is what creates the risk:
+        /// every edge and child allocation subtracts from a shared extent, and one arithmetic slip
+        /// puts two panels on the same pixels - which looks like a rendering bug rather than a
+        /// layout one, because the panel on top simply hides the other.
+        /// </summary>
+        OverlappingBounds
     }
 
     /// <summary>

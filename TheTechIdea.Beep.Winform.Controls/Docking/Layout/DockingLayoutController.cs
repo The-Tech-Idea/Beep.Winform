@@ -386,6 +386,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         }
 
         /// <summary>
+        /// Minimum extent a child group may occupy along the axis its parent divides.
+        /// </summary>
+        public int MinimumChildExtent(SplitOrientation orientation)
+            => orientation == SplitOrientation.Horizontal ? MIN_PANEL_WIDTH : MIN_PANEL_HEIGHT;
+
+        /// <summary>
+        /// Whether <paramref name="groupId"/> has room for one more child without pushing any child
+        /// below <see cref="MinimumChildExtent"/>.
+        /// </summary>
+        /// <remarks>
+        /// Splitting divides a group's extent between its children, minus a splitter per boundary.
+        /// Past a certain count there is nothing left to divide: <c>available</c> goes to zero or
+        /// below and layout returns having assigned <b>no bounds at all</b> — so the group and
+        /// everything in it disappears rather than merely becoming thin. Refusing the split is the
+        /// only outcome that keeps the arrangement usable.
+        /// </remarks>
+        public bool CanAcceptAdditionalChild(string groupId)
+        {
+            var group = _layoutTree.GetGroup(groupId);
+            if (group == null)
+                return false;
+
+            var bounds = CalculateLayoutResult().GetGroupBounds(groupId);
+            if (bounds.IsEmpty)
+                return true;   // never laid out: nothing measurable to refuse on
+
+            // A leaf group splits into two: its existing panels, plus the arrival.
+            int children = Math.Max(group.Children.Count, group.Panels.Count > 0 ? 1 : 0) + 1;
+
+            bool horizontal = group.SplitOrientation == SplitOrientation.Horizontal;
+            int axisTotal = horizontal ? bounds.Width : bounds.Height;
+            int available = axisTotal - (SPLITTER_WIDTH * (children - 1));
+
+            return available >= MinimumChildExtent(group.SplitOrientation) * children;
+        }
+
+        /// <summary>
         /// Allocates the whole container to the maximised panel and its ancestor groups.
         /// </summary>
         /// <returns>
@@ -450,10 +487,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
             if (available <= 0) return;
 
             // Distribute space proportionally: first child gets SplitRatio of the available space.
+            // The floor is the minimum for the axis being divided - a vertical split clamped
+            // against MIN_PANEL_WIDTH would enforce a width rule on a height.
+            int minChild = horizontal ? MIN_PANEL_WIDTH : MIN_PANEL_HEIGHT;
             int firstSize = visibleChildren.Count == 1
                 ? available
                 : (int)Math.Round(available * group.SplitRatio);
-            firstSize = Math.Max(MIN_PANEL_WIDTH, Math.Min(available - MIN_PANEL_WIDTH, firstSize));
+            firstSize = Math.Max(minChild, Math.Min(available - minChild, firstSize));
 
             int remainingSize = available - firstSize;
             int offset = axisStart;

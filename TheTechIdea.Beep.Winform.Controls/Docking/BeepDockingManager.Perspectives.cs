@@ -62,11 +62,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             var existing = GetPerspective(name);
             if (existing != null)
             {
-                existing.Layout = CaptureDefinition();
+                existing.Layout = CaptureArrangement();
             }
             else
             {
-                existing = new DockPerspective { Name = name, Layout = CaptureDefinition() };
+                existing = new DockPerspective { Name = name, Layout = CaptureArrangement() };
                 _perspectives.Add(existing);
             }
 
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 CaptureIntoActivePerspective();
             }
 
-            MaterializeFromDefinition(target.Layout);
+            MaterializeFromDefinition(target.Layout, restorePerspectives: false);
             _activePerspectiveName = target.Name;
 
             PerspectiveApplied?.Invoke(this, target);
@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (target == null)
                 return false;
 
-            MaterializeFromDefinition(target.Layout);
+            MaterializeFromDefinition(target.Layout, restorePerspectives: false);
             _activePerspectiveName = target.Name;
 
             PerspectiveApplied?.Invoke(this, target);
@@ -197,7 +197,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             var active = GetPerspective(_activePerspectiveName);
             if (active != null)
-                active.Layout = CaptureDefinition();
+                active.Layout = CaptureArrangement();
+        }
+
+        /// <summary>
+        /// Captures the current arrangement for storage inside a perspective.
+        /// </summary>
+        /// <remarks>
+        /// Identical to <see cref="CaptureDefinition"/> except that the perspective list is dropped.
+        /// A perspective holding a copy of every other perspective would grow without bound across
+        /// repeated saves, and applying one would let it redefine the rest.
+        /// </remarks>
+        private DockLayoutDefinition CaptureArrangement()
+        {
+            var arrangement = CaptureDefinition();
+            arrangement.Perspectives.Clear();
+            return arrangement;
         }
 
         private void OnPerspectivesChanged()

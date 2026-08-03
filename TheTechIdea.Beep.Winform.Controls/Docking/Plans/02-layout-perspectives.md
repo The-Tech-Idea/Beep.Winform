@@ -125,6 +125,50 @@ declined to act.
 - [ ] Shipping named built-in perspectives (Rider's "Debug", Blender's "Sculpting") is an
       **application** concern, not the manager's: it cannot invent arrangements for panels it does
       not know. `IsDefault` plus `ApplyDefaultPerspective` is the hook an application uses to do it
-- [ ] Perspectives are not yet part of what the designer serializes into the host — they live on the
-      manager for the session. Persisting the collection belongs with
-      [07](07-persistence-and-migration.md)'s remaining round-trip work
+### Perspectives now survive a restart — schema v3
+
+Named layouts lived only on the manager, so they were gone when the application closed. Saving one
+was close to pointless. `DockLayoutDefinition.Perspectives` carries them, and a perspective's
+arrangement is itself a `DockLayoutDefinition`, so the shape nests — deliberately, because a
+perspective then inherits schema versioning, missing-panel degradation and hidden-panel membership
+from the same materialiser instead of needing a parallel format that would drift.
+
+```
+saved layout carries 1 perspective(s), schema v3
+fresh manager: 0 perspectives -> after restore: Debugging (default)
+restoring does not activate a perspective
+loading a v2 layout with no perspectives: 1 -> 1
+```
+
+Two rules the checks pin down:
+
+- **Restoring a layout does not apply one of the perspectives it carries.** The perspectives are
+  choices available afterwards; applying one would silently override the arrangement just asked for.
+- **A definition carrying no perspectives leaves the stored ones alone.** A v1 or v2 layout predates
+  the field, and reading "absent" as "delete them all" would destroy the user's saved layouts on the
+  first load of an older file.
+
+### A recursion this introduced, and the guard that caught it
+
+`ApplyPerspective` materialises through the same method a top-level load uses — so once that method
+restored perspectives, **applying one perspective replaced the manager's entire perspective list**
+with whatever copy that perspective happened to carry. The next check indexed `Perspectives[1]` and
+threw.
+
+It surfaced as a printed stack rather than a silent stall only because of the unhandled-exception
+guard added in [10](10-verification-harness.md); before that it would have been an invisible modal
+dialog on an off-screen window.
+
+Fixed in two places, because either alone would have left the other half wrong:
+
+- `MaterializeFromDefinition` takes `restorePerspectives`. True for a top-level load, false when
+  applying a perspective.
+- A perspective's stored arrangement no longer carries a perspective list at all. Nesting would grow
+  without bound across repeated saves, and let one perspective redefine the others.
+
+`DockProbe`: **223 passed, 0 failed**. Docking suite 48/48. Solution 0 errors.
+
+### Remaining
+
+- [ ] A perspective picker in `Runtime/BeepDockingNavigator.cs` — the commands, events and now the
+      persistence it would bind to are all in place; this is the UI surface

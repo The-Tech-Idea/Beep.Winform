@@ -112,12 +112,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         /// <item><b>2</b> — adds <see cref="Hidden"/>. Before it, a group's
         /// <see cref="DockGroupDefinition.PanelKeys"/> held only docked panels, so a hidden panel
         /// was dropped from the layout entirely and did not come back when shown.</item>
+        /// <item><b>3</b> — adds <see cref="Perspectives"/>. Before it, named layouts lived only on
+        /// the manager and were lost when the application closed, which made saving one close to
+        /// pointless.</item>
         /// </list>
         /// A version 1 definition loads unchanged: it simply has no hidden panels, which is what an
         /// absent <see cref="Hidden"/> list already means. Migration forward is therefore the
         /// identity, and is asserted rather than assumed.
         /// </remarks>
-        public const int CurrentSchemaVersion = 2;
+        public const int CurrentSchemaVersion = 3;
 
         /// <summary>Schema version for forward-compatible migration.</summary>
         [DefaultValue(CurrentSchemaVersion)]
@@ -146,11 +149,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public List<string> Hidden { get; } = new List<string>();
 
+        /// <summary>
+        /// Named layouts saved alongside this one.
+        /// </summary>
+        /// <remarks>
+        /// A perspective's arrangement is itself a <see cref="DockLayoutDefinition"/>, so the shape
+        /// nests. That is deliberate: a perspective then inherits schema versioning, missing-panel
+        /// degradation and hidden-panel membership from the same materialiser, rather than needing
+        /// a parallel format that would drift from it.
+        /// <para>
+        /// A perspective's own <see cref="SchemaVersion"/> is not written - the outer definition
+        /// carries the version for the whole file, and a nested copy could only ever disagree.
+        /// </para>
+        /// </remarks>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<DockPerspectiveDefinition> Perspectives { get; } = new List<DockPerspectiveDefinition>();
+
         /// <summary>True when there is nothing meaningful to serialize.</summary>
         [System.ComponentModel.Browsable(false)]
         public bool IsEmpty =>
             (Groups == null || Groups.Count == 0) &&
             (Floating == null || Floating.Count == 0) &&
-            (AutoHidden == null || AutoHidden.Count == 0);
+            (AutoHidden == null || AutoHidden.Count == 0) &&
+            (Perspectives == null || Perspectives.Count == 0);
+    }
+
+    /// <summary>A named layout, as persisted.</summary>
+    public sealed class DockPerspectiveDefinition
+    {
+        public DockPerspectiveDefinition() { }
+
+        /// <summary>Name the perspective is applied by.</summary>
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>True for the perspective <c>ApplyDefaultPerspective</c> restores.</summary>
+        public bool IsDefault { get; set; }
+
+        /// <summary>The arrangement itself.</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public DockLayoutDefinition Layout { get; set; } = new DockLayoutDefinition();
+
+        public override string ToString() => IsDefault ? $"{Name} (default)" : Name;
     }
 }

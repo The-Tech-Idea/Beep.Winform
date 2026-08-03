@@ -67,6 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             def.Floating.Clear();
             def.AutoHidden.Clear();
             def.Hidden.Clear();
+            def.Perspectives.Clear();
 
             // Skip empty edge groups: panels that float/auto-hide/close are removed from their
             // group but the (now empty) group lingers in the tree. Serializing it would add noise
@@ -106,6 +107,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             {
                 if (panel?.Key != null && panel.State == DockPanelState.Hidden)
                     def.Hidden.Add(panel.Key);
+            }
+
+            // Named layouts travel with the layout they were saved beside. Without this they live
+            // only on the manager and are gone when the application closes, which makes saving one
+            // close to pointless.
+            foreach (var perspective in _perspectives)
+            {
+                if (perspective?.Layout == null || string.IsNullOrWhiteSpace(perspective.Name))
+                    continue;
+
+                def.Perspectives.Add(new DockPerspectiveDefinition
+                {
+                    Name = perspective.Name,
+                    IsDefault = perspective.IsDefault,
+                    Layout = perspective.Layout,
+                });
             }
         }
 
@@ -184,6 +201,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// already-registered <see cref="DockPanel"/> components; unknown keys are skipped.
         /// </summary>
         public void MaterializeFromDefinition(DockLayoutDefinition def)
+            => MaterializeFromDefinition(def, restorePerspectives: true);
+
+        /// <summary>
+        /// Rebuilds the live tree from a definition.
+        /// </summary>
+        /// <param name="restorePerspectives">
+        /// True for a top-level load, which brings the stored named layouts with it. <b>False when
+        /// applying a perspective</b>: a perspective's arrangement is materialised through this same
+        /// method, and restoring from it would replace the manager's whole perspective list with
+        /// whatever copy that one perspective happened to carry.
+        /// </param>
+        private void MaterializeFromDefinition(DockLayoutDefinition def, bool restorePerspectives)
         {
             if (def == null)
                 return;
@@ -292,11 +321,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 }
             }
 
+            if (restorePerspectives)
+                RestorePerspectives(def);
+
             ReHomeUnplacedPanels();
 
             _layoutController?.InvalidateLayout();
             ApplyLayout();
             ValidateAfterStructuralChange("RestoreLayout");
+        }
+
+        /// <summary>
+        /// Repopulates the named layouts from a definition, without applying any of them.
+        /// </summary>
+        /// <remarks>
+        /// Restoring a layout restores <i>that</i> layout; the perspectives it carries are choices
+        /// available afterwards. Applying one here would silently override the arrangement the user
+        /// just asked for.
+        /// <para>
+        /// A definition carrying no perspectives leaves the existing ones alone rather than clearing
+        /// them - a version 1 or 2 layout predates the field, and reading "absent" as "delete them
+        /// all" would destroy the user's saved layouts on the first load of an older file.
+        /// </para>
+        /// </remarks>
+        private void RestorePerspectives(DockLayoutDefinition def)
+        {
+            if (def?.Perspectives == null || def.Perspectives.Count == 0)
+                return;
+
+            _perspectives.Clear();
+            foreach (var saved in def.Perspectives)
+            {
+                if (saved == null || string.IsNullOrWhiteSpace(saved.Name))
+                    continue;
+
+                _perspectives.Add(new DockPerspective
+                {
+                    Name = saved.Name,
+                    IsDefault = saved.IsDefault,
+                    Layout = saved.Layout ?? new DockLayoutDefinition(),
+                });
+            }
+
+            // The active perspective is a session fact, not a stored one: what is on screen after a
+            // restore is the restored layout, which may match no saved perspective at all.
+            _activePerspectiveName = null;
+            OnPerspectivesChanged();
         }
 
         /// <summary>

@@ -122,6 +122,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     e.SuppressKeyPress = true;
                 }
             }
+            else if (e.Control && e.Alt && !e.Shift &&
+                     e.KeyCode >= Keys.D1 && e.KeyCode <= Keys.D9)
+            {
+                // Visual Studio's Ctrl+Alt+1..9 for window layouts. Checked before the bare
+                // Alt+1..9 focus binding below, which would otherwise never see these because
+                // Alt is set in both.
+                if (ApplyPerspectiveByIndex(e.KeyCode - Keys.D1))
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
             else if (e.Alt && !e.Control && !e.Shift &&
                      e.KeyCode >= Keys.D1 && e.KeyCode <= Keys.D9)
             {

@@ -136,6 +136,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
         public DockPanel Panel => _panel;
 
+
+        /// <summary>
+        /// True when this control takes its colours from the current Beep theme.
+        /// </summary>
+        [System.ComponentModel.Browsable(true)]
+        [System.ComponentModel.Category("Appearance")]
+        [System.ComponentModel.DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                if (_useThemeColors == value) return;
+                _useThemeColors = value;
+                ApplyTheme();
+            }
+        }
+
+        private bool _useThemeColors = true;
+
+        /// <summary>
+        /// Applies the current Beep theme to the float window chrome - the same entry point every
+        /// <c>BaseControl</c>-derived control exposes.
+        /// </summary>
+        /// <remarks>
+        /// FloatWindow does not derive from <c>BaseControl</c>, so it does not inherit
+        /// <c>ApplyTheme</c>. It offers the same surface instead, and forwards to
+        /// <see cref="Helpers.DockingThemeResolver"/> so the rule for turning a theme into docking
+        /// colours lives in one place rather than once per control. The theme itself always comes
+        /// from <c>BeepThemesManager</c>, so this control cannot disagree with the rest of the
+        /// application about what "the current theme" is.
+        /// </remarks>
+        public void ApplyTheme()
+            => ApplyTheme(Helpers.DockingThemeResolver.Current);
+
+        /// <summary>Applies a named Beep theme; an unknown name falls back to the current one.</summary>
+        public void ApplyTheme(string themeName)
+            => ApplyTheme(Helpers.DockingThemeResolver.ByName(themeName));
+
+        /// <summary>Applies a resolved Beep theme.</summary>
+        public void ApplyTheme(TheTechIdea.Beep.Vis.Modules.IBeepTheme theme)
+            => ApplyDockingTheme(Helpers.DockingThemeResolver.Palette(theme, _useThemeColors));
+
         internal void ApplyDockingTheme(DockingThemeColors colors)
         {
             _themeColors = colors ?? DockingThemeColors.Default;

@@ -405,6 +405,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             DrawHeader(e.Graphics);
         }
 
+        /// <summary>
+        /// Repaints the header when focus enters or leaves, so the focus ring appears and clears
+        /// as it changes.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="Control.Enter"/> and <see cref="Control.Leave"/> fire on the container when
+        /// focus moves into or out of it <i>or any of its children</i>, which is what
+        /// <see cref="Control.ContainsFocus"/> tracks and what the ring is drawn from. Without this
+        /// the ring is painted correctly but only whenever something unrelated happens to
+        /// invalidate the header, which reads as an indicator that flickers on at random.
+        /// </remarks>
+        protected override void OnEnter(EventArgs e)
+        {
+            base.OnEnter(e);
+            InvalidateHeader();
+        }
+
+        protected override void OnLeave(EventArgs e)
+        {
+            base.OnLeave(e);
+            InvalidateHeader();
+        }
+
+        private void InvalidateHeader()
+        {
+            if (IsDisposed || !IsHandleCreated)
+                return;
+
+            Rectangle header = GetHeaderRect();
+            if (header.IsEmpty)
+                return;
+
+            Invalidate(header);
+        }
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -597,6 +632,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             _paintContext.Update(_themeColors, ControlStyle, headerRect, IsDesigning);
             _paintContext.TabStyle = _tabStyle;
+
+            // After Update, which resets it. ContainsFocus rather than Focused: the focus almost
+            // always sits on a control hosted inside the active panel, not on the dockspace itself,
+            // and from the user's point of view that is still "this is where I am typing".
+            _paintContext.IsFocused = ContainsFocus;
 
             var renderers = DockingPainterFactory.GetRenderers(ControlStyle);
             renderers.Caption.Paint(g, _paintContext, _captionLayout, buttons);

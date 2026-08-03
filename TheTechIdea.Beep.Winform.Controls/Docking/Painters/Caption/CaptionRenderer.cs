@@ -35,6 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             PaintHeaderBackground(g, strip, colors.HeaderBackColor, flavor);
 
             PaintTabs(g, ctx, layout);
+            PaintFocusRing(g, ctx, layout);
             PaintButtons(g, colors.HeaderButtonForeColor, layout, buttons);
 
             if (layout.HasOverflow)
@@ -186,6 +187,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 DrawTabContent(g, r, tab, fore, font, sf, colors);
             }
         }
+
+        /// <summary>
+        /// Outlines the active tab while the dockspace holds keyboard focus.
+        /// </summary>
+        /// <remarks>
+        /// Drawn once here rather than inside each of the five tab styles, so every style gains the
+        /// same indicator and there is one place to change it - the pattern the Filtering program
+        /// settled on after shipping a duplicate focus ring.
+        /// <para>
+        /// The shape is deliberately a full outline: <i>active</i> is already a filled background
+        /// plus a bottom accent bar, and <i>hover</i> is a lightened background, so a bar or a fill
+        /// here would be indistinguishable from a state the user can reach with the mouse alone.
+        /// Focus is also the only one of the three that must be legible without colour, which an
+        /// outline satisfies and a tint does not.
+        /// </para>
+        /// </remarks>
+        private void PaintFocusRing(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        {
+            if (!ctx.IsFocused)
+                return;
+
+            Rectangle target = Rectangle.Empty;
+            foreach (var kv in layout.TabRects)
+            {
+                if (kv.Key.IsActive)
+                {
+                    target = kv.Value;
+                    break;
+                }
+            }
+
+            if (target.Width <= 4 || target.Height <= 4)
+                return;
+
+            var ring = Rectangle.Inflate(target, -2, -2);
+            var prior = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Deliberately NOT the accent colour. In several themes the active tab's background is
+            // itself the accent, so an accent ring on the active tab is invisible - measured: the
+            // ring drew correctly and changed not one pixel. The active foreground is legible
+            // against that background by construction, since it is what the tab's own text uses.
+            var pen = _cache.GetPen(ctx.Colors.ActiveTabForeColor, FocusRingWidth);
+            g.DrawRectangle(pen, ring.X, ring.Y, ring.Width - 1, ring.Height - 1);
+
+            g.SmoothingMode = prior;
+        }
+
+        /// <summary>Thickness of the keyboard-focus outline.</summary>
+        private const float FocusRingWidth = 2f;
 
         // ════════════════════════════════════════════════════════════════════
         //  VsCode — pill tabs, no borders, hover fill, bottom accent

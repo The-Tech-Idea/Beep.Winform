@@ -38,12 +38,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
                 ? colors.HoverBackColor
                 : colors.SplitterBackColor;
 
-            using (var brush = _cache.GetBrush(barColor))
+            var brush = _cache.GetBrush(barColor);
                 g.FillRectangle(brush, bounds);
 
             if (flavor.UseTranslucentSplitter)
             {
-                using var overlay = _cache.GetBrush(Color.FromArgb(48, ControlPaint.Light(barColor, 0.10f)));
+                var overlay = _cache.GetBrush(Color.FromArgb(48, ControlPaint.Light(barColor, 0.10f)));
                 g.FillRectangle(overlay, bounds);
             }
 
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
             int cy = bounds.Top + bounds.Height / 2;
             int span = (GripDotCount - 1) * gripSpacing;
 
-            using var brush = _cache.GetBrush(gripColor);
+            var brush = _cache.GetBrush(gripColor);
 
             for (int i = 0; i < GripDotCount; i++)
             {

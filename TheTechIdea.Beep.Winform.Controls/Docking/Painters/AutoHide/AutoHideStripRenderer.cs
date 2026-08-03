@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
             var colors = ctx.Colors;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            using (var bg = _cache.GetBrush(colors.AutoHideStripBackColor))
+            var bg = _cache.GetBrush(colors.AutoHideStripBackColor);
                 g.FillRectangle(bg, ctx.Bounds);
 
             Font font = BeepFontManager.StatusBarFont;
@@ -50,10 +50,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
                     ? colors.ActiveTabForeColor
                     : colors.InactiveTabForeColor;
 
-                using (var brush = _cache.GetBrush(tabBack))
+                var brush = _cache.GetBrush(tabBack);
                     g.FillRectangle(brush, rect);
 
-                using (var pen = _cache.GetPen(colors.TabBorderColor))
+                var pen = _cache.GetPen(colors.TabBorderColor);
                     g.DrawRectangle(pen, rect.X, rect.Y, Math.Max(0, rect.Width - 1), Math.Max(0, rect.Height - 1));
 
                 PaintTab(g, rect, tab, tabFore, font, layout);
@@ -84,8 +84,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
                     textLeft, rect.Top,
                     Math.Max(0, rect.Right - layout.TabPadding - textLeft), rect.Height);
 
-                using var brush = _cache.GetBrush(fore);
-                g.DrawString(tab.Title, font, brush, textRect, sf);
+                var horizontalBrush = _cache.GetBrush(fore);
+                g.DrawString(tab.Title, font, horizontalBrush, textRect, sf);
                 return;
             }
 
@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
             g.TranslateTransform(rect.X + rect.Width / 2f, textStart + textLen / 2f);
             g.RotateTransform(-90f);
             var rotRect = new RectangleF(-textLen / 2f, -rect.Width / 2f, textLen, rect.Width);
-            using (var brush = _cache.GetBrush(fore))
+            var brush = _cache.GetBrush(fore);
                 g.DrawString(tab.Title, font, brush, rotRect, sf);
             g.Restore(state);
         }

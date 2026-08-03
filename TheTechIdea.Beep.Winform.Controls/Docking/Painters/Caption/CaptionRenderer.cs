@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
 
             if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
             {
-                using (var pen = _cache.GetPen(colors.TabBorderColor))
+                var pen = _cache.GetPen(colors.TabBorderColor);
                 {
                     switch (ctx.TabStyle)
                     {
@@ -77,8 +77,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
         {
             if (flavor.HeaderCornerRadius <= 0 && flavor.HeaderElevationBlend <= 0f)
             {
-                using var brush = _cache.GetBrush(back);
-                g.FillRectangle(brush, strip);
+                var flatBrush = _cache.GetBrush(back);
+                g.FillRectangle(flatBrush, strip);
                 return;
             }
 
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             Color tinted = flavor.HeaderElevationBlend > 0f
                 ? BlendTowards(back, ControlPaint.Light(back, 0.05f), flavor.HeaderElevationBlend)
                 : back;
-            using (var brush = _cache.GetBrush(tinted))
+            var brush = _cache.GetBrush(tinted);
             {
                 if (flavor.HeaderCornerRadius > 0)
                 {
@@ -168,18 +168,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 if (!active && tab == layout.HoveredTab)
                     back = ControlPaint.Light(back, 0.10f);
 
-                using (var brush = _cache.GetBrush(back))
+                var brush = _cache.GetBrush(back);
                     g.FillRectangle(brush, r);
 
                 // Border
-                using (var pen = _cache.GetPen(colors.TabBorderColor))
+                var pen = _cache.GetPen(colors.TabBorderColor);
                     g.DrawRectangle(pen, r.X, r.Y, r.Width - 1, r.Height - 1);
 
                 // Active accent bar (bottom)
                 if (active)
                 {
                     var accent = new Rectangle(r.Left + 1, r.Bottom - 2, r.Width - 2, 2);
-                    using var ab = _cache.GetBrush(colors.AccentColor);
+                    var ab = _cache.GetBrush(colors.AccentColor);
                     g.FillRectangle(ab, accent);
                 }
 
@@ -214,16 +214,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 var pillRect = new Rectangle(r.X + 2, r.Y + 3, r.Width - 4, r.Height - 6);
                 if (pillRect.Width < 4 || pillRect.Height < 4) pillRect = r;
 
+                var brush = _cache.GetBrush(back);
                 using (var path = RoundedRectPath(pillRect, pillRect.Height / 2))
-                using (var brush = _cache.GetBrush(back))
                     g.FillPath(brush, path);
 
                 // Active: bottom accent bar
                 if (active)
                 {
                     var accentRect = new Rectangle(pillRect.Left + 4, pillRect.Bottom - 2, pillRect.Width - 8, 2);
+                    var ab = _cache.GetBrush(colors.AccentColor);
                     using (var path = RoundedRectPath(accentRect, 1))
-                    using (var ab = _cache.GetBrush(colors.AccentColor))
                         g.FillPath(ab, path);
                 }
 
@@ -266,12 +266,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 }
                 else
                 {
-                    using var brush = _cache.GetBrush(back);
+                    var brush = _cache.GetBrush(back);
                     g.FillRectangle(brush, r);
                 }
 
                 // Border (no left/right border for adjacent tabs)
-                using (var pen = _cache.GetPen(colors.TabBorderColor))
+                var pen = _cache.GetPen(colors.TabBorderColor);
                 {
                     g.DrawLine(pen, r.Left, r.Bottom - 1, r.Right - 1, r.Bottom - 1);
                     if (active)
@@ -282,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 if (active)
                 {
                     var accent = new Rectangle(r.Left, r.Bottom - 3, r.Width, 3);
-                    using var ab = _cache.GetBrush(colors.AccentColor);
+                    var ab = _cache.GetBrush(colors.AccentColor);
                     g.FillRectangle(ab, accent);
                 }
 
@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 if (hover && !active)
                 {
                     var ul = new Rectangle(r.Left + 4, r.Bottom - 1, r.Width - 8, 1);
-                    using var hb = _cache.GetBrush(colors.AccentColor);
+                    var hb = _cache.GetBrush(colors.AccentColor);
                     g.FillRectangle(hb, ul);
                 }
 
@@ -322,23 +322,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
 
                 // Background with subtle rounding
                 int rnd = 2;
+                var brush = _cache.GetBrush(back);
                 using (var path = RoundedRectPath(r, rnd))
-                using (var brush = _cache.GetBrush(back))
                     g.FillPath(brush, path);
 
                 // Active: top accent bar
                 if (active)
                 {
                     var accent = new Rectangle(r.Left, r.Top, r.Width, 2);
+                    var ab = _cache.GetBrush(colors.AccentColor);
                     using (var path = RoundedRectPath(accent, 1))
-                    using (var ab = _cache.GetBrush(colors.AccentColor))
                         g.FillPath(ab, path);
                 }
                 // Hover: top dot indicator
                 else if (hover)
                 {
                     var dot = new Rectangle(r.Left + r.Width / 2 - 3, r.Top, 6, 2);
-                    using var hb = _cache.GetBrush(colors.AccentColor);
+                    var hb = _cache.GetBrush(colors.AccentColor);
                     g.FillRectangle(hb, dot);
                 }
 
@@ -377,19 +377,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                     path.AddArc(r.Right - rnd * 2, r.Y, rnd * 2, rnd * 2, 270, 90);
                     path.AddLine(r.Right - 1, r.Bottom - 1, r.X + 1, r.Bottom - 1);
                     path.CloseFigure();
-                    using var brush = _cache.GetBrush(back);
+                    var brush = _cache.GetBrush(back);
                     g.FillPath(brush, path);
                 }
 
                 // Bottom separator line (thick, dark)
-                using (var pen = _cache.GetPen(colors.TabBorderColor, 1.5f))
+                var pen = _cache.GetPen(colors.TabBorderColor, 1.5f);
                     g.DrawLine(pen, 0, r.Bottom - 1, r.Right, r.Bottom - 1);
 
                 // Active tab: accent tint at top
                 if (active)
                 {
                     var tintRect = new Rectangle(r.X + 2, r.Y, r.Width - 4, 3);
-                    using var tb = _cache.GetBrush(colors.AccentColor);
+                    var tb = _cache.GetBrush(colors.AccentColor);
                     g.FillRectangle(tb, tintRect);
                 }
 
@@ -415,13 +415,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 textLeft, r.Top,
                 Math.Max(0, r.Right - textLeft - DockingCaptionPainter.TabTextPadding),
                 r.Height);
-            using (var brush = _cache.GetBrush(fore))
+            var brush = _cache.GetBrush(fore);
                 g.DrawString(tab.Title ?? "Panel", font, brush, textRect, sf);
 
             if (tab.IsDirty)
             {
                 var dot = new Rectangle(r.Right - r.Height / 2 - 3, r.Top + r.Height / 2 - 2, 5, 5);
-                using var dirtyBrush = _cache.GetBrush(colors.AccentColor);
+                var dirtyBrush = _cache.GetBrush(colors.AccentColor);
                 g.FillEllipse(dirtyBrush, dot);
             }
         }
@@ -454,7 +454,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
 
                 if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
                 {
-                    using var pen = _cache.GetPen(colors.TabBorderColor);
+                    var pen = _cache.GetPen(colors.TabBorderColor);
                     g.DrawRectangle(pen, tabRect.X, tabRect.Y, Math.Max(0, tabRect.Width - 1), Math.Max(0, tabRect.Height - 1));
                 }
 
@@ -464,7 +464,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                     var accentRect = new Rectangle(
                         tabRect.Right - accentW, tabRect.Top + 2,
                         accentW, Math.Max(0, tabRect.Height - 4));
-                    using var accentBrush = _cache.GetBrush(colors.AccentColor);
+                    var accentBrush = _cache.GetBrush(colors.AccentColor);
                     g.FillRectangle(accentBrush, accentRect);
                 }
 
@@ -481,7 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 int textH = tabRect.Width - 2;
                 var rotatedRect = new RectangleF(-textW / 2f, -textH / 2f, textW, textH);
 
-                using var brush = _cache.GetBrush(tabFore);
+                var brush = _cache.GetBrush(tabFore);
                 g.DrawString(tab.Title ?? "Panel", font, brush, rotatedRect, sf);
                 g.Restore(state);
             }
@@ -489,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
 
         private void PaintTabBackground(Graphics g, Rectangle tabRect, Color tabBack, DockingStyleFlavor flavor)
         {
-            using var brush = _cache.GetBrush(tabBack);
+            var brush = _cache.GetBrush(tabBack);
             if (flavor.TabCornerRadius > 0)
             {
                 using var path = RoundedRectPath(tabRect, flavor.TabCornerRadius);

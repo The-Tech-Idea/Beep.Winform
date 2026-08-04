@@ -89,11 +89,6 @@ Solution builds with 0 errors. The three failing toolbar tests
 with the change stashed — they are pre-existing, and concern visibility defaults and colours rather
 than layout.
 
-## Still open
-
-- [ ] `ShowFilterButton` defaults to **false**, so the funnel never appears and only the advanced
-      (cogs) button is shown. That is a product decision rather than a defect, but it means the
-      filter affordance most users look for is absent by default.
 ### Separators were computed and not drawn
 
 `Separator1X` divides the middle of the toolbar from the filter cluster — and was gated on the

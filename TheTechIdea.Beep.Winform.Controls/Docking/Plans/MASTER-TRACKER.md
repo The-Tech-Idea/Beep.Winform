@@ -34,7 +34,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ☑ **done** — result preview, Esc-cancel, tab-index drop, group-level rosette, hover growth |
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ◐ **partial** — accessible tree, command set, focus ring; high-contrast open |
 | [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ☑ **done** — schema v3, version guard, hidden panels, perspectives persisted, layout/session separable |
-| [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ◐ **partial** — 3,317 → 1,947 across 16 partials; all identified seams taken, core operations remain |
+| [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ☑ **done** — 3,317 → 1,947 across 17 partials; core operations kept together deliberately, with the panel-state invariant stated and checked |
 | [09](09-dead-surface.md) | Dead and duplicated surface | — | ☑ **done** |
 | [10](10-verification-harness.md) | Verification harness | — | ☑ **done** — capture primitive + ground rules; found a hide/show defect on first run, now fixed |
 

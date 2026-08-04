@@ -61,6 +61,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (!ValidateLayoutOnChange || _disposed || IsDesignHosted)
                 return;
 
+            // Panel state first: a panel whose state disagrees with its membership is the cause of
+            // the layout problems the tree check reports, not a separate symptom.
+            ReportPanelStateViolations(context);
+
             var errors = ValidateLayout();
             if (errors.Count == 0)
                 return;

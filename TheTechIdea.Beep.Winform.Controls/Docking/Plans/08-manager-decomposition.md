@@ -187,6 +187,66 @@ construction and options, the direct panel operations (`ShowPanel`, `HidePanel`,
 
 Those resist the same treatment for a real reason rather than a lack of appetite: they are the
 manager's actual behaviour, they call each other, and splitting them further would separate
-operations that must agree about state transitions — exactly the coupling the three
-stale-state defects in this program came from. A further split should follow a decision about
-**what a panel state transition is**, not a line count.
+operations that must agree about state transitions — exactly the coupling the three stale-state
+defects in this program came from. A further split should follow a decision about **what a panel
+state transition is**, not a line count.
+
+---
+
+## The decision: a transition is defined by what must be true after it
+
+`DockPanel.State` is assigned in **seventeen** places across five files. That is not the problem —
+the operations genuinely differ. The problem is that a state is only a quarter of the truth about a
+panel. Four things move together:
+
+| | what it is |
+|---|---|
+| **State** | `DockPanel.State` |
+| **Membership** | `DockPanel.Group`, and whether that group is still reachable from the root |
+| **Hosting** | the control it is parented to: host form, dockspace, float window, or nothing |
+| **Allocation** | whether the layout gives it bounds |
+
+**A transition is the point where all four change together.** Every defect this program found in
+that area was one of them moving without the others, and each stayed invisible until something
+downstream read the stale one.
+
+### Which is why the answer is not another file split
+
+Separating these operations by file would put members that must agree in different places and make
+the coupling *harder* to see. The seam is the invariant, so the invariant is what got written down —
+`ValidatePanelStates()`, one rule per state:
+
+- **Docked** / **Hidden** — belongs to a group that is reachable from the root, and that group lists
+  it. Hiding changes visibility, not membership: a hidden panel is one that is coming back.
+- **Floating** — detached from any live group, with a float window backing it.
+- **AutoHidden** — detached from any live group, with a strip holding it.
+- **Closed** — detached from any live group.
+
+It runs after every structural change, alongside the layout check, reporting through `DockingError`.
+
+### Verified against the defects it exists for
+
+An invariant that passes on a healthy layout proves nothing — almost anything does. So all three
+historical defects are reconstructed by hand and the check is required to name each:
+
+```
+pruned-group defect:   explorer (Docked): references group 7348b51e…, which is not in the tree
+stranded-panel defect: editor (Docked): belongs to no group, so nothing will ever lay it out
+ghost-float defect:    output (Floating): is floating with no float window backing it
+```
+
+and, as the counterweight, healthy panels alongside a broken one stay unreported — otherwise
+"it caught it" would mean only that it reports everything.
+
+Every state reached the normal way — hide, show, float, save/load round trip — leaves it clean.
+
+### What is left of the file
+
+`BeepDockingManager.cs` stays at 1,947 lines and that is now a deliberate stopping point rather than
+an unfinished one. The remaining content is the set of operations that must agree with each other;
+the thing that was missing was never a boundary between them, it was a stated rule about what they
+each have to leave true.
+
+`DockProbe`: **274 passed, 0 failed**. Docking suite 48/48 (one pre-existing flake under parallel
+execution, `Manager_RefreshTheme_…`, which asserts against shared static theme state and passes on
+re-run). Solution 0 errors.

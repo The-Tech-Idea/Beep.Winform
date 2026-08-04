@@ -173,7 +173,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
 
                 _grid.Invalidate();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Absorbed because this sits on a UI path where throwing would take the
+                // window down. Reported, because doing nothing here looks to the user
+                // exactly like it worked.
+                _grid?.ReportOperationError("Filter.ApplyFlyout", ex);
+            }
             finally { Close(); }
         }
 
@@ -186,7 +192,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             var col = _grid.Data.Columns.FirstOrDefault(c => (c.ColumnCaption ?? c.ColumnName) == colCaption);
             if (col != null)
             {
-                try { _grid.SortFilter?.Filter(col.ColumnName, contains); } catch { }
+                try { _grid.SortFilter?.Filter(col.ColumnName, contains); }
+                catch (Exception ex)
+                {
+                    // Absorbed because this sits on a UI path where throwing would take the
+                    // window down. Reported, because doing nothing here looks to the user
+                    // exactly like it worked.
+                    _grid?.ReportOperationError("Filter.QuickContains", ex);
+                }
             }
         }
 
@@ -196,7 +209,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             {
                 _grid.SortFilter?.ClearFilters();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Absorbed because this sits on a UI path where throwing would take the
+                // window down. Reported, because doing nothing here looks to the user
+                // exactly like it worked.
+                _grid?.ReportOperationError("Filter.Reset", ex);
+            }
         }
 
         public void ShowNear(Rectangle anchorScreenRect)

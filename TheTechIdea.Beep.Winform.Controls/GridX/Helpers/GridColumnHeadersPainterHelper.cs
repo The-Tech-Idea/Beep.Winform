@@ -184,7 +184,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     Styling.ImagePainters.StyledImagePainter.Paint(g, imageRect, column.ImagePath, BeepControlStyle.Material3);
                 }
-                catch { /* Silently ignore image loading errors */ }
+                catch (Exception ex)
+                {
+                    // A header image that will not load leaves a blank square with no other
+                    // trace. Absorbed so the rest of the header still paints, but reported.
+                    _grid?.ReportRenderError($"ColumnHeaderImage.{column.ColumnName}", ex);
+                }
             }
 
             // Draw text

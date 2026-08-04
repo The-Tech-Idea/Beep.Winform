@@ -199,9 +199,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     RebindFromBindingSource(bs);
                     return true;
                 }
-                catch
+                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
                 {
-                    // fall through to additional strategies
+                    // A source that cannot sort the way this strategy asks throws one of
+                    // these; the next strategy below handles it. Narrowed so an unrelated
+                    // fault is no longer mistaken for "this source does not support it".
                 }
             }
 
@@ -220,9 +222,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     RebindFromBindingSource(bs);
                     return true;
                 }
-                catch
+                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
                 {
-                    // fall through to additional strategies
+                    // A source that cannot sort the way this strategy asks throws one of
+                    // these; the next strategy below handles it. Narrowed so an unrelated
+                    // fault is no longer mistaken for "this source does not support it".
                 }
             }
 
@@ -283,9 +287,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 var pd = props?.Find(columnName, true);
                 if (pd != null) return pd;
             }
-            catch
+            catch (Exception ex) when (ex is InvalidOperationException
+                                       or NotSupportedException or ArgumentException)
             {
-                // Ignore, fallback below.
+                // The source cannot describe its item properties yet - normal before it is
+                // materialised. The reflection fallback below covers it.
             }
 
             if (bs.Count > 0 && bs[0] != null)
@@ -315,9 +321,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     RebindFromBindingSource(bs);
                     return true;
                 }
-                catch
+                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
                 {
-                    // fall through to DataView-style filter path
+                    // This source does not accept an IBindingListView filter expression;
+                    // the DataView path below is tried next.
                 }
             }
 
@@ -334,8 +341,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 RebindFromBindingSource(bs);
                 return true;
             }
-            catch
+            catch (Exception ex) when (ex is NotSupportedException or ArgumentException
+                                       or InvalidOperationException or System.Data.DataException)
             {
+                // The last strategy on this path. Returning false tells the caller the source
+                // would not do it itself, and the grid falls back to filtering in memory.
                 return false;
             }
         }
@@ -357,9 +367,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     RebindFromBindingSource(bs);
                     return true;
                 }
-                catch
+                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
                 {
-                    // fall through to BindingSource.Filter
+                    // Clearing through IBindingListView was refused; fall through to
+                    // BindingSource.Filter.
                 }
             }
 
@@ -374,8 +385,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 RebindFromBindingSource(bs);
                 return true;
             }
-            catch
+            catch (Exception ex) when (ex is NotSupportedException or ArgumentException
+                                       or InvalidOperationException or System.Data.DataException)
             {
+                // The last strategy on this path. Returning false tells the caller the source
+                // would not do it itself, and the grid falls back to filtering in memory.
                 return false;
             }
         }
@@ -777,9 +791,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         return comparable.CompareTo(y);
                     }
                 }
-                catch
+                catch (Exception ex) when (ex is ArgumentException or InvalidCastException)
                 {
-                    // fallback to string compare below
+                    // IComparable.CompareTo throws ArgumentException when the other value is a
+                    // different type - a mixed-type column. String comparison below still
+                    // orders it sensibly.
                 }
 
                 string xs = Convert.ToString(x) ?? string.Empty;

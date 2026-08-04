@@ -231,7 +231,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"BeginEdit: Focus exception: {ex.Message}");
+                        // Absorbed - this runs on a posted callback where a throw would take
+                        // the window down - but reported, because an editor that never took
+                        // focus looks to the user like a cell that simply will not edit.
+                        _grid?.ReportOperationError("Edit.BeginEdit", ex);
                     }
 
                     // IMPORTANT: Only disable suppress AFTER focus is established
@@ -258,7 +261,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"BeginEdit: Error cleaning up previous editor: {ex.Message}");
+                    // The finally below still clears the fields, so the grid recovers. Reported
+                    // because a leaked editor control is invisible until it misbehaves later.
+                    _grid?.ReportOperationError("Edit.CleanupPreviousEditor", ex);
                 }
                 finally
                 {
@@ -348,10 +353,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.BeginInvoke(new Action(() =>
                 {
                     try { editorToDispose?.Dispose(); }
-                    catch { }
+                    catch (ObjectDisposedException)
+                    {
+                        // The editor was torn down between posting this and running it.
+                    }
                 }));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // The finally below still clears the editing state, so the grid recovers.
+                // Reported because a commit that failed here looks exactly like one that
+                // succeeded - the editor closes either way.
+                _grid?.ReportOperationError("Edit.EndEdit", ex);
+            }
             finally
             {
                 _editorControl = null;
@@ -487,19 +501,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 if (targetType == typeof(string))
                     return si.Text ?? si.Value?.ToString() ?? si.Item?.ToString();
+                // Each of these is one rung of a deliberate cascade: try to convert, and on
+                // failure try the next source or fall back to the type's default. The narrowing
+                // matters - catching everything meant an unrelated fault looked like a value that
+                // simply would not convert.
                 if (targetType.IsEnum)
                 {
-                    try { return Enum.Parse(targetType, si.Text, true); } catch { }
+                    try { return Enum.Parse(targetType, si.Text, true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
                     if (si.Value != null)
                     {
-                        try { return Enum.Parse(targetType, si.Value.ToString(), true); } catch { }
+                        try { return Enum.Parse(targetType, si.Value.ToString(), true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
                     }
                     return Activator.CreateInstance(targetType);
                 }
                 if (IsNumericType(targetType))
                 {
                     object candidate = si.Value ?? si.Text;
-                    try { return System.Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); } catch { }
+                    try { return System.Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
                     return Activator.CreateInstance(Nullable.GetUnderlyingType(targetType) ?? targetType);
                 }
                 if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))

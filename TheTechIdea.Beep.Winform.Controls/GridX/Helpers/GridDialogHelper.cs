@@ -649,17 +649,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Monitor clicks on the grid to close editor when user clicks outside the overlay
         private void AttachOutsideClickMonitor()
         {
-            try
-            {
-                _grid.MouseDown -= Grid_MouseDown_CloseEditorIfOutside;
-                _grid.MouseDown += Grid_MouseDown_CloseEditorIfOutside;
-            }
-            catch { }
+            // Unsubscribe before subscribing so repeated attaches cannot stack handlers.
+            _grid.MouseDown -= Grid_MouseDown_CloseEditorIfOutside;
+            _grid.MouseDown += Grid_MouseDown_CloseEditorIfOutside;
         }
 
         private void DetachOutsideClickMonitor()
         {
-            try { _grid.MouseDown -= Grid_MouseDown_CloseEditorIfOutside; } catch { }
+            _grid.MouseDown -= Grid_MouseDown_CloseEditorIfOutside;
         }
 
         private void Grid_MouseDown_CloseEditorIfOutside(object? sender, MouseEventArgs e)

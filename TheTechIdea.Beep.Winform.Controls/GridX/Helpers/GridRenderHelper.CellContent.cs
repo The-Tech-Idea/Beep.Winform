@@ -90,7 +90,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                     if (drawer is IBeepUIComponent ic)
                     {
-                        try { ic.SetValue(cell.CellValue); } catch { }
+                        // The drawer may not accept this column's value type; it then keeps
+                        // its previous value and the fallback below still renders the text.
+                        try { ic.SetValue(cell.CellValue); }
+                        catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
                     }
 
                     drawer.Draw(g, rect);
@@ -103,7 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"DrawCellContent error for column '{column.ColumnName}': {ex.Message}");
+                // Even the plain-text fallback failed, so this cell drew nothing at all.
+                // Debug.WriteLine is stripped from Release, which made that invisible.
+                _grid?.ReportRenderError($"CellContent.{column.ColumnName}", ex);
             }
         }
 

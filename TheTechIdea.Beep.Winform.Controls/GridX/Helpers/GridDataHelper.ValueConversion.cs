@@ -103,19 +103,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 if (targetType == typeof(string))
                     return si.Text ?? si.Value?.ToString() ?? si.Item?.ToString() ?? string.Empty;
+                // Each of these is one rung of a deliberate cascade: try to convert, and on
+                // failure try the next source or fall back to the type's default. The narrowing
+                // matters - catching everything meant an unrelated fault looked like a value that
+                // simply would not convert.
                 if (targetType.IsEnum)
                 {
-                    try { return Enum.Parse(targetType, si.Text, true); } catch { }
+                    try { return Enum.Parse(targetType, si.Text, true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
                     if (si.Value != null)
                     {
-                        try { return Enum.Parse(targetType, si.Value!.ToString()!, true); } catch { }
+                        try { return Enum.Parse(targetType, si.Value!.ToString()!, true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
                     }
                     return Activator.CreateInstance(targetType);
                 }
                 if (IsNumericType(targetType))
                 {
                     object candidate = si.Value ?? si.Text;
-                    try { return Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); } catch { }
+                    try { return Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
                     return Activator.CreateInstance(Nullable.GetUnderlyingType(targetType) ?? targetType);
                 }
                 if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))

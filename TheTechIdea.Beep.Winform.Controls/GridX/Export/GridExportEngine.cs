@@ -92,8 +92,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
                             _exporters[instance.Format] = instance;
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is MemberAccessException
+                                               or System.Reflection.TargetInvocationException
+                                               or TypeLoadException or NotSupportedException)
                     {
+                        // Scanning arbitrary types: abstract, generic or ctor-less ones are
+                        // expected to fail here and are simply not exporters. A plugin that
+                        // fails to load leaves its format absent from the export menu, which
+                        // is visible to the user, so this stays a diagnostic rather than an
+                        // error report.
                         System.Diagnostics.Debug.WriteLine(
                             $"[GridExportEngine] Failed to instantiate '{type.FullName}': {ex.Message}");
                     }

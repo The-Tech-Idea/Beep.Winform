@@ -264,7 +264,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                 {
                     ConfigureGridColumns(allOperators);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    // Absorbed because this sits on a UI path where throwing would take the
+                    // window down. Reported, because doing nothing here looks to the user
+                    // exactly like it worked.
+                    _filterGrid?.ReportOperationError("Filter.ConfigureColumns", ex);
+                }
             }));
         }
 

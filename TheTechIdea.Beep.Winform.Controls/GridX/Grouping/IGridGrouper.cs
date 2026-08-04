@@ -46,9 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
                 {
                     return fmt.ToString(descriptor.ValueFormat, System.Globalization.CultureInfo.InvariantCulture);
                 }
-                catch
+                catch (FormatException)
                 {
-                    // Fallback to ToString if formatting fails
+                    // ValueFormat does not apply to this value's type; plain ToString below.
                 }
             }
 

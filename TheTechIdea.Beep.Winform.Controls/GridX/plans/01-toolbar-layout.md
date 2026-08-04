@@ -183,7 +183,62 @@ broken toolbar painter:       1 report -> Toolbar: NullReferenceException
 grid still alive afterwards:  yes
 ```
 
+### The rest of GridX swallowed too
+
+Counting first, because "29 bare catches" turned out to be the wrong number and, more importantly,
+the wrong question. A detector over all of `GridX` found **53** catch blocks whose body is empty or
+only `Debug.WriteLine` - which the compiler strips from Release, so a "logged" catch is a silent one
+in exactly the build where it matters. Of those, 11 were already narrowed to a specific exception
+type. A narrowed catch states that one particular failure is expected there, which is a decision
+rather than an oversight, so the real target was **42 catch-alls**.
+
+They are not one problem with one fix. Three shapes, and treating them alike would have made the
+grid worse:
+
+| shape | example | fix |
+|---|---|---|
+| deliberate cascade | `SafeCreateFont` tries five fonts; `TryApplySourceSort` says "fall through to additional strategies" | **narrow** - reporting every rung would emit noise during normal operation |
+| a section that drew nothing | `BeepGridPro.DrawContent`, the header image, the navigator fallback | **report** via `RenderError` |
+| an operation that did nothing | save, filter apply, editor teardown, pending navigation | **report** via a new `OperationError` |
+| guarded code that cannot throw | `_grid.MouseDown -= handler`, `_grid.Selection?.RowIndex ?? 0` | **delete** - decoration that hides the real swallows |
+
+`OperationError` is deliberately separate from `RenderError` rather than one event with a flag,
+because the two have different rhythms. Painting repeats many times a second, so a persistent fault
+reports repeatedly and a subscriber will want to throttle it. An operation happens once per user
+action, so every report is worth surfacing - and a save that quietly failed looks to the user
+exactly like one that worked. `GridRenderErrorEventArgs` became `GridErrorEventArgs` since it now
+carries both; one type rather than two near-identical ones.
+
+**42 -> 2.** The two that remain are the reporting channels' own terminal boundary: if a subscriber's
+handler throws, reporting that through the channel it just broke would recurse.
+
+### The operation channel is reachable, not just present
+
+A channel that exists and is never reached looks identical to one that works, and this program has
+produced that shape more than once - a focus ring that drew nothing, an insertion index always -1.
+So it is asserted by *causing* a failure on a real path: a third-party `IGridEditor` that throws
+when the grid tears it down, which is precisely the case the report exists for, because the grid
+recovers in its `finally` and the user sees nothing.
+
+```
+idle grid reported 0
+after a throwing editor teardown: 1 report(s) -> Edit.CleanupPreviousEditor: editor plugin failed on teardown
+```
+
+The idle assertion matters as much as the other: without it, a non-empty list later would prove
+nothing. Six checks: reports, names the operation, carries the original exception, the editing state
+was still cleared, the grid survives.
+
+`BeepGridDateDropDownEditor.OnBeginEdit` was the one site given no channel of its own. Its caller,
+`GridEditHelper.BeginEdit`, is one frame up and already reports; guarding it here as well would mean
+the same failure reported twice or - as it was - not at all.
+
 ## Still open
 
-- [ ] 29 bare catches remain elsewhere in `GridX` outside the render pipeline. The render path is
-      the one where silence is most costly, and it is now covered; the rest are worth a sweep.
+- [ ] `GridExportEngine.DiscoverPlugins` keeps a `Debug.WriteLine` rather than reporting. It scans
+      arbitrary types, so failure to construct one usually means it simply is not an exporter, and a
+      plugin that fails to load leaves its format visibly absent from the export menu. Narrowed to
+      the construction exceptions; worth revisiting if plugins become a supported extension point.
+- [ ] Nine pre-existing test failures remain, unchanged by this work and unrelated to it
+      (`BeepDataConnectionDesignerTests` x2, `BeepDialogManagerCreationTests` x2, and five
+      `BeepGridPro` default-value tests). The baseline was 10; one case now passes.

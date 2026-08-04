@@ -164,17 +164,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             catch (Exception ex)
             {
                 // Log full details for debugging
-                System.Diagnostics.Debug.WriteLine($"[BeepGridPro Nav Error] {ex.GetType().Name}: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"[BeepGridPro Nav Stack] {ex.StackTrace}");
+                // Debug.WriteLine alone is compiled out of Release, so this was silent in
+                // exactly the build where it mattered.
+                _grid?.ReportRenderError("Navigation", ex);
 
                 // Fall back to simple text-based navigation (no GDI+ tricks)
                 try
                 {
                     DrawSimpleFallbackNavigation(g, navRect);
                 }
-                catch
+                catch (Exception fallbackFailure)
                 {
-                    // Last resort - ignore silently
+                    // Both the styled painter and the plain fallback failed, so the navigator
+                    // band stays empty. Absorbed - a throw out of paint becomes an invisible
+                    // modal dialog rather than a crash - but no longer silent.
+                    _grid?.ReportRenderError("Navigation.Fallback", fallbackFailure);
                 }
             }
         }
@@ -191,8 +195,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Simple position text
             int rowIndex = 0;
             int rowCount = 0;
-            try { rowIndex = _grid.Selection?.RowIndex ?? 0; } catch { }
-            try { rowCount = _grid.Data?.Rows?.Count ?? 0; } catch { }
+            rowIndex = _grid.Selection?.RowIndex ?? 0;
+            rowCount = _grid.Data?.Rows?.Count ?? 0;
 
             string info = $"Record {rowIndex + 1} of {rowCount}";
             var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };

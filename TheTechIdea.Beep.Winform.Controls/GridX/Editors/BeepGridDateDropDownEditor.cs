@@ -62,7 +62,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
         {
             if (control is BeepDateDropDown ddd)
             {
-                try { ddd.ShowPopup(); } catch { }
+                // Not guarded: GridEditHelper.BeginEdit calls this inside a reported
+                // catch, so a popup that will not open surfaces there rather than
+                // vanishing here.
+                ddd.ShowPopup();
             }
         }
 

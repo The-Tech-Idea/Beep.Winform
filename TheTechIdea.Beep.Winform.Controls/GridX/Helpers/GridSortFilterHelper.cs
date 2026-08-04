@@ -753,9 +753,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.Edit.EndEdit(true);
             }
-            catch
+            catch (Exception ex)
             {
-                // Best-effort commit only.
+                // Absorbed: this sits on a UI path where throwing would take the
+                // window down. Reported, because silently doing nothing here looks
+                // to the user exactly like success.
+                _grid?.ReportOperationError("Sort.CommitPendingEdit", ex);
             }
         }
 

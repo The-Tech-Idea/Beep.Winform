@@ -117,7 +117,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Focus the editor
             _editorDialog.BeginInvoke(new Action(() =>
             {
-                try { _currentEditor?.Focus(); } catch { }
+                try { _currentEditor?.Focus(); } catch (Exception ex)
+ {
+     // Absorbed: this sits on a UI path where throwing would take the
+     // window down. Reported, because silently doing nothing here looks
+     // to the user exactly like success.
+     _grid?.ReportOperationError("Dialog.ShowEditor", ex);
+ }
             }));
         }
 
@@ -234,11 +240,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     _grid.BeginInvoke(new Action(() =>
                     {
-                        try { _grid.ShowCellEditor(); } catch { }
+                        try { _grid.ShowCellEditor(); } catch (Exception ex)
+ {
+     // Absorbed: this sits on a UI path where throwing would take the
+     // window down. Reported, because silently doing nothing here looks
+     // to the user exactly like success.
+     _grid?.ReportOperationError("Dialog.PendingNavigation", ex);
+ }
                     }));
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Absorbed: this sits on a UI path where throwing would take the
+                // window down. Reported, because silently doing nothing here looks
+                // to the user exactly like success.
+                _grid?.ReportOperationError("Dialog.PendingNavigation", ex);
+            }
         }
 
         private Form CreateCellOverlayEditorDialog(BeepCellConfig cell, Control editor)

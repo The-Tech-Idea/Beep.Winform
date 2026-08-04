@@ -226,9 +226,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         _grid.SelectCell(position, _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore sync failures to keep UI responsive
+                // Absorbed: this sits on a UI path where throwing would take the
+                // window down. Reported, because silently doing nothing here looks
+                // to the user exactly like success.
+                _grid?.ReportOperationError("Navigator.SyncSelection", ex);
             }
         }
 
@@ -768,9 +771,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _uow?.MoveTo(pos);
                 _uowWrapper?.MoveTo(pos);
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore navigation sync failures and keep UI responsive.
+                // Absorbed: this sits on a UI path where throwing would take the
+                // window down. Reported, because silently doing nothing here looks
+                // to the user exactly like success.
+                _grid?.ReportOperationError("Navigator.MoveToUowPosition", ex);
             }
         }
 

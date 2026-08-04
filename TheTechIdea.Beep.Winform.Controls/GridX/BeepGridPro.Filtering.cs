@@ -539,9 +539,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         configs.Add(config);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Skip invalid files
+                    // Absorbed: this sits on a UI path where throwing would take the
+                    // window down. Reported, because silently doing nothing here looks
+                    // to the user exactly like success.
+                    ReportOperationError("Filter.LoadSaved", ex);
                 }
             }
 

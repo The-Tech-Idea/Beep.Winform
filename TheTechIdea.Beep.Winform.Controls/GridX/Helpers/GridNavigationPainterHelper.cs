@@ -578,7 +578,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (font != null) return font;
                 }
             }
-            catch { /* font creation failed */ }
+            catch (ArgumentException)
+            {
+                // A theme font naming a family this machine does not have. That is the only
+                // failure worth absorbing here; catching everything hid unrelated faults behind
+                // a font fallback.
+            }
             return SystemFonts.DefaultFont;
         }
     }

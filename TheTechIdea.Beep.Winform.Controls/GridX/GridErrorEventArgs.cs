@@ -3,7 +3,7 @@ using System;
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
     /// <summary>
-    /// A section of the grid failed to paint.
+    /// A section of the grid failed - either while painting, or while carrying out an operation.
     /// </summary>
     /// <remarks>
     /// Painting is absorbed rather than allowed to propagate, and that part is deliberate: an
@@ -17,9 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     /// <c>Debug.WriteLine</c>, which is compiled out of Release — silent where it matters most.
     /// </para>
     /// </remarks>
-    public sealed class GridRenderErrorEventArgs : EventArgs
+    public sealed class GridErrorEventArgs : EventArgs
     {
-        public GridRenderErrorEventArgs(string section, Exception exception)
+        public GridErrorEventArgs(string section, Exception exception)
         {
             Section = section ?? string.Empty;
             Exception = exception;

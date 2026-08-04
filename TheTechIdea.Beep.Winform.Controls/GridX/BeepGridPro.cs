@@ -283,7 +283,38 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// so this cannot destabilise an existing host.
         /// </para>
         /// </remarks>
-        public event EventHandler<GridRenderErrorEventArgs> RenderError;
+        public event EventHandler<GridErrorEventArgs> RenderError;
+
+        /// <summary>
+        /// Raised when a grid operation fails - saving, filtering, editing, exporting, navigation.
+        /// </summary>
+        /// <remarks>
+        /// Separate from <see cref="RenderError"/> because the two have different rhythms. Painting
+        /// repeats many times a second, so a persistent fault there reports repeatedly; an
+        /// operation happens once per user action, and silently doing nothing there looks to the
+        /// user exactly like success. A save that quietly failed is the worst case in the grid.
+        /// </remarks>
+        public event EventHandler<GridErrorEventArgs> OperationError;
+
+        /// <summary>Reports a failed operation. Never throws.</summary>
+        internal void ReportOperationError(string section, Exception exception)
+        {
+            if (exception == null) return;
+
+            var handler = OperationError;
+            if (handler == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BeepGridPro] {section} failed: {exception}");
+                return;
+            }
+
+            try { handler(this, new GridErrorEventArgs(section, exception)); }
+            catch (Exception handlerFailure)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[BeepGridPro] an OperationError handler threw: {handlerFailure}");
+            }
+        }
 
         /// <summary>
         /// Reports a failure from a paint section. Never throws - a reporting channel that can
@@ -302,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 return;
             }
 
-            try { handler(this, new GridRenderErrorEventArgs(section, exception)); }
+            try { handler(this, new GridErrorEventArgs(section, exception)); }
             catch (Exception handlerFailure)
             {
                 System.Diagnostics.Debug.WriteLine(
@@ -370,9 +401,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 // Draw custom scrollbars after grid content
                 ScrollBars?.DrawScrollBars(g);
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently handle drawing exceptions to prevent crashes
+                // Absorbed so a failure in one section cannot take the whole control down -
+                // a throw out of paint becomes an invisible modal dialog, not a crash - but
+                // reported rather than swallowed.
+                ReportRenderError("DrawContent", ex);
             }
 
             // Keep scrollbars in sync after rendering (outside clipping)

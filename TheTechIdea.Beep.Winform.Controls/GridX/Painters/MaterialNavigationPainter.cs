@@ -34,12 +34,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 var font = BeepFontManager.GetCachedFont(familyName, size, style);
                 if (font != null) return font;
             }
-            catch { /* ignore */ }
+            catch (ArgumentException)
+            {
+                // The cache could not produce that family; fall through to the ladder below.
+            }
 
-            try { return new Font(familyName, size, style); } catch { }
-            try { return new Font("Segoe UI", size, style); } catch { }
-            try { return new Font(FontFamily.GenericSansSerif, size, style); } catch { }
-            try { return new Font("Arial", size, style); } catch { }
+            // A deliberate cascade: each rung tries a font more likely to exist than the last.
+            // ArgumentException is what the Font constructor throws for a family that is missing
+            // or unusable, and is the only failure this ladder is meant to absorb - catching
+            // everything hid unrelated faults behind a font fallback.
+            try { return new Font(familyName, size, style); } catch (ArgumentException) { }
+            try { return new Font("Segoe UI", size, style); } catch (ArgumentException) { }
+            try { return new Font(FontFamily.GenericSansSerif, size, style); } catch (ArgumentException) { }
+            try { return new Font("Arial", size, style); } catch (ArgumentException) { }
             return SystemFonts.DefaultFont;
         }
 

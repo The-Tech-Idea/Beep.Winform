@@ -155,6 +155,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     e.SuppressKeyPress = true;
                 }
             }
+            else if (e.Control && e.Alt && !e.Shift && e.KeyCode == Keys.L)
+            {
+                // Ctrl+Alt+L - "layouts". Free against every other binding here: the Ctrl+Alt
+                // family otherwise uses digits, Z, and the arrow keys.
+                if (ShowPerspectivePicker())
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
             else if (e.Control && e.Alt && e.KeyCode == Keys.Z)
             {
                 // VS Code binds zen to the Ctrl+K Z chord; WinForms key handling has no chord
@@ -339,21 +349,101 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             Point screenCenter = _hostForm.PointToScreen(
                 new Point(_hostForm.ClientSize.Width / 2, _hostForm.ClientSize.Height / 2));
 
-            _navigator = new BeepDockingNavigator(dockedPanels, _themeColors, screenCenter);
-            _navigator.FormClosed += (_, _) => _navigator = null;
-            _navigator.Show(_hostForm);
+            _navigatorMode = NavigatorMode.Panels;
+            var navigator = new BeepDockingNavigator(dockedPanels, _themeColors, screenCenter);
+            _navigator = navigator;
+            navigator.FormClosed += (_, _) => OnNavigatorClosed(navigator, NavigatorMode.Panels);
+            navigator.Show(_hostForm);
         }
 
+        /// <summary>What the open navigator popup is choosing between.</summary>
+        private enum NavigatorMode
+        {
+            Panels,
+            Perspectives,
+        }
+
+        private NavigatorMode _navigatorMode = NavigatorMode.Panels;
+
+        /// <summary>Commits whatever the popup has highlighted. Closing is what acts on it.</summary>
         private void CommitNavigatorSelection()
         {
             if (_navigator == null || _navigator.IsDisposed) return;
+            _navigator.Commit();
+        }
 
-            string key = _navigator.SelectedPanelKey;
-            if (!string.IsNullOrEmpty(key))
-            {
+        /// <summary>
+        /// Acts on the popup's selection once it has closed.
+        /// </summary>
+        /// <remarks>
+        /// Driven from <c>FormClosed</c> rather than from the Ctrl key-up that used to be the only
+        /// trigger. Enter inside the popup sets the selection and closes without ever passing
+        /// through key-up, so the previous arrangement could not commit an Enter at all — invisible
+        /// for the Ctrl+Tab navigator, where the user is holding Ctrl anyway, and fatal for the
+        /// perspective picker, which is not opened with a held key.
+        /// <para>
+        /// One place decides what a selected key means, so the popup stays unaware of docking.
+        /// </para>
+        /// </remarks>
+        private void OnNavigatorClosed(BeepDockingNavigator navigator, NavigatorMode mode)
+        {
+            string key = navigator?.SelectedPanelKey;
+
+            _navigator = null;
+            _navigatorMode = NavigatorMode.Panels;
+
+            if (string.IsNullOrEmpty(key))
+                return;
+
+            if (mode == NavigatorMode.Perspectives)
+                ApplyPerspective(key);
+            else
                 ActivatePanel(key);
+        }
+
+        /// <summary>
+        /// Opens the perspective picker — the same popup the Ctrl+Tab navigator uses, listing named
+        /// layouts instead of panels.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately the same control. Type-to-filter, arrow to choose, Enter to commit, Escape
+        /// to cancel is one interaction; a second popup would be a second place for it to drift.
+        /// </remarks>
+        public bool ShowPerspectivePicker()
+        {
+            if (_hostForm == null || _hostForm.IsDisposed || _perspectives.Count == 0)
+                return false;
+
+            CloseNavigator();
+
+            var entries = _perspectives
+                .Select(p => new Runtime.BeepDockingNavigator.NavigatorEntry(
+                    p.Name,
+                    p.IsDefault ? p.Name + "  (default)" : p.Name))
+                .ToList();
+
+            Point screenCenter = _hostForm.PointToScreen(
+                new Point(_hostForm.ClientSize.Width / 2, _hostForm.ClientSize.Height / 2));
+
+            _navigatorMode = NavigatorMode.Perspectives;
+            var picker = new Runtime.BeepDockingNavigator(
+                entries, _themeColors, screenCenter, "Type to filter layouts...");
+            _navigator = picker;
+            picker.FormClosed += (_, _) => OnNavigatorClosed(picker, NavigatorMode.Perspectives);
+            picker.Show(_hostForm);
+            return true;
+        }
+
+        /// <summary>Closes any open navigator popup without committing.</summary>
+        private void CloseNavigator()
+        {
+            if (_navigator == null || _navigator.IsDisposed)
+            {
+                _navigator = null;
+                return;
             }
-            _navigator.Close();
+
+            _navigator.Cancel();
             _navigator = null;
         }
     }

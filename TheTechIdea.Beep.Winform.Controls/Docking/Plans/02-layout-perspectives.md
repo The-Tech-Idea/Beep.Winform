@@ -170,5 +170,39 @@ Fixed in two places, because either alone would have left the other half wrong:
 
 ### Remaining
 
-- [ ] A perspective picker in `Runtime/BeepDockingNavigator.cs` — the commands, events and now the
-      persistence it would bind to are all in place; this is the UI surface
+### The picker — feature 02 complete
+
+`ShowPerspectivePicker()`, bound to `Ctrl+Alt+L`, opens the **same popup** the Ctrl+Tab navigator
+uses, listing named layouts instead of panels. Deliberately the same control: type-to-filter, arrow
+to choose, Enter to commit, Escape to cancel is one interaction, and a second popup would be a second
+place for it to drift. The navigator now works on a small `NavigatorEntry` (key, label, icon, dirty
+marker) rather than on `DockPanel` directly.
+
+```
+perspectives available: Debugging, Reviewing, Writing
+picker open: rows=3
+active before: 'Writing', choosing 'Debugging' (row 0)
+after committing: active perspective 'Debugging'
+Escape closes the picker without applying
+Ctrl+Alt+L opens the picker
+```
+
+### Building it exposed a defect in the existing navigator
+
+**Enter could never commit.** `CommitSelection` set the selected key and closed the popup, but the
+manager only acted on the **Ctrl key-up** that follows a Ctrl+Tab. Invisible for the panel navigator,
+where the user is holding Ctrl anyway — and fatal for a picker opened with `Ctrl+Alt+L`, which has no
+held key to release.
+
+Committing now happens on `FormClosed`, so both the popup's own Enter and the Ctrl-release path
+converge on one place that decides what a selected key means.
+
+**And the check that found it first passed for the wrong reason.** It chose the last perspective in
+the list, which happened to be the one already active — so "committing applies that perspective" was
+true before the picker did anything. It now picks a perspective that is *not* active and asserts the
+switch, which is what made the missing commit visible.
+
+That is the sixth check this program that passed or failed for a reason other than the one it was
+written for.
+
+`DockProbe`: **262 passed, 0 failed**. Docking suite 48/48. Solution 0 errors.

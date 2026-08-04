@@ -20,9 +20,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private readonly TextBox _search;
         private readonly ListBox _list;
         private readonly Panel _frame;
-        private readonly List<DockPanel> _allPanels;
+        private readonly List<NavigatorEntry> _allEntries;
         private DockingThemeColors _colors;
-        private List<DockPanel> _filtered = new();
+        private List<NavigatorEntry> _filtered = new();
+
+        /// <summary>
+        /// One row in the popup. The navigator lists panels and named layouts through the same
+        /// control, because they are the same interaction — type to filter, arrow to choose, Enter
+        /// to commit — and a second popup would be a second place for that behaviour to drift.
+        /// </summary>
+        internal readonly struct NavigatorEntry
+        {
+            public NavigatorEntry(string key, string label,
+                                  string iconPath = null, bool isDirty = false)
+            {
+                Key = key;
+                Label = label;
+                IconPath = iconPath;
+                IsDirty = isDirty;
+            }
+
+            /// <summary>Identifier handed back to the caller on commit.</summary>
+            public string Key { get; }
+
+            /// <summary>Text shown and filtered on.</summary>
+            public string Label { get; }
+
+            /// <summary>Optional leading icon. Empty for entries that have none.</summary>
+            public string IconPath { get; }
+
+            /// <summary>Draws the unsaved-changes dot. Only panels use it.</summary>
+            public bool IsDirty { get; }
+        }
 
         private const int PopupWidth = 440;
         private const int PopupHeight = 340;
@@ -50,6 +79,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                 _list.SelectedIndex = n;
             }
         }
+
+        /// <summary>Commits the highlighted row and closes, as Enter does.</summary>
+        internal void Commit() => CommitSelection();
 
         internal void Cancel()
         {
@@ -85,8 +117,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             IReadOnlyList<DockPanel> panels,
             DockingThemeColors colors,
             Point screenCenter)
+            : this(panels.Select(p => new NavigatorEntry(p.Key, p.Title, p.IconPath, p.IsDirty)).ToList(),
+                   colors, screenCenter, "Type to filter panels...")
         {
-            _allPanels = panels.ToList();
+        }
+
+        /// <summary>
+        /// Builds the popup over arbitrary entries — used for the perspective picker.
+        /// </summary>
+        internal BeepDockingNavigator(
+            IReadOnlyList<NavigatorEntry> entries,
+            DockingThemeColors colors,
+            Point screenCenter,
+            string placeholder)
+        {
+            _allEntries = entries.ToList();
             _colors = colors ?? DockingThemeColors.Default;
 
             FormBorderStyle = FormBorderStyle.None;
@@ -113,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Regular),
-                PlaceholderText = "Type to filter panels...",
+                PlaceholderText = placeholder,
                 BackColor = _colors.PanelBackColor,
                 ForeColor = _colors.PanelForeColor,
             };
@@ -159,15 +204,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private void PopulateList(string filter, bool preselectPrevious)
         {
             _filtered = string.IsNullOrWhiteSpace(filter)
-                ? _allPanels.ToList()
-                : _allPanels.Where(p =>
-                      (p.Title ?? string.Empty).Contains(filter, StringComparison.OrdinalIgnoreCase))
+                ? _allEntries.ToList()
+                : _allEntries.Where(entry =>
+                      (entry.Label ?? string.Empty).Contains(filter, StringComparison.OrdinalIgnoreCase))
                   .ToList();
 
             _list.BeginUpdate();
             _list.Items.Clear();
-            foreach (var panel in _filtered)
-                _list.Items.Add(panel.Title);
+            foreach (var entry in _filtered)
+                _list.Items.Add(entry.Label);
             _list.EndUpdate();
 
             if (_filtered.Count == 0) return;
@@ -229,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         {
             if (e.Index < 0 || e.Index >= _filtered.Count) return;
 
-            var panel = _filtered[e.Index];
+            var entry = _filtered[e.Index];
             bool sel = (e.State & DrawItemState.Selected) != 0;
 
             Color backCol = sel ? _colors.ActiveTabBackColor : _colors.PanelBackColor;
@@ -249,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             int x = e.Bounds.Left + 10;
 
             // Dirty dot
-            if (panel.IsDirty)
+            if (entry.IsDirty)
             {
                 using var dot = new SolidBrush(Color.OrangeRed);
                 int dotY = e.Bounds.Top + (e.Bounds.Height - 8) / 2;
@@ -258,11 +303,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             }
 
             // Icon
-            bool showIcon = DockingCaptionPainter.HasTabIcon(panel.IconPath);
+            bool showIcon = DockingCaptionPainter.HasTabIcon(entry.IconPath);
             if (showIcon)
             {
                 var iconRect = new Rectangle(x, e.Bounds.Top + (e.Bounds.Height - 16) / 2, 16, 16);
-                DockingCaptionPainter.PaintTabIcon(e.Graphics, iconRect, panel.IconPath, foreCol);
+                DockingCaptionPainter.PaintTabIcon(e.Graphics, iconRect, entry.IconPath, foreCol);
                 x += 18;
             }
 
@@ -277,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                 FormatFlags = StringFormatFlags.NoWrap,
             };
             using var titleBrush = new SolidBrush(foreCol);
-            e.Graphics.DrawString(panel.Title ?? "Panel",
+            e.Graphics.DrawString(entry.Label ?? "Panel",
                 _list.Font ?? SystemFonts.DefaultFont, titleBrush, titleRect, fmt);
         }
     }

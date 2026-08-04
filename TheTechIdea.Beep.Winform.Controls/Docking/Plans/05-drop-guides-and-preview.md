@@ -89,7 +89,29 @@ Per-position PNGs are written to `scratchpad/dock-renders`.
       [10](10-verification-harness.md) makes this a one-line assertion once implemented
 - [x] Drop between two tabs to choose the insertion index — done, see below
 - [ ] Centre and edge targets over the hovered *group* — needs [01](01-split-editor-groups.md)
-- [ ] Hover growth animation on the guide targets, respecting reduced-motion
+### Hover growth — feature 05 complete
+
+The hovered diamond grows toward the cursor. With five targets close together, colour alone is a
+weak signal about which one a release will take.
+
+**Reduced motion does not mean no feedback.** With animation off the diamond still reaches full
+size, it simply gets there without the intermediate frames. Implementing "respect reduced motion" as
+"draw nothing extra" would remove the hover indication from exactly the users who asked for less
+movement — and it passes any check that only looks for the absence of animation, so both halves are
+asserted.
+
+`AnimateGuides` is a `bool?` over `SystemInformation.UIEffectsEnabled`, for the same reason the
+display set and high contrast are inputs.
+
+```
+AnimateGuides=false -> full size immediately (1.00)
+animated: 0.00 at hover -> 1.00 after 12 ticks, no overshoot
+moving to another target restarts its growth
+hovered vs not hovered: 2.35% of pixels differ
+```
+
+The timer is driven directly in the checks rather than waited on: a sleep would make the result
+depend on machine load and report a false failure on a slow run.
 - [ ] Guides target the monitor under the cursor — needs [03](03-multi-monitor-floating.md)
 
 Three of the five depend on features not yet built, which is why this one stops here rather than
@@ -139,7 +161,29 @@ what shipped. The baseline asserts the all-same case is not what happens.
 
 ### Remaining in this feature
 
-- [ ] Hover growth animation on the guide targets, respecting reduced-motion
+### Hover growth — feature 05 complete
+
+The hovered diamond grows toward the cursor. With five targets close together, colour alone is a
+weak signal about which one a release will take.
+
+**Reduced motion does not mean no feedback.** With animation off the diamond still reaches full
+size, it simply gets there without the intermediate frames. Implementing "respect reduced motion" as
+"draw nothing extra" would remove the hover indication from exactly the users who asked for less
+movement — and it passes any check that only looks for the absence of animation, so both halves are
+asserted.
+
+`AnimateGuides` is a `bool?` over `SystemInformation.UIEffectsEnabled`, for the same reason the
+display set and high contrast are inputs.
+
+```
+AnimateGuides=false -> full size immediately (1.00)
+animated: 0.00 at hover -> 1.00 after 12 ticks, no overshoot
+moving to another target restarts its growth
+hovered vs not hovered: 2.35% of pixels differ
+```
+
+The timer is driven directly in the checks rather than waited on: a sleep would make the result
+depend on machine load and report a false failure on a slow run.
 ### The rosette now sits over the hovered group
 
 The drop logic had resolved a specific group for some time; the guides were the last part still

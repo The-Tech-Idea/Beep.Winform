@@ -45,6 +45,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private Rectangle _bottomRect;
         private Rectangle _fillRect;
         private DockPosition? _hoveredTarget;
+
+        // 0..1 growth of the hovered diamond. Reset when the hovered target changes, so the
+        // growth restarts on the new one rather than continuing from the old one's progress.
+        private float _hoverGrowth;
+        private System.Windows.Forms.Timer _hoverTimer;
+
+        /// <summary>Pixels the hovered diamond grows by, per side, when fully expanded.</summary>
+        private const int HoverGrowthPixels = 4;
+
+        /// <summary>Milliseconds from first hover to full size.</summary>
+        private const int HoverGrowthDuration = 120;
+
+        private const int HoverTickInterval = 15;
+
+        /// <summary>
+        /// Whether the hover growth is animated. <c>null</c> (the default) follows the operating
+        /// system's UI-effects setting.
+        /// </summary>
+        /// <remarks>
+        /// Reduced motion does <b>not</b> mean no feedback: with animation off the diamond still
+        /// grows, it simply arrives at full size immediately. Removing the size change instead
+        /// would take the hover indication away from exactly the users who asked for less movement,
+        /// which is the opposite of the intent.
+        /// <para>
+        /// Settable so the behaviour can be exercised without changing a machine-wide Windows
+        /// setting - the same reason the display set and high contrast are inputs.
+        /// </para>
+        /// </remarks>
+        public bool? AnimateGuides { get; set; }
+
+        /// <summary>True when the hover growth should be animated rather than immediate.</summary>
+        public bool IsAnimated => AnimateGuides ?? SystemInformation.UIEffectsEnabled;
+
+        /// <summary>Current growth of the hovered diamond, 0..1.</summary>
+        internal float HoverGrowth => _hoverGrowth;
         private Rectangle _snapLineBounds;       // screen-coord rect of the active snap line
         private DockPosition _snapLinePosition;
         private bool _snapLineVisible;
@@ -147,6 +182,63 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             return true;
         }
 
+        /// <summary>
+        /// Starts (or completes) the hovered diamond's growth.
+        /// </summary>
+        private void BeginHoverGrowth()
+        {
+            _hoverGrowth = 0f;
+
+            if (_hoveredTarget == null)
+            {
+                StopHoverTimer();
+                return;
+            }
+
+            if (!IsAnimated)
+            {
+                // Reduced motion: arrive at full size without the intermediate frames.
+                _hoverGrowth = 1f;
+                StopHoverTimer();
+                return;
+            }
+
+            if (_hoverTimer == null)
+            {
+                _hoverTimer = new System.Windows.Forms.Timer { Interval = HoverTickInterval };
+                _hoverTimer.Tick += OnHoverTick;
+            }
+
+            _hoverTimer.Start();
+        }
+
+        private void OnHoverTick(object sender, EventArgs e)
+        {
+            _hoverGrowth += HoverTickInterval / (float)HoverGrowthDuration;
+
+            if (_hoverGrowth >= 1f || _hoveredTarget == null)
+            {
+                _hoverGrowth = _hoveredTarget == null ? 0f : 1f;
+                StopHoverTimer();
+            }
+
+            Invalidate();
+        }
+
+        private void StopHoverTimer() => _hoverTimer?.Stop();
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && _hoverTimer != null)
+            {
+                _hoverTimer.Tick -= OnHoverTick;
+                _hoverTimer.Dispose();
+                _hoverTimer = null;
+            }
+
+            base.Dispose(disposing);
+        }
+
         /// <summary>The display a rectangle's centre falls on, else the one it most overlaps.</summary>
         private static MonitorInfo MonitorUnder(Rectangle rect, IReadOnlyList<MonitorInfo> monitors)
         {
@@ -192,6 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             if (hit != _hoveredTarget)
             {
                 _hoveredTarget = hit;
+                BeginHoverGrowth();
                 Invalidate();
             }
             return hit;
@@ -306,6 +399,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private void DrawDiamond(Graphics g, Rectangle r, DockPosition target)
         {
             bool isHot = (_hoveredTarget == target);
+
+            // The hovered target grows toward the cursor. Reference products all do this, and it
+            // matters more than decoration: with five diamonds close together, colour alone is a
+            // weak signal about which one a release will actually take.
+            if (isHot && _hoverGrowth > 0f)
+            {
+                int grow = (int)Math.Round(HoverGrowthPixels * _hoverGrowth);
+                r = Rectangle.Inflate(r, grow, grow);
+            }
 
             Color back   = isHot ? Color.FromArgb(0, 122, 204) : Color.FromArgb(45, 45, 48);
             Color border = isHot ? Color.White                  : Color.FromArgb(100, 100, 100);

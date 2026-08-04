@@ -227,8 +227,44 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         {
             if (_searchEditor == null) return;
             if (!_searchEditor.Visible) return;
-            if (toolbarBounds.IsEmpty || searchBoxBounds.IsEmpty) return;
+
+            // No box to sit in. This used to return and leave the editor visible wherever it last
+            // was, which is what put a floating text box at the wrong place after minimizing or
+            // maximizing: minimizing collapses the client area, the toolbar layout resets, and the
+            // search box rectangle becomes empty - so the editor was simply abandoned rather than
+            // repositioned. The same now happens legitimately on a narrow toolbar, where the search
+            // box is dropped on purpose.
+            if (toolbarBounds.IsEmpty || searchBoxBounds.IsEmpty)
+            {
+                SuspendForLayout();
+                return;
+            }
+
             _searchEditor.Bounds = InnerEditorBounds(searchBoxBounds);
+        }
+
+        /// <summary>
+        /// Puts the editor away because there is nowhere to draw it, keeping what was typed.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately not <see cref="HideSearchEditor"/>. That treats the hide as the user
+        /// cancelling, and hands focus back to the grid - both wrong here. The user did not cancel
+        /// anything; the window was minimized or the toolbar ran out of room. And calling
+        /// <c>Focus()</c> while a form is minimizing is at best pointless.
+        /// <para>
+        /// The typed text is carried into <c>ToolbarState.SearchText</c> so it survives, is painted
+        /// in the box once there is room again, and is there to resume from when the user reopens
+        /// the editor.
+        /// </para>
+        /// </remarks>
+        internal void SuspendForLayout()
+        {
+            if (_searchEditor == null || _searchEditor.IsDisposed || !_searchEditor.Visible)
+                return;
+
+            _grid.ToolbarState.SearchText = _searchEditor.Text;
+            _grid.ToolbarState.SearchHasFocus = false;
+            _searchEditor.Visible = false;
         }
 
         public void Dispose()

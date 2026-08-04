@@ -247,7 +247,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             SafeRecalculate();
             EnsureInlineQuickSearchVisible();
             PositionInlineQuickSearchControl();
-            ResizeActiveSearchEditor();
+
+            // Deliberately NOT repositioning the search editor here. The toolbar is laid out during
+            // paint, so at this point ToolbarState still describes the previous size and moving the
+            // editor now would place it from stale geometry. The paint pass calls
+            // SyncSearchEditorToToolbarLayout once the new rectangles exist.
 
             // Do not stretch the editor host; it will be sized to the active cell only
 
@@ -266,10 +270,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// at its old size while the painted search box resizes, leaving
         /// the search icon / placeholder misaligned.
         /// </summary>
-        private void ResizeActiveSearchEditor()
+        /// <summary>
+        /// Moves the inline search editor onto the search box the toolbar layout just produced.
+        /// </summary>
+        /// <remarks>
+        /// Called from the paint pass, immediately after the toolbar computes its rectangles,
+        /// because that is the only moment the geometry is current. Doing it from
+        /// <see cref="OnResize"/> positioned the editor from the previous layout - harmless for a
+        /// small drag, and badly wrong for a maximize, where the box moves across the screen.
+        /// <para>
+        /// An empty toolbar or search rectangle means there is nowhere for the editor to be: the
+        /// toolbar is hidden, the grid has been collapsed by a minimize, or the box was dropped
+        /// because the toolbar is too narrow. The editor is put away rather than abandoned where it
+        /// last sat.
+        /// </para>
+        /// </remarks>
+        internal void SyncSearchEditorToToolbarLayout()
         {
             if (_filterEditor == null) return;
-            if (Layout == null || Layout.ToolbarRect.IsEmpty) return;
+
+            if (Layout == null || Layout.ToolbarRect.IsEmpty)
+            {
+                _filterEditor.SuspendForLayout();
+                return;
+            }
+
             _filterEditor.ResizeIfActive(Layout.ToolbarRect, ToolbarState.SearchBoxRect);
         }
 

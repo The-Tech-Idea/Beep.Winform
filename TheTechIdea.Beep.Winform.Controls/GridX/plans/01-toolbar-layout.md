@@ -108,6 +108,37 @@ the painter ran to the box's edge while the editor stopped short of the corner a
 by a few pixels at the moment the editor opened or closed. Both now call
 `BeepGridToolbarPainter.SearchTextArea`.
 
+### The inline editor was positioned from the previous layout
+
+Reported: after minimizing or maximizing, the search editor is on screen at the wrong place. Two
+separate causes, and the second is the one that mattered.
+
+**It was abandoned rather than put away.** `ResizeIfActive` returned early when the search box
+rectangle was empty. Minimizing collapses the client area, the toolbar layout resets, the rectangle
+goes empty - and the editor was left visible wherever it last sat. The same case now arises
+legitimately when the toolbar is too narrow to keep the box. There is now a `SuspendForLayout` that
+hides it and carries the typed text into `ToolbarState.SearchText`, so nothing is lost. It is
+deliberately not `HideSearchEditor`, which treats a hide as the user cancelling and hands focus back
+to the grid - both wrong when the window is simply minimizing.
+
+**It was moved one layout too early.** The toolbar is laid out during *paint*
+(`GridRenderHelper.Rendering`), but the editor was repositioned from `OnResize`, which runs before
+that. So it was always placed from the previous geometry. Barely visible on a small drag; badly wrong
+on a maximize, where the box moves across the screen:
+
+```
+maximized, before:  editor {X=594}   search box {X=3010}
+maximized, after:   editor {X=3034}  search box {X=3010}
+```
+
+The editor is now synced immediately after the layout pass that positions the box, and `OnResize`
+does not touch it. The call sits outside the paint block's `catch`, because failing to place a child
+control is not a paint failure and should not be swallowed as one.
+
+Asserted as an invariant rather than as the symptom - **editor visible implies a search box to sit
+in** - across open, minimize, restore, maximize and a width narrow enough that the box is dropped on
+purpose: 9 checks, all passing.
+
 ## Still open
 
 - [ ] `ShowFilterButton` defaults to **false**, so the funnel never appears and only the advanced

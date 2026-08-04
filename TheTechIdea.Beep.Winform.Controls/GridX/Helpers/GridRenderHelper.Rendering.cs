@@ -67,6 +67,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 catch (Exception)
                 {
                 }
+
+                // The inline search editor is a real control, so it has to be moved to wherever
+                // this pass just put the search box. It cannot be done from OnResize: the toolbar
+                // is laid out here, during paint, so a resize hook runs while the state still
+                // holds the *previous* geometry and positions the editor from that. Maximizing
+                // moved the search box by thousands of pixels while the editor stayed where it
+                // was, which is the floating box seen at the wrong location.
+                //
+                // Outside the try above deliberately - a failure to place a child control is not
+                // a paint failure and must not be swallowed with one.
+                _grid.SyncSearchEditorToToolbarLayout();
             }
 
             // Draw column headers

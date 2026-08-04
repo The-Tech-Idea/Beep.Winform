@@ -113,6 +113,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             if (!Visible) Show(hostForm);
         }
 
+        /// <summary>
+        /// Centres the guide rosette over an arbitrary screen rectangle — used to put it over the
+        /// group being hovered rather than over the whole host.
+        /// </summary>
+        /// <remarks>
+        /// This is what makes the compass mean "dock into <i>this</i> panel". Centred on the host,
+        /// the same four diamonds can only ever describe the host's edges, so a user aiming at one
+        /// panel among several gets no indication of which one will receive the drop.
+        /// <para>
+        /// Returns false and leaves the overlay alone when the target is too small to hold the
+        /// rosette; a compass larger than the region it describes points at its own neighbours.
+        /// </para>
+        /// </remarks>
+        public bool CenterOn(Rectangle screenRect, IReadOnlyList<MonitorInfo> monitors)
+        {
+            if (screenRect.Width < Width || screenRect.Height < Height)
+                return false;
+
+            var placed = new Rectangle(
+                screenRect.X + (screenRect.Width - Width) / 2,
+                screenRect.Y + (screenRect.Height - Height) / 2,
+                Width, Height);
+
+            var screens = monitors ?? SystemMonitorProvider.Instance.GetMonitors();
+            var display = MonitorUnder(placed, screens);
+            if (display.WorkingArea.Width > 0)
+                placed = FloatBoundsResolver.ClampInto(placed, display.WorkingArea);
+
+            if (Location != placed.Location)
+                Location = placed.Location;
+
+            return true;
+        }
+
         /// <summary>The display a rectangle's centre falls on, else the one it most overlaps.</summary>
         private static MonitorInfo MonitorUnder(Rectangle rect, IReadOnlyList<MonitorInfo> monitors)
         {

@@ -22,6 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
         /// <summary>Current group bounds (in host-form client coords) used for group-edge detection.</summary>
         IReadOnlyDictionary<string, Rectangle> GroupBounds { get; }
 
+        /// <summary>
+        /// Displays the drag should reason about, so guides land on the same screens float restore
+        /// and snapping use.
+        /// </summary>
+        IMonitorProvider Monitors { get; }
+
         /// <summary>Looks up a DockGroup by its string id for group-edge resolution.</summary>
         DockGroup GetGroup(string groupId);
 

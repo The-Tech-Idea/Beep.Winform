@@ -32,6 +32,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
         /// <summary>
         /// Updates the hovered diamond for the given screen point and returns the hit position.
         /// </summary>
+        /// <summary>
+        /// Centres the rosette over a screen rectangle — the group being hovered.
+        /// </summary>
+        /// <returns>False when the region is too small to hold the rosette.</returns>
+        public bool CenterOn(Rectangle screenRect, IMonitorProvider monitors)
+        {
+            if (_overlay == null || _overlay.IsDisposed || !_overlay.Visible)
+                return false;
+
+            return _overlay.CenterOn(screenRect, monitors?.GetMonitors());
+        }
+
+        /// <summary>Returns the rosette to the centre of the host.</summary>
+        public void ShowOver(Form hostForm, IMonitorProvider monitors)
+        {
+            if (_overlay == null || _overlay.IsDisposed || hostForm == null)
+                return;
+
+            _overlay.ShowOver(hostForm, monitors?.GetMonitors());
+        }
+
         public DockPosition? Update(Point screenPoint)
         {
             if (_overlay == null || _overlay.IsDisposed || !_overlay.Visible)

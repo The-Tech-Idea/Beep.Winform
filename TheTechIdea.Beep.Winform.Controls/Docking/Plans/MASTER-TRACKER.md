@@ -31,7 +31,7 @@ Measured, not assumed — each figure is a reference count across the folder.
 | [02](02-layout-perspectives.md) | Named layout perspectives | Rider layouts, Blender workspaces, VS | ◐ **partial** — model, commands, Ctrl+Alt+1..9, capture-before-switch; picker UI open |
 | [03](03-multi-monitor-floating.md) | Multi-monitor floating windows | VS, Rider, Figma | ◐ **partial** — injectable monitor set, device-name restore with clamping, DPI scaling, display-edge snapping; mixed-DPI verification needs real hardware |
 | [04](04-maximise-and-zen.md) | Panel maximise and zen mode | VS Code `Ctrl+K Z`, Rider `Shift+Esc` | ☑ **done** — transient maximise, tree never mutated; input wiring deferred to 06 |
-| [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ◐ **partial** — result preview, Esc-cancel and tab-index drop done; hover animation and group-level rosette open |
+| [05](05-drop-guides-and-preview.md) | Modern drop guides and preview | Dockview, Golden Layout | ◐ **partial** — result preview, Esc-cancel, tab-index drop and group-level rosette done; hover animation open |
 | [06](06-keyboard-and-accessibility.md) | Keyboard docking and a11y | VS Code, WCAG 2.2 | ◐ **partial** — accessible tree, command set, focus ring; high-contrast open |
 | [07](07-persistence-and-migration.md) | Layout persistence and migration | VS `.suo`, Rider `layouts` | ◐ **partial** — schema v2, version guard, hidden panels, no more stranding; 02/03 state pending |
 | [08](08-manager-decomposition.md) | Decompose `BeepDockingManager` | — | ◐ **partial** — 3,317 → 1,947 across 16 partials; all identified seams taken, core operations remain |

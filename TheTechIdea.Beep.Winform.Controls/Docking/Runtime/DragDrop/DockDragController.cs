@@ -74,6 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
             _session.Current = result;
             _session.CurrentScreen = screenPoint;
             _ghost.MoveTo(result.PreviewBounds);
+            PositionGuidesOverTarget(result);
 
             if (_showSnapGuides &&
                 (result.Kind == DockDropKind.GroupEdge || result.Kind == DockDropKind.GroupCenterStack))
@@ -167,6 +168,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
                     _host.CommitFloat(panel);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Moves the guide rosette over the group under the cursor, or back to the host when the
+        /// cursor is not over one.
+        /// </summary>
+        /// <remarks>
+        /// The compass has to describe the region it will actually drop into. Left centred on the
+        /// host it can only ever mean "an edge of the whole window", which is the wrong answer as
+        /// soon as more than one group exists — the drop logic has resolved a specific group by this
+        /// point and the guides were the only part still talking about the host.
+        /// <para>
+        /// Group bounds are in the layout container's coordinates, so they are converted to screen
+        /// before use. A group too small to contain the rosette is left alone rather than shown a
+        /// compass bigger than the thing it describes.
+        /// </para>
+        /// </remarks>
+        private void PositionGuidesOverTarget(DockDropResult result)
+        {
+            var host = _host.HostForm;
+            if (host == null || host.IsDisposed)
+                return;
+
+            string groupId = result?.TargetGroup?.Id;
+            if (!string.IsNullOrEmpty(groupId) &&
+                _host.GroupBounds != null &&
+                _host.GroupBounds.TryGetValue(groupId, out var bounds) &&
+                !bounds.IsEmpty)
+            {
+                if (_guides.CenterOn(host.RectangleToScreen(bounds), _host.Monitors))
+                    return;
+            }
+
+            // No group, or one too small: the host's own edges are what the drop will use.
+            _guides.ShowOver(host, _host.Monitors);
         }
 
         private static bool ExceedsThreshold(Point origin, Point current)

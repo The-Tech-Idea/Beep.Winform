@@ -140,6 +140,33 @@ what shipped. The baseline asserts the all-same case is not what happens.
 ### Remaining in this feature
 
 - [ ] Hover growth animation on the guide targets, respecting reduced-motion
-- [ ] Centre and edge targets over the hovered *group* — the group-edge path exists
-      ([01](01-split-editor-groups.md)); what is missing is the rosette rendering over a group
-      rather than the host
+### The rosette now sits over the hovered group
+
+The drop logic had resolved a specific group for some time; the guides were the last part still
+talking about the host. Centred on the host, the four diamonds can only ever describe the host's
+edges — so with more than one group, a user aiming at a particular panel got no indication of which
+would receive the drop.
+
+`DockingGuideOverlay.CenterOn(screenRect, monitors)` positions the rosette over any region, and
+`DockDragController` calls it on each move with the resolved group's bounds, falling back to the host
+when the cursor is not over one. Group bounds are in layout-container coordinates, so they are
+converted to screen first.
+
+A group too small to hold the rosette is refused rather than shown a compass larger than the region
+it describes.
+
+```
+centred on the host:  {-1846,-2023}   (overlay 136x108)
+over the left group:  {-2218,-2104}
+over the right group: {-1648,-2104}
+```
+
+The assertion that matters is that it lands in a **different place for each group** and exactly on
+each group's centre — an overlay that positioned itself once and never again would pass any check
+that only asked whether it was visible.
+
+**The check failed first for a fixture reason worth recording.** The probe parks windows at
+`-2400,-2400`, which is off every real display, so every position clamped to `{0,0}` — the clamp
+working exactly as intended while measuring nothing. Supplying a synthetic display that contains
+those coordinates fixed it. This is the second time the display set being an *input* rather than an
+ambient fact is what made a check possible at all.

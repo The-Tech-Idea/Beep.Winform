@@ -4683,6 +4683,7 @@
     <Folder Include="Docking\Examples\" />
     <Folder Include="Docking\Plans\" />
     <Folder Include="Examples\" />
+    <Folder Include="Filtering\plans\" />
     <Folder Include="Forms\Enums\" />
     <Folder Include="Forms\PopUpForm\" />
     <Folder Include="Forms\Properties\" />

@@ -186,45 +186,140 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
             Reset();
 
-            // The right-hand sections are fixed width, so budget them first: everything flexible
-            // (title, actions, search) then lays out against a known right limit instead of
-            // discovering the overrun afterwards and overlapping.
+            // ============================================================================
+            // RIGHT CLUSTER - laid out right-to-left, anchored to the toolbar's right edge.
+            // ============================================================================
             //
-            // Only what the painter will actually draw gets reserved — the clear-filter chip only
-            // appears while a filter is active, and the chevron only when something overflowed.
-            int exportVisibleCount = ExportButtons.Count(b => b.IsVisible);
-            int filterButtonCount = 1                            // advanced
-                                    + (ShowFilterButton ? 1 : 0)
-                                    + (IsFilterActive ? 1 : 0);  // clear-filter chip
-            int filterSectionWidth = filterButtonCount * (iconSize + buttonGap) + margin;
-            int exportSectionWidth = exportVisibleCount > 0
-                ? exportVisibleCount * (iconSize + buttonGap) + margin
-                : 0;
-            int overflowWidth = reserveOverflow ? iconSize + margin : 0;
+            // Anchoring is the whole point. This used to be positioned by the same running x that
+            // the title and search advanced, with only a computed "reserved width" keeping them out
+            // of its way. Once the flexible sections hit their minimums that reservation was simply
+            // exceeded and the cluster walked off the end of the control: measured on a 200px
+            // toolbar, the advanced button occupied 186..204 and the overflow chevron sat at x=210,
+            // both outside the control and therefore invisible.
+            //
+            // Placing it backwards from the right edge makes overrunning impossible. Whatever
+            // survives is the middle's budget, and if that is not enough the middle collapses
+            // rather than the toolbar bleeding past its own bounds.
+            int right = bounds.Right - margin;
 
-            int separatorCount = 1                                     // before the filter section
-                                 + (exportVisibleCount > 0 ? 1 : 0)
-                                 + (reserveOverflow ? 1 : 0);
-            int reservedRight = filterSectionWidth + exportSectionWidth + overflowWidth
-                                + separatorWidth * separatorCount + margin;
-            int rightLimit = Math.Max(bounds.Left + margin, bounds.Right - reservedRight);
+            // Every button in the cluster gets the same box: icon-wide, full band height. The width
+            // stays at the icon because a previous pass tried a 28px minimum and it padded the whole
+            // strip out; the height is now the band for all of them. They used to differ - export
+            // buttons were 18x32 while filter and advanced were 18x18 - so adjacent icons had hit
+            // targets of different heights and read as vertically misaligned even though each was
+            // individually centred.
+            Rectangle Slot(int rightEdge) =>
+                new Rectangle(rightEdge - iconSize, bandY, iconSize, bandHeight);
 
+            if (reserveOverflow)
+            {
+                OverflowButtonRect = Slot(right);
+                right = OverflowButtonRect.Left - buttonGap;
+
+                Separator3X = right - separatorWidth;
+                right -= separatorWidth + buttonGap;
+            }
+
+            // How many export buttons fit, counted from the start of the list. Placement below is
+            // right-to-left, but the decision of *which* survive has to run left-to-right: taking
+            // them from the right would keep the last-declared buttons and push the first ones into
+            // the chevron, which is backwards. A toolbar overflows from its tail.
+            var exportsToPlace = ExportButtons.Where(b => b.IsVisible).ToList();
+            int slotPitch = iconSize + buttonGap;
+            int exportBudget = Math.Max(0, right - (bounds.Left + margin + minSearchWidth));
+            int exportsThatFit = Math.Max(0, Math.Min(exportsToPlace.Count, exportBudget / Math.Max(1, slotPitch)));
+
+            for (int i = 0; i < exportsToPlace.Count; i++)
+            {
+                exportsToPlace[i].IsOverflow = i >= exportsThatFit;
+                exportsToPlace[i].Bounds = Rectangle.Empty;
+            }
+
+            // Now place the survivors right-to-left, so the first declared ends up left-most.
+            int exportRight = right;
+            for (int i = exportsThatFit - 1; i >= 0; i--)
+            {
+                var slot = Slot(exportRight);
+                exportsToPlace[i].Bounds = slot;
+                exportRight = slot.Left - buttonGap;
+            }
+
+            var placedExports = ExportButtons.Where(b => b.IsVisible && !b.IsOverflow).ToList();
+            if (placedExports.Count > 0)
+            {
+                ExportSectionRect = Rectangle.FromLTRB(
+                    placedExports.Min(b => b.Bounds.Left), bandY,
+                    placedExports.Max(b => b.Bounds.Right), bandY + bandHeight);
+
+                right = exportRight;
+                Separator2X = right - separatorWidth;
+                right -= separatorWidth + buttonGap;
+            }
+            else
+            {
+                ExportSectionRect = Rectangle.Empty;
+            }
+
+            // Filter cluster, right-to-left: clear-filter chip (only while a filter is active),
+            // advanced, then the optional filter button. Left-to-right they read filter, advanced,
+            // clear.
+            int filterRight = right;
+
+            if (IsFilterActive)
+            {
+                ClearFilterRect = Slot(filterRight);
+                filterRight = ClearFilterRect.Left - buttonGap;
+            }
+
+            AdvancedButtonRect = Slot(filterRight);
+            filterRight = AdvancedButtonRect.Left - buttonGap;
+
+            if (ShowFilterButton)
+            {
+                FilterButtonRect = Slot(filterRight);
+                filterRight = FilterButtonRect.Left - buttonGap;
+            }
+
+            FilterSectionRect = Rectangle.FromLTRB(
+                filterRight + buttonGap, bandY, right, bandY + bandHeight);
+            right = filterRight;
+
+            Separator1X = right - separatorWidth;
+            right -= separatorWidth + buttonGap;
+
+            // The active-filter badge sits over whichever button the user reads as "the filter
+            // button", clamped inside the band so it cannot paint outside the toolbar.
+            var badgeAnchor = ShowFilterButton ? FilterButtonRect : AdvancedButtonRect;
+            int badgeSize = (int)(14 * DpiScale);
+            int badgeTop = badgeAnchor.Top + (bandHeight - iconSize) / 2 - badgeSize / 3;
+            BadgeRect = ClampToBand(
+                new Rectangle(badgeAnchor.Right - badgeSize / 2, badgeTop, badgeSize, badgeSize),
+                bounds);
+
+            // Whatever survives is the middle's to divide.
+            int rightLimit = Math.Max(bounds.Left + margin, right);
+
+            // ============================================================================
+            // MIDDLE - title, actions, then the search box right-aligned against the cluster.
+            // ============================================================================
             int x = bounds.Left + margin;
 
-            // === TITLE SECTION (optional, left-most) ===
             if (ShowGridTitle && !string.IsNullOrEmpty(GridTitle))
             {
-                // The painter populates TitleFont once per cache so this measurement reuses the
-                // same font instance the painter draws with.
+                // Measured with the font the painter draws with, so the reservation and the drawn
+                // text cannot disagree about how much room the title needs.
                 var titleSize = TextRenderer.MeasureText(GridTitle, TitleFont);
 
-                // Take what the title needs, but keep the search box above its minimum. The title
-                // still gets a floor so a set title never disappears entirely — it ellipsizes
-                // instead, and the search box gives up the difference.
                 int minTitle = (int)(MinTitleLogicalWidth * DpiScale);
                 int titleBudget = Math.Max(0, rightLimit - x - minSearchWidth - margin);
-                int titleWidth = Math.Min(titleSize.Width + margin, Math.Max(titleBudget, minTitle));
-                titleWidth = Math.Min(titleWidth, Math.Max(0, rightLimit - x - margin));
+
+                // The title yields before the search box does, but never sits below a floor at
+                // which it would be unreadable - past that it is dropped outright rather than
+                // shown as two characters and an ellipsis.
+                int titleWidth = Math.Min(titleSize.Width + margin, titleBudget);
+                if (titleWidth < minTitle)
+                    titleWidth = titleBudget >= minTitle ? minTitle : 0;
+
                 if (titleWidth > 0)
                 {
                     TitleSectionRect = new Rectangle(x, bandY, titleWidth, bandHeight);
@@ -232,103 +327,59 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 }
             }
 
-            // === ACTIONS SECTION ===
-            // Collapse order under pressure: labels go first, then whole buttons move to overflow.
-            int actionsBudget = rightLimit - x - minSearchWidth - margin;
+            int actionsBudget = Math.Max(0, rightLimit - x - minSearchWidth - margin);
             bool showActionLabels = actionsBudget >= (int)(LabelCollapseLogicalWidth * DpiScale);
 
             int actionsStartX = x;
             LayoutButtonList(ActionButtons, ref x, bandY, iconSize, bandHeight, buttonGap,
-                             x + Math.Max(0, actionsBudget), showActionLabels, labelFont);
+                             x + actionsBudget, showActionLabels, labelFont);
             int actionsEndX = x;
-            bool hasVisibleActions = ActionButtons.Any(b => b.IsVisible && !b.IsOverflow);
-            ActionsSectionRect = hasVisibleActions
+            ActionsSectionRect = ActionButtons.Any(b => b.IsVisible && !b.IsOverflow)
                 ? new Rectangle(actionsStartX, bandY, actionsEndX - actionsStartX, bandHeight)
                 : Rectangle.Empty;
 
-            // === SEARCH SECTION (flexible, fills what is left) ===
-            // The box is laid out first and the icon sits INSIDE it. The painter and the on-demand
-            // search editor both inset their text by SearchIconWidth, so the icon has to occupy
-            // that inset — previously it was painted to the left of the box and the inset was
-            // empty space, leaving placeholder and typed text visibly out of line with the icon.
-            // Cap the search box and right-align it against the filter/export cluster instead of
-            // stretching it across the whole toolbar. A full-width search field dominated the band
-            // and pushed the title into a corner; commercial grids keep a modest field grouped with
-            // the other tools on the right, with open space after the title.
+            // === SEARCH BOX ===
+            // Right-aligned against the cluster rather than stretched across the band: a full-width
+            // field dominates the toolbar and pushes the title into a corner, where commercial grids
+            // keep a modest field grouped with the other tools.
+            //
+            // The icon sits INSIDE the box, occupying the same inset the painter and the on-demand
+            // editor both apply to their text. Painted outside it, that inset was empty space and
+            // the placeholder sat visibly out of line with the icon.
             int maxSearch = (int)(MaxSearchLogicalWidth * DpiScale);
-            int available = Math.Max(0, rightLimit - x - margin);
-            int searchWidth = Math.Max(minSearchWidth, Math.Min(maxSearch, available));
-            int searchX = Math.Max(x, rightLimit - margin - searchWidth);
-            SearchBoxRect = new Rectangle(searchX, bandY, searchWidth, bandHeight);
+            int available = Math.Max(0, rightLimit - x);
             SearchIconWidth = SearchIconLogicalInset;   // logical; painter/editor scale it themselves
-            SearchIconRect = new Rectangle(
-                SearchBoxRect.Left + (int)(6 * DpiScale),
-                CenterY(bandY, bandHeight, iconSize),
-                iconSize, iconSize);
-            x = SearchBoxRect.Right + margin;
-            SearchSectionRect = new Rectangle(SearchBoxRect.Left, bandY, x - SearchBoxRect.Left, bandHeight);
 
-            // === FILTER SECTION ===
-            x += separatorWidth;
-            Separator1X = x - separatorWidth;
-            int filterSectionStart = x;
-            if (ShowFilterButton)
+            if (available < (int)(MinSearchCollapseLogicalWidth * DpiScale))
             {
-                FilterButtonRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
-                x += iconSize + buttonGap;
+                // Not even a stub of a field fits. Drawing one anyway is what produced a search box
+                // overlapping the buttons beside it.
+                SearchBoxRect = Rectangle.Empty;
+                SearchIconRect = Rectangle.Empty;
+                SearchSectionRect = Rectangle.Empty;
             }
             else
             {
-                FilterButtonRect = Rectangle.Empty;
-            }
-
-            AdvancedButtonRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
-            x += iconSize + buttonGap;
-
-            // The clear-filter chip is only painted while a filter is active, so it only takes a
-            // slot then — otherwise it left a permanent hole between Advanced and the exports.
-            if (IsFilterActive)
-            {
-                ClearFilterRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
-                x += iconSize + buttonGap;
-            }
-            else
-            {
-                ClearFilterRect = Rectangle.Empty;
-            }
-
-            // The active-filter badge sits over whichever button the user perceives as "the filter
-            // button", clamped inside the band so it cannot paint outside the toolbar.
-            var badgeAnchor = ShowFilterButton ? FilterButtonRect : AdvancedButtonRect;
-            int badgeSize = (int)(14 * DpiScale);
-            BadgeRect = ClampToBand(
-                new Rectangle(badgeAnchor.Right - badgeSize / 2, badgeAnchor.Top - badgeSize / 3, badgeSize, badgeSize),
-                bounds);
-            FilterSectionRect = new Rectangle(filterSectionStart, bandY, x - filterSectionStart, bandHeight);
-
-            // === EXPORT SECTION (right) ===
-            x += separatorWidth;
-            Separator2X = x - separatorWidth;
-
-            int exportStartX = x;
-            LayoutButtonList(ExportButtons, ref x, bandY, iconSize, bandHeight, buttonGap,
-                             bounds.Right - overflowWidth - margin, showLabels: false, labelFont);
-            int exportEndX = x;
-            ExportSectionRect = ExportButtons.Any(b => b.IsVisible && !b.IsOverflow)
-                ? new Rectangle(exportStartX, bandY, exportEndX - exportStartX, bandHeight)
-                : Rectangle.Empty;
-
-            // === OVERFLOW BUTTON ===
-            if (HasOverflowItems)
-            {
-                Separator3X = x;
-                x += separatorWidth;
-                OverflowButtonRect = new Rectangle(x, CenterY(bandY, bandHeight, iconSize), iconSize, iconSize);
+                int searchWidth = Math.Min(maxSearch, available);
+                int searchX = rightLimit - searchWidth;
+                SearchBoxRect = new Rectangle(searchX, bandY, searchWidth, bandHeight);
+                SearchIconRect = new Rectangle(
+                    SearchBoxRect.Left + (int)(6 * DpiScale),
+                    CenterY(bandY, bandHeight, iconSize),
+                    iconSize, iconSize);
+                SearchSectionRect = SearchBoxRect;
             }
         }
 
         /// <summary>Minimum search box width in logical pixels before other sections must give way.</summary>
         private const int MinSearchLogicalWidth = 120;
+
+        /// <summary>
+        /// Below this much free space the search box is dropped entirely rather than shown as a
+        /// stub. A field too narrow to type into is worse than none, and drawing one anyway is what
+        /// made it overlap the buttons beside it.
+        /// </summary>
+        private const int MinSearchCollapseLogicalWidth = 72;
 
         /// <summary>Search box never grows past this; the surplus stays as space after the title.</summary>
         private const int MaxSearchLogicalWidth = 300;

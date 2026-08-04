@@ -14,6 +14,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
     public sealed class GridExportEngine
     {
         private readonly Dictionary<GridExportFormat, IGridExporter> _exporters = new();
+        private IReadOnlyList<GridPluginLoadFailure> _loadFailures = Array.Empty<GridPluginLoadFailure>();
+
+        /// <summary>
+        /// Plugins found by the most recent <see cref="DiscoverPlugins"/> call that could not be
+        /// loaded. Empty until discovery has run.
+        /// </summary>
+        /// <remarks>
+        /// Retained so an export can explain itself. Without this, a plugin that was present but
+        /// failed to construct left its stub registered, and the user was told to call
+        /// <see cref="DiscoverPlugins"/> - the one thing they had already done.
+        /// </remarks>
+        public IReadOnlyList<GridPluginLoadFailure> LoadFailures => _loadFailures;
 
         public GridExportEngine()
         {
@@ -35,13 +47,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
         /// is found).
         /// </summary>
         /// <remarks>
-        /// Call this after plugin assemblies have been loaded (e.g. via MEF,
-        /// Assembly.LoadFrom, or a plugin bootstrapper). Failures to instantiate
-        /// a discovered exporter (missing dependency) are swallowed and logged
-        /// to <see cref="System.Diagnostics.Debug"/>.
+        /// Call this after plugin assemblies have been loaded (e.g. via MEF, Assembly.LoadFrom, or
+        /// a plugin bootstrapper).
+        ///
+        /// Anything reaching the constructor below has already passed the concrete-and-assignable
+        /// filter, so a failure there is a real exporter that would not load - a missing dependency,
+        /// a throwing constructor - not a candidate correctly rejected. The returned report carries
+        /// those failures, and <see cref="LoadFailures"/> retains them so a later export can say why
+        /// its format is unavailable.
         /// </remarks>
-        public void DiscoverPlugins()
+        /// <returns>What was registered, and what was found but failed to load.</returns>
+        public GridPluginDiscoveryReport DiscoverPlugins()
         {
+            var report = new GridPluginDiscoveryReport();
+
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
                 IEnumerable<Type> types;
@@ -55,7 +74,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[GridExportEngine] Skipped assembly '{asm.FullName}': {ex.Message}");
+                    // A whole assembly that will not enumerate hides every exporter inside it, so
+                    // it is recorded rather than written to a channel Release strips.
+                    report.AddFailure(asm.FullName, null, ex);
                     continue;
                 }
 
@@ -90,22 +111,50 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
                                     $"[GridExportEngine] Discovered plugin '{type.FullName}' for '{instance.Format}'.");
                             }
                             _exporters[instance.Format] = instance;
+                            report.AddRegistered(instance);
                         }
                     }
-                    catch (Exception ex) when (ex is MemberAccessException
-                                               or System.Reflection.TargetInvocationException
-                                               or TypeLoadException or NotSupportedException)
+                    catch (Exception ex)
                     {
-                        // Scanning arbitrary types: abstract, generic or ctor-less ones are
-                        // expected to fail here and are simply not exporters. A plugin that
-                        // fails to load leaves its format absent from the export menu, which
-                        // is visible to the user, so this stays a diagnostic rather than an
-                        // error report.
-                        System.Diagnostics.Debug.WriteLine(
-                            $"[GridExportEngine] Failed to instantiate '{type.FullName}': {ex.Message}");
+                        // Absorbed so one broken plugin cannot stop the rest being discovered, but
+                        // recorded: this type is a concrete IGridExporter - it passed the filter
+                        // above - so failing here means a real exporter did not load, and its
+                        // format silently keeps the stub that says "install the plugin".
+                        report.AddFailure(type.Assembly?.FullName, type.FullName, ex);
                     }
                 }
             }
+
+            _loadFailures = report.Failures;
+            return report;
+        }
+
+        /// <summary>
+        /// Resolve the exporter for a format, or explain why it cannot be used.
+        /// </summary>
+        /// <remarks>
+        /// Checked before any output is opened. <see cref="ExportToFile"/> previously created the
+        /// file first and let the stub throw afterwards, which left an empty .xlsx on disk from an
+        /// export that never happened.
+        /// </remarks>
+        private IGridExporter ResolveExporter(GridExportFormat format)
+        {
+            if (!_exporters.TryGetValue(format, out var exporter))
+                throw new InvalidOperationException($"No exporter registered for format '{format}'.");
+
+            if (exporter.IsAvailable || _loadFailures.Count == 0)
+                return exporter;
+
+            // The format is served by a stub while plugins that were present failed to load. The
+            // stub's own message tells the user to run discovery, which is exactly what surfaced
+            // these failures - so say what actually happened instead.
+            var detail = string.Join("; ", _loadFailures.Select(f => f.ToString()));
+            throw new InvalidOperationException(
+                $"'{format}' export is unavailable, and {_loadFailures.Count} exporter plugin(s) "
+                + $"found during discovery failed to load: {detail}",
+                _loadFailures.Count == 1
+                    ? _loadFailures[0].Exception
+                    : new AggregateException(_loadFailures.Select(f => f.Exception)));
         }
 
         /// <summary>
@@ -158,8 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
             if (grid == null) throw new ArgumentNullException(nameof(grid));
             if (string.IsNullOrWhiteSpace(filePath)) throw new ArgumentException("File path is required.", nameof(filePath));
 
-            if (!_exporters.TryGetValue(format, out var exporter))
-                throw new InvalidOperationException($"No exporter registered for format '{format}'.");
+            var exporter = ResolveExporter(format);
 
             using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
             exporter.Export(grid, fs, options);
@@ -173,8 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
             if (grid == null) throw new ArgumentNullException(nameof(grid));
             if (output == null) throw new ArgumentNullException(nameof(output));
 
-            if (!_exporters.TryGetValue(format, out var exporter))
-                throw new InvalidOperationException($"No exporter registered for format '{format}'.");
+            var exporter = ResolveExporter(format);
 
             exporter.Export(grid, output, options);
         }
@@ -186,8 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
         {
             if (grid == null) throw new ArgumentNullException(nameof(grid));
 
-            if (!_exporters.TryGetValue(format, out var exporter))
-                throw new InvalidOperationException($"No exporter registered for format '{format}'.");
+            var exporter = ResolveExporter(format);
 
             using var ms = new MemoryStream();
             exporter.Export(grid, ms, options);

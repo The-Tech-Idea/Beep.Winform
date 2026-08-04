@@ -233,12 +233,63 @@ was still cleared, the grid survives.
 `GridEditHelper.BeginEdit`, is one frame up and already reports; guarding it here as well would mean
 the same failure reported twice or - as it was - not at all.
 
+### Plugin discovery was reasoned about wrongly the first time
+
+The earlier note said `DiscoverPlugins` could keep a `Debug.WriteLine` because scanning arbitrary
+types means most construction failures are simply "not an exporter". Reading the loop settles it the
+other way. Three filters run *before* the constructor:
+
+```csharp
+if (type.IsAbstract || type.IsInterface) continue;
+if (!typeof(IGridExporter).IsAssignableFrom(type)) continue;
+```
+
+So everything reaching `Activator.CreateInstance` is already a concrete `IGridExporter`. A failure
+there is a real exporter that would not load - a missing dependency, a throwing constructor - never a
+candidate correctly rejected. The whole justification for logging instead of reporting was false.
+
+And the consequence was worse than silence. The stub for that format stayed registered, so the
+user's next export threw the stub's message:
+
+> Call `grid.ExportEngine.DiscoverPlugins()` after plugin assemblies are loaded.
+
+They had called it. It had found the plugin. It had failed to construct it. The one message the user
+saw pointed at the one thing they had already done.
+
+**The fix.** Discovery is a public API with no grid in scope, so it returns a
+`GridPluginDiscoveryReport` rather than raising an event nothing subscribes to - a caller that
+ignores a return value has made a choice, where a stripped `Debug.WriteLine` made the choice for
+them. The engine retains the failures in `LoadFailures`, and a new `ResolveExporter` uses them: when
+a format is served by an unavailable stub *and* plugins failed to load, the thrown message names
+them and carries the original exception as `InnerException`. When nothing failed to load, the stub's
+own message is accurate and still stands.
+
+Two defects fell out of writing it:
+
+- `Activator.CreateInstance` wraps whatever a constructor throws, so every plugin failure arrived as
+  *"Exception has been thrown by the target of an invocation"* - a sentence about reflection, not
+  about the plugin. `GridPluginLoadFailure` unwraps `TargetInvocationException`, so the message reads
+  *"Could not load file or assembly 'ClosedXML'"*.
+- `ExportToFile` opened the `FileStream` before calling the exporter, and `FileMode.Create`
+  truncates immediately - so a failed Excel export left an empty `.xlsx` on disk. Availability is now
+  resolved before any output is opened.
+
+Asserted by causing it, with a concrete `IGridExporter` for the Excel format whose constructor throws
+`FileNotFoundException`, found through the ordinary AppDomain scan:
+
+```
+before discovery: Excel export is not available. Install the plugin package '...'
+report:           1 failed to load: BrokenExcelExporter: Could not load file or assembly 'ClosedXML'.
+after discovery:  'Excel' export is unavailable, and 1 exporter plugin(s) found during
+                  discovery failed to load: BrokenExcelExporter: Could not load file...
+file left behind by the failed export: False
+```
+
+12 checks, including the two that keep the others honest: before discovery the stub's message must
+be unchanged, and a working format must still export.
+
 ## Still open
 
-- [ ] `GridExportEngine.DiscoverPlugins` keeps a `Debug.WriteLine` rather than reporting. It scans
-      arbitrary types, so failure to construct one usually means it simply is not an exporter, and a
-      plugin that fails to load leaves its format visibly absent from the export menu. Narrowed to
-      the construction exceptions; worth revisiting if plugins become a supported extension point.
 - [ ] Nine pre-existing test failures remain, unchanged by this work and unrelated to it
       (`BeepDataConnectionDesignerTests` x2, `BeepDialogManagerCreationTests` x2, and five
       `BeepGridPro` default-value tests). The baseline was 10; one case now passes.

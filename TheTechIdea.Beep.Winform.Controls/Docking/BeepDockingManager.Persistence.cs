@@ -53,15 +53,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         /// <summary>Snapshots the current live layout into a fresh definition (runtime convenience).</summary>
         public DockLayoutDefinition CaptureDefinition()
+            => CaptureDefinition(DockLayoutScope.All);
+
+        /// <summary>
+        /// Snapshots the current layout, limited to <paramref name="scope"/>.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="DockLayoutScope.Structure"/> omits the active tab of each group and the list
+        /// of hidden panels, so the result describes an arrangement without carrying one window's
+        /// working state into another.
+        /// </remarks>
+        public DockLayoutDefinition CaptureDefinition(DockLayoutScope scope)
         {
             var def = new DockLayoutDefinition();
-            FillDefinition(def);
+            FillDefinition(def, scope);
             return def;
         }
 
         /// <summary>Populates the supplied definition in place from the current live tree + runtime state.</summary>
         private void FillDefinition(DockLayoutDefinition def)
+            => FillDefinition(def, DockLayoutScope.All);
+
+        private void FillDefinition(DockLayoutDefinition def, DockLayoutScope scope)
         {
+            bool session = (scope & DockLayoutScope.Session) != 0;
+
             def.SchemaVersion = DockLayoutDefinition.CurrentSchemaVersion;
             def.Groups.Clear();
             def.Floating.Clear();
@@ -74,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             // and recreate dead groups on load.
             foreach (var group in _layoutTree.Root.Children)
                 if (GroupHasMembers(group))
-                    def.Groups.Add(CaptureGroup(group));
+                    def.Groups.Add(CaptureGroup(group, session));
 
             if (_hostForm != null)
             {
@@ -103,10 +119,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     def.AutoHidden.Add(new AutoHiddenPanelInfo { Key = panel.Key, Edge = kv.Key });
             }
 
-            foreach (var panel in _panelsByKey.Values)
+            // Which panels are hidden is working state, not shape.
+            if (session)
             {
-                if (panel?.Key != null && panel.State == DockPanelState.Hidden)
-                    def.Hidden.Add(panel.Key);
+                foreach (var panel in _panelsByKey.Values)
+                {
+                    if (panel?.Key != null && panel.State == DockPanelState.Hidden)
+                        def.Hidden.Add(panel.Key);
+                }
             }
 
             // Named layouts travel with the layout they were saved beside. Without this they live
@@ -170,13 +190,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         private static DockGroupDefinition CaptureGroup(DockGroup group)
+            => CaptureGroup(group, includeSession: true);
+
+        private static DockGroupDefinition CaptureGroup(DockGroup group, bool includeSession)
         {
             var def = new DockGroupDefinition
             {
                 Position = group.Position,
                 SplitOrientation = group.SplitOrientation,
                 SplitRatio = group.SplitRatio,
-                ActivePanelKey = group.ActivePanel?.Key,
+                // Which tab is in front is working state; the group's membership is not.
+                ActivePanelKey = includeSession ? group.ActivePanel?.Key : null,
                 HeaderPosition = group.HeaderPosition
             };
 
@@ -191,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             foreach (var child in group.Children)
                 if (GroupHasMembers(child))
-                    def.Children.Add(CaptureGroup(child));
+                    def.Children.Add(CaptureGroup(child, includeSession));
 
             return def;
         }
@@ -201,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// already-registered <see cref="DockPanel"/> components; unknown keys are skipped.
         /// </summary>
         public void MaterializeFromDefinition(DockLayoutDefinition def)
-            => MaterializeFromDefinition(def, restorePerspectives: true);
+            => MaterializeFromDefinition(def, restorePerspectives: true, scope: DockLayoutScope.All);
 
         /// <summary>
         /// Rebuilds the live tree from a definition.
@@ -213,7 +237,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// whatever copy that one perspective happened to carry.
         /// </param>
         private void MaterializeFromDefinition(DockLayoutDefinition def, bool restorePerspectives)
+            => MaterializeFromDefinition(def, restorePerspectives, DockLayoutScope.All);
+
+        private void MaterializeFromDefinition(DockLayoutDefinition def, bool restorePerspectives,
+                                               DockLayoutScope scope)
         {
+            bool applySession = (scope & DockLayoutScope.Session) != 0;
+
             if (def == null)
                 return;
 
@@ -256,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (def.Groups != null)
             {
                 foreach (var groupDef in def.Groups)
-                    root.AddChild(BuildGroup(groupDef));
+                    root.AddChild(BuildGroup(groupDef, applySession));
             }
 
             // Sync dockspace TabPosition from restored group HeaderPosition values.
@@ -308,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             // Hidden panels: members of their group, restored to Hidden rather than left visible.
             // A version 1 definition has an empty list, which is the correct reading of "no hidden
             // panels were recorded" - that is what makes the v1 -> v2 migration the identity.
-            if (def.Hidden != null)
+            if (applySession && def.Hidden != null)
             {
                 foreach (var key in def.Hidden)
                 {
@@ -398,6 +428,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         private DockGroup BuildGroup(DockGroupDefinition def)
+            => BuildGroup(def, includeSession: true);
+
+        /// <param name="includeSession">
+        /// False when only the arrangement's shape is being applied. The group is then rebuilt with
+        /// the same membership, but the active tab is left as it is and a panel the user had hidden
+        /// stays hidden - re-docking it would be applying working state under the guise of shape.
+        /// </param>
+        private DockGroup BuildGroup(DockGroupDefinition def, bool includeSession)
         {
             var group = new DockGroup
             {
@@ -415,15 +453,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 {
                     var panel = GetPanel(key);
                     if (panel == null) continue;
+
                     panel.DockPosition = def.Position;
-                    panel.State = DockPanelState.Docked;
-                    panel.ShowCaption = true;
-                    panel.Visible = true;
+
+                    // A hidden panel keeps its state when only the shape is being applied; it is
+                    // still a member of the group, just not on screen.
+                    bool keepHidden = !includeSession && panel.State == DockPanelState.Hidden;
+                    if (!keepHidden)
+                    {
+                        panel.State = DockPanelState.Docked;
+                        panel.ShowCaption = true;
+                        panel.Visible = true;
+                    }
+
                     group.AddPanel(panel);
                 }
             }
 
-            if (!string.IsNullOrEmpty(def.ActivePanelKey))
+            if (includeSession && !string.IsNullOrEmpty(def.ActivePanelKey))
             {
                 var active = GetPanel(def.ActivePanelKey);
                 if (active != null && group.Panels.Contains(active))
@@ -433,17 +480,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (def.Children != null)
             {
                 foreach (var childDef in def.Children)
-                    group.AddChild(BuildGroup(childDef));
+                    group.AddChild(BuildGroup(childDef, includeSession));
             }
 
             return group;
         }
 
         /// <summary>Runtime convenience: capture the current layout definition.</summary>
-        public DockLayoutDefinition SaveLayout() => CaptureDefinition();
+        public DockLayoutDefinition SaveLayout() => CaptureDefinition(DockLayoutScope.All);
+
+        /// <summary>Saves the layout, limited to <paramref name="scope"/>.</summary>
+        public DockLayoutDefinition SaveLayout(DockLayoutScope scope) => CaptureDefinition(scope);
 
         /// <summary>Runtime convenience: apply a previously captured layout definition.</summary>
         public void LoadLayout(DockLayoutDefinition definition) => MaterializeFromDefinition(definition);
+
+        /// <summary>
+        /// Applies a saved arrangement, limited to <paramref name="scope"/>.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="DockLayoutScope.Structure"/> rearranges the panels but leaves the working
+        /// state alone: whichever tab was in front stays in front, and panels the user had hidden
+        /// stay hidden. That is what makes "reset my layout" usable without also throwing away what
+        /// they had open.
+        /// </remarks>
+        public void LoadLayout(DockLayoutDefinition definition, DockLayoutScope scope)
+            => MaterializeFromDefinition(definition, restorePerspectives: true, scope: scope);
 
         private void SyncDockspaceHeaderPosition(DockGroup group)
         {

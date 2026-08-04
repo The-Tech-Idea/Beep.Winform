@@ -146,4 +146,34 @@ current-version definition is still accepted, so the guard is not simply refusin
 - [ ] Whether a maximise was active is deliberately **not** persisted: [04](04-maximise-and-zen.md)
       makes it transient controller state, and writing it would reintroduce the coupling that
       design exists to avoid. Restoring always lands unmaximised, which is a defined outcome
-- [ ] Separate "layout" from "session" — this document's fourth design point, untouched
+### Layout and session are now separable
+
+This document's fourth design point. `DockLayoutScope` splits an arrangement into:
+
+- **Structure** — groups, split ratios, orientations, which panels belong where, auto-hidden edges,
+  float positions. Two windows can sensibly share this.
+- **Session** — which tab is in front of each group, and which panels are hidden. Personal to one
+  window at one moment.
+
+`SaveLayout(scope)` and `LoadLayout(definition, scope)`. "Reset my layout but leave what I have open
+alone" is `Structure`; an ordinary save and restore is `All`, which remains the default so nothing
+changes for existing callers.
+
+```
+session:                     active='props',  hidden=[explorer]
+structure-only save:         hidden=0, activeTabs=False
+full save:                   hidden=1, activeTabs=True
+after a structure-only load: active='output', hidden=[explorer]   (session untouched)
+docked panels still placed:  3                                     (arrangement still applied)
+after a full load:           active='props',  hidden=[explorer]   (session restored)
+```
+
+Two assertions carry the weight, and neither works without the other. **A structure-only load must
+leave the session alone** — but a load that preserved it by doing nothing at all would pass that,
+so it must also still place every docked panel. And **a full load must restore the session**, or the
+distinction is a no-op dressed up as a feature.
+
+One subtlety worth recording: `BuildGroup` sets every panel it places to `Docked`. Under a
+structure-only load that would silently un-hide the panels the user had hidden — applying working
+state under the guise of shape. A hidden panel now keeps its state and its group membership; it is
+still a member, just not on screen.

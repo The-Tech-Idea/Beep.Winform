@@ -107,26 +107,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         /// </summary>
         private Rectangle InnerEditorBounds(Rectangle bounds)
         {
-            float dpiScale = _grid.DeviceDpi / 96f;
-            int pad = (int)(_grid.ToolbarState.SearchIconWidth * dpiScale);
-
-            // Sit strictly INSIDE the painted border rather than on top of it.
+            // The editor occupies exactly the rectangle the painter draws text into - one
+            // definition, in BeepGridToolbarPainter.SearchTextArea. Computing it here as well is
+            // what let the two disagree at the right edge, so text jumped by a few pixels when the
+            // editor opened.
             //
-            // The editor used to take the search box's full height and run to its right edge, so
-            // its opaque fill covered the border along the top, bottom and right — the box looked
-            // like it had lost three of its four sides once the editor came up. The left side was
-            // never affected because the icon padding already inset it.
-            int edge = Math.Max(1, (int)Math.Ceiling(Toolbar.BeepGridToolbarPainter.SearchBoxBorderWidth * dpiScale));
-            // The right edge additionally has to clear the corner arc, which curves inward over
-            // the last `radius` pixels.
-            int rightInset = Math.Max(edge, (int)Math.Ceiling(Toolbar.BeepGridToolbarPainter.SearchBoxRadius * dpiScale));
-
-            int x = bounds.X + pad;
-            int y = bounds.Y + edge;
-            return new Rectangle(
-                x, y,
-                Math.Max(0, bounds.Right - rightInset - x),
-                Math.Max(0, bounds.Height - edge * 2));
+            // Sitting strictly inside the painted border also matters: the editor used to take the
+            // box's full height and run to its right edge, so its opaque fill covered the border
+            // along the top, bottom and right and the box looked like it had lost three sides.
+            float dpiScale = _grid.DeviceDpi / 96f;
+            return Toolbar.BeepGridToolbarPainter.SearchTextArea(
+                bounds, _grid.ToolbarState.SearchIconWidth, dpiScale);
         }
 
         private void OnSearchEditorTextChanged(object? sender, EventArgs e)

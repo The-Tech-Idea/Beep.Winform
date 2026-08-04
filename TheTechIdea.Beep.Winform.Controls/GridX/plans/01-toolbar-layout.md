@@ -94,7 +94,27 @@ than layout.
 - [ ] `ShowFilterButton` defaults to **false**, so the funnel never appears and only the advanced
       (cogs) button is shown. That is a product decision rather than a defect, but it means the
       filter affordance most users look for is absent by default.
-- [ ] The painter's search text rect should share the editor's right inset, so painted and edited
-      text cannot disagree at the right edge.
-- [ ] Separators are computed (`Separator1X`, `Separator2X`, `Separator3X`) — worth confirming the
-      painter draws all three, since none were visible in the renders.
+### Separators were computed and not drawn
+
+`Separator1X` divides the middle of the toolbar from the filter cluster — and was gated on the
+**action buttons** being visible. Those are hidden by default, so on a default toolbar the line
+between the search box and the filter buttons was never drawn: the one place a separator is most
+obviously wanted. Each separator is now gated on what it actually divides.
+
+Its vertical extent came from the actions section, falling back to the search section. That fallback
+became wrong the moment the search box could collapse — an empty rect gave `top == bottom == 0`, so
+the separators would have been drawn as nothing in the top-left corner. The extent now comes from the
+advanced button, which is the one element always placed.
+
+### The search text area is single-sourced
+
+The painter and the editor each computed the inner text rectangle, and disagreed at the right edge:
+the painter ran to the box's edge while the editor stopped short of the corner arc, so text shifted
+by a few pixels at the moment the editor opened or closed. Both now call
+`BeepGridToolbarPainter.SearchTextArea`.
+
+## Still open
+
+- [ ] `ShowFilterButton` defaults to **false**, so the funnel never appears and only the advanced
+      (cogs) button is shown. A product decision rather than a defect, but it means the filter
+      affordance most users look for is absent by default.

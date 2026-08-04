@@ -344,6 +344,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         /// <summary>Corner radius of the painted search box, in logical pixels.</summary>
         internal const int SearchBoxRadius = 4;
 
+        /// <summary>
+        /// The text area inside a painted search box: past the icon on the left, and clear of the
+        /// border and corner arc on the right.
+        /// </summary>
+        /// <remarks>
+        /// One definition, used by the painter for the placeholder and the typed value, and by
+        /// <c>FilterEditorHelper</c> to size the real editor. They previously computed it
+        /// separately and disagreed at the right edge - the painter ran to the box's edge while the
+        /// editor stopped short of the arc - so text shifted by a few pixels at the moment the
+        /// editor opened or closed.
+        /// </remarks>
+        internal static Rectangle SearchTextArea(Rectangle box, int iconInset, float dpiScale)
+        {
+            int left = (int)(iconInset * dpiScale);
+            int edge = Math.Max(1, (int)Math.Ceiling(SearchBoxBorderWidth * dpiScale));
+            int rightInset = Math.Max(edge, (int)Math.Ceiling(SearchBoxRadius * dpiScale));
+
+            int x = box.X + left;
+            return new Rectangle(
+                x,
+                box.Y + edge,
+                Math.Max(0, box.Right - rightInset - x),
+                Math.Max(0, box.Height - edge * 2));
+        }
+
         /// <summary>Stroke width of the painted search box border, in logical pixels.</summary>
         internal const int SearchBoxBorderWidth = 1;
 
@@ -385,11 +410,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             // the right side of the search box only — it does NOT cover
             // the icon.  Painted text + placeholder therefore use the
             // same padding as the editor's bounds offset.
-            int textPad = (int)(_currentSearchIconWidth * _cachedDpiScale);
             const TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis;
-            var textRect = new Rectangle(
-                bounds.X + textPad, bounds.Y,
-                bounds.Width - textPad, bounds.Height);
+
+            // Shared with the editor, so the placeholder, the painted value and the live editor all
+            // occupy the same rectangle. Computing it here separately is what let painted text run
+            // under the corner arc while edited text stopped short of it.
+            var textRect = SearchTextArea(bounds, _currentSearchIconWidth, _cachedDpiScale);
 
             // While the real editor is up it owns every pixel of the text area, so the painter must
             // not draw the text or placeholder underneath it. This is the same rule commercial grids
@@ -425,25 +451,37 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         private void PaintSeparators(Graphics g, BeepGridToolbarState state)
         {
             if (_cachedSeparatorPen == null) return;
-            int top, bottom;
-            if (!state.ActionsSectionRect.IsEmpty)
-            {
-                top = state.ActionsSectionRect.Top + 4;
-                bottom = state.ActionsSectionRect.Bottom - 4;
-            }
-            else
-            {
-                top = state.SearchSectionRect.Top;
-                bottom = state.SearchSectionRect.Bottom;
-            }
 
-            // Reuse the visibility checks we did during layout instead of
-            // scanning the lists again.  State keeps IsOverflow up to date
-            // in CalculateLayout.
-            if (state.Separator1X > 0 && HasAnyVisibleButton(state.ActionButtons))
+            // Extent comes from the advanced button, which is the one element always placed. It
+            // used to come from the actions section, or the search section when there were no
+            // actions - and the search section can now be empty on a narrow toolbar, which left
+            // top and bottom both at zero and drew the separators as nothing at the top-left
+            // corner.
+            var band = state.AdvancedButtonRect;
+            if (band.IsEmpty) return;
+
+            int top = band.Top + 4;
+            int bottom = band.Bottom - 4;
+
+            // Each separator is gated on what it actually divides, not on an unrelated list.
+            //
+            // Separator1 sits between the middle of the toolbar and the filter cluster, and was
+            // gated on the *action* buttons being visible. Those are hidden by default, so the
+            // line between the search box and the filter buttons was never drawn on a default
+            // toolbar - the one place a separator is most obviously wanted.
+            bool anythingToTheLeft = !state.SearchSectionRect.IsEmpty
+                                     || !state.ActionsSectionRect.IsEmpty
+                                     || !state.TitleSectionRect.IsEmpty;
+
+            if (state.Separator1X > 0 && anythingToTheLeft)
                 g.DrawLine(_cachedSeparatorPen, state.Separator1X, top, state.Separator1X, bottom);
-            if (state.Separator2X > 0 && HasAnyVisibleButton(state.ExportButtons))
+
+            // Separator2 divides the filter cluster from the exports, so it belongs to the exports
+            // being present - which is what it already asked, and is correct.
+            if (state.Separator2X > 0 && !state.ExportSectionRect.IsEmpty)
                 g.DrawLine(_cachedSeparatorPen, state.Separator2X, top, state.Separator2X, bottom);
+
+            // Separator3 precedes the overflow chevron, which only exists when something overflowed.
             if (state.Separator3X > 0 && state.HasOverflowItems)
                 g.DrawLine(_cachedSeparatorPen, state.Separator3X, top, state.Separator3X, bottom);
         }

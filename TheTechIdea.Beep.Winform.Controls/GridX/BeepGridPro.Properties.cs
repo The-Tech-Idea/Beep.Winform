@@ -468,7 +468,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
-        private bool _showFilterButton = false;
+        private bool _showFilterButton = true;
         /// <summary>
         /// Show the standalone quick Filter button in the toolbar
         /// (in addition to the Advanced multi-criteria button).  Off
@@ -480,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         [Browsable(true)]
         [Category("Filtering")]
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         [Description("Show the standalone quick Filter button in the toolbar (the Advanced multi-criteria button is always shown).")]
         public bool ShowFilterButton
         {

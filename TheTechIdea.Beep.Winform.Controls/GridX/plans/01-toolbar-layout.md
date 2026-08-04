@@ -139,8 +139,51 @@ Asserted as an invariant rather than as the symptom - **editor visible implies a
 in** - across open, minimize, restore, maximize and a width narrow enough that the box is dropped on
 purpose: 9 checks, all passing.
 
+### The funnel is shown by default
+
+`ShowFilterButton` defaulted to false, on the reasoning that the Advanced button and the per-column
+header icons covered every case. In practice the funnel is the affordance users look for, and a
+toolbar whose only filter control is a cogs icon reads as having no filtering at all. It is now on by
+default; hosts wanting the sparser toolbar set `ShowFilterButton = false`, which is asserted
+separately so the default is not the only supported value.
+
+```
+funnel   {X=879,Y=3,Width=18,Height=32}
+advanced {X=901,Y=3,Width=18,Height=32}
+```
+
+Same band height, funnel to the left of advanced, both inside the separators.
+
+`BeepGridProToolbarTests.Filter_Button_Is_Hidden_By_Default` encoded the old intent and was updated
+rather than worked around - a deliberate behaviour change should move the test that documents it.
+
+### Paint failures are reported instead of vanishing
+
+Every one of the eight catches in `GridRenderHelper.Rendering` swallowed silently. The one that
+logged used `Debug.WriteLine`, which is compiled out of Release - silent exactly where it matters.
+A failure in any section left that band of the grid blank with nothing to say why.
+
+`BeepGridPro.RenderError` now carries `{ Section, Exception }`, and all eight sections report through
+it: Toolbar, TopFilterPanel, ColumnHeaders, Rows, Navigator, Selection, DragFeedback,
+FocusIndicator. With no subscriber the behaviour is unchanged, so it cannot destabilise an existing
+host.
+
+**They still absorb, deliberately.** An exception escaping a paint handler does not reach the
+caller: it travels the window procedure to `NativeWindow.Callback` and WinForms raises it as
+unhandled, which becomes a modal dialog - on a minimized, off-screen or mid-drag window, an
+invisible and unclickable one, so the application appears to hang. That mechanism cost three
+misdiagnoses in the Docking program. Absorbing is right; absorbing *silently* was not.
+
+Verified by causing a failure rather than by reading the catch - a channel that exists and is never
+reached looks identical to one that works:
+
+```
+healthy paint:                0 reports
+broken toolbar painter:       1 report -> Toolbar: NullReferenceException
+grid still alive afterwards:  yes
+```
+
 ## Still open
 
-- [ ] `ShowFilterButton` defaults to **false**, so the funnel never appears and only the advanced
-      (cogs) button is shown. A product decision rather than a defect, but it means the filter
-      affordance most users look for is absent by default.
+- [ ] 29 bare catches remain elsewhere in `GridX` outside the render pipeline. The render path is
+      the one where silence is most costly, and it is now covered; the rest are worth a sweep.

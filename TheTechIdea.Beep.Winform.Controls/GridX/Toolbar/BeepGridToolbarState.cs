@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         /// dialog — can set this to <c>true</c> from the property
         /// grid or from code.
         /// </summary>
-        public bool ShowFilterButton { get; set; } = false;
+        public bool ShowFilterButton { get; set; } = true;
 
         /// <summary>
         /// Font used to measure and draw the grid title (one size

@@ -64,8 +64,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     state.CalculateLayout(_grid.Layout.ToolbarRect);
                     _grid.ToolbarPainter.Paint(g, _grid.Layout.ToolbarRect, state);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    // Absorbed so the rest of the grid still paints, but reported: a blank
+                    // band with no explanation is what made these failures so expensive.
+                    _grid.ReportRenderError("Toolbar", ex);
                 }
 
                 // The inline search editor is a real control, so it has to be moved to wherever
@@ -89,9 +92,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     {
                         DrawTopFilterPanel(g);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        // Silently ignore top filter panel draw issues
+                        // Absorbed so the rest of the grid still paints, but reported: a blank
+                        // band with no explanation is what made these failures so expensive.
+                        _grid.ReportRenderError("TopFilterPanel", ex);
                     }
                 }
                 else
@@ -104,9 +109,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     DrawColumnHeaders(g);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Silently handle header drawing errors
+                    // Absorbed so the rest of the grid still paints, but reported: a blank
+                    // band with no explanation is what made these failures so expensive.
+                    _grid.ReportRenderError("ColumnHeaders", ex);
                 }
             }
 
@@ -120,7 +127,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"GridRenderHelper.DrawRows error: {ex.Message}");
+                // Absorbed so the rest of the grid still paints, but reported: a blank
+                // band with no explanation is what made these failures so expensive.
+                _grid.ReportRenderError("Rows", ex);
             }
 
             // Draw navigator if enabled
@@ -130,9 +139,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     DrawNavigatorArea(g);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Silently handle navigator drawing errors
+                    // Absorbed so the rest of the grid still paints, but reported: a blank
+                    // band with no explanation is what made these failures so expensive.
+                    _grid.ReportRenderError("Navigator", ex);
                 }
             }
 
@@ -141,9 +152,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 DrawSelectionIndicators(g);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Silently handle selection drawing errors
+                // Absorbed so the rest of the grid still paints, but reported: a blank
+                // band with no explanation is what made these failures so expensive.
+                _grid.ReportRenderError("Selection", ex);
             }
 
             // Draw column reorder drag feedback
@@ -153,9 +166,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     _grid.ColumnReorder.DrawDragFeedback(g);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Silently handle drag feedback errors
+                    // Absorbed so the rest of the grid still paints, but reported: a blank
+                    // band with no explanation is what made these failures so expensive.
+                    _grid.ReportRenderError("DragFeedback", ex);
                 }
             }
 
@@ -164,9 +179,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.FocusManager?.DrawFocusIndicator(g, _grid.DrawingRect);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Silently handle focus indicator errors
+                // Absorbed so the rest of the grid still paints, but reported: a blank
+                // band with no explanation is what made these failures so expensive.
+                _grid.ReportRenderError("FocusIndicator", ex);
             }
         }
 

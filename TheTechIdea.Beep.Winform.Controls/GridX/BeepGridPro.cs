@@ -271,6 +271,46 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// the search icon / placeholder misaligned.
         /// </summary>
         /// <summary>
+        /// Raised when a section of the grid fails to paint.
+        /// </summary>
+        /// <remarks>
+        /// Painting still absorbs the failure - an exception escaping a paint handler is raised as
+        /// unhandled by the window procedure and becomes a modal dialog, which on a minimized or
+        /// off-screen window is invisible and unclickable, so the application simply appears to
+        /// hang. What changed is that absorbing it is no longer silent.
+        /// <para>
+        /// Subscribe to log or surface it. With no subscriber the behaviour is exactly as before,
+        /// so this cannot destabilise an existing host.
+        /// </para>
+        /// </remarks>
+        public event EventHandler<GridRenderErrorEventArgs> RenderError;
+
+        /// <summary>
+        /// Reports a failure from a paint section. Never throws - a reporting channel that can
+        /// fail during paint would reintroduce the problem it exists to solve.
+        /// </summary>
+        internal void ReportRenderError(string section, Exception exception)
+        {
+            if (exception == null) return;
+
+            var handler = RenderError;
+            if (handler == null)
+            {
+                // No subscriber: keep the trace that used to be here for the one section that had
+                // it, so a debugger session still shows something.
+                System.Diagnostics.Debug.WriteLine($"[BeepGridPro] {section} paint failed: {exception}");
+                return;
+            }
+
+            try { handler(this, new GridRenderErrorEventArgs(section, exception)); }
+            catch (Exception handlerFailure)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[BeepGridPro] a RenderError handler threw: {handlerFailure}");
+            }
+        }
+
+        /// <summary>
         /// Moves the inline search editor onto the search box the toolbar layout just produced.
         /// </summary>
         /// <remarks>

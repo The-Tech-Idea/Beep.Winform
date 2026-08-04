@@ -624,12 +624,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Tests
         }
 
         [Fact]
-        public void Filter_Button_Is_Hidden_By_Default()
+        public void Filter_Button_Is_Shown_By_Default()
         {
-            // Pass 25: the standalone quick Filter button was redundant
-            // with the Advanced button and the per-column filter icons.
-            // The default toolbar now omits it.  Hosts can opt back in
-            // via grid.ShowFilterButton = true.
+            // The standalone quick Filter button was hidden by default on the reasoning that the
+            // Advanced button and the per-column header icons covered every case. In practice the
+            // funnel is the affordance users look for, and a toolbar whose only filter control is
+            // a cogs icon reads as having no filtering at all. It is shown by default; hosts that
+            // want the older, sparser toolbar set grid.ShowFilterButton = false.
+            Assert.True(_grid.ShowFilterButton);
+            Assert.True(_grid.ToolbarState.ShowFilterButton);
+        }
+
+        [Fact]
+        public void Filter_Button_Can_Still_Be_Hidden()
+        {
+            // The default is not the only supported value - asserting the new default alone would
+            // pass just as well if the property had stopped working.
+            _grid.ShowFilterButton = false;
+
             Assert.False(_grid.ShowFilterButton);
             Assert.False(_grid.ToolbarState.ShowFilterButton);
         }

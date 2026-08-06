@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
+using TheTechIdea.Beep.Winform.Controls.Lovs;
 using TheTechIdea.Beep.Winform.Controls.Lovs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
@@ -25,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep List of Values Box")]
     [Description("A control that displays a list of values with a popup context menu selection, similar to Oracle Forms LOV.")]
-    public class BeepListofValuesBox : BaseControl
+    public partial class BeepListofValuesBox : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.ListOfValues;
         protected internal override Padding StylePadding => new Padding(0);
@@ -44,10 +46,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Font? _badgeFont;
 
         // â”€â”€ Phase 6 options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        private bool _showKeyBadge = true;
+        // Off by default. The badge was built to show the key inside a painted value area; with a real
+        // key text box beside it the same key appeared twice, once in the box and once in the pill.
+        private bool _showKeyBadge = false;
 
         // â”€â”€ Phase 13: recent-selection history (persisted across popup opens) â”€â”€
         private List<SimpleItem> _recentHistory = new List<SimpleItem>();
+
+        /// <summary>
+        /// Every item this control has seen, from <see cref="ListItems"/> or from a loader.
+        /// </summary>
+        /// <remarks>
+        /// Validation and display lookup used to consult <c>ListItems</c> alone. <c>ItemsLoader</c>
+        /// filled the popup and never wrote back, so with a loader set — the query-backed case an
+        /// Oracle LOV exists for — a key the loader had just returned failed validation and was
+        /// reverted, including the one the user had picked from the popup a moment earlier.
+        /// </remarks>
+        private readonly Dictionary<string, SimpleItem> _known = new(StringComparer.Ordinal);
+
+        private bool _restrictToList = true;
+
+        /// <summary>
+        /// Set while reverting the key box, so the resulting TextChanged does not undo the rejection.
+        /// </summary>
+        /// <remarks>
+        /// Reverting assigns the text box, which re-enters KeyTextBox_TextChanged with the reverted
+        /// key. That key is usually empty, empty is always valid, and the valid branch cleared the very
+        /// error the revert was raised for - so a refused key reverted silently after all.
+        /// </remarks>
+        private bool _reverting;
         #endregion
 
         #region Properties
@@ -61,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _items = value ?? new List<SimpleItem>();
+                Remember(_items);
                 UpdateDisplayValue();
                 Invalidate();
             }
@@ -75,20 +103,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 if (_keyTextBox == null) return;
-                
-                if (ValidateKey(value))
+                string key = value ?? string.Empty;
+
+                // Assigning Text runs the whole validation cycle synchronously through
+                // KeyTextBox_TextChanged. This setter used to repeat that work afterwards, and its
+                // ClearKeyError wiped the rejection the assignment had just raised - so a refused key
+                // ended up looking accepted. One path only: assign, and let the handler decide.
+                if (!string.Equals(_keyTextBox.Text, key, StringComparison.Ordinal))
                 {
-                    _keyTextBox.Text = value;
-                    UpdateLastValidKey(value);
-                    UpdateDisplayValue();
-                    Invalidate();
+                    _keyTextBox.Text = key;
+                    return;
                 }
-                else if (!string.IsNullOrEmpty(value))
-                {
-                    _keyTextBox.Text = _lastValidKey?.ToString() ?? string.Empty;
-                    UpdateDisplayValue();
-                    Invalidate();
-                }
+
+                // The text is already what was asked for, so no TextChanged will fire.
+                ApplyKey(key);
             }
         }
 
@@ -109,8 +137,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// the value display area to the left of the display text.</summary>
         [Browsable(true)]
         [Category("LOV")]
-        [DefaultValue(true)]
-        [Description("Show a coloured key-badge pill next to the selected display value.")]
+        [DefaultValue(false)]
+        [Description("Show a coloured key-badge pill next to the display value. Off by default: the key box already shows the key.")]
         public bool ShowKeyBadge
         {
             get => _showKeyBadge;
@@ -135,11 +163,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild         = true,
                 IsFrameless     = true,
                 Visible         = true,
-                PlaceholderText = "Enter key..."
+                PlaceholderText = "Key"   // the key column is a short code; "Enter key..." truncated to "Enter k..."
             };
             _keyTextBox.TextChanged += KeyTextBox_TextChanged;
 
             Controls.Add(_keyTextBox);
+            _keyTextBox.Dock = DockStyle.None;
 
             // Use BaseControlâ€™s built-in trailing icon as the dropdown toggle â€” no separate BeepButton child needed
             TrailingIconPath      = SvgsUI.ChevronDown;
@@ -151,15 +180,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             _keyTextBox.MouseHover += (s, e) => OnMouseHover(e);
             _keyTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
 
+            // A LOV is a data-entry field and has to look like one. ShowAllBorders defaults to false
+            // on BaseControl, so the control rendered as floating text with a chevron beside it - no
+            // frame, nothing to say where the field began or ended.
+            ShowAllBorders = true;
+            BorderThickness = 1;
+
             _lastValidKey = null;
+
+            // Without this BaseControl has no idea which property carries the value, so the control
+            // could not participate in data binding - on a control whose entire job is to supply a
+            // foreign key to a bound field.
+            BoundProperty = nameof(SelectedKey);
+
             AdjustLayout();
         }
 
         protected override void InitLayout()
         {
             base.InitLayout();
-            Width = 300;
-            Height = 30;
+
+            // Size is NOT forced here. This assigned Width = 300 and Height = 30 unconditionally, so
+            // every instance snapped back to 300x30 no matter what the designer or caller set - the
+            // control could not be made narrow for a code field or wide for a description.
+            // DefaultSize already supplies the starting size.
             AdjustLayout();
         }
         #endregion
@@ -167,8 +211,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Layout and Drawing
         private void GetHeight()
         {
-            padding     = BorderThickness;
-            spacing     = 5;
+            padding      = BorderThickness;
+            spacing      = 5;
             buttonHeight = _keyTextBox != null ? _keyTextBox.PreferredHeight : 24;
             Height       = Math.Max(Height, buttonHeight + (padding * 2));
         }
@@ -177,28 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             UpdateDrawingRect();
             GetHeight();
-
-            // Prefer the painterâ€™s content rect (excludes trailing icon area).  
-            // Fall back to DrawingRect when the painter hasnâ€™t measured yet.
-            Rectangle contentRect = GetAdjustedContentRect();
-            if (contentRect.IsEmpty || contentRect.Width <= 0)
-                contentRect = DrawingRect;
-
-            int totalWidth = contentRect.Width;
-            int centerY    = contentRect.Top + (contentRect.Height - buttonHeight) / 2;
-
-            // Key field: 22 % of the available content width
-            int keyWidth   = Math.Max(40, (int)(totalWidth * 0.22));
-            // Value field: remainder
-            int valueWidth = Math.Max(40, totalWidth - keyWidth - spacing);
-
-            if (_keyTextBox != null)
-            {
-                _keyTextBox.Location = new Point(contentRect.Left + padding, centerY);
-                _keyTextBox.Width    = keyWidth - 1;
-                _keyTextBox.Height   = buttonHeight;
-            }
-            // Value display area is painted in DrawContent â€” no child control needed
+            PositionKeyBox();
         }
 
         protected override void OnResize(EventArgs e)
@@ -208,132 +231,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
+        /// <summary>Paints the read-only value area after BaseControl has drawn the field.</summary>
         protected override void DrawContent(Graphics g)
         {
-            // Let BaseControl paint border, background, shadow, leading/trailing icons
             base.DrawContent(g);
-            PaintValueArea(g, GetAdjustedContentRect());
+            PaintValueArea(g);
         }
 
-        public override void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            base.Draw(graphics, rectangle);
-            // When rendered inside a grid/container also paint the value area
-            Rectangle contentRect = GetAdjustedContentRect();
-            if (contentRect.IsEmpty) contentRect = rectangle;
-            PaintValueArea(graphics, contentRect);
-        }
+        // PaintValueArea, BuildRoundedPath, ContrastForeColor's caller, ScaleLogicalX/Y and the
+        // DrawContent and Draw overrides are gone: the value area is composed from a BeepLabel and a
+        // badge label in BeepListofValuesBox.Composition.cs. They measured text, built a rounded path
+        // and picked a contrasting foreground by luminance - all of which a label does by existing -
+        // and the displayed value was pixels rather than something the accessibility tree could read.
+        //
+        // The Draw(Graphics, Rectangle) override went with them. It is BaseControl's extension point
+        // for rendering an UNPARENTED control into a rectangle, which a composed control cannot do:
+        // its children are what render. Nothing in the solution rendered a LOV that way.
 
-        /// <summary>Paints the read-only value-display area (right 78 %) directly onto
-        /// the control's graphics. Called from both <see cref="DrawContent"/> and
-        /// <see cref="Draw"/>.</summary>
-        private void PaintValueArea(Graphics g, Rectangle contentRect)
-        {
-            if (contentRect.IsEmpty || contentRect.Width <= 0) return;
-
-            int keyW     = Math.Max(40, (int)(contentRect.Width * 0.22));
-            int valueX   = contentRect.Left + padding + keyW + spacing;
-            int valueW   = Math.Max(0, contentRect.Right - valueX - padding);
-            if (valueW <= 0) return;
-
-            var valueArea = new Rectangle(valueX, contentRect.Top + padding,
-                                          valueW, contentRect.Height - padding * 2);
-            if (valueArea.Height <= 0) return;
-
-            // Fill value area background (seamlessly matches the field background)
-            Color bgColor = _currentTheme?.PanelBackColor ?? BackColor;
-            using (var bgBrush = new SolidBrush(bgColor))
-                g.FillRectangle(bgBrush, valueArea);
-
-            bool hasKey   = !string.IsNullOrEmpty(SelectedKey);
-            bool hasValue = !string.IsNullOrEmpty(_selectedDisplayValue);
-
-            if (!hasKey && !hasValue)
-            {
-                // Placeholder text
-                Color phColor = _currentTheme?.SecondaryTextColor ?? Color.Gray;
-                TextRenderer.DrawText(g, "Select a value\u2026", _fieldFont ?? Font,
-                    valueArea, phColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter
-                    | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-                return;
-            }
-
-            int x = valueArea.X;
-
-            // â”€â”€ Key badge pill (optional) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            if (_showKeyBadge && hasKey && _badgeFont != null)
-            {
-                string  badgeText = SelectedKey;
-                Size    textSz    = TextRenderer.MeasureText(g, badgeText, _badgeFont,
-                                        new Size(valueArea.Width / 2, valueArea.Height),
-                                        TextFormatFlags.NoPrefix);
-                int     badgeW   = textSz.Width  + ScaleLogicalX(10);
-                int     badgeH   = Math.Min(textSz.Height + ScaleLogicalY(4),
-                                           valueArea.Height - ScaleLogicalY(2));
-                int     badgeY   = valueArea.Top + (valueArea.Height - badgeH) / 2;
-                var     badgeRect = new Rectangle(x, badgeY, badgeW, badgeH);
-
-                Color badgeBg = _currentTheme?.AccentColor ?? Color.SteelBlue;
-                Color badgeFg = ContrastForeColor(badgeBg);
-
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var path = BuildRoundedPath(badgeRect, ScaleLogicalX(4)))
-                using (var fill = new SolidBrush(badgeBg))
-                    g.FillPath(fill, path);
-                g.SmoothingMode = SmoothingMode.Default;
-
-                TextRenderer.DrawText(g, badgeText, _badgeFont, badgeRect, badgeFg,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
-                    | TextFormatFlags.NoPrefix);
-
-                x += badgeW + ScaleLogicalX(5);
-            }
-
-            // â”€â”€ Display value text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            if (hasValue && x < valueArea.Right)
-            {
-                Color fgColor = _currentTheme?.ForeColor ?? ForeColor;
-                var textBounds = new Rectangle(x, valueArea.Top,
-                                               valueArea.Right - x, valueArea.Height);
-                TextRenderer.DrawText(g, _selectedDisplayValue, _fieldFont ?? Font,
-                    textBounds, fgColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter
-                    | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-            }
-        }
-
-        // â”€â”€ Painting helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-        /// <summary>DPI-aware horizontal pixel scaling via <see cref="BeepThemesManager.DpiScaleX"/>.</summary>
-        private static int ScaleLogicalX(int px) =>
-            (int)Math.Round(px * (BeepThemesManager.DpiScaleX > 0f ? BeepThemesManager.DpiScaleX : 1f));
-
-        /// <summary>DPI-aware vertical pixel scaling via <see cref="BeepThemesManager.DpiScaleY"/>.</summary>
-        private static int ScaleLogicalY(int px) =>
-            (int)Math.Round(px * (BeepThemesManager.DpiScaleY > 0f ? BeepThemesManager.DpiScaleY : 1f));
-
-        private static GraphicsPath BuildRoundedPath(Rectangle rect, int radius)
-        {
-            int r  = Math.Max(1, radius);
-            int d  = r * 2;
-            var gp = new GraphicsPath();
-            gp.AddArc(rect.Left,          rect.Top,           d, d, 180, 90);
-            gp.AddArc(rect.Right - d,     rect.Top,           d, d, 270, 90);
-            gp.AddArc(rect.Right - d,     rect.Bottom - d,    d, d,   0, 90);
-            gp.AddArc(rect.Left,          rect.Bottom - d,    d, d,  90, 90);
-            gp.CloseFigure();
-            return gp;
-        }
-
-        /// <summary>Returns black or white depending on which provides higher
-        /// contrast against <paramref name="bg"/>.</summary>
-        private static Color ContrastForeColor(Color bg)
-        {
-            // Perceived luminance (ITU-R BT.601)
-            double lum = (0.299 * bg.R + 0.587 * bg.G + 0.114 * bg.B) / 255.0;
-            return lum > 0.55 ? Color.FromArgb(30, 30, 30) : Color.White;
-        }
         #endregion
 
         #region Event Handlers
@@ -366,6 +280,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             _lovPopup.LovTitle       = LovTitle;
+            _lovPopup.SearchLoader     = SearchLoader;
+            _lovPopup.PageLoader       = PageLoader;
+            _lovPopup.PageSize         = PageSize;
+            _lovPopup.SearchDebounceMs = SearchDebounceMs;
             _lovPopup.LovColumns     = LovColumns;
             _lovPopup.MaxPopupHeight = MaxPopupHeight;
             _lovPopup.LovTheme       = _currentTheme?.ThemeName ?? Theme;
@@ -385,16 +303,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Phase 12: Async path â€” show popup immediately with empty list + spinner,
                 // then fill the grid once the loader completes.
-                _lovPopup.ShowAt(new List<SimpleItem>(), origin, Width, preloadSearch: "");
-                await _lovPopup.LoadItemsAsync(ItemsLoader, preloadSearch);
+                _lovPopup.ShowAt(new List<SimpleItem>(), origin, Width, preloadSearch: "", ownerHeight: Height);
+                var loaded = await _lovPopup.LoadItemsAsync(ItemsLoader, preloadSearch);
 
-                // After a successful async load, keep _items in sync for subsequent sync opens
-                // (e.g. if the control is used offline without a loader)
+                // Write the loader's results back. This was a comment describing what should happen
+                // above code that did not do it, which is the whole of the headline defect: everything
+                // the loader returned was invisible to validation and display lookup.
+                Remember(loaded);
+                _itemsLoadedOnce = true;
+                UpdateDisplayValue();
+
+                // A key accepted provisionally before the list existed is now decidable.
+                if (_restrictToList && !string.IsNullOrEmpty(SelectedKey) && Resolve(SelectedKey) == null)
+                    RejectKey(SelectedKey);
             }
             else
             {
                 // Synchronous path: items already in _items list
-                _lovPopup.ShowAt(_items, origin, Width, preloadSearch);
+                _lovPopup.ShowAt(_items, origin, Width, preloadSearch, ownerHeight: Height);
             }
         }
 
@@ -449,66 +375,350 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_keyTextBox == null) return;
 
-            string newKey = _keyTextBox.Text;
-            if (ValidateKey(newKey))
+            // A revert is not a user edit: it must not re-run validation and clear its own error.
+            if (_reverting) return;
+
+            ApplyKey(_keyTextBox.Text);
+        }
+
+        /// <summary>
+        /// Accepts or refuses a key. The single place a key is decided on.
+        /// </summary>
+        /// <remarks>
+        /// Typing and assigning <see cref="SelectedKey"/> both land here, so both behave identically —
+        /// they used to differ, and the quieter programmatic path was the one a data-binding caller
+        /// hit, making a refused bound value disappear with nothing to explain it.
+        /// </remarks>
+        private void ApplyKey(string key)
+        {
+            if (ValidateKey(key))
             {
-                UpdateLastValidKey(newKey);
+                UpdateLastValidKey(key);
                 UpdateDisplayValue();
-                // Clear any previous validation error
-                if (HasError)
-                {
-                    ErrorText = string.Empty;
-                    HasError  = false;
-                }
+                ClearKeyError();
+                ResolveIfUnknown(key);
             }
-            else if (!string.IsNullOrEmpty(newKey))
+            else if (!string.IsNullOrEmpty(key))
             {
-                // Show error inline (BaseControl ErrorText) + notification tooltip
-                ErrorText = "Invalid key â€” not in the list.";
-                HasError  = true;
-                ShowNotification("Invalid key. Please enter a valid value from the list.",
-                                 ToolTipType.Warning, 2000);
-                _keyTextBox.Text = _lastValidKey?.ToString() ?? string.Empty;
-                UpdateDisplayValue();
+                ShowNotification($"'{key}' is not in the list.", ToolTipType.Warning, 2000);
+                RejectKey(key);
             }
+
+            Invalidate();
         }
         #endregion
 
         #region Helper Methods
+        /// <summary>
+        /// Resolves a single key without fetching the whole list — Oracle Forms' validate-from-list.
+        /// </summary>
+        /// <remarks>
+        /// A LOV over ten thousand rows must not load them all to check one foreign key. When this is
+        /// set, a key the control has not seen is looked up through it; when it is not set, the control
+        /// falls back to whatever <see cref="ItemsLoader"/> eventually returns.
+        /// </remarks>
+        [Browsable(false)]
+        public Func<string, CancellationToken, Task<SimpleItem?>>? KeyResolver { get; set; }
+
+        /// <summary>
+        /// When set, the popup's search box queries the source instead of filtering loaded rows.
+        /// </summary>
+        /// <remarks>
+        /// The three loaders answer three different questions, and a large LOV wants all of them:
+        /// <see cref="ItemsLoader"/> for "what is in the list", this for "what matches what I typed",
+        /// and <see cref="KeyResolver"/> for "what is this one key". Only the first existed, so every
+        /// search filtered a list that had to be loaded in full first.
+        /// </remarks>
+        [Browsable(false)]
+        public Func<string, CancellationToken, Task<List<SimpleItem>>>? SearchLoader { get; set; }
+
+        /// <summary>
+        /// When set, the popup fetches one window of rows at a time instead of a whole result set.
+        /// </summary>
+        /// <remarks>
+        /// The fourth and last loader, and the only one that bounds the <i>query</i>: <c>MaxRows</c>
+        /// bounds what the client binds, but a source is still free to fetch fifty thousand rows so the
+        /// popup can discard 49,500. Takes precedence over <see cref="SearchLoader"/>.
+        /// </remarks>
+        [Browsable(false)]
+        public Func<string, int, int, CancellationToken, Task<LovPage>>? PageLoader { get; set; }
+
+        /// <summary>Rows per window when <see cref="PageLoader"/> is used.</summary>
+        [Browsable(true)]
+        [Category("LOV")]
+        [DefaultValue(100)]
+        [Description("Rows fetched per window when PageLoader is set.")]
+        public int PageSize { get; set; } = 100;
+
+        /// <summary>How long typing must pause before a server-side search is issued.</summary>
+        [Browsable(true)]
+        [Category("LOV")]
+        [DefaultValue(250)]
+        [Description("Milliseconds of typing pause before SearchLoader is queried.")]
+        public int SearchDebounceMs { get; set; } = 250;
+
+        private bool _itemsLoadedOnce;
+        private string? _resolvingKey;
+
+        /// <summary>Starts a background lookup for a key the control has not seen.</summary>
+        private void ResolveIfUnknown(string key)
+        {
+            if (string.IsNullOrEmpty(key) || _known.ContainsKey(key)) return;
+            if (!CanResolveLater) return;
+
+            BeginResolve(key);
+        }
+
+        /// <summary>Looks a provisionally-accepted key up in the background.</summary>
+        /// <remarks>
+        /// Prefers <see cref="KeyResolver"/> - one row, one query. Falls back to running
+        /// <see cref="ItemsLoader"/> once, so a caller who configured only the bulk loader still gets a
+        /// display value instead of a bare key.
+        /// </remarks>
+        private async void BeginResolve(string key)
+        {
+            if (_resolvingKey == key) return;
+            if (KeyResolver == null && ItemsLoader == null) return;
+            _resolvingKey = key;
+
+            try
+            {
+                SimpleItem? item;
+                if (KeyResolver != null)
+                {
+                    item = await KeyResolver(key, CancellationToken.None).ConfigureAwait(true);
+                }
+                else
+                {
+                    var all = await ItemsLoader!(CancellationToken.None).ConfigureAwait(true);
+                    Remember(all);
+                    _itemsLoadedOnce = true;
+                    item = Resolve(key);
+                }
+
+                if (IsDisposed) return;
+
+                if (item != null)
+                {
+                    Remember(new[] { item });
+                    UpdateDisplayValue();
+                    ClearKeyError();
+                }
+                else if (_restrictToList && SelectedKey == key)
+                {
+                    // The resolver is authoritative: it looked and the key is not there.
+                    RejectKey(key);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Reported, not swallowed - but the key stays as the user left it. Failing to reach the
+                // lookup is not evidence the key is wrong, and clearing their input on a network blip
+                // would be worse than showing an unresolved key.
+                BeepLog.Failure(this, $"resolve LOV key '{key}'", ex);
+            }
+            finally
+            {
+                if (_resolvingKey == key) _resolvingKey = null;
+            }
+        }
+
+        /// <summary>Rejects a key: reverts to the last valid one and says why, on every path.</summary>
+        private void RejectKey(string key)
+        {
+            ErrorText = $"'{key}' is not in the list.";
+            HasError  = true;
+
+            if (_keyTextBox != null)
+            {
+                _reverting = true;
+                try { _keyTextBox.Text = _lastValidKey?.ToString() ?? string.Empty; }
+                finally { _reverting = false; }
+            }
+
+            UpdateDisplayValue();
+            KeyRejected?.Invoke(this, key);
+            Invalidate();
+        }
+
+        /// <summary>Clears a previous validation error.</summary>
+        private void ClearKeyError()
+        {
+            if (!HasError) return;
+
+            ErrorText = string.Empty;
+            HasError  = false;
+        }
+
+        /// <summary>
+        /// Raised when a key was refused because it is not in the list.
+        /// </summary>
+        /// <remarks>
+        /// A caller binding to a data source needs to know its value was refused. Without this the
+        /// rejection is only visible as an inline error on screen.
+        /// </remarks>
+        [Category("LOV")]
+        [Description("Raised when a key is refused because it is not in the list.")]
+        public event EventHandler<string>? KeyRejected;
+
+        /// <summary>
+        /// Whether the field only accepts keys present in the list.
+        /// </summary>
+        /// <remarks>
+        /// Oracle Forms distinguishes a validated LOV from a non-validated one. Validation was
+        /// unconditional here, so a LOV used as a suggestion list - where free text is the point - was
+        /// impossible to build.
+        /// </remarks>
+        [Browsable(true)]
+        [Category("LOV")]
+        [DefaultValue(true)]
+        [Description("When true, only keys present in the list are accepted. When false, free text is allowed.")]
+        public bool RestrictToList
+        {
+            get => _restrictToList;
+            set
+            {
+                if (_restrictToList == value) return;
+                _restrictToList = value;
+
+                // Relaxing the rule must clear an error the old rule raised.
+                if (!_restrictToList) ClearKeyError();
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Fields this LOV returns into other controls when a row is chosen.
+        /// </summary>
+        /// <remarks>
+        /// Oracle Forms' return items: picking a department fills its number here and its location in
+        /// another field. The control could only ever fill itself.
+        /// </remarks>
+        [Browsable(true)]
+        [Category("LOV")]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Description("Fields returned into other controls when a row is chosen.")]
+        public List<LovReturnMapping> ReturnMappings { get; } = new List<LovReturnMapping>();
+
+        /// <summary>Raised with the chosen item, so a caller gets the whole row rather than the key.</summary>
+        /// <remarks>
+        /// <c>SelectionChanged</c> carries <c>EventArgs.Empty</c>, so a caller had to reach back for
+        /// <c>SelectedItem</c> to learn what happened.
+        /// </remarks>
+        [Category("LOV")]
+        [Description("Raised with the chosen item when a selection is made.")]
+        public event EventHandler<SimpleItem>? ItemSelected;
+
+        /// <summary>Pushes the chosen row's fields into whatever <see cref="ReturnMappings"/> names.</summary>
+        private void ApplyReturnMappings(SimpleItem item)
+        {
+            if (item == null || ReturnMappings.Count == 0) return;
+
+            foreach (var map in ReturnMappings)
+            {
+                if (map == null || !map.IsUsable) continue;
+
+                try
+                {
+                    object? value = map.Read(item);
+
+                    if (map.Assign != null) { map.Assign(value); continue; }
+                    if (map.Target == null) continue;
+
+                    if (map.Target is BaseControl beep) beep.SetValue(value!);
+                    else map.Target.Text = value?.ToString() ?? string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    // One bad mapping must not stop the others, and must not stop the selection the
+                    // user just made from being applied.
+                    BeepLog.Failure(this, $"return LOV field '{map.Field}'", ex);
+                }
+            }
+        }
+
+        /// <summary>Records items so a key from any source can later be resolved and validated.</summary>
+        private void Remember(IEnumerable<SimpleItem>? items)
+        {
+            if (items == null) return;
+
+            foreach (var item in items)
+            {
+                string? key = item?.Value?.ToString();
+                if (!string.IsNullOrEmpty(key)) _known[key!] = item!;
+            }
+        }
+
+        /// <summary>The item behind a key, from any source this control has seen.</summary>
+        private SimpleItem? Resolve(string? key)
+        {
+            if (string.IsNullOrEmpty(key)) return null;
+            return _known.TryGetValue(key!, out var item) ? item : null;
+        }
+
+        /// <summary>
+        /// Whether a key may be held.
+        /// </summary>
+        /// <remarks>
+        /// An empty key is always allowed - that is how a selection is cleared. When
+        /// <see cref="RestrictToList"/> is false the control accepts anything, which is the free-entry
+        /// LOV Oracle Forms calls a non-validated list.
+        /// </remarks>
         private bool ValidateKey(string key)
         {
-            if (string.IsNullOrEmpty(key))
-                return true;
-            return _items.Any(i => i.Value?.ToString() == key);
+            if (string.IsNullOrEmpty(key)) return true;
+            if (!_restrictToList) return true;
+            if (_known.ContainsKey(key)) return true;
+
+            // The list is fetched by a query that has not run yet - the ordinary case when a bound form
+            // loads a record before the user has ever opened the LOV. Rejecting here would throw away
+            // valid data because the control had not looked it up, so the key is accepted provisionally
+            // and resolved afterwards by the caller.
+            //
+            // This method stays free of side effects on purpose. Kicking the lookup off from here meant
+            // that a resolver returning an already-completed task ran its continuation inline, BEFORE
+            // the caller had assigned the text box - so the "is this still the current key" guard
+            // compared against the previous value and never rejected.
+            return CanResolveLater;
         }
+
+        /// <summary>Whether an unknown key might still turn out to be valid.</summary>
+        private bool CanResolveLater =>
+            KeyResolver != null || (ItemsLoader != null && !_itemsLoadedOnce);
 
         private void UpdateLastValidKey(string key)
         {
-            var selectedItem = _items.FirstOrDefault(i => i.Value?.ToString() == key);
-            _lastValidKey = selectedItem?.Value;
+            _lastValidKey = Resolve(key)?.Value ?? (object?)(_restrictToList ? null : key);
         }
 
         private void UpdateDisplayValue()
         {
-            var selectedItem = _items.FirstOrDefault(i => i.Value?.ToString() == SelectedKey);
-            _selectedDisplayValue = selectedItem?.Text ?? string.Empty;
+            _selectedDisplayValue = Resolve(SelectedKey)?.Text ?? string.Empty;
             Invalidate();
         }
 
         private void SetSelectedItem(SimpleItem item)
         {
             if (item == null) return;
-            
+
+            // Remember it BEFORE assigning the text box. Assigning Text re-enters
+            // KeyTextBox_TextChanged synchronously, which validates - so an item that arrived from a
+            // loader rather than from ListItems used to fail validation and revert the selection the
+            // user had just made in the popup.
+            Remember(new[] { item });
+
             if (_keyTextBox != null)
             {
                 _keyTextBox.Text = item.Value?.ToString() ?? string.Empty;
             }
             _lastValidKey = item.Value;
             UpdateDisplayValue();
-            
-            // Raise selection changed event
+
+            ApplyReturnMappings(item);
+            ItemSelected?.Invoke(this, item);
             OnSelectionChanged();
-            
+
             Invalidate();
         }
 

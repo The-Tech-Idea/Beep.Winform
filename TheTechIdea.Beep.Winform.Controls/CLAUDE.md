@@ -139,6 +139,31 @@ Practical consequences:
 - Locate sample points from control geometry, and convert to screen coordinates before comparing
   bounds across different parents.
 
+## Assigning a child control's value re-enters your own validation
+
+A `BeepTextBox` (and any control that raises `TextChanged`) fires **synchronously** on assignment. If a
+container validates in that handler, then assigning the child from a property setter runs the entire
+validation cycle *before the setter's next line*.
+
+This produced three separate bugs in one control (`Lovs/`), all found by checks rather than by reading:
+
+- a revert fired `TextChanged` with an empty value, which was valid, which cleared the very error the
+  revert had raised
+- a property setter assigned the child and then repeated the accept sequence, clobbering a rejection
+  the assignment had just performed
+- a lookup started from inside a `Validate` method ran its continuation **inline** when the task was
+  already complete — before the caller had assigned the child — so a guard comparing against the
+  current value saw the previous one
+
+The shape that works:
+
+- **One method decides.** Typing and programmatic assignment both funnel into a single `Apply…`, so
+  they cannot diverge. They *had* diverged, and the silent path was the one data binding used.
+- **Validation methods are side-effect free.** No lookups, no assignments — return a verdict.
+- **Guard your own reverts** with a flag the handler checks, or the revert re-enters as a user edit.
+- **The setter assigns and returns.** Only do the work directly when the value is unchanged and no
+  event will fire.
+
 ## Working with plans
 
 Larger areas carry a `plans/` folder: a `00-MASTER-TRACKER.md` plus one document per stage, each

@@ -20,22 +20,13 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Feature Card")]
     [Category("Beep Controls")]
     [Description("A card control that displays a list of features with a logo and title using BeepListBox.")]
-    public class BeepFeatureCard : BaseControl
+    public partial class BeepFeatureCard : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.CardFeature;
         #region "Fields"
         private BeepListBox featuresListBox;
         
-        // Layout rectangles for hit testing
-        private Rectangle logoRect;
-        private Rectangle titleRect;
-        private Rectangle subtitleRect;
-        private Rectangle actionIcon1Rect;
-        private Rectangle actionIcon2Rect;
-        private Rectangle cardIconRect;
         
-        // Hover states
-        private string hoveredArea = null;
         
         private string logoPath = "";
         private string titleText = "Sphere UI";
@@ -68,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 logoPath = FeatureCardIconHelpers.ResolveIconPath(value, FeatureCardIconHelpers.GetRecommendedLogoIcon());
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -83,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 FeatureCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateFeatureCardTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -97,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 subtitleText = value;
                 if (_autoGenerateTooltip)
                     UpdateFeatureCardTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -114,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 FeatureCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateFeatureCardTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -129,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bulletIconPath = FeatureCardIconHelpers.ResolveIconPath(value, FeatureCardIconHelpers.GetRecommendedBulletIcon());
                 UpdateFeaturesList();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -143,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 actionIcon1Path = FeatureCardIconHelpers.ResolveIconPath(value, FeatureCardIconHelpers.GetRecommendedActionIcon(0));
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -157,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 actionIcon2Path = FeatureCardIconHelpers.ResolveIconPath(value, FeatureCardIconHelpers.GetRecommendedActionIcon(1));
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -171,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 cardIconPath = FeatureCardIconHelpers.ResolveIconPath(value, FeatureCardIconHelpers.GetRecommendedCardIcon());
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -191,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         featuresListBox.ListBoxType = value;
                     }
-                    Invalidate();
+                    Recompose();
                 }
             }
         }
@@ -245,61 +236,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            // Check hit areas
-            if (HitTest(e.Location, out var hitTest))
-            {
-                switch (hitTest.Name)
-                {
-                    case "ActionIcon1":
-                        OnActionIcon1Click();
-                        break;
-                    case "ActionIcon2":
-                        OnActionIcon2Click();
-                        break;
-                    case "CardIcon":
-                        OnCardIconClick();
-                        break;
-                    default:
-                        OnCardClick();
-                        break;
-                }
-            }
-            else
-            {
-                OnCardClick();
-            }
-        }
-      
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            
-            string newHoveredArea = null;
-            if (HitTest(e.Location, out var hitTest))
-            {
-                newHoveredArea = hitTest.Name;
-            }
-            
-            if (newHoveredArea != hoveredArea)
-            {
-                hoveredArea = newHoveredArea;
-                Cursor = (hoveredArea == "ActionIcon1" || hoveredArea == "ActionIcon2" || hoveredArea == "CardIcon") 
-                    ? Cursors.Hand 
-                    : Cursors.Default;
-                Invalidate();
-            }
+            OnCardClick();
         }
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            if (hoveredArea != null)
-            {
-                hoveredArea = null;
-                Cursor = Cursors.Default;
-                Invalidate();
-            }
-        }
+        // The hover tracking that lived here compared the mouse against painted rectangles to decide
+        // which affordance was under it, and set the cursor by hand. The actions are BeepButtons now:
+        // they track their own hover, cursor and focus, and raise their own Click.
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -356,10 +298,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageSize = 20,
                 ListBoxType = _listStyle
             };
-            UpdateFeaturesList();
-            Controls.Add(featuresListBox);
-
             FeatureCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
+            Compose();
             ApplyTheme();
 
             if (_autoGenerateTooltip)
@@ -395,121 +335,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             featuresListBox.ListItems = simpleItems;
         }
 
-        protected override void DrawContent(Graphics g)
-        {
-            base.DrawContent(g);
-            UpdateDrawingRect();
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            
-            var clientRect = DrawingRect;
-            int padding = Padding.Left;
-            int logoSize = 24;
-            int iconSize = 32;
-            int cardIconSize = 64;
-            
-            // Calculate layout
-            logoRect = new Rectangle(clientRect.Left + padding, clientRect.Top + padding, logoSize, logoSize);
-            
-            // Title and subtitle - measure text to prevent clipping (using cached TextUtils)
-            Size titleSize;
-            Size subtitleSize;
-            {
-                var titleFont = FeatureCardFontHelpers.GetTitleFont(this, ControlStyle);
-                SizeF titleSizeF = TextUtils.MeasureText(titleText ?? "", titleFont, int.MaxValue);
-                titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
-            }
-            
-            {
-                var subtitleFont = FeatureCardFontHelpers.GetSubtitleFont(this, ControlStyle);
-                SizeF subtitleSizeF = TextUtils.MeasureText(subtitleText ?? "", subtitleFont, int.MaxValue);
-                subtitleSize = new Size((int)subtitleSizeF.Width, (int)subtitleSizeF.Height);
-            }
-            
-            // Calculate available width for text (accounting for icons on right)
-            int availableTextWidth = clientRect.Width - logoRect.Right - 10 - (iconSize * 3) - 10 - padding;
-            titleRect = new Rectangle(logoRect.Right + 10, clientRect.Top + padding, 
-                Math.Min(titleSize.Width, Math.Max(0, availableTextWidth)), titleSize.Height);
-            subtitleRect = new Rectangle(titleRect.Left, titleRect.Bottom + 2, 
-                Math.Min(subtitleSize.Width, Math.Max(0, availableTextWidth)), subtitleSize.Height);
-            
-            // Icons at top right
-            cardIconRect = new Rectangle(clientRect.Right - padding - cardIconSize, clientRect.Top + padding, cardIconSize, cardIconSize);
-            actionIcon2Rect = new Rectangle(cardIconRect.Left - 5 - iconSize, clientRect.Top + padding, iconSize, iconSize);
-            actionIcon1Rect = new Rectangle(actionIcon2Rect.Left - 5 - iconSize, clientRect.Top + padding, iconSize, iconSize);
-            
-            // Draw logo
-            if (!string.IsNullOrEmpty(logoPath))
-            {
-                var logoColor = FeatureCardThemeHelpers.GetActionIconColor(_currentTheme, UseThemeColors, null);
-                FeatureCardIconHelpers.PaintIcon(g, logoRect, logoPath, _currentTheme, UseThemeColors, logoColor);
-            }
-            
-            // Draw title
-            if (!string.IsNullOrEmpty(titleText))
-            {
-                using (var titleBrush = new SolidBrush(FeatureCardThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors, null)))
-                {
-                    var titleFont = FeatureCardFontHelpers.GetTitleFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, titleText, titleFont, titleRect, titleBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-            
-            // Draw subtitle
-            if (!string.IsNullOrEmpty(subtitleText))
-            {
-                using (var subtitleBrush = new SolidBrush(FeatureCardThemeHelpers.GetSubtitleColor(_currentTheme, UseThemeColors, null)))
-                {
-                    var subtitleFont = FeatureCardFontHelpers.GetSubtitleFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, subtitleText, subtitleFont, subtitleRect, subtitleBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-            
-            // Draw action icons
-            var actionIconColor = FeatureCardThemeHelpers.GetActionIconColor(_currentTheme, UseThemeColors, null);
-            if (hoveredArea == "ActionIcon1")
-            {
-                actionIconColor = Color.FromArgb(200, actionIconColor);
-            }
-            if (!string.IsNullOrEmpty(actionIcon1Path))
-            {
-                FeatureCardIconHelpers.PaintIcon(g, actionIcon1Rect, actionIcon1Path, _currentTheme, UseThemeColors, actionIconColor);
-            }
-            
-            actionIconColor = FeatureCardThemeHelpers.GetActionIconColor(_currentTheme, UseThemeColors, null);
-            if (hoveredArea == "ActionIcon2")
-            {
-                actionIconColor = Color.FromArgb(200, actionIconColor);
-            }
-            if (!string.IsNullOrEmpty(actionIcon2Path))
-            {
-                FeatureCardIconHelpers.PaintIcon(g, actionIcon2Rect, actionIcon2Path, _currentTheme, UseThemeColors, actionIconColor);
-            }
-            
-            // Draw card icon
-            var cardIconColor = FeatureCardThemeHelpers.GetCardIconColor(_currentTheme, UseThemeColors, null);
-            if (hoveredArea == "CardIcon")
-            {
-                cardIconColor = Color.FromArgb(200, cardIconColor);
-            }
-            if (!string.IsNullOrEmpty(cardIconPath))
-            {
-                FeatureCardIconHelpers.PaintIcon(g, cardIconRect, cardIconPath, _currentTheme, UseThemeColors, cardIconColor);
-            }
-            
-            // Position and size BeepListBox
-            int listTop = subtitleRect.Bottom + 10;
-            int listHeight = featuresListBox.GetMaxHeight();
-            featuresListBox.Location = new Point(clientRect.Left + padding, listTop);
-            featuresListBox.Size = new Size(Math.Max(0, clientRect.Width - padding * 2), listHeight);
-            
-            // Register hit areas
-            ClearHitList();
-            AddHitArea("ActionIcon1", actionIcon1Rect, null, () => OnActionIcon1Click());
-            AddHitArea("ActionIcon2", actionIcon2Rect, null, () => OnActionIcon2Click());
-            AddHitArea("CardIcon", cardIconRect, null, () => OnCardIconClick());
-        }
+        // DrawContent removed: the card is composed from controls in BeepFeatureCard.Composition.cs.
+        // The hit areas it registered went with it - the actions are BeepButtons now, which are
+        // focusable and keyboard-reachable rather than a rectangle compared against mouse coordinates.
 
         public override void ApplyTheme()
         {

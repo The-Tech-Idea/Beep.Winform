@@ -129,87 +129,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
 
         #region Icon Painting
 
-        /// <summary>
-        /// Paint icon using StyledImagePainter
-        /// Supports SVG, caching, and theme-aware tinting
-        /// </summary>
-        public static void PaintIcon(
-            Graphics g,
-            Rectangle bounds,
-            string iconPath,
-            IBeepTheme theme,
-            bool useThemeColors,
-            Color? tintColor = null,
-            float rotation = 0f)
-        {
-            if (g == null || bounds.IsEmpty || string.IsNullOrEmpty(iconPath))
-                return;
 
-            Color iconColor = tintColor ?? GetIconColor(theme, useThemeColors, null);
 
-            try
-            {
-                StyledImagePainter.PaintWithTint(
-                    g,
-                    bounds,
-                    iconPath,
-                    iconColor);
-            }
-            catch
-            {
-                // Fallback: draw a simple shape if icon fails to load
-                PaintFallbackIcon(g, bounds, iconColor);
-            }
-        }
-
-        /// <summary>
-        /// Paint avatar with border
-        /// </summary>
-        public static void PaintAvatar(
-            Graphics g,
-            Rectangle bounds,
-            Image avatar,
-            Color borderColor,
-            int borderThickness = 2)
-        {
-            if (g == null || bounds.IsEmpty || avatar == null)
-                return;
-
-            try
-            {
-                // Draw border circle
-                using (Pen borderPen = new Pen(borderColor, borderThickness))
-                {
-                    g.DrawEllipse(borderPen, bounds);
-                }
-
-                // Draw avatar image clipped to circle
-                using (GraphicsPath path = new GraphicsPath())
-                {
-                    path.AddEllipse(bounds);
-                    g.SetClip(path);
-
-                    g.DrawImage(avatar, bounds);
-                    g.ResetClip();
-                }
-            }
-            catch
-            {
-                // Fallback: draw a simple circle if avatar fails to load
-                PaintFallbackAvatar(g, bounds, borderColor, borderThickness);
-            }
-        }
-
-        /// <summary>
-        /// Paint fallback icon when icon path fails
-        /// </summary>
-        private static void PaintFallbackIcon(Graphics g, Rectangle bounds, Color color)
-        {
-            using (SolidBrush brush = new SolidBrush(color))
-            {
-                g.FillEllipse(brush, bounds);
-            }
-        }
 
         /// <summary>
         /// Paint fallback avatar when image fails

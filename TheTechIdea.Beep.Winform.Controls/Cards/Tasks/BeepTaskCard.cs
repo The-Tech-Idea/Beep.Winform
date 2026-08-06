@@ -18,21 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Task Card")]
     [Description("A task or project card displaying avatars, title, subtitle, metric, and progress.")]
-    public class BeepTaskCard : BaseControl
+    public partial class BeepTaskCard : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.CardTask;
-        // Layout rectangles for hit testing
-        private Rectangle[] avatarRects;
-        private Rectangle moreIconRect;
-        private Rectangle titleRect;
-        private Rectangle subtitleRect;
-        private Rectangle metricRect;
-        private Rectangle progressBarRect;
-        private Rectangle plusLabelRect;
         
-        // Hover states
-        private string hoveredArea = null;
-        private int hoveredAvatarIndex = -1;
         
         private List<string> _avatarImagePaths = new List<string>();
         private List<Image> _avatarImages = new List<Image>();
@@ -54,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _avatarImagePaths = value;
                 _avatarImages = _avatarImagePaths.Select(path => ImageListHelper.GetImageFromName(path) as Image).ToList();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -69,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TaskCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTaskCardTooltip();
-                Invalidate(); 
+                Recompose(); 
             }
         }
 
@@ -84,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TaskCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTaskCardTooltip();
-                Invalidate(); 
+                Recompose(); 
             }
         }
 
@@ -99,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TaskCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTaskCardTooltip();
-                Invalidate(); 
+                Recompose(); 
             }
         }
 
@@ -114,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TaskCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTaskCardTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -127,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _moreIconPath = TaskCardIconHelpers.ResolveIconPath(value, TaskCardIconHelpers.GetRecommendedMoreIcon());
                 _moreIcon = ImageListHelper.GetImageFromName(_moreIconPath) as Image;
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -156,14 +145,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size = new Size(180, 240);
             BorderRadius = 15;
             ShowShadow = true;
-            UseGradientBackground = true;
-            GradientDirection = LinearGradientMode.Vertical;
-            GradientStartColor = Color.FromArgb(255, 255, 182, 193);
-            GradientEndColor = Color.FromArgb(255, 255, 153, 187);
-            ForeColor = Color.White;
+
+            // The literal pink gradient and white ForeColor that were set here are gone. They are
+            // style rather than meaning, and a card that hard-codes its own surface cannot follow a
+            // theme - which is the category of defect this refactor removes by not writing the code.
 
             TaskCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
-            ApplyTheme();
+            Compose();
 
             if (_autoGenerateTooltip)
             {
@@ -171,176 +159,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        protected override void DrawContent(Graphics g)
-        {
-            base.DrawContent(g);
-            UpdateDrawingRect();
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            var clientRect = DrawingRect;
+        // DrawContent removed: the card is composed from controls in BeepTaskCard.Composition.cs.
+        // The progress bar it drew by hand is a BeepProgressBar, and the avatars and overflow icon are
+        // controls that can be clicked, focused and reached from the keyboard - which painted ones
+        // could not be, whether or not they rendered.
 
-            ClearHitList();
-
-            // 1) Draw overlapping avatars at the top-left
-            int avatarX = clientRect.Left + Padding.Left;
-            int avatarY = clientRect.Top + Padding.Top;
-            int avatarSize = 32;
-            int overlap = 10;
-            int maxVisibleAvatars = 3;
-            int displayedCount = Math.Min(_avatarImages.Count, maxVisibleAvatars);
-            avatarRects = new Rectangle[displayedCount];
-
-            for (int i = 0; i < displayedCount; i++)
-            {
-                int offsetX = avatarX + i * (avatarSize - overlap);
-                avatarRects[i] = new Rectangle(offsetX, avatarY, avatarSize, avatarSize);
-                
-                if (i < _avatarImages.Count && _avatarImages[i] != null)
-                {
-                    DrawCircularAvatar(g, avatarRects[i], _avatarImages[i], Color.White, 2);
-                    AddHitArea($"Avatar_{i}", avatarRects[i], null, () => OnAvatarClick(i));
-                }
-            }
-
-            // If there are more avatars than visible, draw a +X circle
-            if (_avatarImages.Count > maxVisibleAvatars)
-            {
-                int offsetX = avatarX + displayedCount * (avatarSize - overlap);
-                plusLabelRect = new Rectangle(offsetX, avatarY, avatarSize, avatarSize);
-                
-                using (var path = new GraphicsPath())
-                {
-                    path.AddEllipse(plusLabelRect);
-                    using (var brush = new SolidBrush(Color.FromArgb(150, 0, 0, 0)))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                    using (var pen = new Pen(Color.White, 2))
-                    {
-                        g.DrawPath(pen, path);
-                    }
-                }
-                
-                using (var brush = new SolidBrush(Color.White))
-                {
-                    var font = TaskCardFontHelpers.GetAvatarLabelFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, $"+{_avatarImages.Count - maxVisibleAvatars}", font, plusLabelRect, brush.Color,
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
-                }
-            }
-
-            // 2) Draw the 'more' icon at the top-right
-            int iconSize = 24;
-            moreIconRect = TaskCardLayoutHelpers.CalculateMoreIconBounds(clientRect, new Size(iconSize, iconSize), Padding);
-            
-            if (!string.IsNullOrEmpty(_moreIconPath))
-            {
-                var iconColor = TaskCardThemeHelpers.GetIconColor(_currentTheme, UseThemeColors, null);
-                if (hoveredArea == "MoreIcon")
-                {
-                    iconColor = Color.FromArgb(200, iconColor);
-                }
-                TaskCardIconHelpers.PaintIcon(g, moreIconRect, _moreIconPath, _currentTheme, UseThemeColors, iconColor);
-            }
-            else if (_moreIcon != null)
-            {
-                g.DrawImage(_moreIcon, moreIconRect);
-            }
-            
-            AddHitArea("MoreIcon", moreIconRect, null, () => OnMoreIconClick());
-
-            // 3) Draw the title and subtitle - measure text to prevent clipping
-            Size titleSize;
-            {
-                var titleFont = TaskCardFontHelpers.GetTitleFont(this, ControlStyle);
-                SizeF titleSizeF = TextUtils.MeasureText(_titleText ?? "", titleFont, int.MaxValue);
-                titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
-            }
-            titleRect = TaskCardLayoutHelpers.CalculateTitleBounds(clientRect, new Size(avatarSize * 3, avatarSize), Padding);
-            titleRect.Width = Math.Min(titleSize.Width, clientRect.Width - titleRect.Left - Padding.Right - iconSize - 10);
-            
-            if (!string.IsNullOrEmpty(_titleText))
-            {
-                using (var titleBrush = new SolidBrush(TaskCardThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors, null)))
-                {
-                    var titleFont = TaskCardFontHelpers.GetTitleFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, _titleText, titleFont, titleRect, titleBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-
-            Size subtitleSize;
-            {
-                var subtitleFont = TaskCardFontHelpers.GetSubtitleFont(this, ControlStyle);
-                SizeF subtitleSizeF = TextUtils.MeasureText(_subtitleText ?? "", subtitleFont, int.MaxValue);
-                subtitleSize = new Size((int)subtitleSizeF.Width, (int)subtitleSizeF.Height);
-            }
-            subtitleRect = TaskCardLayoutHelpers.CalculateSubtitleBounds(clientRect, titleRect.Size, Padding);
-            subtitleRect.Width = Math.Min(subtitleSize.Width, clientRect.Width - subtitleRect.Left - Padding.Right);
-            
-            if (!string.IsNullOrEmpty(_subtitleText))
-            {
-                using (var subtitleBrush = new SolidBrush(TaskCardThemeHelpers.GetSubtitleColor(_currentTheme, UseThemeColors, null)))
-                {
-                    var subtitleFont = TaskCardFontHelpers.GetSubtitleFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, _subtitleText, subtitleFont, subtitleRect, subtitleBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-
-            // 4) Draw the metric text near the bottom - measure to prevent clipping (using cached TextUtils)
-            Size metricSize;
-            {
-                var metricFont = TaskCardFontHelpers.GetMetricFont(this, ControlStyle);
-                SizeF metricSizeF = TextUtils.MeasureText(_metricText ?? "", metricFont, int.MaxValue);
-                metricSize = new Size((int)metricSizeF.Width, (int)metricSizeF.Height);
-            }
-            metricRect = TaskCardLayoutHelpers.CalculateMetricBounds(clientRect, Padding);
-            metricRect.Width = Math.Min(metricSize.Width, clientRect.Width - metricRect.Left - Padding.Right);
-            
-            if (!string.IsNullOrEmpty(_metricText))
-            {
-                using (var metricBrush = new SolidBrush(TaskCardThemeHelpers.GetMetricTextColor(_currentTheme, UseThemeColors, null)))
-                {
-                    var metricFont = TaskCardFontHelpers.GetMetricFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, _metricText, metricFont, metricRect, metricBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-
-            // 5) Draw the progress bar below the metric text
-            progressBarRect = TaskCardLayoutHelpers.CalculateProgressBarBounds(clientRect, metricRect.Size, Padding);
-            Color progressBackColor = TaskCardThemeHelpers.GetProgressBarBackColor(_currentTheme, UseThemeColors, null);
-            Color progressColor = TaskCardThemeHelpers.GetProgressBarColor(_currentTheme, UseThemeColors, null);
-            
-            using (SolidBrush backBrush = new SolidBrush(progressBackColor))
-            {
-                g.FillRectangle(backBrush, progressBarRect);
-            }
-            float progressWidth = (ProgressValue / 100f) * progressBarRect.Width;
-            using (SolidBrush progressBrush = new SolidBrush(progressColor))
-            {
-                g.FillRectangle(progressBrush, progressBarRect.X, progressBarRect.Y, (int)progressWidth, progressBarRect.Height);
-            }
-        }
-
-        private void DrawCircularAvatar(Graphics g, Rectangle bounds, Image avatar, Color borderColor, int borderThickness)
-        {
-            using (var path = new GraphicsPath())
-            {
-                path.AddEllipse(bounds);
-                
-                // Draw border
-                using (var pen = new Pen(borderColor, borderThickness))
-                {
-                    g.DrawPath(pen, path);
-                }
-                
-                // Draw avatar clipped to circle
-                g.SetClip(path);
-                g.DrawImage(avatar, bounds);
-                g.ResetClip();
-            }
-        }
+        // DrawCircularAvatar removed with the paint pass that called it. The avatars are BeepImages.
 
         public override void ApplyTheme()
         {
@@ -451,68 +275,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            if (HitTest(e.Location, out var hitTest))
-            {
-                if (hitTest.Name.StartsWith("Avatar_"))
-                {
-                    if (int.TryParse(hitTest.Name.Substring(7), out int index))
-                    {
-                        OnAvatarClick(index);
-                        return;
-                    }
-                }
-                else if (hitTest.Name == "MoreIcon")
-                {
-                    OnMoreIconClick();
-                    return;
-                }
-            }
-
             OnCardClick();
         }
-      
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            
-            string newHoveredArea = null;
-            int newHoveredAvatarIndex = -1;
-            
-            if (HitTest(e.Location, out var hitTest))
-            {
-                newHoveredArea = hitTest.Name;
-                if (hitTest.Name.StartsWith("Avatar_"))
-                {
-                    if (int.TryParse(hitTest.Name.Substring(7), out int index))
-                    {
-                        newHoveredAvatarIndex = index;
-                    }
-                }
-            }
-            
-            if (newHoveredArea != hoveredArea || newHoveredAvatarIndex != hoveredAvatarIndex)
-            {
-                hoveredArea = newHoveredArea;
-                hoveredAvatarIndex = newHoveredAvatarIndex;
-                Cursor = (hoveredArea == "MoreIcon" || hoveredArea?.StartsWith("Avatar_") == true) 
-                    ? Cursors.Hand 
-                    : Cursors.Default;
-                Invalidate();
-            }
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            if (hoveredArea != null)
-            {
-                hoveredArea = null;
-                hoveredAvatarIndex = -1;
-                Cursor = Cursors.Default;
-                Invalidate();
-            }
-        }
+        // The hover tracking that lived here compared the mouse against painted rectangles to decide
+        // which avatar - or the overflow icon - was under it. Both are controls now, and each tracks
+        // its own hover, cursor and focus and raises its own Click.
 
         protected override void OnKeyDown(KeyEventArgs e)
         {

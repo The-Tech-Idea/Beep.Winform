@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -711,7 +712,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var candidate = System.IO.Path.Combine(baseDir, folder, file);
                 if (System.IO.File.Exists(candidate)) return candidate;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Falling back to the logical name is fine - ImagePainter/ImageListHelper may still
+                // resolve it - but a silent catch here meant a broken GFX directory looked identical
+                // to a name that was always meant to be resolved logically.
+                BeepLog.FallbackOnce($"{folder}/{file}", this, $"probe GFX path '{folder}/{file}'", ex);
+            }
             // fallback to logical name (ImagePainter/ImageListHelper may resolve)
             return file;
         }

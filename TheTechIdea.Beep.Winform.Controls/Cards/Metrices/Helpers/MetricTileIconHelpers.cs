@@ -156,86 +156,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
 
         #region Icon Painting
 
-        /// <summary>
-        /// Paint icon using StyledImagePainter
-        /// Supports SVG, caching, and theme-aware tinting
-        /// </summary>
-        public static void PaintIcon(
-            Graphics g,
-            Rectangle bounds,
-            string iconPath,
-            IBeepTheme theme,
-            bool useThemeColors,
-            Color? tintColor = null,
-            float rotation = 0f)
-        {
-            if (g == null || bounds.IsEmpty || string.IsNullOrEmpty(iconPath))
-                return;
 
-            Color iconColor = tintColor ?? GetIconColor(theme, useThemeColors, null);
 
-            try
-            {
-                StyledImagePainter.PaintWithTint(
-                    g,
-                    bounds,
-                    iconPath,
-                    iconColor);
-            }
-            catch
-            {
-                // Fallback: draw a simple shape if icon fails to load
-                PaintFallbackIcon(g, bounds, iconColor);
-            }
-        }
-
-        /// <summary>
-        /// Paint silhouette image with semi-transparency
-        /// </summary>
-        public static void PaintSilhouette(
-            Graphics g,
-            Rectangle bounds,
-            Image silhouette,
-            float opacity = 0.2f)
-        {
-            if (g == null || bounds.IsEmpty || silhouette == null)
-                return;
-
-            try
-            {
-                using (ImageAttributes ia = new ImageAttributes())
-                {
-                    ColorMatrix cm = new ColorMatrix();
-                    cm.Matrix33 = Math.Max(0f, Math.Min(1f, opacity)); // Alpha channel
-                    ia.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-
-                    g.DrawImage(
-                        silhouette,
-                        bounds,
-                        0, 0,
-                        silhouette.Width,
-                        silhouette.Height,
-                        GraphicsUnit.Pixel,
-                        ia);
-                }
-            }
-            catch
-            {
-                // Fallback: draw a simple shape if silhouette fails to load
-                PaintFallbackSilhouette(g, bounds, opacity);
-            }
-        }
-
-        /// <summary>
-        /// Paint fallback icon when icon path fails
-        /// </summary>
-        private static void PaintFallbackIcon(Graphics g, Rectangle bounds, Color color)
-        {
-            using (SolidBrush brush = new SolidBrush(color))
-            {
-                g.FillEllipse(brush, bounds);
-            }
-        }
 
         /// <summary>
         /// Paint fallback silhouette when image fails

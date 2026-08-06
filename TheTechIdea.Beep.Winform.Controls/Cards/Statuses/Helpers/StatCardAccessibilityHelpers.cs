@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
 {
@@ -22,6 +24,8 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
         private const int SPI_GETANIMATION = 0x0048;
         private const int SPI_GETHIGHCONTRAST = 0x0042;
 
+
+
         #endregion
 
         #region System Detection
@@ -31,20 +35,27 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
         /// </summary>
         public static bool IsHighContrastMode()
         {
+            // Each fallback reports the failure that sent it there. These are genuine fallbacks rather
+            // than swallows - every branch returns a real answer - but a silent one leaves nobody able
+            // to explain why high-contrast detection is behaving oddly on a given machine. Reported
+            // once per process, because this is called on every accessibility pass.
             try
             {
                 return SystemInformation.HighContrast;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("HighContrast", "Accessibility", "read SystemInformation.HighContrast", ex);
+
                 try
                 {
                     bool highContrast = false;
                     SystemParametersInfo(SPI_GETHIGHCONTRAST, 0, ref highContrast, 0);
                     return highContrast;
                 }
-                catch
+                catch (Exception inner)
                 {
+                    BeepLog.FallbackOnce("SPI_GETHIGHCONTRAST", "Accessibility", "read SPI_GETHIGHCONTRAST", inner);
                     return SystemColors.Control != SystemColors.Window;
                 }
             }
@@ -61,8 +72,10 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
                 SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, ref animationsEnabled, 0);
                 return !animationsEnabled;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("SPI_GETCLIENTAREAANIMATION", "Accessibility", "read SPI_GETCLIENTAREAANIMATION", ex);
+
                 var prefersReducedMotion = Environment.GetEnvironmentVariable("PREFERS_REDUCED_MOTION");
                 return prefersReducedMotion == "1" || prefersReducedMotion?.ToLowerInvariant() == "true";
             }

@@ -62,34 +62,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 newHoveredArea = "CollapseChevron";
                 desiredCursor = Cursors.Hand;
             }
-            else if (_layoutContext != null)
-            {
-                // Check which area is hovered
-                if (_layoutContext.ButtonRect.Contains(e.Location))
-                {
-                    newHoveredArea = "Button";
-                    desiredCursor = Cursors.Hand;
-                }
-                else if (_layoutContext.SecondaryButtonRect.Contains(e.Location))
-                {
-                    newHoveredArea = "SecondaryButton";
-                    desiredCursor = Cursors.Hand;
-                }
-                else if (_layoutContext.ImageRect.Contains(e.Location))
-                {
-                    newHoveredArea = "Image";
-                    desiredCursor = Cursors.Hand;
-                }
-                else if (_layoutContext.HeaderRect.Contains(e.Location))
-                {
-                    newHoveredArea = "Header";
-                    desiredCursor = Cursors.Hand;
-                }
-                else if (_layoutContext.ParagraphRect.Contains(e.Location))
-                {
-                    newHoveredArea = "Paragraph";
-                }
-            }
+            // The per-part hover branches that lived here read rectangles a painter computed, to
+            // decide whether the mouse was over the button, the image, the header or the paragraph.
+            // Each of those is a control now and reports its own hover, cursor and Click.
 
             Cursor = desiredCursor;
 
@@ -114,10 +89,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case Keys.Space:
                     if (Focused || TabStop)
                     {
-                        // Trigger primary button click if available
-                        if (_layoutContext.ShowButton && !_layoutContext.ButtonRect.IsEmpty)
+                        // The composed primary button is the authority on whether there is one.
+                        if (_primaryButton != null)
                         {
-                            ButtonClicked?.Invoke(this, new BeepEventDataArgs("ButtonClicked", this));
+                            _primaryButton.PerformClick();
                             return true;
                         }
                     }
@@ -159,7 +134,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _rememberedExpandedHeight = Height;
             }
             // Force full layout recalculation and repaint on resize
-            InvalidateLayoutCache();
             Invalidate();
         }
 
@@ -171,9 +145,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int GetCollapsedHeight()
         {
             int minCollapsed = Scale(72) + Math.Max(0, Scale(_accentBarHeight));
-            if (_layoutContext != null && !_layoutContext.HeaderRect.IsEmpty)
+
+            // Collapsed height is measured from the composed header rather than from a rectangle a
+            // painter reported, so it stays right when the header wraps to two lines.
+            if (_headerLabel != null && !_headerLabel.IsDisposed)
             {
-                int headerBased = (_layoutContext.HeaderRect.Bottom - DrawingRect.Top) + Scale(12);
+                int headerBased = _headerLabel.Bottom + Padding.Bottom + Scale(12);
                 return Math.Max(minCollapsed, headerBased);
             }
 
@@ -216,14 +193,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = newHeight;
             }
 
-            InvalidateLayoutCache();
             Invalidate();
 
             if (t >= 1d)
             {
                 _expandCollapseTimer.Stop();
                 Height = _expandAnimationTargetHeight;
-                InvalidateLayoutCache();
                 Invalidate();
             }
         }

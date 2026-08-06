@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         SocialCard
     }
 
-    public class BeepTestimonial : BaseControl
+    public partial class BeepTestimonial : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.CardTestimonial;
         // Keep only BeepStarRating as a child control
@@ -38,17 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _rating = "5";
         
         // Layout rectangles for hit testing
-        private Rectangle imageRect;
-        private Rectangle companyLogoRect;
-        private Rectangle testimonialRect;
-        private Rectangle nameRect;
-        private Rectangle usernameRect;
-        private Rectangle positionRect;
-        private Rectangle closeButtonRect;
-        private Rectangle ratingRect;
         
         // Hover states
-        private string hoveredArea = null;
 
         private TestimonialViewType _viewType = TestimonialViewType.Classic;
         private bool _isApplyingTheme = false;
@@ -69,10 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 Size = new Size(100, 20)
             };
-            Controls.Add(starRating);
-
             TestimonialAccessibilityHelpers.ApplyAccessibilitySettings(this);
-            ApplyTheme();
+            Compose();
 
             if (_autoGenerateTooltip)
             {
@@ -121,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _viewType = value;
                 Size = TestimonialLayoutHelpers.GetOptimalCardSize(_viewType, Padding);
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -136,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TestimonialAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTestimonialTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -148,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set 
             { 
                 _companyLogoPath = TestimonialIconHelpers.ResolveIconPath(value, TestimonialIconHelpers.GetRecommendedCompanyLogoIcon());
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -163,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TestimonialAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTestimonialTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -178,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TestimonialAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTestimonialTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -190,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _username = value ?? "@username";
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -202,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _position = value ?? "Unknown Position";
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -221,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TestimonialAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateTestimonialTooltip();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -245,284 +234,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        protected override void DrawContent(Graphics g)
-        {
-            base.DrawContent(g);
-            UpdateDrawingRect();
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            
-            var cardBounds = DrawingRect;
-            var layout = TestimonialLayoutHelpers.CalculateLayout(this, _viewType, cardBounds, Padding);
-            
-            ClearHitList();
-            
-            // Get theme colors
-            var (backColor, testimonialTextColor, nameColor, detailsColor, ratingColor) = 
-                TestimonialThemeHelpers.GetThemeColors(_currentTheme, UseThemeColors);
-            
-            // Draw based on view type
-            switch (_viewType)
-            {
-                case TestimonialViewType.Classic:
-                    DrawClassicView(g, layout, testimonialTextColor, nameColor, detailsColor, ratingColor);
-                    break;
-                case TestimonialViewType.Minimal:
-                    DrawMinimalView(g, layout, testimonialTextColor, nameColor, detailsColor);
-                    break;
-                case TestimonialViewType.Compact:
-                    DrawCompactView(g, layout, testimonialTextColor, nameColor, detailsColor);
-                    break;
-                case TestimonialViewType.SocialCard:
-                    DrawSocialCardView(g, layout, testimonialTextColor, nameColor, detailsColor);
-                    break;
-            }
-        }
-
-        private void DrawClassicView(Graphics g, TestimonialLayout layout, Color testimonialColor, Color nameColor, Color detailsColor, Color ratingColor)
-        {
-            // Draw rating (using BeepStarRating control)
-            if (starRating != null && !layout.RatingBounds.IsEmpty)
-            {
-                starRating.Location = new Point(layout.RatingBounds.Left, layout.RatingBounds.Top);
-                starRating.Size = layout.RatingBounds.Size;
-            }
-            
-            // Draw testimonial text - measure to prevent clipping
-            if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
-            {
-                testimonialRect = layout.TestimonialBounds;
-                {
-                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
-                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, int.MaxValue);
-                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                    testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
-                    using (var brush = new SolidBrush(testimonialColor))
-                    {
-                        TextRenderer.DrawText(g, _testimonial, font, testimonialRect, brush.Color, 
-                            TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                    }
-                }
-            }
-            
-            // Draw image
-            if (!string.IsNullOrEmpty(_imagePath) && !layout.ImageBounds.IsEmpty)
-            {
-                imageRect = layout.ImageBounds;
-                TestimonialIconHelpers.PaintIcon(g, imageRect, _imagePath, _currentTheme, UseThemeColors, null);
-                AddHitArea("Image", imageRect, null, () => OnImageClick());
-            }
-            
-            // Draw name - measure to prevent clipping
-            if (!string.IsNullOrEmpty(_name) && !layout.NameBounds.IsEmpty)
-            {
-                nameRect = layout.NameBounds;
-                {
-                    var font = TestimonialFontHelpers.GetNameFont(this, ControlStyle, _viewType);
-                    SizeF textSizeF = TextUtils.MeasureText(_name, font, int.MaxValue);
-                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                    nameRect.Width = Math.Min(textSize.Width, nameRect.Width);
-                    using (var brush = new SolidBrush(nameColor))
-                    {
-                        TextRenderer.DrawText(g, _name, font, nameRect, brush.Color, 
-                            TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                    }
-                }
-            }
-            
-            // Draw position - measure to prevent clipping
-            if (!string.IsNullOrEmpty(_position) && !layout.PositionBounds.IsEmpty)
-            {
-                positionRect = layout.PositionBounds;
-                {
-                    var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType);
-                    SizeF textSizeF = TextUtils.MeasureText(_position, font, int.MaxValue);
-                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                    positionRect.Width = Math.Min(textSize.Width, positionRect.Width);
-                    using (var brush = new SolidBrush(detailsColor))
-                    {
-                        TextRenderer.DrawText(g, _position, font, positionRect, brush.Color, 
-                            TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                    }
-                }
-            }
-            
-            // Draw username - measure to prevent clipping
-            if (!string.IsNullOrEmpty(_username) && !layout.UsernameBounds.IsEmpty)
-            {
-                usernameRect = layout.UsernameBounds;
-                {
-                    var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType);
-                    SizeF textSizeF = TextUtils.MeasureText(_username, font, int.MaxValue);
-                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                    usernameRect.Width = Math.Min(textSize.Width, usernameRect.Width);
-                    using (var brush = new SolidBrush(detailsColor))
-                    {
-                        TextRenderer.DrawText(g, _username, font, usernameRect, brush.Color, 
-                            TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                    }
-                }
-            }
-        }
-
-        private void DrawMinimalView(Graphics g, TestimonialLayout layout, Color testimonialColor, Color nameColor, Color detailsColor)
-        {
-            // Draw company logo
-            if (!string.IsNullOrEmpty(_companyLogoPath) && !layout.CompanyLogoBounds.IsEmpty)
-            {
-                companyLogoRect = layout.CompanyLogoBounds;
-                TestimonialIconHelpers.PaintIcon(g, companyLogoRect, _companyLogoPath, _currentTheme, UseThemeColors, null);
-            }
-            
-            // Draw testimonial text
-            if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
-            {
-                testimonialRect = layout.TestimonialBounds;
-                {
-                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
-                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
-                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                    testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
-                    using (var brush = new SolidBrush(testimonialColor))
-                    {
-                        TextRenderer.DrawText(g, _testimonial, font, testimonialRect, brush.Color, 
-                            TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                    }
-                }
-            }
-            
-            // Draw name, position, username (centered)
-            DrawCenteredText(g, _name, layout.NameBounds, nameColor, TestimonialFontHelpers.GetNameFont(this, ControlStyle, _viewType));
-            DrawCenteredText(g, _position, layout.PositionBounds, detailsColor, TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType));
-            DrawCenteredText(g, _username, layout.UsernameBounds, detailsColor, TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType));
-            
-            // Draw image (centered)
-            if (!string.IsNullOrEmpty(_imagePath) && !layout.ImageBounds.IsEmpty)
-            {
-                imageRect = layout.ImageBounds;
-                TestimonialIconHelpers.PaintIcon(g, imageRect, _imagePath, _currentTheme, UseThemeColors, null);
-                AddHitArea("Image", imageRect, null, () => OnImageClick());
-            }
-        }
-
-        private void DrawCompactView(Graphics g, TestimonialLayout layout, Color testimonialColor, Color nameColor, Color detailsColor)
-        {
-            // Draw testimonial text
-            if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
-            {
-                testimonialRect = layout.TestimonialBounds;
-                {
-                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
-                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
-                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                    testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
-                    using (var brush = new SolidBrush(testimonialColor))
-                    {
-                        TextRenderer.DrawText(g, _testimonial, font, testimonialRect, brush.Color, 
-                            TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                    }
-                }
-            }
-            
-            // Draw image
-            if (!string.IsNullOrEmpty(_imagePath) && !layout.ImageBounds.IsEmpty)
-            {
-                imageRect = layout.ImageBounds;
-                TestimonialIconHelpers.PaintIcon(g, imageRect, _imagePath, _currentTheme, UseThemeColors, null);
-                AddHitArea("Image", imageRect, null, () => OnImageClick());
-            }
-            
-            // Draw name, position, username
-            DrawText(g, _name, layout.NameBounds, nameColor, TestimonialFontHelpers.GetNameFont(this, ControlStyle, _viewType));
-            DrawText(g, _position, layout.PositionBounds, detailsColor, TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType));
-            DrawText(g, _username, layout.UsernameBounds, detailsColor, TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType));
-        }
-
-        private void DrawSocialCardView(Graphics g, TestimonialLayout layout, Color testimonialColor, Color nameColor, Color detailsColor)
-        {
-            // Draw image
-            if (!string.IsNullOrEmpty(_imagePath) && !layout.ImageBounds.IsEmpty)
-            {
-                imageRect = layout.ImageBounds;
-                TestimonialIconHelpers.PaintIcon(g, imageRect, _imagePath, _currentTheme, UseThemeColors, null);
-                AddHitArea("Image", imageRect, null, () => OnImageClick());
-            }
-            
-            // Draw name, username, position
-            DrawText(g, _name, layout.NameBounds, nameColor, TestimonialFontHelpers.GetNameFont(this, ControlStyle, _viewType));
-            DrawText(g, _username, layout.UsernameBounds, detailsColor, TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType));
-            DrawText(g, _position, layout.PositionBounds, detailsColor, TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType));
-            
-            // Draw testimonial text
-            if (!string.IsNullOrEmpty(_testimonial) && !layout.TestimonialBounds.IsEmpty)
-            {
-                testimonialRect = layout.TestimonialBounds;
-                {
-                    var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType);
-                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
-                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                    testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
-                    using (var brush = new SolidBrush(testimonialColor))
-                    {
-                        TextRenderer.DrawText(g, _testimonial, font, testimonialRect, brush.Color, 
-                            TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                    }
-                }
-            }
-            
-            // Draw close button
-            if (!layout.CloseButtonBounds.IsEmpty)
-            {
-                closeButtonRect = layout.CloseButtonBounds;
-                var closeColor = detailsColor;
-                if (hoveredArea == "Close")
-                {
-                    closeColor = Color.FromArgb(200, closeColor);
-                }
-                using (var font = new Font("Segoe UI", 12, FontStyle.Bold))
-                using (var brush = new SolidBrush(closeColor))
-                {
-                    TextRenderer.DrawText(g, "âœ•", font, closeButtonRect, brush.Color, 
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
-                }
-                AddHitArea("Close", closeButtonRect, null, () => OnCloseClick());
-            }
-        }
-
-        private void DrawText(Graphics g, string text, Rectangle bounds, Color color, Font font)
-        {
-            if (string.IsNullOrEmpty(text) || bounds.IsEmpty) return;
-            
-            using (font)
-            {
-                SizeF textSizeF = TextUtils.MeasureText(text, font, int.MaxValue);
-                var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                bounds.Width = Math.Min(textSize.Width, bounds.Width);
-                using (var brush = new SolidBrush(color))
-                {
-                    TextRenderer.DrawText(g, text, font, bounds, brush.Color, 
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-        }
-
-        private void DrawCenteredText(Graphics g, string text, Rectangle bounds, Color color, Font font)
-        {
-            if (string.IsNullOrEmpty(text) || bounds.IsEmpty) return;
-            
-            using (font)
-            {
-                SizeF textSizeF = TextUtils.MeasureText(text, font, int.MaxValue);
-                var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-                int centerX = bounds.Left + bounds.Width / 2;
-                bounds = new Rectangle(centerX - textSize.Width / 2, bounds.Top, textSize.Width, bounds.Height);
-                using (var brush = new SolidBrush(color))
-                {
-                    TextRenderer.DrawText(g, text, font, bounds, brush.Color, 
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.NoPadding);
-                }
-            }
-        }
-
+        // DrawContent and the four Draw*View routines are removed: the card is composed from controls
+        // in BeepTestimonial.Composition.cs. Each view type is a different call order over one set of
+        // controls, rather than four paint routines measuring and centring text by hand.
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -622,6 +336,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             CompanyLogoClick?.Invoke(this, EventArgs.Empty);
         }
 
+        protected virtual void OnTestimonialClick()
+        {
+            TestimonialClick?.Invoke(this, EventArgs.Empty);
+        }
+
         protected virtual void OnCloseClick()
         {
             Visible = false;
@@ -630,62 +349,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            if (HitTest(e.Location, out var hitTest))
-            {
-                switch (hitTest.Name)
-                {
-                    case "Image":
-                        OnImageClick();
-                        break;
-                    case "CompanyLogo":
-                        OnCompanyLogoClick();
-                        break;
-                    case "Close":
-                        OnCloseClick();
-                        break;
-                    default:
-                        TestimonialClick?.Invoke(this, EventArgs.Empty);
-                        break;
-                }
-            }
-            else
-            {
-                TestimonialClick?.Invoke(this, EventArgs.Empty);
-            }
-        }
-       
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            
-            string newHoveredArea = null;
-            if (HitTest(e.Location, out var hitTest))
-            {
-                newHoveredArea = hitTest.Name;
-            }
-            
-            if (newHoveredArea != hoveredArea)
-            {
-                hoveredArea = newHoveredArea;
-                Cursor = (hoveredArea == "Image" || hoveredArea == "CompanyLogo" || hoveredArea == "Close") 
-                    ? Cursors.Hand 
-                    : Cursors.Default;
-                Invalidate();
-            }
         }
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            if (hoveredArea != null)
-            {
-                hoveredArea = null;
-                Cursor = Cursors.Default;
-                Invalidate();
-            }
-        }
-
+        // The hover tracking that lived here compared the mouse against painted rectangles. The avatar,
+        // the quote and the dismiss button are controls now, each tracking its own hover and cursor.
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -693,7 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case Keys.Enter:
                 case Keys.Space:
-                    TestimonialClick?.Invoke(this, EventArgs.Empty);
+                    OnTestimonialClick();
                     e.Handled = true;
                     break;
             }

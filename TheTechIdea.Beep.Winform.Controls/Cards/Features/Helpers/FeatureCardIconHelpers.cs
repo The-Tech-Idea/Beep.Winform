@@ -166,49 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Features.Helpers
 
         #region Icon Painting
 
-        /// <summary>
-        /// Paint icon using StyledImagePainter
-        /// Supports SVG, caching, and theme-aware tinting
-        /// </summary>
-        public static void PaintIcon(
-            Graphics g,
-            Rectangle bounds,
-            string iconPath,
-            IBeepTheme theme,
-            bool useThemeColors,
-            Color? tintColor = null,
-            float rotation = 0f)
-        {
-            if (g == null || bounds.IsEmpty || string.IsNullOrEmpty(iconPath))
-                return;
 
-            Color iconColor = tintColor ?? GetIconColor(theme, useThemeColors, null);
-
-            try
-            {
-                StyledImagePainter.PaintWithTint(
-                    g,
-                    bounds,
-                    iconPath,
-                    iconColor);
-            }
-            catch
-            {
-                // Fallback: draw a simple shape if icon fails to load
-                PaintFallbackIcon(g, bounds, iconColor);
-            }
-        }
-
-        /// <summary>
-        /// Paint fallback icon when icon path fails
-        /// </summary>
-        private static void PaintFallbackIcon(Graphics g, Rectangle bounds, Color color)
-        {
-            using (SolidBrush brush = new SolidBrush(color))
-            {
-                g.FillEllipse(brush, bounds);
-            }
-        }
 
         #endregion
     }

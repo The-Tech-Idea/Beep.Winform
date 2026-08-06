@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Dashboard Metric Tile")]
     [Description("A dashboard tile showing a title, icon, large metric, delta text, and a central silhouette.")]
-    public class BeepMetricTile : BaseControl
+    public partial class BeepMetricTile : BaseControl
     {
         protected override Size DefaultSize => BeepLayoutMetrics.CardMetric;
         // Layout rectangles for hit testing
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MetricTileAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateMetricTileTooltip();
-                Invalidate(); 
+                Recompose(); 
             }
         }
 
@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MetricTileAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateMetricTileTooltip();
-                Invalidate(); 
+                Recompose(); 
             }
         }
 
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MetricTileAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateMetricTileTooltip();
-                Invalidate(); 
+                Recompose(); 
             }
         }
 
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             { 
                 _iconImagepath = MetricTileIconHelpers.ResolveIconPath(value, MetricTileIconHelpers.GetRecommendedMetricIcon(_titleText));
                 _iconImage = (Image)ImageListHelper.GetImageFromName(_iconImagepath);
-                Invalidate(); 
+                Recompose();
             }
         }
 
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             { 
                 _backgroundSilhouettepath = MetricTileIconHelpers.ResolveIconPath(value, MetricTileIconHelpers.GetRecommendedSilhouetteIcon(_titleText));
                 _backgroundSilhouette = (Image)ImageListHelper.GetImageFromName(_backgroundSilhouettepath);
-                Invalidate(); 
+                Recompose();
             }
         }
 
@@ -153,111 +153,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 UpdateMetricTileTooltip();
             }
+
+            Compose();
         }
 
-        protected override void DrawContent(Graphics g)
-        {
-            base.DrawContent(g);
-            UpdateDrawingRect();
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+        // DrawContent is gone. This tile is composed from Beep controls - see
+        // BeepMetricTile.Composition.cs - so theme, DPI and accessible naming come from the controls.
 
-            var drawingRect = DrawingRect;
-            var cardTheme = _currentTheme;
-
-            ClearHitList();
-
-            // 1. Draw the background silhouette (center, semi-transparent)
-            if (_backgroundSilhouette != null)
-            {
-                silhouetteRect = MetricTileLayoutHelpers.CalculateSilhouetteBounds(drawingRect, 0.6f);
-                MetricTileIconHelpers.PaintSilhouette(g, silhouetteRect, _backgroundSilhouette, 0.20f);
-            }
-
-            // 2. Draw the title (top-left) - measure text to prevent clipping
-            Size titleSize;
-            {
-                var titleFont = MetricTileFontHelpers.GetTitleFont(this, ControlStyle);
-                SizeF titleSizeF = TextUtils.MeasureText(_titleText ?? "", titleFont, int.MaxValue);
-                titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
-            }
-            titleRect = MetricTileLayoutHelpers.CalculateTitleBounds(drawingRect, Padding);
-            titleRect.Width = Math.Min(titleSize.Width, drawingRect.Width - titleRect.Left - Padding.Right - 30); // Account for icon
-            
-            if (!string.IsNullOrEmpty(_titleText))
-            {
-                using (var titleBrush = new SolidBrush(MetricTileThemeHelpers.GetTitleColor(cardTheme, UseThemeColors, null)))
-                {
-                    var titleFont = MetricTileFontHelpers.GetTitleFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, _titleText, titleFont, titleRect, titleBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-
-            // 3. Draw the icon (top-right)
-            int iconSize = 24;
-            iconRect = MetricTileLayoutHelpers.CalculateIconBounds(drawingRect, new Size(iconSize, iconSize), Padding);
-            
-            if (!string.IsNullOrEmpty(_iconImagepath))
-            {
-                var iconColor = MetricTileThemeHelpers.GetIconColor(cardTheme, UseThemeColors, null);
-                if (hoveredArea == "Icon")
-                {
-                    iconColor = Color.FromArgb(200, iconColor);
-                }
-                MetricTileIconHelpers.PaintIcon(g, iconRect, _iconImagepath, cardTheme, UseThemeColors, iconColor);
-            }
-            else if (_iconImage != null)
-            {
-                // Draw Image directly
-                g.DrawImage(_iconImage, iconRect);
-            }
-            
-            AddHitArea("Icon", iconRect, null, () => OnIconClick());
-
-            // 4. Draw the metric value (bottom-left) - measure text to prevent clipping
-            Size metricSize;
-            {
-                var metricFont = MetricTileFontHelpers.GetMetricValueFont(this, ControlStyle);
-                SizeF metricSizeF = TextUtils.MeasureText(_metricValue ?? "", metricFont, int.MaxValue);
-                metricSize = new Size((int)metricSizeF.Width, (int)metricSizeF.Height);
-            }
-            metricRect = MetricTileLayoutHelpers.CalculateMetricValueBounds(drawingRect, titleRect.Size, Padding);
-            metricRect.Width = Math.Min(metricSize.Width, drawingRect.Width - metricRect.Left - Padding.Right);
-            
-            if (!string.IsNullOrEmpty(_metricValue))
-            {
-                using (var metricBrush = new SolidBrush(MetricTileThemeHelpers.GetMetricValueColor(cardTheme, UseThemeColors, null)))
-                {
-                    var metricFont = MetricTileFontHelpers.GetMetricValueFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, _metricValue, metricFont, metricRect, metricBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Bottom | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-            
-            AddHitArea("Metric", metricRect, null, () => OnTileClick());
-
-            // 5. Draw the delta value (right of metric) - measure text to prevent clipping
-            Size deltaSize;
-            {
-                var deltaFont = MetricTileFontHelpers.GetDeltaFont(this, ControlStyle);
-                SizeF deltaSizeF = TextUtils.MeasureText(_deltaValue ?? "", deltaFont, int.MaxValue);
-                deltaSize = new Size((int)deltaSizeF.Width, (int)deltaSizeF.Height);
-            }
-            deltaRect = MetricTileLayoutHelpers.CalculateDeltaBounds(drawingRect, metricRect.Size, Padding);
-            deltaRect.Width = Math.Min(deltaSize.Width, drawingRect.Width - deltaRect.Left - Padding.Right);
-            
-            if (!string.IsNullOrEmpty(_deltaValue))
-            {
-                using (var deltaBrush = new SolidBrush(MetricTileThemeHelpers.GetDeltaColor(cardTheme, UseThemeColors, null)))
-                {
-                    var deltaFont = MetricTileFontHelpers.GetDeltaFont(this, ControlStyle);
-                    TextRenderer.DrawText(g, _deltaValue, deltaFont, deltaRect, deltaBrush.Color,
-                        TextFormatFlags.Left | TextFormatFlags.Bottom | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                }
-            }
-            
-            AddHitArea("Delta", deltaRect, null, () => OnTileClick());
-        }
 
         public override void ApplyTheme()
         {

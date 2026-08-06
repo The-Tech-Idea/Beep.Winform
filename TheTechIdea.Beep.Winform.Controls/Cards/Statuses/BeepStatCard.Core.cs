@@ -79,12 +79,9 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
                 UpdateStatCardTooltip();
             }
 
-            // default demo parameters for design-time view
-            Parameters[ParamHeader] = headerText;
-            Parameters[ParamValue] = valueText;
-            Parameters[ParamDelta] = percentageText;
-            Parameters[ParamInfo] = infoText;
-            Parameters[ParamSpark] = new float[] { 2, 3, 2.5f, 3.4f, 3.0f, 3.8f, 4.2f };
+            // The painter's Parameters bag went with the painter registry. The composed labels carry
+            // the card's data directly, so there is no second copy of it to keep in step.
+            Compose();
         }
 
         #region Properties
@@ -99,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
                 StatCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateStatCardTooltip();
-                Invalidate(); 
+                Recompose();
             } 
         }
 
@@ -114,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
                 StatCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateStatCardTooltip();
-                Invalidate(); 
+                Recompose();
             } 
         }
 
@@ -129,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
                 StatCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateStatCardTooltip();
-                Invalidate(); 
+                Recompose();
             } 
         }
 
@@ -142,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
                 trendText = value;
                 if (_autoGenerateTooltip)
                     UpdateStatCardTooltip();
-                Invalidate(); 
+                Recompose();
             } 
         }
 
@@ -157,12 +154,12 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
                 StatCardAccessibilityHelpers.ApplyAccessibilitySettings(this);
                 if (_autoGenerateTooltip)
                     UpdateStatCardTooltip();
-                Invalidate(); 
+                Recompose();
             } 
         }
 
         [Category("Appearance"), Description("Indicates whether the trend is up (true) or down (false).")]
-        public bool IsTrendingUp { get => isTrendingUp; set { isTrendingUp = value; Invalidate(); } }
+        public bool IsTrendingUp { get => isTrendingUp; set { isTrendingUp = value; Recompose(); } }
 
         [Browsable(true), Category("Appearance"), Description("Path to the SVG file for the upward trend icon."), Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public string TrendUpSvgPath 
@@ -171,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
             set 
             { 
                 trendUpSvgPath = StatCardIconHelpers.ResolveIconPath(value, StatCardIconHelpers.GetRecommendedTrendUpIcon());
-                Invalidate(); 
+                Recompose();
             } 
         }
 
@@ -182,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
             set 
             { 
                 trendDownSvgPath = StatCardIconHelpers.ResolveIconPath(value, StatCardIconHelpers.GetRecommendedTrendDownIcon());
-                Invalidate(); 
+                Recompose();
             } 
         }
 
@@ -193,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
             set 
             { 
                 cardiconSvgPath = StatCardIconHelpers.ResolveIconPath(value, StatCardIconHelpers.GetRecommendedCardIcon(headerText));
-                Invalidate(); 
+                Recompose();
             } 
         }
 
@@ -258,35 +255,9 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
             Invalidate();
         }
 
-        protected override void DrawContent(Graphics g)
-        {
-            base.DrawContent(g);
-            // Let BaseControl paint background via PaintInnerShape already called in OnPaint pipeline.
-            var painter = GetActivePainter();
-            if (painter == null) return;
-
-            // Determine drawing area: use BaseControl.DrawingRect and honour Padding
-            var rect = DrawingRect;
-            rect = new Rectangle(rect.X + Padding.Left, rect.Y + Padding.Top, Math.Max(0, rect.Width - Padding.Horizontal), Math.Max(0, rect.Height - Padding.Vertical));
-            if (rect.Width <= 0 || rect.Height <= 0) return;
-
-            // Push some implicit common parameters if not present
-            if (!Parameters.ContainsKey(ParamHeader) && !string.IsNullOrEmpty(HeaderText)) Parameters[ParamHeader] = HeaderText;
-            if (!Parameters.ContainsKey(ParamValue) && !string.IsNullOrEmpty(ValueText)) Parameters[ParamValue] = ValueText;
-            if (!Parameters.ContainsKey(ParamDelta) && !string.IsNullOrEmpty(PercentageText)) Parameters[ParamDelta] = PercentageText;
-            if (!Parameters.ContainsKey(ParamInfo) && !string.IsNullOrEmpty(InfoText)) Parameters[ParamInfo] = InfoText;
-            if (UseThemeColors && _currentTheme != null)
-            {
-                BackColor = _currentTheme.CardBackColor;
-                g.Clear(BackColor);
-            }
-            else
-            {
-                // Paint background based on selected Style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
-            }
-            painter.Paint(g, rect, _currentTheme, this, Parameters);
-        }
+        // DrawContent is gone. This card is composed from Beep controls - see
+        // BeepStatCard.Composition.cs - so the theme, DPI scaling and accessible naming that this
+        // method did by hand now happen because the controls do them.
 
         #region Tooltips
         /// <summary>

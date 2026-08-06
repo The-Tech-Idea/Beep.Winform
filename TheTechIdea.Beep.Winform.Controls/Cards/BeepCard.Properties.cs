@@ -21,10 +21,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _style = value;
                 // Update accessible description when style changes
                 AccessibleDescription = $"Card: {value}";
-                InitializePainter(); 
                 ApplyDesignTimeData(); // Refresh dummy data when Style changes
-                InvalidateLayoutCache();
-                Invalidate(); 
+                Recompose(); 
             }
         }
 
@@ -33,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Color AccentColor
         {
             get => _accentColor;
-            set { _accentColor = value; Invalidate(); }
+            set { _accentColor = value; Recompose(); }
         }
 
         [Category("Behavior")]
@@ -47,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_isSelected == value) return;
                 _isSelected = value;
                 SelectionChanged?.Invoke(this, EventArgs.Empty);
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -61,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_showSelectionCheckbox == value) return;
                 _showSelectionCheckbox = value;
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -89,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -104,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int normalized = Math.Max(0, value);
                 if (_accentBarHeight == normalized) return;
                 _accentBarHeight = normalized;
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -116,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _contextMenuIcon = string.IsNullOrWhiteSpace(value) ? SvgsUI.DotsVertical : value;
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -136,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     StartExpandCollapseAnimation(true);
                 }
 
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -162,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    Invalidate();
+                    Recompose();
                 }
             }
         }
@@ -172,7 +170,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string SubtitleText
         {
             get => _subtitleText;
-            set { _subtitleText = value; Invalidate(); }
+            set { _subtitleText = value; Recompose(); }
+        }
+
+        [Category("Content")]
+        [Description("The one number the card exists to show - a price, a KPI, a tier.")]
+        public string PriceText
+        {
+            get => _priceText;
+            set { _priceText = value; Recompose(); }
         }
 
         [Category("Content")]
@@ -180,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string StatusText
         {
             get => _statusText;
-            set { _statusText = value; Invalidate(); }
+            set { _statusText = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -188,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Color StatusColor
         {
             get => _statusColor;
-            set { _statusColor = value; Invalidate(); }
+            set { _statusColor = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -196,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ShowStatus
         {
             get => _showStatus;
-            set { _showStatus = value; Invalidate(); }
+            set { _showStatus = value; Recompose(); }
         }
 
         [Category("Content")]
@@ -204,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int Rating
         {
             get => _rating;
-            set { _rating = Math.Max(0, Math.Min(5, value)); Invalidate(); }
+            set { _rating = Math.Max(0, Math.Min(5, value)); Recompose(); }
         }
 
         [Category("Appearance")]
@@ -212,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ShowRating
         {
             get => _showRating;
-            set { _showRating = value; Invalidate(); }
+            set { _showRating = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -220,21 +226,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string BadgeText1
         {
             get => _badgeText1;
-            set { _badgeText1 = value; Invalidate(); }
+            set { _badgeText1 = value; Recompose(); }
         }
 
         [Category("Appearance")]
         public Color Badge1BackColor
         {
             get => _badge1BackColor;
-            set { _badge1BackColor = value; Invalidate(); }
+            set { _badge1BackColor = value; Recompose(); }
         }
 
         [Category("Appearance")]
         public Color Badge1ForeColor
         {
             get => _badge1ForeColor;
-            set { _badge1ForeColor = value; Invalidate(); }
+            set { _badge1ForeColor = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -242,21 +248,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string BadgeText2
         {
             get => _badgeText2;
-            set { _badgeText2 = value; Invalidate(); }
+            set { _badgeText2 = value; Recompose(); }
         }
 
         [Category("Appearance")]
         public Color Badge2BackColor
         {
             get => _badge2BackColor;
-            set { _badge2BackColor = value; Invalidate(); }
+            set { _badge2BackColor = value; Recompose(); }
         }
 
         [Category("Appearance")]
         public Color Badge2ForeColor
         {
             get => _badge2ForeColor;
-            set { _badge2ForeColor = value; Invalidate(); }
+            set { _badge2ForeColor = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -264,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public List<string> Tags
         {
             get => _tags;
-            set { _tags = value ?? new List<string>(); Invalidate(); }
+            set { _tags = value ?? new List<string>(); Recompose(); }
         }
 
         [Category("Appearance")]
@@ -272,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string SecondaryButtonText
         {
             get => secondaryButtonText;
-            set { secondaryButtonText = value; Invalidate(); }
+            set { secondaryButtonText = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -280,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ShowSecondaryButton
         {
             get => showSecondaryButton;
-            set { showSecondaryButton = value; InvalidateLayoutCache(); Invalidate(); }
+            set { showSecondaryButton = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -288,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string HeaderText
         {
             get => headerText;
-            set { headerText = value; Invalidate(); }
+            set { headerText = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -296,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string ParagraphText
         {
             get => paragraphText;
-            set { paragraphText = value; Invalidate(); }
+            set { paragraphText = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -304,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string ButtonText
         {
             get => buttonText;
-            set { buttonText = value; Invalidate(); }
+            set { buttonText = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -312,7 +318,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ShowButton
         {
             get => showButton;
-            set { showButton = value; Invalidate(); }
+            set { showButton = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -324,8 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 imagePath = value;
-                InvalidateLayoutCache();
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -334,7 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ContentAlignment HeaderAlignment
         {
             get => headerAlignment;
-            set { headerAlignment = value; Invalidate(); }
+            set { headerAlignment = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -342,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ContentAlignment ImageAlignment
         {
             get => imageAlignment;
-            set { imageAlignment = value; Invalidate(); }
+            set { imageAlignment = value; Recompose(); }
         }
 
         [Category("Appearance")]
@@ -350,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ContentAlignment TextAlignment
         {
             get => textAlignment;
-            set { textAlignment = value; Invalidate(); }
+            set { textAlignment = value; Recompose(); }
         }
 
         /// <summary>
@@ -365,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 base.AccessibleName = value;
-                Invalidate();
+                Recompose();
             }
         }
 
@@ -381,7 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 base.AccessibleDescription = value;
-                Invalidate();
+                Recompose();
             }
         }
         #endregion

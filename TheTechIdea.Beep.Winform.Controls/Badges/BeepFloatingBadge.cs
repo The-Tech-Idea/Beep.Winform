@@ -3,26 +3,26 @@ using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Badges
 {
-    public class BeepFloatingBadge : UserControl, IBeepBadge
+    public partial class BeepFloatingBadge : UserControl, IBeepBadge
     {
         protected override Size DefaultSize => BeepLayoutMetrics.Badge;
         private Control? _target;
         private BadgeLocation _location = new();
         private bool _showDropShadow = true;
-        private Color _shadowColor = Color.FromArgb(80, 0, 0, 0);
+        private Color _shadowColor;
         private int _shadowSize = 2;
         private bool _showBorder = true;
-        private Color _borderColor = Color.White;
+        private Color _borderColor;
         private int _badgeDiameter = 22;
         private BadgeShape _shape = BadgeShape.Circle;
-        private Color _badgeBackColor = Color.Red;
-        private Color _badgeForeColor = Color.White;
+        private Color _badgeBackColor;
+        private Color _badgeForeColor;
         private bool _isAttached;
 
-        private Rectangle _cachedShapeRect;
-        private GraphicsPath? _cachedShapePath;
-        private BadgeShape _cachedShape;
-        private int _cachedDiameter;
+        // The four colours above have no initialisers on purpose: ApplyTheme runs from the constructor
+        // and fills every one. Literal defaults here would be dead on arrival and would misrepresent
+        // where a badge's colours come from.
+
         private SolidBrush? _cachedBackBrush;
         private SolidBrush? _cachedShadowBrush;
         private Pen? _cachedBorderPen;
@@ -36,9 +36,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             BackColor = Color.Transparent;
             Size = new Size(_badgeDiameter, _badgeDiameter);
             MinimumSize = new Size(8, 8);
-            MaximumSize = new Size(48, 48);
+            MaximumSize = new Size(0, 48);   // cap the height; width grows to fit content
             TabStop = false;
             Visible = false;
+
+            SubscribeToTheme();
+            ApplyTheme();
         }
 
         public Control? Target => _target;
@@ -89,6 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             set
             {
                 _shadowColor = value;
+                _shadowColorExplicit = true;
                 InvalidateCachedBrushes();
                 Invalidate();
             }
@@ -100,7 +104,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             set
             {
                 _shadowSize = Math.Max(0, Math.Min(6, value));
-                InvalidateCachedPaths();
                 Invalidate();
             }
         }
@@ -121,6 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             set
             {
                 _borderColor = value;
+                _borderColorExplicit = true;
                 InvalidateCachedBrushes();
                 Invalidate();
             }
@@ -132,10 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             set
             {
                 _badgeDiameter = Math.Max(8, Math.Min(48, value));
-                Size = new Size(_badgeDiameter, _badgeDiameter);
-                InvalidateCachedPaths();
-                Reposition();
-                Invalidate();
+                ApplyBadgeSize();
             }
         }
 
@@ -145,8 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             set
             {
                 _shape = value;
-                InvalidateCachedPaths();
-                Invalidate();
+                ApplyBadgeSize();
             }
         }
 
@@ -156,6 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             set
             {
                 _badgeBackColor = value;
+                _backColorExplicit = true;
                 InvalidateCachedBrushes();
                 Invalidate();
             }
@@ -167,6 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             set
             {
                 _badgeForeColor = value;
+                _foreColorExplicit = true;
                 Invalidate();
             }
         }
@@ -214,16 +216,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             target.ParentChanged += OnTargetParentChanged;
             target.Disposed += OnTargetDisposed;
 
-            if (target.Parent is not null)
-                target.Parent.Resize += OnParentResize;
+            // Record the parent we subscribe to. Detach unsubscribes under `if (_badgeParent is not
+            // null)`, and this field was only ever assigned in OnTargetParentChanged - so a badge that
+            // was attached and detached without the target ever changing parent left a live Resize
+            // handler on the parent, which both kept the badge alive and repositioned a detached one.
+            _badgeParent = target.Parent;
+            _badgeParent.Resize += OnParentResize;
 
             _isAttached = true;
             Reposition();
             BringToFront();
             Visible = target.Visible;
 
-            try { BadgeOpened?.Invoke(this, EventArgs.Empty); }
-            catch { }
+            // Raised without a catch. An exception here belongs to the subscriber, and swallowing it
+            // makes their bug invisible - Control.Click does not catch either.
+            BadgeOpened?.Invoke(this, EventArgs.Empty);
         }
 
         public virtual void Detach()
@@ -251,8 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             _isAttached = false;
             Visible = false;
 
-            try { BadgeClosed?.Invoke(this, EventArgs.Empty); }
-            catch { }
+            BadgeClosed?.Invoke(this, EventArgs.Empty);
         }
 
         public virtual void Reposition()
@@ -264,46 +270,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
                 newLoc = ApplyCornerOverlap(newLoc, _target.Bounds);
             }
             SetBounds(newLoc.X, newLoc.Y, Width, Height);
-        }
-
-        /// <summary>
-        /// Centers the badge on the anchor corner so it sticks out by half its size in both
-        /// directions. This produces the modern "floating" UI/UX look where the badge appears
-        /// to sit between the control and its parent (on the parent's surface, centered on the
-        /// control's corner).
-        /// </summary>
-        private Rectangle ApplyCornerOverlap(Rectangle currentBounds, Rectangle targetBounds)
-        {
-            int halfW = currentBounds.Width / 2;
-            int halfH = currentBounds.Height / 2;
-
-            // Determine which corner the anchor is on by inspecting the offset of
-            // currentBounds relative to targetBounds.
-            bool isTop = currentBounds.Top < targetBounds.Top + targetBounds.Height / 2;
-            bool isBottom = !isTop;
-            bool isLeft = currentBounds.Left < targetBounds.Left + targetBounds.Width / 2;
-            bool isRight = !isLeft;
-
-            int newX = currentBounds.X;
-            int newY = currentBounds.Y;
-
-            if (isLeft) newX = targetBounds.Left - halfW;
-            else if (isRight) newX = targetBounds.Right - halfW;
-
-            if (isTop) newY = targetBounds.Top - halfH;
-            else if (isBottom) newY = targetBounds.Bottom - halfH;
-
-            // Middle anchors (MiddleLeft, MiddleRight, MiddleCenter) center on the side.
-            if (currentBounds.Left + halfW == targetBounds.Left + targetBounds.Width / 2)
-            {
-                // Centered horizontally â€” don't shift X.
-            }
-            if (currentBounds.Top + halfH == targetBounds.Top + targetBounds.Height / 2)
-            {
-                // Centered vertically â€” don't shift Y.
-            }
-
-            return new Rectangle(newX, newY, currentBounds.Width, currentBounds.Height);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -322,15 +288,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             int cbH = h - shadowOffset * 2;
             var contentBounds = new Rectangle(cbX, cbY, cbW, cbH);
 
+            // Each path is built here and disposed here. The cache these two calls used to consult was
+            // handed to `using`, which disposed the object the cache still held: the next cache hit
+            // returned a dead GraphicsPath and FillPath threw "Parameter is not valid".
+            //
+            // A drop shadow hid it, because the shadow and content rectangles differ by a pixel, so the
+            // cache missed on every paint and rebuilt. Turn the shadow off and the second paint of any
+            // badge crashed. Building an ellipse or a rounded rectangle is cheap; the cache was not
+            // paying for itself even when it worked.
             if (_showDropShadow && shadowOffset > 0)
             {
                 var shadowRect = new Rectangle(cbX + 1, cbY + 1, cbW, cbH);
-                using var shadowPath = GetOrCreateShapePath(shadowRect);
+                using var shadowPath = GetShapePath(shadowRect);
                 var shadowBrush = GetOrCreateShadowBrush();
                 g.FillPath(shadowBrush, shadowPath);
             }
 
-            using var shapePath = GetOrCreateShapePath(contentBounds);
+            using var shapePath = GetShapePath(contentBounds);
             var backBrush = GetOrCreateBackBrush();
             g.FillPath(backBrush, shapePath);
 
@@ -364,6 +338,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
                 case BadgeShape.Pill:
                     return GraphicsExtensions.GetRoundedRectPath(bounds, bounds.Height / 2);
 
+                case BadgeShape.Custom when CustomShapeProvider is not null:
+                    return CustomShapeProvider(bounds);
+
                 case BadgeShape.Diamond:
                     var diamond = new GraphicsPath();
                     diamond.AddPolygon(new PointF[]
@@ -375,6 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
                     });
                     return diamond;
 
+                // Rectangle, and Custom with no provider set.
                 default:
                     var rect = new GraphicsPath();
                     rect.AddRectangle(bounds);
@@ -382,31 +360,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             }
         }
 
-        private GraphicsPath GetOrCreateShapePath(Rectangle bounds)
-        {
-            if (_cachedShapePath is not null &&
-                _cachedShapeRect == bounds &&
-                _cachedShape == _shape &&
-                _cachedDiameter == _badgeDiameter)
-            {
-                return _cachedShapePath;
-            }
-
-            _cachedShapePath?.Dispose();
-            _cachedShapePath = GetShapePath(bounds);
-            _cachedShapeRect = bounds;
-            _cachedShape = _shape;
-            _cachedDiameter = _badgeDiameter;
-            return _cachedShapePath;
-        }
+        /// <summary>
+        /// The colour the badge fills with this paint.
+        /// </summary>
+        /// <remarks>
+        /// Separate from <see cref="BadgeBackColor"/> so a subclass can vary the fill per frame without
+        /// writing to the property - which would both mark the colour caller-chosen and pin it against
+        /// the next theme change.
+        /// </remarks>
+        protected virtual Color EffectiveBackColor => _badgeBackColor;
 
         private SolidBrush GetOrCreateBackBrush()
         {
-            if (_cachedBackBrush is not null && _cachedBackBrush.Color == _badgeBackColor)
+            var colour = EffectiveBackColor;
+            if (_cachedBackBrush is not null && _cachedBackBrush.Color == colour)
                 return _cachedBackBrush;
 
             _cachedBackBrush?.Dispose();
-            _cachedBackBrush = new SolidBrush(_badgeBackColor);
+            _cachedBackBrush = new SolidBrush(colour);
             return _cachedBackBrush;
         }
 
@@ -430,12 +401,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             return _cachedBorderPen;
         }
 
-        private void InvalidateCachedPaths()
-        {
-            _cachedShapePath?.Dispose();
-            _cachedShapePath = null;
-        }
-
         private void InvalidateCachedBrushes()
         {
             _cachedBackBrush?.Dispose();
@@ -449,21 +414,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            var handler = BadgeClick;
-            if (handler is not null)
-            {
-                try { handler(this, EventArgs.Empty); }
-                catch { }
-            }
+            BadgeClick?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
+                // BeepThemesManager.ThemeChanged is static: without this every badge ever constructed
+                // stays reachable from it for the life of the process.
+                UnsubscribeFromTheme();
                 Detach();
-                InvalidateCachedPaths();
                 InvalidateCachedBrushes();
+                _badgeFont?.Dispose();
+                _badgeFont = null;
             }
             base.Dispose(disposing);
         }

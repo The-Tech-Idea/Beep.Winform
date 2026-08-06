@@ -15,7 +15,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             Shape = BadgeShape.Circle;
             BadgeDiameter = 20;
             ShowBorder = true;
-            BorderColor = Color.White;
             Anchor = BadgeAnchor.TopRight;
             ApplyState(_state);
         }
@@ -58,28 +57,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             return this;
         }
 
+        /// <summary>
+        /// Maps the state to a theme role and a glyph.
+        /// </summary>
+        /// <remarks>
+        /// These four colours are the exception this library allows to "nothing assigns colours": an
+        /// error badge is red because red means error, not because red is the accent. Taking them from
+        /// the theme's semantic slots rather than from literal ARGB keeps the meaning while letting a
+        /// dark or high-contrast palette pick its own red.
+        /// </remarks>
         private void ApplyState(ValidationState state)
         {
             switch (state)
             {
                 case ValidationState.Error:
-                    BadgeBackColor = Color.FromArgb(220, 60, 60);
+                    Role = BadgeRole.Error;
                     SvgPathOverride = SvgsUIcons.Common.Error;
                     break;
                 case ValidationState.Success:
-                    BadgeBackColor = Color.FromArgb(40, 167, 69);
+                    Role = BadgeRole.Success;
                     SvgPathOverride = SvgsUIcons.Common.Success;
                     break;
                 case ValidationState.Warning:
-                    BadgeBackColor = Color.FromArgb(255, 152, 0);
+                    Role = BadgeRole.Warning;
                     SvgPathOverride = SvgsUIcons.Common.Warning;
                     break;
                 case ValidationState.Info:
-                    BadgeBackColor = Color.FromArgb(33, 150, 243);
+                    Role = BadgeRole.Info;
                     SvgPathOverride = SvgsUIcons.Common.Info;
                     break;
                 default:
-                    BadgeBackColor = Color.Gray;
+                    Role = BadgeRole.Surface;
                     SvgPathOverride = string.Empty;
                     break;
             }
@@ -97,13 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             int offsetY = contentBounds.Y + (contentBounds.Height - iconSize) / 2;
             var iconRect = new Rectangle(offsetX, offsetY, iconSize, iconSize);
 
-            try
-            {
-                StyledImagePainter.Paint(g, iconRect, SvgPathOverride);
-            }
-            catch
-            {
-            }
+            DrawIconOrFallback(g, iconRect, SvgPathOverride);
         }
     }
 }

@@ -5,11 +5,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
         public BeepDotBadge()
         {
             Shape = BadgeShape.Circle;
-            BadgeBackColor = Color.Red;
             BadgeDiameter = 10;
             ShowBorder = true;
-            BorderColor = Color.White;
             Anchor = BadgeAnchor.TopRight;
+
+            // Colours come from the theme's badge slots. Assigning literals here would also have
+            // marked them caller-chosen, which would have pinned them against every later theme change.
+            Role = BadgeRole.Default;
         }
 
         public BeepDotBadge SetColor(Color color)

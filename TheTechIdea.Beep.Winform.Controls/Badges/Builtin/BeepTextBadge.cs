@@ -1,6 +1,6 @@
 namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
 {
-    public class BeepTextBadge : BeepFloatingBadge
+    public class BeepTextBadge : BeepFloatingBadge, IBeepTextBadge
     {
         private string _displayText = string.Empty;
         private Font? _cachedFont;
@@ -14,8 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
         {
             _displayText = text;
             Shape = BadgeShape.Pill;
-            BadgeBackColor = Color.DodgerBlue;
-            BadgeForeColor = Color.White;
+            Role = BadgeRole.Accent;
             BadgeDiameter = 18;
             Anchor = BadgeAnchor.TopRight;
         }
@@ -27,12 +26,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             {
                 _displayText = value ?? string.Empty;
                 _cachedFontText = null;
-                Invalidate();
+                ApplyBadgeSize();
             }
         }
 
         public BeepTextBadge SetText(string text) { DisplayText = text; return this; }
         public BeepTextBadge At(float fractionX, float fractionY) { Location = BadgeLocations.Relative(fractionX, fractionY); return this; }
+
+        /// <summary>The width this badge's text needs, so a pill can be as wide as its word.</summary>
+        protected override int MeasureContentWidth()
+        {
+            if (string.IsNullOrEmpty(_displayText)) return 0;
+            using var font = BadgeFontFor(Math.Max(6, BadgeDiameter * 0.5f));
+            return TextRenderer.MeasureText(_displayText, font).Width;
+        }
 
         private StringFormat GetOrCreateTextFormat()
         {
@@ -52,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             if (_cachedFont is null || _cachedFontText != _displayText || _cachedFontHeight != ch)
             {
                 _cachedFont?.Dispose();
-                _cachedFont = new Font("Segoe UI", fontSize, FontStyle.Bold);
+                _cachedFont = BadgeFontFor(fontSize);
                 _cachedFontText = _displayText;
                 _cachedFontHeight = ch;
             }

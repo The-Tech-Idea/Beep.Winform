@@ -930,6 +930,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 fb.BadgeBackColor = BadgeBackColor;
                 fb.BadgeForeColor = BadgeForeColor;
+
+                // BadgeFont was written, disposed on teardown, and never read: this line did not exist
+                // and no badge had a font property to receive it. Cloned rather than handed over,
+                // because the badge disposes what it is given and this instance is still ours.
+                if (_badgeFont is not null)
+                    fb.BadgeFont = new Font(_badgeFont.FontFamily, _badgeFont.Size, _badgeFont.Style);
             }
         }
 

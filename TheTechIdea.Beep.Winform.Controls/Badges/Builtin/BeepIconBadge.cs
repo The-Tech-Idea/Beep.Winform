@@ -12,8 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
         {
             _svgPath = svgPath;
             Shape = BadgeShape.Circle;
-            BadgeBackColor = Color.White;
-            BadgeForeColor = Color.Black;
+            Role = BadgeRole.Surface;   // an icon badge is a surface carrying a glyph, not a colour
             Anchor = BadgeAnchor.TopRight;
         }
 
@@ -55,13 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             int offsetY = contentBounds.Y + (contentBounds.Height - iconSize) / 2;
             var iconRect = new Rectangle(offsetX, offsetY, iconSize, iconSize);
 
-            try
-            {
-                StyledImagePainter.Paint(g, iconRect, _svgPath);
-            }
-            catch
-            {
-            }
+            DrawIconOrFallback(g, iconRect, _svgPath);
         }
     }
 }

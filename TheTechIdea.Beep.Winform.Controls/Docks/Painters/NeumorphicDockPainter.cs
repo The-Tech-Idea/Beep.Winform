@@ -26,11 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Neumorphic base color (typically light gray)
-            var baseColor = GetColor(
-                config.BackgroundColor,
-                theme?.BackgroundColor ?? Color.FromArgb(230, 230, 235),
-                1f
-            );
+            var baseColor = ResolveBackground(config, theme, Color.FromArgb(230, 230, 235));
 
             // Paint neumorphic container with dual shadows
             using (var path = CreateRoundedPath(bounds, config.CornerRadius))
@@ -102,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var bounds = itemState.Bounds;

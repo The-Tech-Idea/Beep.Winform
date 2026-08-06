@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             if (_items.Count == 0)
                 return;
 
-            var bounds = Helpers.DockLayoutHelper.CalculateItemBounds(
+            var bounds = _painter.CalculateItemBounds(
                 ClientRectangle,
                 _items,
                 _config,

@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // iOS-style frosted glass background with rounded corners
-            var bgColor = GetColor(config.BackgroundColor, theme?.BackColor ?? Color.FromArgb(240, 245, 250), config.BackgroundOpacity);
+            var bgColor = ResolveBackground(config, theme, Color.FromArgb(240, 245, 250));
             
             // Increase corner radius for iOS pill shape
             int radius = Math.Min(bounds.Height / 2, 28);
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             if (itemState?.Item == null) return;
 
@@ -118,10 +118,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             {
                 using (var iconPath = CreateRoundedPath(bounds, iconRadius))
                 {
-                    // Clip to rounded rectangle
-                    g.SetClip(iconPath);
+                    // Clip to rounded rectangle, intersecting with whatever the caller already set
+                    // and putting it back afterwards. ResetClip drops the caller's clip entirely,
+                    // which silently widens every subsequent draw beyond its damage region.
+                    var saved = g.Save();
+                    g.SetClip(iconPath, System.Drawing.Drawing2D.CombineMode.Intersect);
                     StyledImagePainter.Paint(g, iconPath, itemState.Item.ImagePath);
-                    g.ResetClip();
+                    g.Restore(saved);
 
                     // iOS icon border
                     using (var borderPen = new Pen(Color.FromArgb(40, 0, 0, 0), 1f))

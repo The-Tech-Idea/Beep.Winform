@@ -30,26 +30,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         /// <summary>Places the controls into the shell's header / body / footer regions.</summary>
         private void ComposeLayout()
         {
-            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
-            _headerPanel.Controls.Add(_titleLabel, 1, 0);
 
-            _bodyPanel.Controls.Add(_messageLabel, 0, 0);
-            _bodyPanel.Controls.Add(_listPanel, 0, 1);
-
-            _shell.SetHeader(_headerPanel);
-            _shell.SetBody(_bodyPanel);
-            _shell.AddAction(_cancelButton);
-            _shell.AddAction(_okButton);
-            _shell.AddAction(_selectAllButton);
 
             _okButton.DialogResult = DialogResult.OK;
             _cancelButton.DialogResult = DialogResult.Cancel;
             AcceptButton = _okButton;
             CancelButton = _cancelButton;
+
         }
 
         public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
-        public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
+        public string Message { get => _messageLabel.Text; set => Helpers.DialogHelpers.SetMessage(this, _messageLabel, value); }
 
         public void SetItems(string title, string message, List<SimpleItem> items,
                              IEnumerable<string>? preSelected = null)
@@ -69,23 +60,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             _listPanel.SuspendLayout();
             foreach (var old in _checkBoxes) old.Dispose();
             _listPanel.Controls.Clear();
+            _listPanel.RowStyles.Clear();
+            _listPanel.RowCount = 0;
             _checkBoxes.Clear();
 
             foreach (var item in _items)
             {
                 var cb = new BeepCheckBoxBool
                 {
-                    AutoSize = true,
+                    // AutoSize off, so Dock governs the width. With both set, AutoSize wins and the
+                    // checkbox grows to its caption - which pushed the list into horizontal scrolling
+                    // the moment one option was longer than the rest, instead of the caption fitting
+                    // the column.
+                    AutoSize = false,
                     UseThemeColors = true,
                     Theme = Theme,
                     Text = item.Text,
                     CurrentValue = selectedSet?.Contains(item.Text) ?? false,
                     Tag = item,
-                    Margin = new Padding(0, 0, 0, 4)
+                    Margin = new Padding(0, 0, 0, 4),
+
+                    // Fills its cell, so every row shares one left edge and one width. Under the
+                    // FlowLayoutPanel each checkbox sized to its own caption, so the column of
+                    // controls was ragged and a long caption could not wrap - it just clipped.
+                    Dock = DockStyle.Fill
                 };
 
+                int row = _listPanel.RowCount;
+                _listPanel.RowCount = row + 1;
+                _listPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 _checkBoxes.Add(cb);
-                _listPanel.Controls.Add(cb);
+                _listPanel.Controls.Add(cb, 0, row);
             }
 
             _listPanel.ResumeLayout(true);
@@ -124,17 +129,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
+            Helpers.DialogHelpers.DescribeActions(this);
             if (_checkBoxes.Count > 0) _checkBoxes[0].Focus();
         }
 
         public override void ApplyTheme()
         {
             if (_titleLabel == null) return;
-            // The header/body/footer panels are layout, not themed surfaces — the shell's rows carry
-            // no chrome of their own, so only the Beep controls inside them take the theme.
             _dialogIcon.Theme = Theme; _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
             _selectAllButton.Theme = Theme; _okButton.Theme = Theme; _cancelButton.Theme = Theme;
             foreach (var cb in _checkBoxes) cb.Theme = Theme;
+
         }
 
         protected override void Dispose(bool disposing)

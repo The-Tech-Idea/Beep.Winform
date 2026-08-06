@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             // Hit test to find hovered item
-            int newHoveredIndex = DockHitTestHelper.HitTest(e.Location, _itemStates);
+            int newHoveredIndex = _dockPainter.HitTest(e.Location, _itemStates);
 
             if (newHoveredIndex != _hoveredIndex)
             {

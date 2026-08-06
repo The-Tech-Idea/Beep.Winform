@@ -29,11 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             using (var path = CreateRoundedPath(bounds, config.CornerRadius))
             {
                 // Base acrylic layer
-                var acrylicColor = GetColor(
-                    config.BackgroundColor,
-                    theme?.SurfaceColor ?? Color.FromArgb(245, 245, 245),
-                    config.BackgroundOpacity
-                );
+                var acrylicColor = ResolveBackground(config, theme, Color.FromArgb(245, 245, 245));
 
                 using (var brush = new SolidBrush(acrylicColor))
                 {
@@ -49,11 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 // Border
                 if (config.ShowBorder)
                 {
-                    var borderColor = GetColor(
-                        config.BorderColor,
-                        theme?.BorderColor ?? Color.FromArgb(220, 220, 220),
-                        0.5f
-                    );
+                    var borderColor = ResolveBorder(config, theme, Color.FromArgb(220, 220, 220), 0.5f);
 
                     using (var pen = new Pen(borderColor, 1))
                     {
@@ -71,8 +63,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
 
         private void PaintNoiseTexture(Graphics g, Rectangle bounds, GraphicsPath clipPath)
         {
-            // Simulate subtle noise/grain for acrylic effect
-            g.SetClip(clipPath);
+            // Simulate subtle noise/grain for acrylic effect.
+            // Saved and restored rather than reset, so the caller's clip survives - see the note in
+            // AppleDockPainter.PaintReflection for what resetting it costs.
+            var saved = g.Save();
+            g.SetClip(clipPath, System.Drawing.Drawing2D.CombineMode.Intersect);
 
             var random = new Random(42); // Fixed seed for consistency
             using (var noiseBrush = new SolidBrush(Color.FromArgb(5, Color.White)))
@@ -85,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 }
             }
 
-            g.ResetClip();
+            g.Restore(saved);
         }
 
         private void PaintTopHighlight(Graphics g, Rectangle bounds, DockConfig config)
@@ -121,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
 

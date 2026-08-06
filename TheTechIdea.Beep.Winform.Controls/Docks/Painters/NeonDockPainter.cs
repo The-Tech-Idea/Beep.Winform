@@ -31,11 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             using (var path = CreateRoundedPath(bounds, config.CornerRadius))
             {
                 // Very dark background
-                var bgColor = GetColor(
-                    config.BackgroundColor,
-                    Color.FromArgb(15, 15, 25),
-                    0.95f
-                );
+                var bgColor = ResolveBackground(config, theme, Color.FromArgb(15, 15, 25));
 
                 using (var brush = new SolidBrush(bgColor))
                 {
@@ -85,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var bounds = itemState.Bounds;

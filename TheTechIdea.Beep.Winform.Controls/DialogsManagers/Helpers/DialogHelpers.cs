@@ -34,6 +34,67 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             string text = value ?? string.Empty;
             titleLabel.Text = text;
             form.Text = text;
+
+            // The title is also the dialog's accessible name, and this is the one place every dialog
+            // sets a title — each form's Title setter calls it, whichever of the four construction
+            // paths built the form. Putting it in BeepDialogManager.CreateDialog instead would reach
+            // only three of the six: the input, list and multi-select dialogs are constructed in
+            // BeepDialogManager.Input.cs and never pass through it.
+            form.AccessibleRole = AccessibleRole.Dialog;
+
+            // An empty string reads as a named-but-blank window, which is worse than an unnamed one.
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                form.AccessibleName = text;
+            }
+        }
+
+        /// <summary>
+        /// Sets a dialog's message and the window's accessible description together.
+        /// </summary>
+        /// <remarks>
+        /// The WAI-ARIA APG dialog pattern is the reference: a dialog is labelled by its title and
+        /// described by its body. <c>AccessibleName</c> and <c>AccessibleDescription</c> are the
+        /// WinForms equivalents of <c>aria-labelledby</c> and <c>aria-describedby</c>. Before this,
+        /// the folder had zero occurrences of either across 7,797 lines, so a screen reader announced
+        /// that a window had appeared and nothing about what it was asking.
+        /// </remarks>
+        public static void SetMessage(Form form, BeepLabel messageLabel, string? value)
+        {
+            if (form == null) throw new ArgumentNullException(nameof(form));
+            if (messageLabel == null) throw new ArgumentNullException(nameof(messageLabel));
+
+            string text = value ?? string.Empty;
+            messageLabel.Text = text;
+
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                form.AccessibleDescription = text;
+            }
+        }
+
+        /// <summary>
+        /// Gives every action button an accessible name, falling back to its caption.
+        /// </summary>
+        /// <remarks>
+        /// A button captioned only by an icon — the trash glyph in `Example_images/dialog3.png` —
+        /// announces nothing at all without this, and those are precisely the destructive ones.
+        /// Called from each dialog's constructor once composition has put the buttons in place.
+        /// </remarks>
+        public static void DescribeActions(Control root)
+        {
+            if (root == null) throw new ArgumentNullException(nameof(root));
+
+            foreach (Control child in root.Controls)
+            {
+                if (child is IButtonControl && string.IsNullOrWhiteSpace(child.AccessibleName)
+                    && !string.IsNullOrWhiteSpace(child.Text))
+                {
+                    child.AccessibleName = child.Text;
+                }
+
+                DescribeActions(child);
+            }
         }
 
         #endregion

@@ -42,6 +42,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             _painters[DockStyle.BubbleDock] = new BubbleDockPainter();
             _painters[DockStyle.ArcDock] = new ArcDockPainter();
             _painters[DockStyle.DraculaDock] = new DraculaDockPainter();
+
+            // Custom is a real style now, not a name with nothing behind it.
+            _painters[DockStyle.Custom] = new CustomDockPainter();
         }
 
         /// <summary>
@@ -49,6 +52,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         /// </summary>
         /// <param name="style">The DockStyle to get a painter for</param>
         /// <returns>The appropriate IDockPainter implementation</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// The style has no registered painter.
+        /// </exception>
+        /// <remarks>
+        /// This used to fall back to <c>AppleDockPainter</c>. That fallback made a missing
+        /// registration indistinguishable from a deliberate choice: any style added to the enum and
+        /// forgotten here rendered as Apple, silently and forever. Every value of
+        /// <see cref="DockStyle"/> is registered above, so a miss is a bug and now presents as one.
+        /// </remarks>
         public static IDockPainter GetPainter(DockStyle style)
         {
             if (_painters.TryGetValue(style, out var painter))
@@ -56,8 +68,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 return painter;
             }
 
-            // Default to Apple Dock if style not found
-            return _painters[DockStyle.AppleDock];
+            throw new System.ArgumentOutOfRangeException(
+                nameof(style),
+                style,
+                $"No dock painter is registered for DockStyle.{style}. Register one in DockPainterFactory.");
         }
     }
 }

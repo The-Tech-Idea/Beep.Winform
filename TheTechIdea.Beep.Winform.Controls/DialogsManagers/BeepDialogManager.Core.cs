@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
@@ -271,12 +272,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             System.Diagnostics.Debug.Assert(
                 Thread.CurrentThread.GetApartmentState() == ApartmentState.STA,
                 "BeepDialogManager: ShowDialogInternal must run on an STA thread.");
-            // Backward-compatible behavior: if callers set CloseOnClickOutside,
-            // ensure backdrop clicks actually dismiss unless a stricter policy is explicit.
-            if (config.CloseOnClickOutside && config.BackdropClickPolicy == DialogBackdropClickPolicy.Ignore)
-            {
-                config.BackdropClickPolicy = DialogBackdropClickPolicy.CancelDialog;
-            }
+            // The reconciliation that stood here - "if CloseOnClickOutside is set, upgrade an Ignore
+            // policy to CancelDialog" - is gone. It existed because the two properties could
+            // disagree; CloseOnClickOutside is now a projection onto BackdropClickPolicy, so they
+            // cannot, and there is nothing left to reconcile.
 
             DialogOpened?.Invoke(this, config);
 
@@ -400,7 +399,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 dlg.DetailsText = config.Details;
                 dlg.PresetIntent = preset;
                 dlg.TypedButtons = ResolveTypedButtons(config);
-                if (config.CustomButtonLabels != null) dlg.CustomButtonLabels = config.CustomButtonLabels;
                 dialog = dlg;
             }
             else
@@ -409,6 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 dlg.Title = config.Title;
                 dlg.Message = config.Message;
                 dlg.DetailsText = config.Details;
+                dlg.TypedButtons = ResolveTypedButtons(config);
                 if (config.AutoCloseTimeout > 0) dlg.StartAutoClose(config.AutoCloseTimeout);
                 dialog = dlg;
             }
@@ -457,9 +456,372 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 dialog.Load += PlaceOnLoad;
             }
 
+            FitToContent(dialog, config);
+            ApplyEscapePolicy(dialog, config);
+            ApplySeverity(dialog, config);
+            TypedConfirmation.Apply(dialog, config);
+            DialogCallouts.Apply(dialog, config, _defaultTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme);
+            DialogAcknowledgement.Apply(dialog, config);
+            ApplyButtonLayout(dialog, config);
+            DialogPresentations.Apply(dialog, config);
+
             return dialog;
         }
 
+        /// <summary>
+        /// Resolves the dialog's severity once and hands it to the shell.
+        /// </summary>
+        /// <remarks>
+        /// One resolution, one consumer. Severity used to be implied by <c>Preset</c> for colours and
+        /// by <c>IconType</c> for the glyph, with nothing reconciling them — so a caller who set
+        /// <c>IconType = Error</c> and left the preset alone got an error icon on a neutral dialog.
+        /// <see cref="DialogStyleAdapter.ResolveSeverity"/> is now the only place that decides, and
+        /// stages 07 and 08 read the same value for button colour and callout accent.
+        /// </remarks>
+        private void ApplySeverity(Form dialog, DialogConfig config)
+        {
+            if (dialog == null || config == null) return;
+            if (dialog.Controls.Count == 0 || dialog.Controls[0] is not TableLayoutPanel shell) return;
+
+            var theme = _defaultTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
+            var severity = DialogStyleAdapter.ResolveSeverity(config);
+
+            // The dialog is a plain TableLayoutPanel, so severity is applied by colouring it. A
+            // custom shell subclass existed only to paint a partial band behind the title row; the
+            // grid is declared in each designer file now, so the subclass earned nothing else and is
+            // gone. Tinting the surface is the treatment dialog1.png's right-hand column shows, and
+            // the title and icon inherit it because they are IsChild.
+            Color surface = theme?.BackColor is { IsEmpty: false } b
+                ? b
+                : ColorUtils.MapSystemColor(SystemColors.Window);
+
+            // The header band is the title row's own colour, not something painted behind it.
+            //
+            // Painting a band behind the row was tried twice - from a TableLayoutPanel subclass, then
+            // through TableLayoutPanel.CellPaint - and neither reaches the screen. The title is a
+            // docked, opaque BeepLabel sitting in that cell, and IsChild gives a control its parent's
+            // *colour*, not transparency over whatever the parent painted: the band was drawn and
+            // immediately covered, with row 0 sampling pure white at every severity while the paint
+            // call itself ran correctly.
+            //
+            // A control's own BackColor does render - that is the one thing that has been consistent
+            // all along - so the title and the icon carry the band between them. Together they span
+            // both columns, which is what makes the row read as a full-width strip.
+            // Nothing here colours or paints anything.
+            //
+            // The controls do it themselves: every one derives from BaseControl, which subscribes to
+            // BeepThemesManager.ThemeChanged and re-applies the theme unasked. A manager that also
+            // assigns colours is competing with that, and it loses - every attempt in this folder was
+            // overwritten by the control's own ApplyTheme, or covered by a control painted on top.
+            // Severity is resolved and carried; how it looks is the theme's business.
+            ApplyButtonHierarchy(shell, config, severity, theme);
+        }
+
+        /// <summary>
+        /// Styles each action by its role, and puts the footer in platform order.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Specs are matched to controls by <see cref="DialogButton.Id"/> against the button's
+        /// <c>AccessibleName</c> or caption, not by position. The forms add their actions in their own
+        /// orders — the question dialog adds No before Yes, while <c>ResolveTypedButtons</c> returns
+        /// Yes first — so pairing by index would have styled the wrong control, and done it silently.
+        /// </para>
+        /// <para>
+        /// Anything the specs do not name is left alone rather than guessed at. A form-specific
+        /// utility like the multi-select dialog's "Select All" is not an answer to the dialog and has
+        /// no spec; giving it a default role would style it as an action of the dialog, which is
+        /// exactly the mistake that once put it in the primary position.
+        /// </para>
+        /// </remarks>
+        private void ApplyButtonHierarchy(TableLayoutPanel shell, DialogConfig config,
+                                          DialogSeverity severity, IBeepTheme? theme)
+        {
+            DialogButton[] specs = ResolveTypedButtons(config);
+            if (specs.Length == 0) return;
+
+            var byControl = new Dictionary<Control, DialogButton>();
+
+            TableLayoutPanel? footer = FindFooter(shell);
+            if (footer == null) return;
+
+            foreach (Control action in footer.Controls)
+            {
+                var spec = MatchSpec(specs, action);
+                if (spec == null) continue;
+
+                byControl[action] = spec;
+                if (action is BeepButton beep)
+                {
+                    DialogButtonStyler.Apply(beep, spec, severity, theme, config.ButtonShape);
+                }
+            }
+
+            // Cancel and secondary to the left, the action being asked for on the right. Unmatched
+            // controls keep their relative position at the far left, ahead of the dialog's answers.
+            OrderActions(footer, (a, b) => Weight(a).CompareTo(Weight(b)));
+
+            int Weight(Control c)
+            {
+                if (!byControl.TryGetValue(c, out var spec)) return -1;
+
+                return spec.ResolvedRole switch
+                {
+                    DialogButtonRole.Cancel      => 0,
+                    DialogButtonRole.Secondary   => 1,
+                    DialogButtonRole.Primary     => 2,
+                    DialogButtonRole.Destructive => 3,
+                    _                            => 2,
+                };
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// Arranges the action buttons horizontally, vertically or in a grid.
+        /// </summary>
+        /// <remarks>
+        /// <c>DialogButtonLayout</c> is the instructive member of the dead-property group: the layout
+        /// code was written and complete — <c>DialogHelpers.ArrangeButtons</c> handles all three cases
+        /// — and nothing ever passed <c>config.ButtonLayout</c> to it. Not a missing feature, a wire
+        /// that was never connected.
+        /// <para>
+        /// Now that the footer is a <see cref="TableLayoutPanel"/> declared in the designer file, the
+        /// arrangement is its column and row counts rather than a rectangle calculation, so this
+        /// reshapes the panel instead of calling the older helper. A vertical stack is not decoration:
+        /// it is what a narrow dialog needs, and stage 10 depends on it.
+        /// </para>
+        /// </remarks>
+        private static void ApplyButtonLayout(Form dialog, DialogConfig config)
+        {
+            if (dialog.Controls.Count == 0 || dialog.Controls[0] is not TableLayoutPanel shell) return;
+
+            TableLayoutPanel? footer = FindFooter(shell);
+            if (footer == null) return;
+
+            var actions = footer.Controls.Cast<Control>().ToList();
+            if (actions.Count == 0) return;
+
+            int columns = config.ButtonLayout switch
+            {
+                DialogButtonLayout.Vertical => 1,
+                DialogButtonLayout.Grid     => Math.Max(1, (int)Math.Ceiling(Math.Sqrt(actions.Count))),
+                _                           => actions.Count,      // Horizontal: one row
+            };
+
+            int rows = (int)Math.Ceiling(actions.Count / (double)columns);
+
+            footer.SuspendLayout();
+
+            footer.ColumnStyles.Clear();
+            footer.RowStyles.Clear();
+            footer.ColumnCount = columns;
+            footer.RowCount = rows;
+
+            for (int c = 0; c < columns; c++) footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            for (int r = 0; r < rows; r++) footer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            for (int i = 0; i < actions.Count; i++)
+            {
+                footer.SetCellPosition(actions[i], new TableLayoutPanelCellPosition(i % columns, i / columns));
+
+                // A stacked button fills its column, so the stack reads as one block rather than a
+                // ragged column of differently-sized buttons.
+                actions[i].Dock = config.ButtonLayout == DialogButtonLayout.Vertical
+                    ? DockStyle.Fill
+                    : DockStyle.None;
+            }
+
+            footer.ResumeLayout(true);
+        }
+
+        /// <summary>The action row: the panel of buttons in the grid's last row.</summary>
+        private static TableLayoutPanel? FindFooter(TableLayoutPanel shell)
+        {
+            foreach (Control c in shell.Controls)
+            {
+                if (c is TableLayoutPanel panel && panel.Controls.Cast<Control>().Any(x => x is IButtonControl))
+                {
+                    return panel;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Rewrites the footer's left-to-right order.
+        /// </summary>
+        /// <remarks>
+        /// Ordering is a platform convention rather than a per-form decision — cancel and secondary
+        /// sit left of the primary action on Windows — so it is decided once, here, instead of by
+        /// whichever order each designer file happens to add its buttons in.
+        /// </remarks>
+        private static void OrderActions(TableLayoutPanel footer, Comparison<Control> order)
+        {
+            var actions = footer.Controls.Cast<Control>().ToList();
+            if (actions.Count < 2) return;
+
+            actions.Sort(order);
+
+            footer.SuspendLayout();
+            for (int i = 0; i < actions.Count; i++)
+            {
+                footer.SetCellPosition(actions[i], new TableLayoutPanelCellPosition(i, 0));
+            }
+            footer.ResumeLayout(true);
+        }
+
+        /// <summary>Finds the spec that names this control, by id then by caption.</summary>
+        private static DialogButton? MatchSpec(DialogButton[] specs, Control action)
+        {
+            string caption = action.Text ?? string.Empty;
+
+            foreach (var spec in specs)
+            {
+                if (!string.IsNullOrWhiteSpace(spec.Id)
+                    && string.Equals(spec.Id, action.AccessibleName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return spec;
+                }
+            }
+
+            foreach (var spec in specs)
+            {
+                if (!string.IsNullOrWhiteSpace(spec.Text)
+                    && string.Equals(spec.Text, caption, StringComparison.OrdinalIgnoreCase))
+                {
+                    return spec;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Honours <see cref="DialogConfig.CloseOnEscape"/>, which nothing read before.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The property had three references in the folder and not one of them was a read: it is
+        /// declared at <c>DialogConfig.cs:296</c>, set <c>true</c> at
+        /// <c>BeepDialogManager.File.cs:262</c>, and set <b>false</b> by a preset at
+        /// <c>DialogConfig.cs:774</c> — a dialog whose author decided dismissal must be deliberate.
+        /// That decision was silently overruled on every show.
+        /// </para>
+        /// <para>
+        /// Escape already worked, through <c>CancelButton</c>, and that mechanism is kept: it gains
+        /// the one condition it was missing. Clearing <c>CancelButton</c> is the whole fix, because
+        /// the two forms that intercept Escape themselves now route through the property rather than
+        /// their own cancel field.
+        /// </para>
+        /// <para>
+        /// Refusing <i>Escape</i> is not refusing <i>cancellation</i>. The cancel button and the close
+        /// glyph are untouched — a dialog with no way out would be a worse defect than the one being
+        /// fixed, and <c>ShowCloseButton</c> governs that separately.
+        /// </para>
+        /// </remarks>
+        private static void ApplyEscapePolicy(Form dialog, DialogConfig config)
+        {
+            if (dialog == null || config == null) return;
+            if (config.CloseOnEscape) return;   // the default; existing callers are unaffected
+
+            dialog.CancelButton = null;
+        }
+
+        /// <summary>
+        /// Grows the dialog so its content fits, within the configured and screen bounds.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Every dialog form sets a fixed <c>ClientSize</c> in its designer - 420x206 for
+        /// <c>BeepMessageDialog</c>, for instance - and nothing reconciled that with the text it was
+        /// given. A message long enough to wrap needed 112px in a row that had been allocated 61px,
+        /// so it overflowed its cell and overlapped the control beneath it. The TableLayoutPanel was
+        /// laying out correctly; it was being asked to fit content into a form that had already
+        /// decided how big it was.
+        /// </para>
+        /// <para>
+        /// Applied here rather than in each designer because every dialog passes through this method,
+        /// and six copies of a sizing rule is how they drift apart.
+        /// </para>
+        /// </remarks>
+        private static void FitToContent(Form dialog, DialogConfig config)
+        {
+            if (dialog == null) return;
+
+            int minWidth = Math.Max(config.MinWidth, dialog.MinimumSize.Width);
+            int maxWidth = Math.Max(minWidth, config.MaxWidth);
+
+            int width = Math.Clamp(dialog.ClientSize.Width, minWidth, maxWidth);
+
+            // Ask the shell, now that it is a single grid whose rows are AutoSize.
+            //
+            // An earlier version of this measured header, body and footer separately, because the
+            // shell then wrapped its content in a Percent(100) body row - and a percent row reports
+            // the height it was *given*, not the height its content needs, so asking the shell
+            // returned header + footer + padding and said nothing about the message. With one grid
+            // and AutoSize rows, the table measures its own content correctly and the hand-rolled
+            // sum is both unnecessary and a second place for the row structure to be encoded.
+            //
+            // A dialog carrying a fill row - a list, a hosted control - still reports that row at its
+            // current height, which is the intended behaviour: those rows are meant to take the space
+            // the dialog has rather than dictate it.
+            int preferred = dialog.ClientSize.Height;
+
+            if (dialog.Controls.Count > 0 && dialog.Controls[0] is TableLayoutPanel shell)
+            {
+                // Measured with layout suspended, and that is load-bearing rather than an
+                // optimisation. Measuring a BeepLabel runs its UpdateMinimumSize, which writes
+                // MinimumSize - and writing MinimumSize mid-measure invalidates the preferred size
+                // that is being computed, so the table measures again, and again. It does not
+                // converge: the dialogs hung on construction, inside this call. Suspending layout
+                // defers the re-measure until the value has been read.
+                shell.SuspendLayout();
+                try
+                {
+                    preferred = shell.GetPreferredSize(new Size(width, 0)).Height;
+                }
+                finally
+                {
+                    shell.ResumeLayout(false);
+                }
+            }
+
+            var workingArea = Screen.FromPoint(Cursor.Position).WorkingArea;
+            int maxHeight = Math.Min(
+                config.MaxContentHeight > 0 ? config.MaxContentHeight + ContentChromeAllowance : int.MaxValue,
+                workingArea.Height - 80);
+
+            int height = Math.Clamp(
+                Math.Max(preferred, dialog.ClientSize.Height),
+                dialog.MinimumSize.Height > 0 ? dialog.MinimumSize.Height : 0,
+                Math.Max(1, maxHeight));
+
+            if (width != dialog.ClientSize.Width || height != dialog.ClientSize.Height)
+            {
+                dialog.ClientSize = new Size(width, height);
+            }
+        }
+
+        /// <summary>Header, footer and padding the body does not account for.</summary>
+        private const int ContentChromeAllowance = 140;
+
+        /// <summary>
+        /// Projects every button input into one typed list. The only place that decides.
+        /// </summary>
+        /// <remarks>
+        /// A caption could previously arrive from <c>TypedButtons</c> or from <c>CustomButtonLabels</c>,
+        /// and which won was whichever the reading code happened to consult. The precedence is now
+        /// stated and singular: <b>TypedButtons wins outright</b>; the legacy <c>Buttons</c> array is
+        /// used only when it is empty, and <c>CustomButtonLabels</c> only applies to that legacy path.
+        /// <para>
+        /// The question dialog also carried a <c>CustomButtonLabels</c> property that was assigned here
+        /// and never read — a second source that looked authoritative and governed nothing. It is gone.
+        /// </para>
+        /// </remarks>
         private DialogButton[] ResolveTypedButtons(DialogConfig config)
         {
             if (config.TypedButtons is { Length: > 0 })
@@ -538,6 +900,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 Result = ConvertDialogResult(result),
                 Cancel = result == DialogResult.Cancel || result == DialogResult.No,
                 Submit = result == DialogResult.OK || result == DialogResult.Yes,
+
+                // The value DialogReturn has always declared and nothing produced, because the
+                // checkbox it reports on was never built. It is built now; this reads it.
+                WasVerificationChecked = DialogAcknowledgement.WasChecked(dialog),
             };
 
             if (dialog is BeepMessageDialog msgDialog)

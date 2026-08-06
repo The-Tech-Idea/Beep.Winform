@@ -19,11 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Plasma uses a semi-transparent panel with subtle gradient
-            var baseColor = GetColor(
-                config.BackgroundColor,
-                theme?.BackColor ?? Color.FromArgb(42, 46, 50),
-                1.0f
-            );
+            var baseColor = ResolveBackground(config, theme, Color.FromArgb(42, 46, 50));
 
             // Plasma panels are typically opaque or highly opaque
             int alpha = (int)(config.BackgroundOpacity * 255);
@@ -133,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             if (itemState?.Item == null) return;
 

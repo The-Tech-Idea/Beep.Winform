@@ -434,6 +434,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <item>plain single-line — unchanged: the label must be wide enough for its text.</item>
         /// </list>
         /// </remarks>
+        /// <summary>
+        /// The height of a single line of header text, plus a line of subheader when there is one.
+        /// </summary>
+        /// <remarks>
+        /// This is the honest minimum for a label that wraps: it must be tall enough for one line, and
+        /// how many lines it actually needs depends on a width only the container knows.
+        /// </remarks>
+        private int SingleLineHeight(Font headerFont, Font subFont, bool hasSub)
+        {
+            Size unconstrained = new Size(int.MaxValue, int.MaxValue);
+
+            int height = TextRenderer.MeasureText("A", headerFont, unconstrained, TextFormatFlags.SingleLine).Height;
+
+            if (hasSub)
+            {
+                height += DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this)
+                        + TextRenderer.MeasureText("A", subFont, unconstrained, TextFormatFlags.SingleLine).Height;
+            }
+
+            return height;
+        }
+
         private void UpdateMinimumSize()
         {
             {
@@ -469,11 +491,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                         measureFlags);
                 }
 
-                // Height still comes from the measurement — a wrapped label needs every line it takes.
                 int textWidth = widthComesFromContainer
                     ? 0
                     : Math.Max(headerSize.Width, hasSub ? subSize.Width : 0);
-                int textHeight = headerSize.Height + (hasSub ? DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subSize.Height : 0);
+
+                // A label whose width the container picks cannot carry a fixed minimum height either.
+                // How many lines the text takes is a function of that width, and this method runs on
+                // Text assignment — long before the container has handed out a final one. Freezing a
+                // measurement taken at the wrong width is what pinned a long message at 112px inside a
+                // 61px cell, where it could not shrink and overflowed onto the control beneath it.
+                //
+                // Once a width has been assigned, though, the measurement above is taken at that width
+                // and is the right answer — headerSize already wrapped against it. Only before then,
+                // when there is no width to wrap at, does the floor fall back to a single line.
+                //
+                // Distinguishing the two matters: returning the single-line floor unconditionally
+                // overwrote the height a container had just measured, on the label's own OnResize, and
+                // a two-line message rendered clipped to one line with the remainder simply missing.
+                bool haveWidth = Width > chrome;
+
+                int textHeight = widthComesFromContainer && !haveWidth
+                    ? SingleLineHeight(headerFont, subFont, hasSub)
+                    : headerSize.Height + (hasSub ? DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subSize.Height : 0);
 
                 Size imgSize = Size.Empty;
                 if (HasImage)
@@ -497,21 +536,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 contentW += Padding.Left + Padding.Right;
                 contentH += Padding.Top + Padding.Bottom;
 
-                Size baseContentMin = new Size(Math.Max(80, contentW), Math.Max(20, contentH));
+                // No width floor when the container owns the width: an 80px content floor plus chrome
+                // is still a number the container has to honour, since MinimumSize outranks it. Zero
+                // is what actually lets a cell govern.
+                Size baseContentMin = new Size(
+                    widthComesFromContainer ? 0 : Math.Max(80, contentW),
+                    Math.Max(20, contentH));
 
                 Size effectiveMin = new Size(
                         baseContentMin.Width + (BorderThickness + 2) * 2,
                         baseContentMin.Height + (BorderThickness + 2) * 2);
 
-                effectiveMin.Width = Math.Max(effectiveMin.Width, 60);
+                effectiveMin.Width = widthComesFromContainer ? 0 : Math.Max(effectiveMin.Width, 60);
                 effectiveMin.Height = Math.Max(effectiveMin.Height, 24);
 
                 MinimumSize = effectiveMin;
 
-                if (Height < effectiveMin.Height)
-                {
-                    Height = effectiveMin.Height;
-                }
+                // The explicit Height assignment that stood here is gone. WinForms already clamps to
+                // MinimumSize in SetBoundsCore, so it bought nothing — but it ran during layout, which
+                // meant the label resized itself while its container was deciding what size to give
+                // it. A control that overrides its own container cannot be laid out by one.
             }
             // The catch that stood here replaced any failure with a fixed 120x28 minimum, so a
             // disposed font or a bad image size produced a silently wrong layout on every consumer
@@ -1061,9 +1105,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isResizing = true;
             try
             {
+                // Re-measure only. Assigning Height here resized the control from inside its own
+                // resize notification, one layout pass behind whatever the container had just
+                // decided; MinimumSize is enforced by SetBoundsCore regardless.
                 UpdateMinimumSize();
-                if (Height < MinimumSize.Height)
-                    Height = MinimumSize.Height;
             }
             finally
             {

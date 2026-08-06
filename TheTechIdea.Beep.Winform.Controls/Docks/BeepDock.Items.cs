@@ -65,8 +65,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            // Calculate item bounds using layout helper
-            var bounds = DockLayoutHelper.CalculateItemBounds(
+            // Through the painter, so a style can own its geometry. The base delegates to
+            // DockLayoutHelper, so this is identical for every style that does not override.
+            var bounds = _dockPainter.CalculateItemBounds(
                 ClientRectangle,
                 _items.ToList(),
                 _config,
@@ -121,8 +122,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateDockSize()
         {
-            var size = DockLayoutHelper.CalculateDockSize(_items.Count, _config);
-            
+            // A retracted dock owns its own extent. Without this the auto-hide retraction was undone
+            // immediately - Retract set the height, the resize it caused ran UpdateDockSize, and the
+            // dock sprang straight back to full size. It also sets MinimumSize, which would have
+            // pinned the dock open regardless.
+            if (_isRetracted)
+                return;
+
+            var size = _dockPainter.CalculateDockSize(_items.Count, _config);
+
             if (_config.Orientation == Docks.DockOrientation.Horizontal)
             {
                 MinimumSize = new Size(100, size.Height);

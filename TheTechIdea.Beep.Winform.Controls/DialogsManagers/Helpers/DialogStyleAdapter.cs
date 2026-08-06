@@ -116,47 +116,105 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             return colors;
         }
 
-        public static Color GetPresetPrimaryColor(DialogPreset preset, IBeepTheme? theme)
+        /// <summary>
+        /// Resolves a dialog's severity once: explicit override, then preset, then icon, then neutral.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is the single source stage 06 exists to create. Before it, the colour resolvers keyed
+        /// off <see cref="DialogPreset"/> alone while the icon came from
+        /// <see cref="DialogConfig.IconType"/> — so <c>IconType = Error</c> with no matching preset
+        /// produced an error icon sitting on a neutral dialog, and nothing reconciled the two.
+        /// </para>
+        /// <para>
+        /// The precedence is deliberate. A preset is a statement about what the dialog <i>is</i>
+        /// ("this is a destructive confirmation"); an icon is a statement about how it <i>looks</i>.
+        /// When they disagree the stronger claim wins, so the whole dialog is coloured by its meaning
+        /// and the icon follows — rather than the header saying one thing and the glyph another.
+        /// </para>
+        /// </remarks>
+        public static DialogSeverity ResolveSeverity(DialogConfig config)
+        {
+            if (config == null) return DialogSeverity.Neutral;
+            if (config.Severity.HasValue) return config.Severity.Value;
+
+            var fromPreset = SeverityOf(config.Preset);
+            if (fromPreset != DialogSeverity.Neutral) return fromPreset;
+
+            return SeverityOf(config.IconType);
+        }
+
+        private static DialogSeverity SeverityOf(DialogPreset preset) => preset switch
+        {
+            DialogPreset.DestructiveConfirm => DialogSeverity.Error,
+            DialogPreset.BlockingError      => DialogSeverity.Error,
+            DialogPreset.Danger             => DialogSeverity.Error,
+            DialogPreset.Warning            => DialogSeverity.Warning,
+            DialogPreset.UnsavedChanges     => DialogSeverity.Warning,
+            DialogPreset.InlineValidation   => DialogSeverity.Warning,
+            DialogPreset.SessionTimeout     => DialogSeverity.Warning,
+            DialogPreset.Success            => DialogSeverity.Success,
+            DialogPreset.SuccessWithUndo    => DialogSeverity.Success,
+            DialogPreset.Information        => DialogSeverity.Info,
+            DialogPreset.Question           => DialogSeverity.Info,
+            _                               => DialogSeverity.Neutral
+        };
+
+        private static DialogSeverity SeverityOf(BeepDialogIcon icon) => icon switch
+        {
+            BeepDialogIcon.Error       => DialogSeverity.Error,
+            BeepDialogIcon.Warning     => DialogSeverity.Warning,
+            BeepDialogIcon.Success     => DialogSeverity.Success,
+            BeepDialogIcon.Information => DialogSeverity.Info,
+            BeepDialogIcon.Question    => DialogSeverity.Info,
+            _                          => DialogSeverity.Neutral
+        };
+
+        /// <summary>
+        /// The saturated colour for a severity — buttons, icons, the <c>ColorBlock</c> header fill.
+        /// </summary>
+        /// <remarks>
+        /// Resolved from the theme, never from a literal. The reference images' greens and reds are
+        /// the <i>design</i>; the palette belongs to the theme, so switching theme must move every
+        /// severity colour with it. The fallbacks apply only when a theme leaves a slot empty.
+        /// </remarks>
+        public static Color GetSeverityAccent(DialogSeverity severity, IBeepTheme? theme)
         {
             var accent  = theme?.AccentColor  is { IsEmpty: false } a ? a : _defaultAccent;
             var error   = theme?.ErrorColor   is { IsEmpty: false } e ? e : _defaultError;
             var warning = theme?.WarningColor is { IsEmpty: false } w ? w : _defaultWarning;
             var success = theme?.SuccessColor is { IsEmpty: false } s ? s : _defaultSuccess;
 
-            return preset switch
+            return severity switch
             {
-                DialogPreset.DestructiveConfirm => error,
-                DialogPreset.BlockingError      => error,
-                DialogPreset.Danger             => error,
-                DialogPreset.Warning            => warning,
-                DialogPreset.UnsavedChanges     => warning,
-                DialogPreset.InlineValidation   => warning,
-                DialogPreset.SessionTimeout     => warning,
-                DialogPreset.Success            => success,
-                DialogPreset.SuccessWithUndo    => success,
-                _                               => accent
+                DialogSeverity.Error   => error,
+                DialogSeverity.Warning => warning,
+                DialogSeverity.Success => success,
+                DialogSeverity.Info    => accent,
+                _                      => accent
             };
         }
 
-        public static Color GetPresetHeaderTint(DialogPreset preset, IBeepTheme? theme)
+        /// <summary>
+        /// The low-saturation wash for a severity — the <c>Strip</c> header and the tinted surface.
+        /// </summary>
+        /// <remarks>
+        /// Composited against <paramref name="over"/> rather than returned with an alpha channel.
+        /// A translucent <c>BackColor</c> is not honoured by every control that inherits it, so an
+        /// opaque blend is what actually renders the same on the band and on the labels sitting in it.
+        /// Neutral has no wash — the dialog keeps its plain background.
+        /// </remarks>
+        public static Color GetSeverityWash(DialogSeverity severity, IBeepTheme? theme, Color over, double strength = 0.10)
         {
-            var errorBase   = theme?.ErrorColor   is { IsEmpty: false } e ? e : _defaultError;
-            var warningBase = theme?.WarningColor is { IsEmpty: false } w ? w : _defaultWarning;
-            var successBase = theme?.SuccessColor is { IsEmpty: false } s ? s : _defaultSuccess;
+            if (severity == DialogSeverity.Neutral) return over;
 
-            return preset switch
-            {
-                DialogPreset.DestructiveConfirm => Color.FromArgb(18, errorBase.R,   errorBase.G,   errorBase.B),
-                DialogPreset.BlockingError      => Color.FromArgb(18, errorBase.R,   errorBase.G,   errorBase.B),
-                DialogPreset.Danger             => Color.FromArgb(18, errorBase.R,   errorBase.G,   errorBase.B),
-                DialogPreset.Warning            => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
-                DialogPreset.UnsavedChanges     => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
-                DialogPreset.SessionTimeout     => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
-                DialogPreset.InlineValidation   => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
-                DialogPreset.Success            => Color.FromArgb(18, successBase.R, successBase.G, successBase.B),
-                DialogPreset.SuccessWithUndo    => Color.FromArgb(18, successBase.R, successBase.G, successBase.B),
-                _                               => Color.Empty
-            };
+            Color accent = GetSeverityAccent(severity, theme);
+            double k = Math.Clamp(strength, 0d, 1d);
+
+            return Color.FromArgb(
+                (int)Math.Round(over.R + (accent.R - over.R) * k),
+                (int)Math.Round(over.G + (accent.G - over.G) * k),
+                (int)Math.Round(over.B + (accent.B - over.B) * k));
         }
 
         public static string GetButtonText(Vis.Modules.BeepDialogButtons button)

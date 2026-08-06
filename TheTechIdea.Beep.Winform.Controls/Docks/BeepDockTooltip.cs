@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docks
 {
@@ -13,7 +14,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
     /// Modern tooltip for dock items with smooth animations and rich content
     /// Inspired by modern web frameworks and macOS tooltips
     /// </summary>
-    public class BeepDockTooltip : Form
+    /// <remarks>
+    /// Derives from <see cref="BeepiFormPro"/> rather than <c>Form</c>, so it is a Beep window like
+    /// every other hosted surface in the library and picks up the framework's form styling. It does
+    /// <b>not</b> derive from <c>BeepPopupForm</c>, which was the other candidate: that class carries
+    /// parent/child popup chains, selection events, auto-close timers and a static
+    /// <c>ActivePopupForm</c> registration. A tooltip that registered itself as the active popup
+    /// would fight whatever real popup was open.
+    ///
+    /// The caption bar is switched off and the tooltip keeps painting its own background, border and
+    /// shadow in <see cref="OnPaint"/>. Those are what give it its shape, and the base's chrome would
+    /// double up with them.
+    /// </remarks>
+    public class BeepDockTooltip : BeepiFormPro
     {
         private SimpleItem _item;
         private IBeepTheme _theme;
@@ -24,7 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         private const int FadeInterval = 20;
         private const int TooltipPadding = 12;
         private const int MaxWidth = 300;
-        private const int CornerRadius = 8;
+        private readonly int _cornerRadius;
+        private readonly BeepControlStyle _controlStyle;
 
         // Content
         private string _title;
@@ -32,10 +46,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         private string _shortcut;
         private bool _showPreview;
 
-        public BeepDockTooltip(SimpleItem item, IBeepTheme theme)
+        /// <summary>
+        /// Creates a tooltip that follows the dock's style and the current theme.
+        /// </summary>
+        /// <param name="style">
+        /// The dock style whose control style and corner radius the tooltip should adopt. Fonts and
+        /// radius used to be hardcoded to <c>BeepControlStyle.Material3</c> and <c>8</c> at six
+        /// sites, so an Apple dock got a Material tooltip and a square-cornered Arc dock got a
+        /// rounded one - always, in every theme.
+        /// </param>
+        public BeepDockTooltip(SimpleItem item, IBeepTheme theme, DockStyle style = DockStyle.AppleDock)
         {
             _item = item;
-            _theme = theme;
+
+            // Resolved through BeepThemesManager rather than held from the caller, so a theme change
+            // while a tooltip is open reaches it like every other control in the library.
+            _theme = theme ?? BeepThemesManager.CurrentTheme;
+
+            _controlStyle = DockStyleHelpers.GetControlStyleForDock(style);
+            _cornerRadius = DockPainterMetrics.DefaultFor(style).CornerRadius;
+
             _title = item?.Text ?? "";
             _description = item?.Description ?? "";
             _shortcut = item?.SubText ?? ""; // Use SubText for shortcut
@@ -45,7 +75,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
 
         private void InitializeTooltip()
         {
-            // Window setup
+            // Window setup. ShowCaptionBar off first: a tooltip with a title bar is not a tooltip,
+            // and the base reserves layout for it otherwise.
+            ShowCaptionBar = false;
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
@@ -69,9 +101,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         {
             using (var g = CreateGraphics())
             {
-                using var titleFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3, isHovered: true);
-                using var bodyFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3);
-                using var shortcutFont = DockFontHelpers.GetBadgeFont(BeepControlStyle.Material3);
+                using var titleFont = DockFontHelpers.GetDockItemFont(_controlStyle, isHovered: true);
+                using var bodyFont = DockFontHelpers.GetDockItemFont(_controlStyle);
+                using var shortcutFont = DockFontHelpers.GetBadgeFont(_controlStyle);
 
                 // Measure text
                 var titleSize = g.MeasureString(_title, titleFont, MaxWidth - TooltipPadding * 2);
@@ -192,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             var bounds = new Rectangle(0, 0, Width, Height);
 
             // Modern tooltip style with subtle gradient
-            using (var path = CreateRoundedPath(bounds, CornerRadius))
+            using (var path = CreateRoundedPath(bounds, _cornerRadius))
             {
                 // Background
                 var bgColor = _theme?.BackColor ?? Color.FromArgb(40, 40, 45);
@@ -230,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
                 var shadowBounds = bounds;
                 shadowBounds.Inflate(i, i);
                 
-                using (var path = CreateRoundedPath(shadowBounds, CornerRadius + i))
+                using (var path = CreateRoundedPath(shadowBounds, _cornerRadius + i))
                 {
                     int alpha = 20 - (i * 5);
                     using (var pen = new Pen(Color.FromArgb(alpha, 0, 0, 0), 1f))
@@ -250,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             var textColor = _theme?.ForeColor ?? Color.FromArgb(240, 240, 240);
 
             // Title
-            using (var titleFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3, isHovered: true))
+            using (var titleFont = DockFontHelpers.GetDockItemFont(_controlStyle, isHovered: true))
             using (var titleBrush = new SolidBrush(textColor))
             {
                 var titleRect = new RectangleF(x, y, contentWidth, bounds.Height);
@@ -264,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             if (!string.IsNullOrEmpty(_description))
             {
                 y += 4;
-                using (var bodyFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3))
+                using (var bodyFont = DockFontHelpers.GetDockItemFont(_controlStyle))
                 using (var bodyBrush = new SolidBrush(Color.FromArgb(200, textColor)))
                 {
                     var descRect = new RectangleF(x, y, contentWidth, bounds.Height - y);
@@ -279,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             if (!string.IsNullOrEmpty(_shortcut))
             {
                 y += 8;
-                using (var shortcutFont = DockFontHelpers.GetBadgeFont(BeepControlStyle.Material3))
+                using (var shortcutFont = DockFontHelpers.GetBadgeFont(_controlStyle))
                 {
                     var shortcutSize = g.MeasureString(_shortcut, shortcutFont);
                     var shortcutRect = new RectangleF(

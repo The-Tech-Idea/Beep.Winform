@@ -25,18 +25,13 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     using var hoverBrush = new SolidBrush(Color.FromArgb(18, ResolveAccent(context)));
                     context.Graphics.FillRectangle(hoverBrush, new Rectangle(r.X + 6, r.Y + 6, Math.Max(0, r.Width - 12), Math.Max(0, r.Height - 12)));
                 }
-                // Draw icon only, centered
+                // Icon and label through the shared item painter, so this style uses the 24px icon
+                // and the caller's LabelPolicy like every other. It used to draw its own 20px icon
+                // centred in the whole cell and never render a label at all - so "labels always" was
+                // silently ignored here, and the reference's minimal bar (which does show captions)
+                // could not be produced no matter how the control was configured.
                 var item = context.Items[i];
-                var iconRect = new Rectangle(r.Left + (r.Width - 20) / 2, r.Top + (r.Height - 20) / 2, 20, 20);
-                context.ImagePainter.ImagePath = string.IsNullOrEmpty(item.ImagePath) ? context.DefaultImagePath : item.ImagePath;
-                context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-                var prevFill = context.ImagePainter.FillColor;
-                var prevApplyTheme = context.ImagePainter.ApplyThemeOnImage;
-                context.ImagePainter.ApplyThemeOnImage = false;
-                context.ImagePainter.FillColor = isSelected ? ResolveAccent(context) : (isHovered ? ResolveHoverFore(context) : ResolveBarFore(context));
-                context.ImagePainter.DrawImage(context.Graphics, iconRect);
-                context.ImagePainter.ApplyThemeOnImage = prevApplyTheme;
-                context.ImagePainter.FillColor = prevFill;
+                PaintMenuItem(context.Graphics, item, r, i, context);
 
                 // Selected indicator is a subtle top border
                 if (isSelected)

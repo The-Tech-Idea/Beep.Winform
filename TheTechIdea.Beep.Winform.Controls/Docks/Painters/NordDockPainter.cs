@@ -14,6 +14,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
     /// </summary>
     public class NordDockPainter : DockPainterBase
     {
+        /// <summary>
+        /// Named for the Nord colour scheme. The palette is the reason the style was chosen, so it
+        /// survives <see cref="DockConfig.UseThemeColors"/>. This painter never mutated the config,
+        /// so it was not among the five stage 01 found - but it hardcodes its palette just as they
+        /// did, and would otherwise be reclassified as theme-led by omission.
+        /// </summary>
+        protected override bool IsNamedPalette => true;
+
         // Nord color palette
         private static class NordColors
         {
@@ -140,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             if (itemState?.Item == null) return;
 

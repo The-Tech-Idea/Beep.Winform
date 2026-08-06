@@ -41,6 +41,62 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public string? ToolTip { get; set; }
 
         /// <summary>
+        /// What this action is. Left unset, it is derived from the flags above.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <see cref="IsPrimary"/>, <see cref="IsGhost"/> and <see cref="IsDanger"/> are three
+        /// independent booleans describing one thing, and they can express states that mean nothing —
+        /// a button that is ghost and danger at once, or primary and ghost. <see cref="Role"/> is the
+        /// single representation the styling reads.
+        /// </para>
+        /// <para>
+        /// The flags stay as inputs because they are public API and callers set them; they are
+        /// projected here rather than deleted. <see cref="ResolvedRole"/> is what everything
+        /// downstream uses, so there is one answer even when the flags disagree.
+        /// </para>
+        /// </remarks>
+        public DialogButtonRole? Role { get; set; }
+
+        /// <summary>
+        /// The role after falling back to the legacy flags: danger, then primary, then ghost.
+        /// </summary>
+        /// <remarks>
+        /// Danger outranks primary deliberately — <c>DialogButton.Delete()</c> sets both, and a
+        /// destructive action that renders as an ordinary primary is the defect this ordering avoids.
+        /// A ghost button is <see cref="DialogButtonRole.Cancel"/> when its id says so and
+        /// <see cref="DialogButtonRole.Secondary"/> otherwise, because "cancel" carries the extra
+        /// contract of being where Escape and initial focus land.
+        /// </remarks>
+        public DialogButtonRole ResolvedRole
+        {
+            get
+            {
+                if (Role.HasValue) return Role.Value;
+                if (IsDanger) return DialogButtonRole.Destructive;
+                if (IsPrimary) return DialogButtonRole.Primary;
+
+                bool backsOut = string.Equals(Id, "cancel", StringComparison.OrdinalIgnoreCase)
+                                || string.Equals(Id, "no", StringComparison.OrdinalIgnoreCase)
+                                || string.Equals(Id, "close", StringComparison.OrdinalIgnoreCase);
+
+                return backsOut ? DialogButtonRole.Cancel : DialogButtonRole.Secondary;
+            }
+        }
+
+        /// <summary>Optional icon path (SVG), rendered by <c>BeepButton</c>'s own image support.</summary>
+        public string? Icon { get; set; }
+
+        /// <summary>Which side of the caption <see cref="Icon"/> sits on.</summary>
+        public DialogButtonIconPlacement IconPlacement { get; set; } = DialogButtonIconPlacement.Leading;
+
+        /// <summary>
+        /// Whether this action is waiting on work and should read as busy.
+        /// </summary>
+        /// <remarks>Consumed by stage 09; carried here so the model does not need changing again.</remarks>
+        public bool IsPending { get; set; }
+
+        /// <summary>
         /// Optional inline handler. Fires before the dialog closes.
         /// Return <c>false</c> to prevent the dialog from closing
         /// (useful for validation or async operations).

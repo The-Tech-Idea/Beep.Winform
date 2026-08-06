@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
     /// </summary>
     [ToolboxItem(true)]
     [Designer(typeof(ControlDesigner))]
-    public class BottomBar : BaseControl
+    public partial class BottomBar : BaseControl
     {
         private const string AccessibilityDescriptionPrefix = "BottomBar status:";
         private BindingList<SimpleItem> _items = new BindingList<SimpleItem>();
@@ -55,7 +55,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         {
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             Height = 72;
-            Dock = DockStyle.Bottom;
+
+            // Placement, not Dock. DockStyle.Bottom forces the bar to span the parent's full width,
+            // and a docked control cannot be centred because docking owns its bounds - so the
+            // floating centred pill the reference designs show was unreachable. ApplyPlacement runs
+            // again once there is a parent to measure against.
+            Placement = BottomBarPlacement.CenteredBottom;
             BackColor = Color.White;
             _items.ListChanged += Items_ListChanged;
             InitializeAnimationTimer();
@@ -266,7 +271,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 
         [Browsable(true)]
         [Category("Behavior")]
-        [DefaultValue(1.25f)]
+        [DefaultValue(1.0f)]
+        [Description("Extra width for the selected cell. 1.0 keeps the equal-cell grid the reference designs use.")]
         public float SelectedWidthFactor
         {
             get => _layoutHelper.SelectedWidthFactor;
@@ -385,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 
             // Create painter context
             var rect = ClientRectangle;
-            rect.Inflate(-8, -8);
+            rect.Inflate(-PainterInset, -PainterInset);
             if (Items == null || Items.Count == 0) return;
 
             var ctx = new BottomBarPainterContext
@@ -437,6 +443,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             // precompute layout with selected item included for reflow
             _layoutHelper.CtaWidthFactor = CTAWidthFactor;
             _layoutHelper.SelectedWidthFactor = SelectedWidthFactor;
+
+            // The 74/24/12 grid is specified in logical pixels, so it needs the monitor scale to
+            // survive on a scaled display. DeviceDpi is authoritative and updates on WM_DPICHANGED.
+            _layoutHelper.DpiScale = DpiScalingHelper.GetDpiScaleFactor(this);
             _layoutHelper.EnsureLayout(ctx.Bounds, ctx.Items, ctx.CTAIndex, ctx.SelectedIndex);
             // Allow painters to read control properties (floating CTA notch etc.)
             if (_bottomBarPainter is TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters.FloatingCTABottomBarPainter fcPainter)
@@ -764,6 +774,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             if (disposing)
             {
                 _isDisposed = true;
+                DisposePlacement();
                 if (_items != null)
                 {
                     _items.ListChanged -= Items_ListChanged;
@@ -839,6 +850,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         private void Items_ListChanged(object? sender, ListChangedEventArgs e)
         {
             SyncLayoutAndHitTest();
+
+            // The centred placement sizes the bar to its item count, so adding or removing an item
+            // changes how wide the panel should be.
+            ApplyPlacement();
         }
 
         private void SyncLayoutAndHitTest()

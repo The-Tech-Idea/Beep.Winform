@@ -57,7 +57,36 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public int IconSize { get; set; } = 48;
         public DialogIconSizePreset IconSizePreset { get; set; } = DialogIconSizePreset.Medium;
-        public DialogIconAlignment IconAlignment { get; set; } = DialogIconAlignment.Left;
+        /// <summary>
+        /// Obsolete alias for <see cref="Presentation"/>.
+        /// </summary>
+        /// <remarks>
+        /// A third way to say where the icon goes would be one too many: <see cref="Presentation"/>
+        /// already decides it, and a body layout that moved the icon without moving the text is the
+        /// half-implementation stage 08 warns about. This projects onto the presentation instead —
+        /// <see cref="DialogIconAlignment.Left"/> ↔ <see cref="DialogPresentation.TitleBar"/>,
+        /// <see cref="DialogIconAlignment.Top"/> ↔ <see cref="DialogPresentation.Centred"/> — so the
+        /// icon and the text can never disagree. <see cref="DialogIconAlignment.None"/> reads back
+        /// only when the icon is suppressed by <see cref="ShowIcon"/>.
+        /// </remarks>
+        [Obsolete("Use Presentation. This is a projection onto it and will be removed.")]
+        public DialogIconAlignment IconAlignment
+        {
+            get => !ShowIcon
+                ? DialogIconAlignment.None
+                : Presentation == DialogPresentation.TitleBar
+                    ? DialogIconAlignment.Left
+                    : DialogIconAlignment.Top;
+            set
+            {
+                switch (value)
+                {
+                    case DialogIconAlignment.None: ShowIcon = false; break;
+                    case DialogIconAlignment.Top:  Presentation = DialogPresentation.Centred; break;
+                    default:                       Presentation = DialogPresentation.TitleBar; break;
+                }
+            }
+        }
         public bool AnimatedIcon { get; set; } = false;
 
         /// <summary>
@@ -285,7 +314,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// <summary>
         /// Whether clicking outside closes the dialog
         /// </summary>
-        public bool CloseOnClickOutside { get; set; } = false;
+        /// <summary>
+        /// Obsolete alias for <see cref="BackdropClickPolicy"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This and <see cref="BackdropClickPolicy"/> answered the same question on adjacent lines,
+        /// and could disagree: <c>CloseOnClickOutside = true</c> with <c>BackdropClickPolicy =
+        /// Ignore</c> had no correct behaviour, only whichever the reading code consulted. It is now a
+        /// projection onto the policy, so the contradictory state is no longer representable.
+        /// </para>
+        /// <para>
+        /// Kept rather than deleted because it is a published property and appears in saved designer
+        /// state. Mapping is <c>true</c> → <see cref="DialogBackdropClickPolicy.CancelDialog"/>,
+        /// <c>false</c> → <see cref="DialogBackdropClickPolicy.Ignore"/>.
+        /// </para>
+        /// </remarks>
+        [Obsolete("Use BackdropClickPolicy. This is a projection onto it and will be removed.")]
+        public bool CloseOnClickOutside
+        {
+            get => BackdropClickPolicy is DialogBackdropClickPolicy.CancelDialog
+                                       or DialogBackdropClickPolicy.CloseDialog;
+            set => BackdropClickPolicy = value
+                ? DialogBackdropClickPolicy.CancelDialog
+                : DialogBackdropClickPolicy.Ignore;
+        }
         public DialogBackdropClickPolicy BackdropClickPolicy { get; set; } = DialogBackdropClickPolicy.Ignore;
         public DialogBackdropStyle BackdropStyle { get; set; } = DialogBackdropStyle.DimOnly;
         public DialogBackdropTransitionStyle BackdropTransitionStyle { get; set; } = DialogBackdropTransitionStyle.Fade;
@@ -294,6 +347,63 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Whether ESC key closes the dialog
         /// </summary>
         public bool CloseOnEscape { get; set; } = true;
+
+        /// <summary>
+        /// How the header is presented. Defaults to <see cref="DialogHeaderStyle.Strip"/>.
+        /// </summary>
+        /// <remarks>
+        /// The reference images use three header treatments, not one — see
+        /// <see cref="DialogHeaderStyle"/>. The default is what the shell already rendered, so no
+        /// existing caller changes appearance by upgrading.
+        /// </remarks>
+        public DialogHeaderStyle HeaderStyle { get; set; } = DialogHeaderStyle.Strip;
+
+        /// <summary>
+        /// How the dialog arranges its icon, text and actions. Defaults to
+        /// <see cref="DialogPresentation.TitleBar"/>.
+        /// </summary>
+        /// <remarks>
+        /// The default is what every dialog in this folder already renders, so no existing caller
+        /// changes appearance by upgrading. See <see cref="DialogPresentation"/> for which reference
+        /// image each value comes from.
+        /// </remarks>
+        public DialogPresentation Presentation { get; set; } = DialogPresentation.TitleBar;
+
+        /// <summary>
+        /// Secondary severity messages shown inside the dialog, above the actions.
+        /// </summary>
+        /// <remarks>
+        /// The pattern `dialog3.png` uses to say what <i>else</i> an action will destroy. Each callout
+        /// carries its own severity, so a warning callout inside an error dialog renders as a warning.
+        /// </remarks>
+        public IReadOnlyList<DialogCallout>? Callouts { get; set; }
+
+        /// <summary>
+        /// Whether the body carries the severity colour. Defaults to
+        /// <see cref="DialogSurfaceTreatment.Plain"/>.
+        /// </summary>
+        public DialogSurfaceTreatment SurfaceTreatment { get; set; } = DialogSurfaceTreatment.Plain;
+
+        /// <summary>
+        /// Overrides the severity that would otherwise be resolved from
+        /// <see cref="Preset"/> and <see cref="IconType"/>.
+        /// </summary>
+        /// <remarks>
+        /// Left null, severity is resolved by <c>DialogStyleAdapter.ResolveSeverity</c>: preset first,
+        /// then icon, then neutral. Set it only when a dialog's meaning genuinely differs from both —
+        /// an informational dialog that must read as a warning, say.
+        /// </remarks>
+        public DialogSeverity? Severity { get; set; }
+
+        /// <summary>
+        /// Corner treatment for the action buttons. Defaults to <see cref="DialogButtonShape.Rounded"/>.
+        /// </summary>
+        /// <remarks>
+        /// A property of the dialog rather than of any one action: the references vary shape by
+        /// design, not by role — rounded rectangles in `dialog1.png`, full pills in `dialog3.png`,
+        /// `dialog4.png` and `dialog5.png`.
+        /// </remarks>
+        public DialogButtonShape ButtonShape { get; set; } = DialogButtonShape.Rounded;
 
         /// <summary>
         /// For high-risk actions, require the user to type a confirmation phrase.
@@ -773,7 +883,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                 ShowIcon = true,
                 CloseOnEscape = false,
                 ShowCloseButton = false,
-                CloseOnClickOutside = false,
                 BackdropClickPolicy = DialogBackdropClickPolicy.Ignore,
                 CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
                 {
@@ -863,7 +972,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                 Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
                 DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
                 ShowIcon = true,
-                CloseOnClickOutside = false,
+                BackdropClickPolicy = DialogBackdropClickPolicy.Ignore,
                 CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
                 {
                     [Vis.Modules.BeepDialogButtons.Ok] = "Continue",
@@ -1113,11 +1222,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         BlurIfSupported
     }
 
+    /// <summary>
+    /// What a click on the backdrop does.
+    /// </summary>
+    /// <remarks>
+    /// The question is not a boolean, which is why this enum outlives
+    /// <see cref="DialogConfig.CloseOnClickOutside"/>. <see cref="Nudge"/> in particular cannot be
+    /// expressed by one — it is the shake-or-pulse that Radix, MUI and macOS all use for a modal that
+    /// refuses dismissal, and it is what makes an undismissable dialog feel deliberate rather than
+    /// broken.
+    /// </remarks>
     public enum DialogBackdropClickPolicy
     {
+        /// <summary>Clicks do nothing. Correct for a destructive confirmation.</summary>
         Ignore,
+
+        /// <summary>Dismiss, returning the cancel result. The common case.</summary>
         CancelDialog,
-        CloseDialog
+
+        /// <summary>Dismiss, returning the close result.</summary>
+        CloseDialog,
+
+        /// <summary>
+        /// Do not dismiss, but signal that the dialog is waiting.
+        /// </summary>
+        /// <remarks>Honours <see cref="DialogConfig.ReducedMotion"/>: no animation, but still no dismissal.</remarks>
+        Nudge
     }
 
     public enum DialogBackdropTransitionStyle

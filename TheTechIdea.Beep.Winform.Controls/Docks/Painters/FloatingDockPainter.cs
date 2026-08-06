@@ -35,10 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             // Pill-shaped background
             using (var path = CreatePillPath(bounds))
             {
-                var bgColor = GetColor(
-                    config.BackgroundColor,
-                    theme?.SurfaceColor ?? Color.White,
-                    config.BackgroundOpacity
+                var bgColor = ResolveBackground(
+                    config,
+                    theme,
+                    theme?.SurfaceColor ?? Color.White
                 );
 
                 using (var brush = new SolidBrush(bgColor))
@@ -49,9 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 // Subtle border
                 if (config.ShowBorder)
                 {
-                    var borderColor = GetColor(
-                        config.BorderColor,
-                        theme?.BorderColor ?? Color.FromArgb(220, 220, 220),
+                    var borderColor = ResolveBorder(
+                        config,
+                        theme,
+                        Color.FromArgb(220, 220, 220),
                         0.5f
                     );
 
@@ -91,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var bounds = itemState.Bounds;

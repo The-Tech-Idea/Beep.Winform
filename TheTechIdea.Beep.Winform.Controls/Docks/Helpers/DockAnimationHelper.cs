@@ -85,27 +85,127 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
         }
 
         /// <summary>
-        /// Smoothly interpolate current values toward target values
+        /// Advances every item's animation by <paramref name="deltaSeconds"/>, easing along the curve
+        /// the config's <see cref="DockAnimationStyle"/> selects.
         /// </summary>
-        public static bool UpdateAnimations(List<DockItemState> itemStates, float animationSpeed)
+        /// <remarks>
+        /// <para>
+        /// This used to take an <c>animationSpeed</c> fraction and call
+        /// <c>Lerp(current, target, speed)</c> - an exponential approach with no notion of time or
+        /// progress. That is why 341 lines of easing functions sat unreferenced next door and why all
+        /// nine <see cref="DockAnimationStyle"/> values produced the same motion: there was no `t` to
+        /// give a curve. Wiring the easing in was never "call the helper"; it needed each item to have
+        /// a start value, a target, a duration and a clock.
+        /// </para>
+        /// <para>
+        /// The exponential approach also never actually arrived, so the 60 FPS timer never idled.
+        /// A timed animation ends.
+        /// </para>
+        /// </remarks>
+        public static bool UpdateAnimations(List<DockItemState> itemStates, DockConfig config, float deltaSeconds)
         {
             bool needsRedraw = false;
-            animationSpeed = Math.Max(0.01f, animationSpeed);
+            float duration = Math.Max(0.016f, config.AnimationDuration);
+            var curve = DockEasingHelper.GetEasingFunction(config.AnimationStyle);
+
+            // None means none. It used to fall through GetEasingFunction's `_ =>` to EaseOutCubic, so
+            // the one value whose whole purpose is "do not animate" animated exactly like Scale.
+            if (config.AnimationStyle == DockAnimationStyle.None)
+            {
+                foreach (var state in itemStates)
+                {
+                    float targetOpacityNow = state.IsDisabled ? 0.45f : (state.IsHovered || state.IsSelected ? 1.0f : 0.9f);
+                    if (Math.Abs(state.CurrentScale - state.TargetScale) > 0.0001f ||
+                        Math.Abs(state.CurrentOpacity - targetOpacityNow) > 0.0001f)
+                    {
+                        needsRedraw = true;
+                    }
+
+                    state.CurrentScale = state.TargetScale;
+                    state.AnimationFromScale = state.TargetScale;
+                    state.AnimationToScale = state.TargetScale;
+                    state.AnimationElapsed = 0f;
+                    state.CurrentOpacity = targetOpacityNow;
+                }
+
+                return needsRedraw;
+            }
 
             foreach (var state in itemStates)
             {
-                // Scale animation
-                if (Math.Abs(state.TargetScale - state.CurrentScale) > 0.001f)
+                // A new target restarts the animation from wherever the item currently is, so an
+                // interrupted hover eases on from its current size rather than snapping back.
+                if (Math.Abs(state.AnimationToScale - state.TargetScale) > 0.0001f)
                 {
-                    state.CurrentScale = Lerp(state.CurrentScale, state.TargetScale, animationSpeed);
+                    state.AnimationFromScale = state.CurrentScale;
+                    state.AnimationToScale = state.TargetScale;
+                    state.AnimationElapsed = 0f;
+                }
+
+                if (Math.Abs(state.CurrentScale - state.TargetScale) > 0.0001f)
+                {
+                    state.AnimationElapsed += deltaSeconds;
+                    float t = Math.Min(1f, state.AnimationElapsed / duration);
+
+                    if (t >= 1f)
+                    {
+                        state.CurrentScale = state.TargetScale;
+                    }
+                    else
+                    {
+                        state.CurrentScale = state.AnimationFromScale +
+                            (state.TargetScale - state.AnimationFromScale) * curve(t);
+                        needsRedraw = true;
+                    }
+
                     needsRedraw = true;
                 }
 
-                // Opacity animation
+                // Rotate and Pulse name effects, not easing shapes, so they need something driven
+                // beyond CurrentScale. Both were selectable and did nothing: Rotate mapped to the
+                // same curve as Scale while CurrentRotation was written once, to zero, and read by
+                // no painter; Pulse mapped to the same curve as Fade with nothing pulsing.
+                if (config.AnimationStyle == DockAnimationStyle.Rotate)
+                {
+                    float targetRotation = state.IsHovered || state.IsSelected ? 12f : 0f;
+                    if (Math.Abs(state.CurrentRotation - targetRotation) > 0.01f)
+                    {
+                        float step = Math.Min(1f, deltaSeconds / duration);
+                        state.CurrentRotation += (targetRotation - state.CurrentRotation) * step;
+                        if (Math.Abs(state.CurrentRotation - targetRotation) <= 0.01f)
+                            state.CurrentRotation = targetRotation;
+                        needsRedraw = true;
+                    }
+                }
+                else if (state.CurrentRotation != 0f)
+                {
+                    state.CurrentRotation = 0f;
+                    needsRedraw = true;
+                }
+
+                if (config.AnimationStyle == DockAnimationStyle.Pulse &&
+                    (state.IsHovered || state.IsSelected || state.IsRunning))
+                {
+                    // A continuous breath around the item's target scale, rather than a one-shot ease.
+                    state.PulsePhase = (state.PulsePhase + deltaSeconds / Math.Max(0.05f, duration * 4f)) % 1f;
+                    float breath = (float)Math.Sin(state.PulsePhase * 2 * Math.PI) * 0.04f;
+                    state.CurrentScale = state.TargetScale * (1f + breath);
+                    needsRedraw = true;
+                }
+                else if (state.PulsePhase != 0f)
+                {
+                    state.PulsePhase = 0f;
+                }
+
+                // Opacity is a plain fade, not a style choice - easing it would make a disabled item
+                // bounce, which is nobody's intent.
                 float targetOpacity = state.IsDisabled ? 0.45f : (state.IsHovered || state.IsSelected ? 1.0f : 0.9f);
                 if (Math.Abs(targetOpacity - state.CurrentOpacity) > 0.001f)
                 {
-                    state.CurrentOpacity = Lerp(state.CurrentOpacity, targetOpacity, animationSpeed * 0.5f);
+                    float step = deltaSeconds / duration;
+                    state.CurrentOpacity += (targetOpacity - state.CurrentOpacity) * Math.Min(1f, step);
+                    if (Math.Abs(targetOpacity - state.CurrentOpacity) <= 0.001f)
+                        state.CurrentOpacity = targetOpacity;
                     needsRedraw = true;
                 }
             }
@@ -124,31 +224,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
         /// <summary>
         /// Ease out cubic for smoother animations
         /// </summary>
-        public static float EaseOutCubic(float t)
-        {
-            return 1 - (float)Math.Pow(1 - t, 3);
-        }
-
-        /// <summary>
+         /// <summary>
         /// Ease in out for balanced animations
         /// </summary>
-        public static float EaseInOutCubic(float t)
-        {
-            return t < 0.5f
-                ? 4 * t * t * t
-                : 1 - (float)Math.Pow(-2 * t + 2, 3) / 2;
-        }
-
-        /// <summary>
+         /// <summary>
         /// Elastic bounce effect
         /// </summary>
-        public static float EaseOutElastic(float t)
-        {
-            const float c4 = (2 * (float)Math.PI) / 3;
-
-            return t == 0 ? 0
-                : t == 1 ? 1
-                : (float)Math.Pow(2, -10 * t) * (float)Math.Sin((t * 10 - 0.75f) * c4) + 1;
-        }
-    }
+     }
 }

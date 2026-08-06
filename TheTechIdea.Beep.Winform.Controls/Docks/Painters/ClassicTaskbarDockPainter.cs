@@ -32,10 +32,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             using (var path = CreateRoundedPath(bounds, cornerRadius))
             {
                 // Flat background color
-                var bgColor = GetColor(
-                    config.BackgroundColor,
-                    theme?.BackgroundColor ?? Color.FromArgb(45, 45, 48), // Dark taskbar default
-                    config.BackgroundOpacity
+                var bgColor = ResolveBackground(
+                    config,
+                    theme,
+                    Color.FromArgb(45, 45, 48) // Dark taskbar default
                 );
 
                 using (var brush = new SolidBrush(bgColor))
@@ -46,10 +46,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 // Subtle top border for definition
                 if (config.ShowBorder)
                 {
-                    var borderColor = GetColor(
-                        config.BorderColor,
-                        theme?.BorderColor ?? Color.FromArgb(60, 60, 65),
-                        1f
+                    var borderColor = ResolveBorder(
+                        config,
+                        theme,
+                        Color.FromArgb(60, 60, 65)
                     );
 
                     using (var pen = new Pen(borderColor, 1f))
@@ -63,25 +63,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         /// <summary>
         /// Paints a single dock item
         /// </summary>
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             var bounds = itemState.Bounds;
             var interactionState = GetInteractionState(itemState);
 
-            // Flat rectangular highlight on hover/selection
-            if (interactionState == DockInteractionState.Hovered ||
-                interactionState == DockInteractionState.Selected ||
-                interactionState == DockInteractionState.Focused ||
-                interactionState == DockInteractionState.Pressed)
+            // Flat rectangular highlight, at an intensity that distinguishes the states rather than
+            // treating four of them as one. This branch used to be a four-way OR that painted the
+            // same fill for hovered, selected, focused and pressed - which is why Cyberpunk, Dracula
+            // and Terminal reported those four states as identical pixels.
+            float intensity = interactionState switch
             {
-                PaintItemBackground(g, bounds, itemState, config, theme);
+                DockInteractionState.Pressed => 0.45f,
+                DockInteractionState.Selected => 0.30f,
+                DockInteractionState.Hovered => 0.20f,
+                DockInteractionState.Focused => 0.12f,
+                _ => 0f
+            };
+
+            if (intensity > 0f)
+            {
+                PaintItemBackground(g, bounds, itemState, config, theme, intensity);
             }
 
             // Paint icon
             PaintItemIcon(g, itemState, config, theme, itemState.CurrentOpacity);
         }
 
-        private void PaintItemBackground(Graphics g, Rectangle bounds, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        private void PaintItemBackground(Graphics g, Rectangle bounds, DockItemState itemState, DockConfig config, IBeepTheme theme, float intensity = 0.3f)
         {
             var bgBounds = bounds;
             bgBounds.Inflate(ItemPadding, ItemPadding);
@@ -92,8 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 // Selected - use accent color
                 bgColor = GetColor(
                     config.SelectedColor,
-                    theme?.AccentColor ?? Color.FromArgb(0, 120, 215), // Windows blue
-                    0.3f
+                    ResolveAccentColor(config, theme),
+                    intensity
                 );
             }
             else

@@ -23,9 +23,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             // Main background
             using (var path = CreateRoundedPath(bounds, radius))
             {
-                // Subtle gradient for depth
-                var color1 = Color.FromArgb((int)(config.BackgroundOpacity * 255), 60, 60, 65);
-                var color2 = Color.FromArgb((int)(config.BackgroundOpacity * 255), 48, 48, 52);
+                // Subtle gradient for depth. The top colour resolves through the theme like every
+                // other painter; the bottom is that colour darkened, so the 3D effect survives
+                // whatever palette it lands in instead of being two hardcoded greys.
+                var color1 = ResolveBackground(config, theme, Color.FromArgb(60, 60, 65));
+                var color2 = Color.FromArgb(
+                    color1.A,
+                    (int)(color1.R * 0.8f),
+                    (int)(color1.G * 0.8f),
+                    (int)(color1.B * 0.8f));
 
                 using (var bgBrush = new LinearGradientBrush(
                     bounds,
@@ -152,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             if (itemState?.Item == null) return;
 
@@ -226,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 return;
 
             var bounds = itemState.Bounds;
-            var indicatorColor = theme?.AccentColor ?? Color.FromArgb(255, 255, 255);
+            var indicatorColor = ResolveAccentColor(config, theme);
 
             // Plank uses small dot indicators
             int dotSize = 4;

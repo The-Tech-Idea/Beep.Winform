@@ -71,19 +71,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
         }
 
         /// <summary>
-        /// Gets the border color for the dock control
+        /// Gets the border color for the dock control.
         /// </summary>
+        /// <remarks>
+        /// The <paramref name="customColor"/> and <paramref name="opacity"/> parameters exist so this
+        /// matches <see cref="GetDockBackgroundColor"/>. Without them the method hardcoded alpha 100
+        /// and ignored any caller colour, so painters that draw borders at 1f or 0.5f could not use
+        /// it - which is why <c>DockPainterBase.ResolveBorder</c> had to read the theme directly and
+        /// bypass the folder's own helper.
+        /// </remarks>
         public static Color GetDockBorderColor(
             IBeepTheme theme,
-            bool useThemeColors)
+            bool useThemeColors,
+            Color? customColor = null,
+            float opacity = 1f)
         {
-            if (useThemeColors && theme != null)
-            {
-                if (theme.BorderColor != Color.Empty)
-                    return Color.FromArgb(100, theme.BorderColor);
-            }
+            Color baseColor;
 
-            return Color.FromArgb(100, 255, 255, 255);
+            if (customColor.HasValue)
+                baseColor = customColor.Value;
+            else if (useThemeColors && theme != null && theme.BorderColor != Color.Empty)
+                baseColor = theme.BorderColor;
+            else
+                return Color.FromArgb((int)(255 * Math.Clamp(opacity, 0f, 1f)), 255, 255, 255);
+
+            return opacity < 1f
+                ? Color.FromArgb((int)(255 * Math.Clamp(opacity, 0f, 1f)), baseColor)
+                : baseColor;
         }
 
         /// <summary>

@@ -255,28 +255,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnCreateControl();
 
+            // DeviceDpi only reports the real value once there is a handle.
+            SyncDpiScale();
+
             // Set accessibility properties
             AccessibleName = "Dock";
             AccessibleRole = AccessibleRole.ToolBar;
             AccessibleDescription = $"Application dock with {_items.Count} items";
         }
 
+        // UpdateAccessibility lived here with no callers, so the item count in the description went
+        // stale the moment items were added, and its inner branch assigned a variable it never read
+        // under a comment wishing for UI Automation. The accessible tree in BeepDock.Accessibility.cs
+        // reads live state, so there is nothing to push and nothing to keep in sync.
+
         /// <summary>
-        /// Updates accessibility information when items change
+        /// Picks up a monitor change. WM_DPICHANGED updates DeviceDpi, and everything the dock draws
+        /// is derived from the scale the config carries, so re-reading it here is the whole handler.
         /// </summary>
-        private void UpdateAccessibility()
+        protected override void OnDpiChangedAfterParent(EventArgs e)
         {
-            if (IsHandleCreated)
-            {
-                AccessibleDescription = $"Application dock with {_items.Count} items";
-                
-                // Announce changes to screen readers
-                if (_focusedIndex >= 0 && _focusedIndex < _items.Count)
-                {
-                    var item = _items[_focusedIndex];
-                    // Could use UI Automation to announce item changes
-                }
-            }
+            base.OnDpiChangedAfterParent(e);
+            SyncDpiScale();
+            Invalidate();
         }
 
         /// <summary>
@@ -310,26 +311,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        /// <summary>
-        /// Provides high contrast mode support
-        /// </summary>
-        private bool IsHighContrastMode()
-        {
-            return SystemInformation.HighContrast;
-        }
-
-        /// <summary>
-        /// Gets high contrast colors
-        /// </summary>
-        private System.Drawing.Color GetHighContrastColor(System.Drawing.Color defaultColor, bool isForeground)
-        {
-            if (!IsHighContrastMode())
-                return defaultColor;
-
-            return isForeground
-                ? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.HighlightText)
-                : TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Highlight);
-        }
+        // IsHighContrastMode and GetHighContrastColor lived here, private to the control and called by
+        // nothing. They could not have worked where they were: the colours are chosen by the
+        // painters, which never see the control. They are now Docks.Helpers.HighContrast, sitting
+        // where the resolvers can reach it - the same fix the theme layer needed for the same reason.
     }
 }
 

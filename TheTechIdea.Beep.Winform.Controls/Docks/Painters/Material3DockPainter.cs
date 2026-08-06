@@ -36,11 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             using (var path = CreateRoundedPath(bounds, metrics.CornerRadius))
             {
                 // Surface background
-                var bgColor = GetColor(
-                    config.BackgroundColor,
-                    theme?.SurfaceColor ?? Color.FromArgb(250, 250, 250),
-                    config.BackgroundOpacity
-                );
+                var bgColor = ResolveBackground(config, theme, Color.FromArgb(250, 250, 250));
 
                 using (var brush = new SolidBrush(bgColor))
                 {
@@ -51,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 if (config.ShowBorder)
                 {
                     using (var pen = new Pen(
-                        GetColor(config.BorderColor, theme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f),
+                        ResolveBorder(config, theme, Color.FromArgb(230, 230, 230)),
                         metrics.BorderWidth))
                     {
                         g.DrawPath(pen, path);
@@ -81,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var metrics = GetScaledMetrics(config, theme, g);

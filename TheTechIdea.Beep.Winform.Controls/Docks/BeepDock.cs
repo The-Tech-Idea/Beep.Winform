@@ -52,48 +52,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             _items = new BindingList<SimpleItem>();
             _itemStates = new List<Docks.DockItemState>();
             
-            // Initialize configuration
+            // Initialize configuration. The dimensions are deliberately not set here: leaving them
+            // unset is what lets them follow the style, and assigning the AppleDock numbers would
+            // have marked them as user-chosen and frozen them against every later style change.
             _config = new DockConfig
             {
                 Style = Docks.DockStyle.AppleDock,
-                ItemSize = 56,
-                DockHeight = 72,
-                Spacing = 8,
-                Padding = 12,
-                MaxScale = 1.5f,
                 Position = Docks.DockPosition.Bottom,
                 Orientation = Docks.DockOrientation.Horizontal,
                 ShowBackground = true,
-                ShowShadow = true,
-                BackgroundOpacity = 0.85f,
                 AnimationSpeed = 0.2f,
                 ShowBadges = true,
                 ShowTooltips = true,
                 ShowRunningIndicator = true,
                 EnableContextMenu = true
             };
-            _styleProfile = new Docks.Models.DockStyleConfig
-            {
-                DockStyle = _config.Style,
-                ControlStyle = Docks.Helpers.DockStyleHelpers.GetControlStyleForDock(_config.Style),
-                RecommendedItemSize = _config.ItemSize,
-                RecommendedDockHeight = _config.DockHeight,
-                RecommendedSpacing = _config.Spacing,
-                RecommendedPadding = _config.Padding,
-                RecommendedMaxScale = _config.MaxScale,
-                RecommendedBackgroundOpacity = _config.BackgroundOpacity,
-                ShowShadow = _config.ShowShadow
-            };
-            _colorProfile = new Docks.Models.DockColorConfig
-            {
-                BackgroundColor = _config.BackgroundColor ?? Color.FromArgb(240, 240, 240),
-                ForegroundColor = _config.ForegroundColor ?? Color.FromArgb(33, 33, 33),
-                BorderColor = _config.BorderColor ?? Color.FromArgb(100, 255, 255, 255),
-                ItemHoverColor = _config.HoverColor ?? Color.FromArgb(245, 245, 245),
-                ItemSelectedColor = _config.SelectedColor ?? Color.FromArgb(0, 122, 255),
-                IndicatorColor = _config.IndicatorColor,
-                SeparatorColor = _config.SeparatorColor
-            };
+
+            // Projections of _config, refreshed by every path that writes it.
+            SyncProfiles();
 
             // Initialize painter
             _dockPainter = DockPainterFactory.GetPainter(_config.Style);
@@ -118,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Initialize drag-drop support
             InitializeDragDrop();
+            InitializeAutoHide();
 
             // Hook up events
             _items.ListChanged += Items_ListChanged!;
@@ -139,6 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _animationTimer?.Dispose();
                 _hoverIntentTimer?.Stop();
                 _hoverIntentTimer?.Dispose();
+                DisposeAutoHide();
                 _activeTooltip?.Dispose();
                 if (_items != null)
                     _items.ListChanged -= Items_ListChanged;

@@ -39,13 +39,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _config.Style = value;
                     _dockPainter = DockPainterFactory.GetPainter(value);
-                    _config.ItemSize = Docks.Helpers.DockStyleHelpers.GetRecommendedItemSize(value);
-                    _config.DockHeight = Docks.Helpers.DockStyleHelpers.GetRecommendedDockHeight(value);
-                    _config.Spacing = Docks.Helpers.DockStyleHelpers.GetRecommendedSpacing(value);
-                    _config.Padding = Docks.Helpers.DockStyleHelpers.GetRecommendedPadding(value);
-                    _config.MaxScale = Docks.Helpers.DockStyleHelpers.GetRecommendedMaxScale(value);
-                    _config.ShowShadow = Docks.Helpers.DockStyleHelpers.ShouldShowShadow(value);
-                    _config.BackgroundOpacity = Docks.Helpers.DockStyleHelpers.GetRecommendedBackgroundOpacity(value);
+
+                    // Nothing else. This setter used to overwrite ItemSize, DockHeight, Spacing,
+                    // Padding, MaxScale, ShowShadow and BackgroundOpacity with the new style's
+                    // recommendations, which silently discarded whatever the user had set - and for
+                    // ShowShadow there was not even a value that could mean "the user chose this",
+                    // so their choice could not survive at all. Unset dimensions now follow the
+                    // style through DockConfig's getters; set ones stay set.
+                    SyncProfiles();
+                    UpdateItemBounds();
                     Invalidate();
                 }
             }
@@ -59,10 +61,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(56)]
         public int ItemSize
         {
-            get => _config.ItemSize;
+            // Logical, not device, pixels. DockConfig's ItemSize is scaled by the monitor's DPI for
+            // the layout and the painters; publishing that here would make the designer serialize
+            // 112 on a 200% monitor and then scale it again on the next load.
+            get => _config.ItemSizeLogical;
             set
             {
-                if (_config.ItemSize != value)
+                if (_config.ItemSizeLogical != value)
                 {
                     _config.ItemSize = value;
                     UpdateItemBounds();
@@ -79,10 +84,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(72)]
         public int DockHeight
         {
-            get => _config.DockHeight;
+            get => _config.DockHeightLogical;
             set
             {
-                if (_config.DockHeight != value)
+                if (_config.DockHeightLogical != value)
                 {
                     _config.DockHeight = value;
                     UpdateItemBounds();
@@ -99,10 +104,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(8)]
         public int ItemSpacing
         {
-            get => _config.Spacing;
+            get => _config.SpacingLogical;
             set
             {
-                if (_config.Spacing != value)
+                if (_config.SpacingLogical != value)
                 {
                     _config.Spacing = value;
                     UpdateItemBounds();
@@ -358,7 +363,37 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool AutoHide
         {
             get => _config.AutoHide;
-            set => _config.AutoHide = value;
+            set
+            {
+                if (_config.AutoHide == value)
+                    return;
+
+                _config.AutoHide = value;
+                UpdateAutoHideState();
+            }
+        }
+
+        /// <summary>
+        /// Milliseconds of pointer absence before an auto-hiding dock retracts.
+        /// </summary>
+        /// <remarks>
+        /// Existed on <see cref="DockConfig"/> but was never published, so the delay could not be set
+        /// from the designer even once auto-hide worked - half a feature is still not a feature.
+        /// </remarks>
+        [Category("Beep Dock")]
+        [Description("Milliseconds of inactivity before an auto-hiding dock retracts.")]
+        [DefaultValue(2000)]
+        public int AutoHideDelay
+        {
+            get => _config.AutoHideDelay;
+            set
+            {
+                if (_config.AutoHideDelay == value)
+                    return;
+
+                _config.AutoHideDelay = Math.Max(50, value);
+                UpdateAutoHideState();
+            }
         }
 
         [Category("Beep Dock")]

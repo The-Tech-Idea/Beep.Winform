@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Creates and configures the controls; <see cref="BeepDialogShell"/> decides where they sit.
+        /// Creates the controls and declares the grid they sit in.
         /// </summary>
         /// <remarks>
         /// The combo box was pinned to 396×28 at (12, 36) inside a body panel pinned to 420×90. A
@@ -20,47 +20,51 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         /// </remarks>
         private void InitializeComponent()
         {
-            _shell = new BeepDialogShell();
-            _headerPanel = new TableLayoutPanel();
-            _bodyPanel = new TableLayoutPanel();
+            _shell = new TableLayoutPanel();
+            _shell.Dock = DockStyle.Fill;
+            _shell.Padding = new Padding(16);
             _dialogIcon = new BeepImage();
             _titleLabel = new BeepLabel();
             _messageLabel = new BeepLabel();
             _comboBox = new BeepComboBox();
             _okButton = new BeepButton();
             _cancelButton = new BeepButton();
+            _footerPanel = new TableLayoutPanel();
+
+            // ── the grid ─────────────────────────────────────────────────────────
+            //
+            // Declared here in plain Controls.Add statements so the controls are visible and
+            // editable on the design surface. Built from code at runtime instead, this form
+            // rendered blank in the designer: it shows what InitializeComponent parents.
+            _shell.ColumnCount = 2;
+            _shell.RowCount = 4;
+            _shell.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));      // icon gutter
+            _shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F)); // title and content
+            _shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));       // message: hugs its text
+            _shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));       // actions
             SuspendLayout();
 
             // ── header: icon + title ─────────────────────────────────────────────
-            _headerPanel.Dock = DockStyle.Fill;
-            _headerPanel.AutoSize = true;
-            _headerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            _headerPanel.ColumnCount = 2;
-            _headerPanel.RowCount = 1;
-            _headerPanel.Margin = new Padding(0);
-            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            _headerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-            _headerPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
+            _dialogIcon.IsChild = true;
             _dialogIcon.UseThemeColors = true;
             _dialogIcon.ImagePath = Svgs.Input;
             _dialogIcon.ScaleMode = ImageScaleMode.KeepAspectRatio;
             _dialogIcon.Size = new System.Drawing.Size(32, 32);
             _dialogIcon.Margin = new Padding(0, 0, 12, 0);
+            _dialogIcon.Anchor = AnchorStyles.Top;
+            _dialogIcon.IsChild = true;   // renders the shell's painted header band
 
-            _titleLabel.UseThemeColors = true;
             _titleLabel.IsFrameless = true;
             _titleLabel.AutoEllipsis = true;
+            _titleLabel.IsChild = true;
+            _titleLabel.UseThemeColors = true;
             _titleLabel.Dock = DockStyle.Fill;
+            _titleLabel.IsChild = true;   // same: the band shows through
 
             // ── body: prompt above the list ──────────────────────────────────────
-            _bodyPanel.Dock = DockStyle.Fill;
-            _bodyPanel.ColumnCount = 1;
-            _bodyPanel.RowCount = 2;
-            _bodyPanel.Margin = new Padding(0);
-            _bodyPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-            _bodyPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));       // prompt
-            _bodyPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));  // the list itself
 
             _messageLabel.UseThemeColors = true;
             _messageLabel.IsFrameless = true;
@@ -77,14 +81,22 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // ── footer actions ───────────────────────────────────────────────────
             _okButton.UseThemeColors = true;
             _okButton.Text = "OK";
-            _okButton.AutoSize = true;
             _okButton.MinimumSize = new System.Drawing.Size(110, 34);
+            // Sized from MinimumSize rather than AutoSize: a BeepButton's preferred size
+            // comes from its text alone, so an AutoSize cell sizes to the caption and the
+            // button then overflows the cell it was given.
+            _okButton.AutoSize = false;
+            _okButton.Size = new System.Drawing.Size(110, 34);
             _okButton.Click += OkButton_Click;
 
             _cancelButton.UseThemeColors = true;
             _cancelButton.Text = "Cancel";
-            _cancelButton.AutoSize = true;
             _cancelButton.MinimumSize = new System.Drawing.Size(110, 34);
+            // Sized from MinimumSize rather than AutoSize: a BeepButton's preferred size
+            // comes from its text alone, so an AutoSize cell sizes to the caption and the
+            // button then overflows the cell it was given.
+            _cancelButton.AutoSize = false;
+            _cancelButton.Size = new System.Drawing.Size(110, 34);
             _cancelButton.Click += CancelButton_Click;
 
             // ── form ─────────────────────────────────────────────────────────────
@@ -100,14 +112,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             Text = string.Empty;
             Name = "BeepListDialog";
 
+
+            // ── the action row ───────────────────────────────────────────────────
+            //
+            // Right-anchored as a whole rather than pushed over by a spacer column: a percent
+            // spacer starves the AutoSize button columns and lays the actions past the edge.
+            _footerPanel.Anchor = AnchorStyles.Right;
+            _footerPanel.AutoSize = true;
+            _footerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            _footerPanel.Margin = new Padding(0, 12, 0, 0);
+            _footerPanel.RowCount = 1;
+            _footerPanel.ColumnCount = 2;
+            _footerPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _footerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _footerPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _cancelButton.Anchor = AnchorStyles.None;
+            _cancelButton.Margin = new Padding(8, 0, 0, 0);
+            _footerPanel.Controls.Add(_cancelButton, 0, 0);
+            _okButton.Anchor = AnchorStyles.None;
+            _okButton.Margin = new Padding(8, 0, 0, 0);
+            _footerPanel.Controls.Add(_okButton, 1, 0);
+
+            _shell.Controls.Add(_dialogIcon, 0, 0);
+            _shell.SetRowSpan(_dialogIcon, 3);
+            _shell.Controls.Add(_titleLabel, 1, 0);
+            _shell.Controls.Add(_messageLabel, 1, 1);
+            _shell.Controls.Add(_comboBox, 1, 2);
+            _shell.Controls.Add(_footerPanel, 0, 3);
+            _shell.SetColumnSpan(_footerPanel, 2);
+
             Controls.Add(_shell);
 
             ResumeLayout(false);
         }
 
-        private BeepDialogShell _shell;
-        private TableLayoutPanel _headerPanel;
-        private TableLayoutPanel _bodyPanel;
+        internal TableLayoutPanel _shell;
+        internal TableLayoutPanel _footerPanel;
         internal BeepImage _dialogIcon;
         internal BeepLabel _titleLabel;
         internal BeepLabel _messageLabel;

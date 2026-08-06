@@ -19,9 +19,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Handles mouse leave events
         /// </summary>
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            HandleAutoHidePointer(pointerInside: true);
+        }
+
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            HandleAutoHidePointer(pointerInside: false);
             SetHoveredIndex(-1);
             SetPressedIndex(-1);
             UpdateItemBounds();
@@ -38,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (e.Button != MouseButtons.Left)
                 return;
 
-            int clickedIndex = DockHitTestHelper.HitTest(e.Location, _itemStates);
+            int clickedIndex = _dockPainter.HitTest(e.Location, _itemStates);
 
             if (clickedIndex >= 0 && clickedIndex < _itemStates.Count)
             {

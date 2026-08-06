@@ -24,27 +24,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         }
 
         public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
-        public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
+        public string Message { get => _messageLabel.Text; set => Helpers.DialogHelpers.SetMessage(this, _messageLabel, value); }
 
         /// <summary>Places the controls into the shell's header / body / footer regions.</summary>
         private void ComposeLayout()
         {
-            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
-            _headerPanel.Controls.Add(_titleLabel, 1, 0);
 
-            _bodyPanel.Controls.Add(_messageLabel, 0, 0);
-            _bodyPanel.Controls.Add(_inputBox, 0, 1);
-            _bodyPanel.Controls.Add(_validationLabel, 0, 2);
 
-            _shell.SetHeader(_headerPanel);
-            _shell.SetBody(_bodyPanel);
-            _shell.AddAction(_cancelButton);
-            _shell.AddAction(_okButton);
 
             _okButton.DialogResult = DialogResult.OK;
             _cancelButton.DialogResult = DialogResult.Cancel;
             AcceptButton = _okButton;
             CancelButton = _cancelButton;
+
         }
 
         public Func<string, string?>? InputValidator { get; set; }
@@ -100,21 +92,58 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             _okButton.Enabled = _inputValidationPassed;
         }
 
+        /// <summary>
+        /// Routes Enter and Escape through the form's button properties, not the fields behind them.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <c>CancelButton</c> is the single lever a caller has for turning Escape off —
+        /// <c>BeepDialogManager</c> clears it when a config sets <c>CloseOnEscape = false</c>.
+        /// Pressing <c>_cancelButton</c> directly read straight past that decision.
+        /// </para>
+        /// <para>
+        /// Enter is left alone while a multi-line field has focus, so it inserts a newline instead of
+        /// submitting the dialog. Committing on Enter in a box the caller asked to be multi-line makes
+        /// the second line unreachable from the keyboard.
+        /// </para>
+        /// </remarks>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == Keys.Enter && _okButton.Enabled) { _okButton.PerformClick(); return true; }
-            if (keyData == Keys.Escape) { _cancelButton.PerformClick(); return true; }
+            bool typingInMultiline = _inputBox.Multiline && ReferenceEquals(ActiveControl, _inputBox);
+
+            if (keyData == Keys.Enter && !typingInMultiline && _okButton.Enabled)
+            {
+                _okButton.PerformClick();
+                return true;
+            }
+
+            if (keyData == Keys.Escape)
+            {
+                CancelButton?.PerformClick();
+                return true;
+            }
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        protected override void OnShown(EventArgs e) { base.OnShown(e); _inputBox.Focus(); _inputBox.SelectAll(); }
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            Helpers.DialogHelpers.DescribeActions(this); _inputBox.Focus(); _inputBox.SelectAll();
+        }
 
         public override void ApplyTheme()
         {
-            if (_headerPanel == null) return;
+            if (_titleLabel == null) return;
             _dialogIcon.Theme = Theme; _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
             _inputBox.Theme = Theme; _validationLabel.Theme = Theme;
             _okButton.Theme = Theme; _cancelButton.Theme = Theme;
+
+        }
+
+        private void _dialogIcon_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

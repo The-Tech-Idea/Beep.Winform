@@ -8,6 +8,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     internal class PillBottomBarPainter : BaseBottomBarPainter
     {
         public override string Name => "Pill";
+
+        /// <summary>
+        /// The pill holds the icon and its label side by side, so the selected cell has to fit both.
+        /// </summary>
+        protected override float SelectedCellWidthFactor => 1.75f;
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);

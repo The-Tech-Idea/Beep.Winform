@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             HideDockTooltip();
             var center = PointToScreen(new Point(state.Bounds.Left + state.Bounds.Width / 2, state.Bounds.Top));
-            _activeTooltip = new Docks.BeepDockTooltip(state.Item, _currentTheme);
+            _activeTooltip = new Docks.BeepDockTooltip(state.Item, _currentTheme, _config.Style);
             _activeTooltip.ShowTooltip(center, delay: 0);
         }
 
@@ -129,13 +129,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            try
+            // The folder's only swallowed exception used to be here: HideTooltip in a try, with a
+            // bare catch that disposed instead. Disposing is a reasonable recovery; discarding the
+            // reason is not, because a tooltip that threw on every hide looked exactly like one that
+            // hid cleanly.
+            //
+            // The probe could not make HideTooltip throw - not on a closed tooltip, not on a disposed
+            // one - so the catch is not covering a reproducible failure. It is replaced with a state
+            // check rather than a narrower catch: if something here does fail, it is a real defect
+            // and must surface rather than be absorbed a second time.
+            if (!_activeTooltip.IsDisposed)
             {
                 _activeTooltip.HideTooltip();
-            }
-            catch
-            {
-                _activeTooltip.Dispose();
             }
 
             _activeTooltip = null;

@@ -106,6 +106,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 int w = (int)itemSize;
                 int h = (int)itemSize;
 
+                // The hovered item lifts toward the outside edge of the dock.
+                if (i == hoverIndex && config.HoverOffset != 0)
+                    y -= config.Position == DockPosition.Top ? -config.HoverOffset : config.HoverOffset;
+
                 bounds[i] = new Rectangle(x, y, w, h);
                 currentX += itemSize + effectiveSpacing;
             }
@@ -172,6 +176,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 int y = (int)currentY;
                 int w = (int)itemSize;
                 int h = (int)itemSize;
+
+                if (i == hoverIndex && config.HoverOffset != 0)
+                    x -= config.Position == DockPosition.Left ? -config.HoverOffset : config.HoverOffset;
 
                 bounds[i] = new Rectangle(x, y, w, h);
                 currentY += itemSize + effectiveSpacing;
@@ -338,18 +345,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
         /// <summary>
         /// Calculates smooth easing for animations
         /// </summary>
-        public static float EaseOutCubic(float t)
-        {
-            return 1 - (float)Math.Pow(1 - t, 3);
-        }
-
-        /// <summary>
+         /// <summary>
         /// Calculates smooth easing with spring physics
         /// </summary>
-        public static float EaseOutElastic(float t)
-        {
-            const float c4 = (2 * (float)Math.PI) / 3;
-            return t == 0 ? 0 : t == 1 ? 1 : (float)(Math.Pow(2, -10 * t) * Math.Sin((t * 10 - 0.75) * c4) + 1);
-        }
-    }
+     }
 }

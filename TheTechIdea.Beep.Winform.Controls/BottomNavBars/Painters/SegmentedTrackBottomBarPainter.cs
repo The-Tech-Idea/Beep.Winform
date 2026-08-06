@@ -13,6 +13,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public int IndicatorHeight { get; set; } = 6;
         public int IndicatorRadius { get; set; } = 3;
 
+        /// <summary>Reserves the track band at the bottom so the labels are laid out above it.</summary>
+        protected override Rectangle GetContentBounds(BottomBarPainterContext context)
+        {
+            var r = context.Bounds;
+            r.Height = Math.Max(1, r.Height - (TrackHeight + TrackBottomInset * 2));
+            return r;
+        }
+
+        /// <summary>Gap between the track and the bottom edge of the bar.</summary>
+        private const int TrackBottomInset = 4;
+
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
@@ -21,8 +32,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             using (var b = new SolidBrush(ResolveBarBack(context)))
                 g.FillRectangle(b, barRect);
 
-            // draw the small track across the bar, slightly inset from the bottom
-            var trackRect = new Rectangle(barRect.Left + 16, barRect.Top + barRect.Height - TrackHeight - 10, barRect.Width - 32, TrackHeight);
+            // The track sits in the band GetContentBounds reserved, below the labels. It used to be
+            // placed at `Height - TrackHeight - 10` against a grid laid out over the full height, so
+            // it ran through the caption of every item.
+            var trackRect = new Rectangle(
+                barRect.Left + 16,
+                barRect.Bottom - TrackHeight - TrackBottomInset,
+                barRect.Width - 32,
+                TrackHeight);
             using (var tr = new SolidBrush(context.NavigationBorderColor == Color.Empty ? context.BarHoverBackColor : context.NavigationBorderColor))
                 g.FillRectangle(tr, trackRect);
 

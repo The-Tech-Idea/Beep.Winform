@@ -19,11 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // GNOME uses a semi-transparent dark background
-            var bgColor = GetColor(
-                config.BackgroundColor, 
-                theme?.BackColor ?? Color.FromArgb(40, 40, 45), 
-                config.BackgroundOpacity
-            );
+            var bgColor = ResolveBackground(config, theme, Color.FromArgb(40, 40, 45));
 
             // Adjust radius based on position
             int radius = config.Position == DockPosition.Left || config.Position == DockPosition.Right 
@@ -181,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             if (itemState?.Item == null) return;
 

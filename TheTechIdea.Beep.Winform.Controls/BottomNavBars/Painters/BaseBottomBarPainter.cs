@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 {
@@ -16,11 +17,44 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
         public virtual void Dispose() { }
 
+        /// <summary>
+        /// Width the selected cell needs, as a multiple of a normal cell. 1.0 keeps the equal grid.
+        /// </summary>
+        /// <remarks>
+        /// Most of the reference designs keep a strict equal-cell grid and show selection with colour,
+        /// a pill behind the icon, or an indicator bar. A few draw a pill containing the icon *and*
+        /// its label side by side, and those genuinely need a wider cell - a 74px cell cannot hold a
+        /// 24px icon plus a word, which is why that style rendered "H..." where the reference reads
+        /// "Home". Declaring it per painter keeps the grid strict everywhere it should be, instead of
+        /// widening every style's selection because one of them needs it.
+        /// </remarks>
+        protected virtual float SelectedCellWidthFactor => 1.0f;
+
         public virtual void CalculateLayout(BottomBarPainterContext context)
         {
             _layoutHelper = context.LayoutHelper ?? new BeepBottomBarLayoutHelper();
-            _layoutHelper.EnsureLayout(context.Bounds, context.Items, context.CTAIndex, context.SelectedIndex);
+
+            // The style's requirement is a floor, not an override: a caller who asked for more keeps it.
+            float needed = Math.Max(_layoutHelper.SelectedWidthFactor, SelectedCellWidthFactor);
+            if (Math.Abs(_layoutHelper.SelectedWidthFactor - needed) > 0.001f)
+            {
+                _layoutHelper.SelectedWidthFactor = needed;
+                _layoutHelper.InvalidateLayout();
+            }
+
+            _layoutHelper.EnsureLayout(GetContentBounds(context), context.Items, context.CTAIndex, context.SelectedIndex);
         }
+
+        /// <summary>
+        /// The area the icon/label grid may occupy. Override to reserve a band for style chrome.
+        /// </summary>
+        /// <remarks>
+        /// A style that draws a track or rail along an edge has to take that space out of the layout,
+        /// or the grid is laid out over the full height and the chrome is drawn straight through the
+        /// labels - which is exactly what SegmentedTrack did, striking a line through the selected
+        /// item's caption.
+        /// </remarks>
+        protected virtual Rectangle GetContentBounds(BottomBarPainterContext context) => context.Bounds;
 
         public virtual void RegisterHitAreas(BottomBarPainterContext context)
         {
@@ -98,8 +132,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var iconRect = _layoutHelper.GetIconRect(index);
             if (iconRect == Rectangle.Empty)
             {
-                int iconSize = Math.Min(24, rect.Height / 3);
-                iconRect = new Rectangle(rect.Left + (rect.Width - iconSize) / 2, rect.Top + 6, iconSize, iconSize);
+                // Spec icon size, same as the layout helper - this fallback carried the same
+                // Math.Min(24, height / 3) that kept icons a quarter under size.
+                int iconSize = Math.Min(24, Math.Max(8, rect.Height - 14));
+                iconRect = new Rectangle(rect.Left + (rect.Width - iconSize) / 2, rect.Top + 7, iconSize, iconSize);
             }
 
             PaintItemIcon(g, item, iconRect, isSelected, isHovered, context);
@@ -133,15 +169,38 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
         protected virtual void PaintItemIcon(Graphics g, SimpleItem item, Rectangle iconRect, bool isSelected, bool isHovered, BottomBarPainterContext context)
         {
-            context.ImagePainter.ImagePath = string.IsNullOrEmpty(item?.ImagePath) ? context.DefaultImagePath : item.ImagePath;
-            context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-            var previousFill = context.ImagePainter.FillColor;
-            var previousApplyTheme = context.ImagePainter.ApplyThemeOnImage;
-            context.ImagePainter.ApplyThemeOnImage = false;
-            context.ImagePainter.FillColor = isSelected ? ResolveAccent(context) : (isHovered ? ResolveHoverFore(context) : ResolveBarFore(context));
-            context.ImagePainter.DrawImage(g, iconRect);
-            context.ImagePainter.ApplyThemeOnImage = previousApplyTheme;
-            context.ImagePainter.FillColor = previousFill;
+            var tint = isSelected
+                ? ResolveAccent(context)
+                : (isHovered ? ResolveHoverFore(context) : ResolveBarFore(context));
+
+            PaintTintedIcon(g, string.IsNullOrEmpty(item?.ImagePath) ? context.DefaultImagePath : item.ImagePath,
+                            iconRect, tint, context);
+        }
+
+        /// <summary>
+        /// Draws an icon in a given colour.
+        /// </summary>
+        /// <remarks>
+        /// Every painter used to do this by setting <c>ImagePainter.ApplyThemeOnImage = false</c> and
+        /// then assigning <c>FillColor</c> - but <c>FillColor</c> is only applied by
+        /// <c>ApplyThemeToSvg</c>, which the <c>ApplyThemeOnImage</c> setter calls **only when set to
+        /// true**. So the assignment invalidated a cache and tinted nothing: every icon rendered in
+        /// the SVG's own colours, measured at pure black for both the selected and unselected item.
+        /// The selected icon being accent-coloured is the most visible thing in every one of the
+        /// reference designs, and no style had it.
+        ///
+        /// <c>StyledImagePainter.PaintWithTint</c> is the supported path and is what the Docks
+        /// painters already use.
+        /// </remarks>
+        protected static void PaintTintedIcon(Graphics g, string imagePath, Rectangle iconRect, Color tint,
+                                              BottomBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(imagePath) || iconRect.Width <= 0 || iconRect.Height <= 0)
+                return;
+
+            using var path = new GraphicsPath();
+            path.AddRectangle(iconRect);
+            StyledImagePainter.PaintWithTint(g, path, imagePath, tint);
         }
 
         protected virtual void PaintItemBadge(Graphics g, SimpleItem item, Rectangle iconRect, BottomBarPainterContext context)
@@ -191,9 +250,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
         }
 
+        /// <summary>Label size in points, from the design spec.</summary>
+        /// <remarks>
+        /// The reference sheet specifies 12px labels. The family still comes from the theme, so a
+        /// themed font is honoured where it matters and the control's own proportions are honoured
+        /// where they matter - taking the size from the theme too made the label whatever
+        /// <c>BodySmall</c> happened to be, which is how the labels drifted off-spec.
+        /// </remarks>
+        protected const float LabelPointSize = 9f;   // 12px at 96dpi
+
         protected virtual Font ResolveItemFont(BottomBarPainterContext context)
         {
-            return BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodySmall) ?? SystemFonts.DefaultFont;
+            var themed = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodySmall);
+            var family = themed?.FontFamily ?? SystemFonts.DefaultFont.FontFamily;
+            var style = themed?.Style ?? FontStyle.Regular;
+            return new Font(family, LabelPointSize, style, GraphicsUnit.Point);
         }
 
         protected void DrawIndicatorPill(Graphics g, RectangleF rect, Color accent, float alpha)

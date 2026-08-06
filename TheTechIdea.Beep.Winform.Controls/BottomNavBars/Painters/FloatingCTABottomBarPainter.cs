@@ -161,14 +161,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     context.Graphics.SmoothingMode = SmoothingMode.Default;
                 }
 
-                // Draw remaining items
-                var rects = _layoutHelper.GetItemRectangles();
-                for (int i = 0; i < rects.Count; i++)
-                {
-                    if (i == context.CTAIndex) continue; // CTA drawn separately
-                    var item = context.Items[i];
-                    PaintMenuItem(context.Graphics, item, rects[i], context);
-                }
+            }
+
+            // Items, whether or not a CTA is configured. This loop used to sit inside the
+            // `if (CTAIndex >= 0)` above, so a bar without a CTA painted its background and stopped:
+            // every item invisible, the whole style rendering as an empty white strip. Having no CTA
+            // is a configuration, not a reason to draw nothing. Both sibling styles,
+            // OutlineFloatingCTA and MovableNotch, already had their loop outside the conditional.
+            var rects = _layoutHelper.GetItemRectangles();
+            for (int i = 0; i < rects.Count; i++)
+            {
+                if (i == context.CTAIndex) continue; // CTA drawn separately
+                var item = context.Items[i];
+                PaintMenuItem(context.Graphics, item, rects[i], context);
             }
         }
         // Hit area registration is handled by the more detailed animated method below

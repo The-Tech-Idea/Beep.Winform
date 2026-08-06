@@ -8,9 +8,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
 {
     /// <summary>
-    /// Helper class for mapping DockStyle and BeepControlStyle to dock styling properties
-    /// Integrates with BeepStyling system for consistent styling
+    /// Maps a <see cref="DockStyle"/> onto the wider Beep styling system.
     /// </summary>
+    /// <remarks>
+    /// This class used to carry eight per-style switch tables as well - recommended item size, dock
+    /// height, spacing, padding, max scale, icon ratio, shadow and background opacity. They were a
+    /// second set of per-style defaults that disagreed with <see cref="DockPainterMetrics"/> for 13 of
+    /// 17 styles, and both were live at once: the control wrote these into <c>DockConfig</c> and laid
+    /// out with them, while the painters that asked for metrics drew with the others. The tables are
+    /// now merged into <see cref="DockPainterMetrics"/>, which is the single source; these values won
+    /// the merge because they are the ones the layout was already using.
+    ///
+    /// What remains is the one thing this class is actually for: the mapping to
+    /// <see cref="BeepControlStyle"/>, which is a different system with a different vocabulary.
+    /// </remarks>
     public static class DockStyleHelpers
     {
         /// <summary>
@@ -47,230 +58,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
         public static int GetBorderRadius(BeepControlStyle controlStyle, int dockHeight)
         {
             return BeepStyling.GetRadius(controlStyle);
-        }
-
-        /// <summary>
-        /// Gets recommended item size for dock style
-        /// </summary>
-        public static int GetRecommendedItemSize(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => 56,
-                DockStyle.Windows11Dock => 48,
-                DockStyle.Material3Dock => 56,
-                DockStyle.MinimalDock => 44,
-                DockStyle.GlassmorphismDock => 56,
-                DockStyle.NeumorphismDock => 56,
-                DockStyle.iOSDock => 60,
-                DockStyle.GNOMEDock => 48,
-                DockStyle.PlasmaPanel => 48,
-                DockStyle.PlankDock => 40,
-                DockStyle.NeonDock => 56,
-                DockStyle.NordDock => 56,
-                DockStyle.CyberpunkDock => 54,
-                DockStyle.TerminalDock => 48,
-                DockStyle.BubbleDock => 58,
-                DockStyle.ArcDock => 48,
-                DockStyle.DraculaDock => 52,
-                _ => 56
-            };
-        }
-
-        /// <summary>
-        /// Gets recommended dock height for dock style
-        /// </summary>
-        public static int GetRecommendedDockHeight(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => 72,
-                DockStyle.Windows11Dock => 64,
-                DockStyle.Material3Dock => 72,
-                DockStyle.MinimalDock => 56,
-                DockStyle.GlassmorphismDock => 72,
-                DockStyle.NeumorphismDock => 72,
-                DockStyle.iOSDock => 80,
-                DockStyle.GNOMEDock => 64,
-                DockStyle.PlasmaPanel => 64,
-                DockStyle.PlankDock => 48,
-                DockStyle.NeonDock => 72,
-                DockStyle.NordDock => 72,
-                DockStyle.CyberpunkDock => 74,
-                DockStyle.TerminalDock => 64,
-                DockStyle.BubbleDock => 76,
-                DockStyle.ArcDock => 60,
-                DockStyle.DraculaDock => 70,
-                _ => 72
-            };
-        }
-
-        /// <summary>
-        /// Gets recommended spacing between items
-        /// </summary>
-        public static int GetRecommendedSpacing(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => 8,
-                DockStyle.Windows11Dock => 6,
-                DockStyle.Material3Dock => 8,
-                DockStyle.MinimalDock => 4,
-                DockStyle.GlassmorphismDock => 8,
-                DockStyle.NeumorphismDock => 8,
-                DockStyle.iOSDock => 10,
-                DockStyle.GNOMEDock => 6,
-                DockStyle.PlasmaPanel => 6,
-                DockStyle.PlankDock => 4,
-                DockStyle.NeonDock => 8,
-                DockStyle.NordDock => 8,
-                DockStyle.CyberpunkDock => 10,
-                DockStyle.TerminalDock => 6,
-                DockStyle.BubbleDock => 12,
-                DockStyle.ArcDock => 8,
-                DockStyle.DraculaDock => 8,
-                _ => 8
-            };
-        }
-
-        /// <summary>
-        /// Gets recommended padding for dock
-        /// </summary>
-        public static int GetRecommendedPadding(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => 12,
-                DockStyle.Windows11Dock => 10,
-                DockStyle.Material3Dock => 12,
-                DockStyle.MinimalDock => 8,
-                DockStyle.GlassmorphismDock => 12,
-                DockStyle.NeumorphismDock => 12,
-                DockStyle.iOSDock => 14,
-                DockStyle.GNOMEDock => 10,
-                DockStyle.PlasmaPanel => 10,
-                DockStyle.PlankDock => 8,
-                DockStyle.NeonDock => 12,
-                DockStyle.NordDock => 12,
-                DockStyle.CyberpunkDock => 12,
-                DockStyle.TerminalDock => 10,
-                DockStyle.BubbleDock => 14,
-                DockStyle.ArcDock => 10,
-                DockStyle.DraculaDock => 12,
-                _ => 12
-            };
-        }
-
-        /// <summary>
-        /// Gets recommended maximum scale for hover effect
-        /// </summary>
-        public static float GetRecommendedMaxScale(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => 1.5f,
-                DockStyle.Windows11Dock => 1.3f,
-                DockStyle.Material3Dock => 1.4f,
-                DockStyle.MinimalDock => 1.2f,
-                DockStyle.GlassmorphismDock => 1.5f,
-                DockStyle.NeumorphismDock => 1.4f,
-                DockStyle.iOSDock => 1.6f,
-                DockStyle.GNOMEDock => 1.3f,
-                DockStyle.PlasmaPanel => 1.3f,
-                DockStyle.PlankDock => 1.2f,
-                DockStyle.NeonDock => 1.5f,
-                DockStyle.NordDock => 1.4f,
-                DockStyle.CyberpunkDock => 1.45f,
-                DockStyle.TerminalDock => 1.25f,
-                DockStyle.BubbleDock => 1.55f,
-                DockStyle.ArcDock => 1.25f,
-                DockStyle.DraculaDock => 1.35f,
-                _ => 1.5f
-            };
-        }
-
-        /// <summary>
-        /// Gets icon size ratio for dock items (as percentage of item size)
-        /// </summary>
-        public static float GetIconSizeRatio(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => 0.8f,
-                DockStyle.Windows11Dock => 0.75f,
-                DockStyle.Material3Dock => 0.8f,
-                DockStyle.MinimalDock => 0.85f,
-                DockStyle.GlassmorphismDock => 0.8f,
-                DockStyle.NeumorphismDock => 0.8f,
-                DockStyle.iOSDock => 0.85f,
-                DockStyle.GNOMEDock => 0.75f,
-                DockStyle.PlasmaPanel => 0.75f,
-                DockStyle.PlankDock => 0.9f,
-                DockStyle.NeonDock => 0.8f,
-                DockStyle.NordDock => 0.8f,
-                DockStyle.CyberpunkDock => 0.78f,
-                DockStyle.TerminalDock => 0.82f,
-                DockStyle.BubbleDock => 0.86f,
-                DockStyle.ArcDock => 0.8f,
-                DockStyle.DraculaDock => 0.8f,
-                _ => 0.8f
-            };
-        }
-
-        /// <summary>
-        /// Determines if shadow should be shown for dock
-        /// </summary>
-        public static bool ShouldShowShadow(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => true,
-                DockStyle.Windows11Dock => true,
-                DockStyle.Material3Dock => true,
-                DockStyle.MinimalDock => false,
-                DockStyle.GlassmorphismDock => true,
-                DockStyle.NeumorphismDock => true,
-                DockStyle.iOSDock => true,
-                DockStyle.GNOMEDock => false,
-                DockStyle.PlasmaPanel => false,
-                DockStyle.PlankDock => false,
-                DockStyle.NeonDock => true,
-                DockStyle.NordDock => false,
-                DockStyle.CyberpunkDock => true,
-                DockStyle.TerminalDock => false,
-                DockStyle.BubbleDock => true,
-                DockStyle.ArcDock => false,
-                DockStyle.DraculaDock => true,
-                _ => true
-            };
-        }
-
-        /// <summary>
-        /// Gets recommended background opacity
-        /// </summary>
-        public static float GetRecommendedBackgroundOpacity(DockStyle dockStyle)
-        {
-            return dockStyle switch
-            {
-                DockStyle.AppleDock => 0.85f,
-                DockStyle.Windows11Dock => 0.9f,
-                DockStyle.Material3Dock => 0.8f,
-                DockStyle.MinimalDock => 1.0f,
-                DockStyle.GlassmorphismDock => 0.7f,
-                DockStyle.NeumorphismDock => 0.9f,
-                DockStyle.iOSDock => 0.85f,
-                DockStyle.GNOMEDock => 0.9f,
-                DockStyle.PlasmaPanel => 0.9f,
-                DockStyle.PlankDock => 1.0f,
-                DockStyle.NeonDock => 0.8f,
-                DockStyle.NordDock => 0.85f,
-                DockStyle.CyberpunkDock => 0.9f,
-                DockStyle.TerminalDock => 0.95f,
-                DockStyle.BubbleDock => 0.88f,
-                DockStyle.ArcDock => 0.95f,
-                DockStyle.DraculaDock => 0.9f,
-                _ => 0.85f
-            };
         }
     }
 }

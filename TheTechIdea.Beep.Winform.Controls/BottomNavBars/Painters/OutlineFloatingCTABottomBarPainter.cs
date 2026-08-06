@@ -45,8 +45,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     var fillRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                     g.FillEllipse(fill, fillRect);
                 }
-                // outline ring
-                using (var pen = new Pen(ResolveOnAccent(context), RingStrokeWidth))
+                // Outline ring in the ACCENT, not the on-accent. On-accent is the colour for content
+                // drawn *on top of* a filled accent shape - white by default - and this circle is not
+                // filled with accent, it is an outline with the bar showing through. A white ring on
+                // a white bar is invisible, which is exactly how this style rendered.
+                using (var pen = new Pen(ResolveAccent(context), RingStrokeWidth))
                 {
                     var ringRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                     g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -58,7 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 var prev = context.ImagePainter.FillColor;
                 context.ImagePainter.ImagePath = string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath) ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath;
                 context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-                context.ImagePainter.FillColor = ResolveOnAccent(context);
+                // Accent too: the ring is an outline, so the icon sits on the bar, not on a filled
+                // accent disc. On-accent white would have made it invisible alongside the ring.
+                context.ImagePainter.FillColor = ResolveAccent(context);
                 context.ImagePainter.DrawImage(g, iconRect);
                 context.ImagePainter.FillColor = prev;
             }

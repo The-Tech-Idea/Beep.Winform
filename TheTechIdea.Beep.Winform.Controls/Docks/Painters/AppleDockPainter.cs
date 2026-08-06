@@ -25,6 +25,103 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         private const int ReflectionHeight = 20;
         private const int GlassBlurRadius = 15;
 
+        #region Geometry
+
+        /// <summary>Items either side of the cursor that grow. macOS spreads the bulge wider than the shared default's 2.</summary>
+        private const int MagnificationReach = 4;
+
+        /// <summary>
+        /// macOS-style magnification: a smooth cosine bulge over four neighbours either side.
+        /// </summary>
+        /// <remarks>
+        /// This is the first style to own its geometry rather than just its pixels, and it is the
+        /// proof that <see cref="IDockPainter"/>'s layout members are wired to something. The shared
+        /// default in <c>DockLayoutHelper</c> uses a linear falloff over two neighbours, which
+        /// produces a visible kink at the edge of the influence range; the real dock eases out over a
+        /// wider span so the row swells rather than steps.
+        /// </remarks>
+        public override Rectangle[] CalculateItemBounds(
+            Rectangle dockBounds,
+            IList<SimpleItem> items,
+            DockConfig config,
+            int hoverIndex,
+            float hoverProgress)
+        {
+            if (items == null || items.Count == 0)
+                return Array.Empty<Rectangle>();
+
+            if (hoverIndex < 0 || hoverIndex >= items.Count || hoverProgress <= 0f)
+                return base.CalculateItemBounds(dockBounds, items, config, hoverIndex, hoverProgress);
+
+            int baseSize = config.ItemSize;
+            int spacing = config.Spacing;
+            float maxScale = config.MaxScale;
+
+            var scales = new float[items.Count];
+            for (int i = 0; i < items.Count; i++)
+            {
+                int distance = Math.Abs(i - hoverIndex);
+                if (distance > MagnificationReach)
+                {
+                    scales[i] = 1.0f;
+                    continue;
+                }
+
+                // cos eased from 1 at the cursor to 0 at the edge of the reach.
+                float t = (float)distance / (MagnificationReach + 1);
+                float falloff = 0.5f * (1f + (float)Math.Cos(Math.PI * t));
+                scales[i] = 1.0f + (maxScale - 1.0f) * falloff * hoverProgress;
+            }
+
+            return LayOut(dockBounds, config, scales, baseSize, spacing, hoverIndex);
+        }
+
+        /// <summary>Places items along the dock using per-item scales, centred on the cross axis.</summary>
+        private static Rectangle[] LayOut(Rectangle dockBounds, DockConfig config, float[] scales, int baseSize, int spacing, int hoverIndex)
+        {
+            var bounds = new Rectangle[scales.Length];
+            bool horizontal = config.Orientation == DockOrientation.Horizontal;
+
+            float total = 0;
+            for (int i = 0; i < scales.Length; i++)
+            {
+                total += baseSize * scales[i];
+                if (i < scales.Length - 1) total += spacing;
+            }
+
+            float available = horizontal ? dockBounds.Width : dockBounds.Height;
+            float pos = dockBounds.Left + Math.Max(config.Padding, (available - total) / 2f);
+            if (!horizontal) pos = dockBounds.Top + Math.Max(config.Padding, (available - total) / 2f);
+
+            for (int i = 0; i < scales.Length; i++)
+            {
+                int size = (int)Math.Round(baseSize * scales[i]);
+
+                // The hovered item lifts, same as the shared layout. A style that owns its geometry
+                // owns all of it, including the config properties the default honours - overriding
+                // CalculateItemBounds must not silently drop HoverOffset.
+                int lift = i == hoverIndex ? config.HoverOffset : 0;
+
+                if (horizontal)
+                {
+                    int y = dockBounds.Top + (dockBounds.Height - size) / 2;
+                    y -= config.Position == DockPosition.Top ? -lift : lift;
+                    bounds[i] = new Rectangle((int)Math.Round(pos), y, size, size);
+                }
+                else
+                {
+                    int x = dockBounds.Left + (dockBounds.Width - size) / 2;
+                    x -= config.Position == DockPosition.Left ? -lift : lift;
+                    bounds[i] = new Rectangle(x, (int)Math.Round(pos), size, size);
+                }
+                pos += size + spacing;
+            }
+
+            return bounds;
+        }
+
+        #endregion
+
         public override void PaintDockBackground(Graphics g, Rectangle bounds, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -136,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        protected override void PaintDockItemCore(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var metrics = GetScaledMetrics(config, theme, g);
@@ -203,12 +300,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 ReflectionHeight
             );
 
-            // Flip and fade the icon for reflection
+            // Flip and fade the icon for reflection.
+            //
+            // Saved and restored, not reset. This used to end with g.ResetTransform() and
+            // g.ResetClip(), which set the transform to identity and drop the clip entirely rather
+            // than putting back whatever the caller had. Anything drawn afterwards on the same
+            // Graphics - this item's own indicator, its badge, every later item in the same paint -
+            // landed in the wrong place or was clipped away. It was invisible in the control only
+            // because BeepDock happens to paint in untransformed client coordinates today.
             using (var path = CreateRoundedPath(reflectionRect, metrics.CornerRadius / 2))
             {
-                g.SetClip(path);
+                var saved = g.Save();
 
-                var matrix = new Matrix();
+                g.SetClip(path, System.Drawing.Drawing2D.CombineMode.Intersect);
+
+                var matrix = g.Transform.Clone();
                 matrix.Translate(bounds.X + bounds.Width / 2f, bounds.Bottom + ReflectionHeight);
                 matrix.Scale(1, -1);
                 matrix.Translate(-(bounds.X + bounds.Width / 2f), -bounds.Y);
@@ -222,8 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                     PaintItemIcon(g, bounds, itemState.Item.ImagePath, config, theme, 0.3f);
                 }
 
-                g.ResetTransform();
-                g.ResetClip();
+                g.Restore(saved);
 
                 // Gradient fade on reflection
                 using (var fadeBrush = new LinearGradientBrush(
@@ -277,6 +382,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         public override void PaintIndicator(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             if (config.IndicatorStyle == DockIndicatorStyle.None)
+                return;
+
+            // An indicator means something is running or selected. This drew its dot under *every*
+            // item unconditionally, so a normal item and a running one were the same pixels - which
+            // is how AppleDock came to report Normal == Running - and config.ShowRunningIndicator,
+            // one of the flags with barely any readers, was ignored entirely.
+            bool running = itemState.IsRunning && config.ShowRunningIndicator;
+            if (!running && !itemState.IsSelected)
                 return;
 
             var metrics = GetMetrics(config, theme, false);

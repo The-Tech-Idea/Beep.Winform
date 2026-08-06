@@ -32,17 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         /// </remarks>
         private void ComposeLayout()
         {
-            _headerPanel.Controls.Add(_dialogIcon, 0, 0);
-            _headerPanel.Controls.Add(_titleLabel, 1, 0);
 
-            _bodyPanel.Controls.Add(_messageLabel, 0, 0);
-            _bodyPanel.Controls.Add(_detailsToggleButton, 0, 1);
-            _bodyPanel.Controls.Add(_detailsLabel, 0, 2);
 
-            _shell.SetHeader(_headerPanel);
-            _shell.SetBody(_bodyPanel);
-            _shell.AddAction(_noButton);
-            _shell.AddAction(_yesButton);
 
             // The framework's dialog contract, available now that BeepButton implements
             // IButtonControl. Yes accepts, No cancels — so Enter and Escape are routed by the form
@@ -51,10 +42,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             _noButton.DialogResult = DialogResult.No;
             AcceptButton = _yesButton;
             CancelButton = _noButton;
+
         }
 
         public string Title { get => _titleLabel.Text; set => Helpers.DialogHelpers.SetTitle(this, _titleLabel, value); }
-        public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
+        public string Message { get => _messageLabel.Text; set => Helpers.DialogHelpers.SetMessage(this, _messageLabel, value); }
 
         public string DetailsText { get => _detailsLabel.Text; set { _detailsLabel.Text = value ?? string.Empty; UpdateDetailsVisibility(); } }
         public bool DetailsExpanded { get => _detailsExpanded; set { _detailsExpanded = value; UpdateDetailsVisibility(); } }
@@ -70,8 +62,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             }
         }
 
-        public Dictionary<TheTechIdea.Beep.Vis.Modules.BeepDialogButtons, string>? CustomButtonLabels { get; set; }
-
         private void YesButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 0 ? (_typedButtons[0].Id ?? "yes") : "yes"; DialogResult = DialogResult.Yes; Close(); }
         private void NoButton_Click(object? sender, EventArgs e) { ReturnValue = _typedButtons.Length > 1 ? (_typedButtons[1].Id ?? "no") : "no"; DialogResult = DialogResult.No; Close(); }
 
@@ -86,6 +76,29 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             _titleLabel.Theme = Theme; _messageLabel.Theme = Theme;
             _detailsToggleButton.Theme = Theme; _detailsLabel.Theme = Theme;
             _yesButton.Theme = Theme; _noButton.Theme = Theme;
+
+        }
+
+        /// <summary>
+        /// Opens with focus on the safe action, never the one that commits.
+        /// </summary>
+        /// <remarks>
+        /// This dialog was one of two that decided nothing about initial focus, and it is the one that
+        /// matters: it is the confirm dialog, so it is the one most likely to carry a destructive
+        /// action. A confirm dialog that opens with the committing button focused turns a stray Enter
+        /// into data loss — which is the risk `Example_images/dialog2.png` is drawn to slow down, with
+        /// "No, keep it." sitting left of "Yes, Delete!".
+        /// <para>
+        /// No is the safe answer here, and it is already this dialog's <c>CancelButton</c>.
+        /// </para>
+        /// </remarks>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            Helpers.DialogHelpers.DescribeActions(this);
+
+            if (_noButton.Visible && _noButton.Enabled) _noButton.Focus();
+            else if (_yesButton.Visible) _yesButton.Focus();
         }
 
         private void UpdateDetailsVisibility()

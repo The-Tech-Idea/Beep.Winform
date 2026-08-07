@@ -126,7 +126,13 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
         public void ClearLayout()
         {
             _columns.Clear();
-            try { _owner.ClearHitList(); } catch { }
+            try { _owner.ClearHitList(); }
+            catch (Exception ex)
+            {
+                // A hit list that will not clear leaves stale clickable regions over a table that no
+                // longer matches them.
+                Diagnostics.BeepLog.Failure(_owner, "clear the vertical table hit list", ex);
+            }
         }
 
         /// <summary>

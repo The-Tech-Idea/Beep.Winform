@@ -21,10 +21,10 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
         // Gradient pairs for price banners
         private readonly (Color Start, Color End)[] _gradients = new (Color, Color)[]
         {
-            (Color.FromArgb(96, 165, 250), Color.FromArgb(59, 130, 246)),   // Blue
-            (Color.FromArgb(167, 139, 250), Color.FromArgb(139, 92, 246)), // Purple
+            (VerticalTableThemeHelpers.Cur.PrimaryColor, VerticalTableThemeHelpers.Cur.PrimaryColor),   // Blue
+            (Color.FromArgb(167, 139, 250), VerticalTableThemeHelpers.Cur.AccentColor), // Purple
             (Color.FromArgb(251, 146, 60), Color.FromArgb(249, 115, 22)),  // Orange
-            (Color.FromArgb(52, 211, 153), Color.FromArgb(16, 185, 129)),  // Emerald
+            (Color.FromArgb(52, 211, 153), VerticalTableThemeHelpers.Cur.SuccessColor),  // Emerald
         };
 
         /// <inheritdoc/>
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Light gray background
-            using (var backBrush = new SolidBrush(Color.FromArgb(241, 245, 249)))
+            using (var backBrush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridHeaderBackColor))
             {
                 g.FillRectangle(backBrush, bounds);
             }
@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             // Card background
             using (var path = CreateRoundedRectPath(cardRect, CornerRadius))
             {
-                using (var brush = new SolidBrush(Color.White))
+                using (var brush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridBackColor))
                 {
                     g.FillPath(brush, path);
                 }
@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
 
             // Plan name
             using (var font = new Font("Segoe UI", 16, FontStyle.Bold))
-            using (var brush = new SolidBrush(Color.FromArgb(30, 41, 59)))
+            using (var brush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridHeaderForeColor))
             {
                 var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
                 g.DrawString(column.Text ?? column.Name ?? "", font, brush, new Rectangle(rect.Left, yOffset, rect.Width, 28), sf);
@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             if (!string.IsNullOrEmpty(column.SubText))
             {
                 using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
-                using (var brush = new SolidBrush(Color.FromArgb(100, 116, 139)))
+                using (var brush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridForeColor))
                 {
                     var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
                     g.DrawString(column.SubText, font, brush, new Rectangle(rect.Left + padding, yOffset, rect.Width - padding * 2, 40), sf);
@@ -243,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                     float totalWidth = priceSize.Width + periodSize.Width + 4;
                     float startX = bannerRect.Left + (bannerRect.Width - totalWidth) / 2;
 
-                    using (var brush = new SolidBrush(Color.White))
+                    using (var brush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridBackColor))
                     {
                         g.DrawString(priceValue, priceFont, brush, startX, bannerRect.Top + (bannerHeight - priceSize.Height) / 2);
                         g.DrawString(period, periodFont, brush, startX + priceSize.Width + 4, bannerRect.Top + (bannerHeight - periodSize.Height) / 2 + 4);
@@ -288,14 +288,14 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             }
             else if (isRowHovered || isColHovered)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(248, 250, 252)))
+                using (var brush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridHeaderBackColor))
                 {
                     g.FillRectangle(brush, rect);
                 }
             }
 
             // Separator line
-            using (var pen = new Pen(Color.FromArgb(241, 245, 249), 1))
+            using (var pen = new Pen(VerticalTableThemeHelpers.Cur.GridHeaderBackColor, 1))
             {
                 g.DrawLine(pen, rect.Left + padding, rect.Bottom - 1, rect.Right - padding, rect.Bottom - 1);
             }
@@ -323,11 +323,11 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             else
             {
                 // Empty circle with X
-                using (var pen = new Pen(Color.FromArgb(203, 213, 225), 2))
+                using (var pen = new Pen(VerticalTableThemeHelpers.Cur.GridLineColor, 2))
                 {
                     g.DrawEllipse(pen, iconX, iconY, iconSize, iconSize);
                 }
-                using (var pen = new Pen(Color.FromArgb(203, 213, 225), 2f))
+                using (var pen = new Pen(VerticalTableThemeHelpers.Cur.GridLineColor, 2f))
                 {
                     pen.StartCap = LineCap.Round;
                     pen.EndCap = LineCap.Round;
@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
 
             // Text
             var textRect = new Rectangle(iconX + iconSize + 12, rect.Top, rect.Width - padding * 2 - iconSize - 12, rect.Height);
-            Color textColor = item.IsEnabled ? Color.FromArgb(51, 65, 85) : Color.FromArgb(148, 163, 184);
+            Color textColor = item.IsEnabled ? VerticalTableThemeHelpers.Cur.GridForeColor : VerticalTableThemeHelpers.Cur.DisabledForeColor;
 
             using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
             using (var brush = new SolidBrush(textColor))

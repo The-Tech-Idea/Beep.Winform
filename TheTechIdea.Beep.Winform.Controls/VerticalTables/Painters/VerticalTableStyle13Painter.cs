@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
 
             if (owner is BeepVerticalTable table)
             {
-                theme = table._currentTheme ?? (table.UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                theme = table._currentTheme;
                 useThemeColors = table.UseThemeColors;
                 highlightedCol = table.HighlightedColumnIndex;
             }
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 ? layout.Columns[0].Cells[0].Bounds.Height : 44;
 
             // White/transparent background
-            Color bg = Color.White;
+            Color bg = VerticalTableThemeHelpers.Cur.GridBackColor;
             if (useThemeColors && theme != null && theme.BackgroundColor != Color.Empty)
                 bg = theme.BackgroundColor;
             using (var backBrush = new SolidBrush(bg))
@@ -108,8 +108,8 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             {
                 int lineY = padding + headerHeight + row * rowHeight - 1;
                 Color lineColor = row == 0
-                    ? Color.FromArgb(180, 190, 200)  // thickest separator under header
-                    : Color.FromArgb(230, 235, 240); // thin between rows
+                    ? VerticalTableThemeHelpers.Cur.GridHeaderBorderColor  // thickest separator under header
+                    : VerticalTableThemeHelpers.Cur.GridLineColor; // thin between rows
 
                 using (var pen = new Pen(lineColor, row == 0 ? 2 : 1))
                     g.DrawLine(pen, padding, lineY, bounds.Width - padding, lineY);
@@ -168,8 +168,8 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                     if (isRowHovered || isRowSelected)
                     {
                         Color hoverBg = isRowSelected
-                            ? Color.FromArgb(240, 248, 255)
-                            : Color.FromArgb(249, 250, 251);
+                            ? VerticalTableThemeHelpers.Cur.GridRowSelectedBackColor
+                            : VerticalTableThemeHelpers.Cur.AltRowBackColor;
                         using (var brush = new SolidBrush(hoverBg))
                             g.FillRectangle(brush, labelRect);
                     }
@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                     var textRect = new Rectangle(labelRect.Left + 16, labelRect.Top, labelRect.Width - 32, labelRect.Height);
                     using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
                     {
-                        Color textColor = isRowSelected ? Color.FromArgb(29, 78, 216) : Color.FromArgb(75, 85, 99);
+                        Color textColor = isRowSelected ? VerticalTableThemeHelpers.Cur.PrimaryColor : VerticalTableThemeHelpers.Cur.GridForeColor;
                         using (var brush = new SolidBrush(textColor))
                         {
                             var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             // Subtle highlight on hover
             if (isSelected || isHovered)
             {
-                Color hoverBg = isSelected ? Color.FromArgb(245, 248, 255) : Color.FromArgb(251, 252, 253);
+                Color hoverBg = isSelected ? VerticalTableThemeHelpers.Cur.GridRowSelectedBackColor : VerticalTableThemeHelpers.Cur.GridBackColor;
                 using (var brush = new SolidBrush(hoverBg))
                     g.FillRectangle(brush, rect);
             }
@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             if (isFeatured)
             {
                 Color accent = theme != null && useThemeColors && theme.AccentColor != Color.Empty
-                    ? theme.AccentColor : Color.FromArgb(99, 102, 241);
+                    ? theme.AccentColor : VerticalTableThemeHelpers.Cur.AccentColor;
                 using (var pen = new Pen(accent, 3))
                     g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
             }
@@ -215,8 +215,8 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             // Title
             Color textColor = isFeatured
                 ? (theme != null && useThemeColors && theme.AccentColor != Color.Empty
-                    ? theme.AccentColor : Color.FromArgb(99, 102, 241))
-                : Color.FromArgb(30, 41, 59);
+                    ? theme.AccentColor : VerticalTableThemeHelpers.Cur.AccentColor)
+                : VerticalTableThemeHelpers.Cur.GridHeaderForeColor;
 
             using (var font = new Font("Segoe UI", 12, FontStyle.Bold))
             {
@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             // Subtle hover background
             if (isHovered || isSelected)
             {
-                Color hoverBg = isSelected ? Color.FromArgb(240, 248, 255) : Color.FromArgb(251, 252, 253);
+                Color hoverBg = isSelected ? VerticalTableThemeHelpers.Cur.GridRowSelectedBackColor : VerticalTableThemeHelpers.Cur.GridBackColor;
                 using (var brush = new SolidBrush(hoverBg))
                     g.FillRectangle(brush, rect);
             }
@@ -257,8 +257,8 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
 
                 Color checkColor = isFeatured
                     ? (theme != null && useThemeColors && theme.AccentColor != Color.Empty
-                        ? theme.AccentColor : Color.FromArgb(99, 102, 241))
-                    : Color.FromArgb(16, 185, 129);
+                        ? theme.AccentColor : VerticalTableThemeHelpers.Cur.AccentColor)
+                    : VerticalTableThemeHelpers.Cur.SuccessColor;
 
                 using (var pen = new Pen(checkColor, 2f))
                 {
@@ -271,14 +271,14 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             {
                 // Dash
                 int dashY = rect.Top + rect.Height / 2;
-                using (var pen = new Pen(Color.FromArgb(203, 213, 225), 1.5f))
+                using (var pen = new Pen(VerticalTableThemeHelpers.Cur.GridLineColor, 1.5f))
                     g.DrawLine(pen, rect.Left + rect.Width / 2 - 8, dashY, rect.Left + rect.Width / 2 + 8, dashY);
             }
             else if (!string.IsNullOrEmpty(text))
             {
                 // Text — clean, minimal
                 using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
-                using (var brush = new SolidBrush(Color.FromArgb(75, 85, 99)))
+                using (var brush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridForeColor))
                 {
                     var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                     g.DrawString(text, font, brush, rect, sf);

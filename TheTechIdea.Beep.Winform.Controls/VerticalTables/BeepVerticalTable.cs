@@ -1407,7 +1407,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
             try
             {
                 // Get current theme from BaseControl (set by ApplyTheme())
-                var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                var theme = _currentTheme;
                 var useTheme = UseThemeColors && theme != null;
 
                 // Apply font theme based on ControlStyle

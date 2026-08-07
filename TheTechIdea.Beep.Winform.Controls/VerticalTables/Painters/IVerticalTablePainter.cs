@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
         {
             if (owner is BeepVerticalTable table)
             {
-                return table._currentTheme ?? (table.UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                return table._currentTheme;
             }
             return null;
         }

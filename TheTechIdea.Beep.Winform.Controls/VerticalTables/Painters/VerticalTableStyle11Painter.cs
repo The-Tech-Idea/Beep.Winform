@@ -97,14 +97,14 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
 
             if (owner is BeepVerticalTable table)
             {
-                theme = table._currentTheme ?? (table.UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                theme = table._currentTheme;
                 useThemeColors = table.UseThemeColors;
                 controlStyle = table.ControlStyle;
                 highlightedCol = table.HighlightedColumnIndex;
             }
 
             // Background
-            Color tableBg = VerticalTableThemeHelpers.GetTableBackgroundColor(theme, useThemeColors);
+            Color tableBg = VerticalTableThemeHelpers.GetTableBackgroundColor(theme);
             using (var backBrush = new SolidBrush(tableBg))
                 g.FillRectangle(backBrush, bounds);
 
@@ -131,12 +131,12 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             int elevation = isFeatured ? SelectedElevation : (isHovered ? HoverElevation : ShadowOffset);
 
             // Draw shadow
-            Color shadowColor = VerticalTableThemeHelpers.GetShadowColor(theme, useThemeColors, elevation);
+            Color shadowColor = VerticalTableThemeHelpers.GetShadowColor(theme, elevation);
             DrawCardShadow(g, cardRect, elevation, isFeatured, shadowColor);
 
             // Card background
-            Color cardBg = VerticalTableThemeHelpers.GetCellBackgroundColor(theme, useThemeColors, isHovered, isSelected);
-            Color borderColor = VerticalTableThemeHelpers.GetBorderColor(theme, useThemeColors, isSelected, isFeatured);
+            Color cardBg = VerticalTableThemeHelpers.GetCellBackgroundColor(theme, isHovered, isSelected);
+            Color borderColor = VerticalTableThemeHelpers.GetBorderColor(theme, isSelected, isFeatured);
             int borderWidth = isFeatured ? 3 : 1;
 
             using (var path = CreateRoundedRectPath(cardRect, CornerRadius))
@@ -151,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             if (isFeatured)
             {
                 Color accentColor = theme != null && useThemeColors && theme.AccentColor != Color.Empty
-                    ? theme.AccentColor : Color.FromArgb(99, 102, 241);
+                    ? theme.AccentColor : VerticalTableThemeHelpers.Cur.AccentColor;
                 DrawFeaturedAccent(g, cardRect, accentColor);
             }
 
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             }
 
             // Plan name
-            Color textColor = VerticalTableThemeHelpers.GetHeaderTextColor(theme, useThemeColors, isFeatured, isFeatured);
+            Color textColor = VerticalTableThemeHelpers.GetHeaderTextColor(theme, isFeatured, isFeatured);
             using (var titleFont = VerticalTableFontHelpers.GetHeaderFont(controlStyle, isFeatured))
             {
                 var titleRect = new Rectangle(rect.Left + padding, yOffset, rect.Width - padding * 2, 28);
@@ -216,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 using (var descFont = VerticalTableFontHelpers.GetSubtextFont(controlStyle))
                 {
                     var descRect = new Rectangle(rect.Left + padding, yOffset, rect.Width - padding * 2, 20);
-                    Color descColor = isFeatured ? Color.FromArgb(220, 255, 255, 255) : Color.FromArgb(140, 150, 170);
+                    Color descColor = isFeatured ? Color.FromArgb(220, VerticalTableThemeHelpers.Cur.GridHeaderSelectedForeColor) : VerticalTableThemeHelpers.Cur.DisabledForeColor;
                     using (var brush = new SolidBrush(descColor))
                     {
                         var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
@@ -260,13 +260,13 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                     badgeWidth, badgeHeight);
 
                 Color accentColor = theme != null && useThemeColors && theme.AccentColor != Color.Empty
-                    ? theme.AccentColor : Color.FromArgb(99, 102, 241);
+                    ? theme.AccentColor : VerticalTableThemeHelpers.Cur.AccentColor;
 
                 using (var path = CreateRoundedRectPath(badgeRect, badgeHeight / 2))
                 using (var brush = new SolidBrush(accentColor))
                     g.FillPath(brush, path);
 
-                using (var brush = new SolidBrush(Color.White))
+                using (var brush = new SolidBrush(VerticalTableThemeHelpers.Cur.GridBackColor))
                 {
                     var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                     g.DrawString(badgeText, badgeFont, brush, badgeRect, sf);
@@ -282,9 +282,9 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             int padding = 16;
 
             // Background
-            Color bgColor = VerticalTableThemeHelpers.GetCellBackgroundColor(theme, useThemeColors, isHovered, isSelected);
+            Color bgColor = VerticalTableThemeHelpers.GetCellBackgroundColor(theme, isHovered, isSelected);
             if (!isHovered && !isSelected && cell.RowIndex % 2 == 1)
-                bgColor = VerticalTableThemeHelpers.GetCellBackgroundColor(theme, useThemeColors, false, false, true);
+                bgColor = VerticalTableThemeHelpers.GetCellBackgroundColor(theme, false, false, true);
 
             using (var brush = new SolidBrush(bgColor))
                 g.FillRectangle(brush, rect);
@@ -294,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 // Empty cell (shorter column) — subtle gray dash
                 int dashWidth = 20;
                 int dashY = rect.Top + rect.Height / 2;
-                using (var pen = new Pen(Color.FromArgb(200, 220, 230), 1.5f))
+                using (var pen = new Pen(VerticalTableThemeHelpers.Cur.GridLineColor, 1.5f))
                     g.DrawLine(pen, rect.Left + (rect.Width - dashWidth) / 2, dashY, rect.Left + (rect.Width + dashWidth) / 2, dashY);
                 return;
             }
@@ -315,13 +315,13 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
 
             Color accentColor = isColumnFeatured
                 ? (theme != null && useThemeColors && theme.AccentColor != Color.Empty
-                    ? theme.AccentColor : Color.FromArgb(99, 102, 241))
-                : Color.FromArgb(16, 185, 129);
+                    ? theme.AccentColor : VerticalTableThemeHelpers.Cur.AccentColor)
+                : VerticalTableThemeHelpers.Cur.SuccessColor;
 
             if (isNegative)
             {
                 // Red X
-                using (var pen = new Pen(Color.FromArgb(239, 68, 68), 2.5f))
+                using (var pen = new Pen(VerticalTableThemeHelpers.Cur.ErrorColor, 2.5f))
                 {
                     pen.StartCap = LineCap.Round; pen.EndCap = LineCap.Round;
                     g.DrawLine(pen, iconX + 4, iconY + 4, iconX + iconSize - 4, iconY + iconSize - 4);
@@ -342,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             {
                 // Text value
                 var textRect = new Rectangle(rect.Left + padding, rect.Top, rect.Width - padding * 2, rect.Height);
-                Color textColor = VerticalTableThemeHelpers.GetCellTextColor(theme, useThemeColors, isSelected);
+                Color textColor = VerticalTableThemeHelpers.GetCellTextColor(theme, isSelected);
                 using (var font = VerticalTableFontHelpers.GetCellFont(controlStyle, isSelected))
                 using (var brush = new SolidBrush(textColor))
                 {

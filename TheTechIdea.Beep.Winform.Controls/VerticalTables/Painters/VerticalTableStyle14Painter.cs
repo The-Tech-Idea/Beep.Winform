@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
         private static readonly Color NeonCyan = Color.FromArgb(0, 240, 255);
         private static readonly Color NeonMagenta = Color.FromArgb(255, 0, 128);
         private static readonly Color NeonGreen = Color.FromArgb(0, 255, 136);
-        private static readonly Color NeonBlue = Color.FromArgb(80, 120, 255);
+        private static readonly Color NeonBlue = VerticalTableThemeHelpers.Cur.PrimaryColor;
         private static readonly Color GridLine = Color.FromArgb(30, 40, 70);
         private static readonly Color TextPrimary = Color.FromArgb(220, 230, 245);
         private static readonly Color TextDim = Color.FromArgb(140, 150, 175);
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
 
             if (owner is BeepVerticalTable table)
             {
-                theme = table._currentTheme ?? (table.UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                theme = table._currentTheme;
                 useThemeColors = table.UseThemeColors;
                 highlightedCol = table.HighlightedColumnIndex;
             }
@@ -378,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 // Monospace text
                 using (var font = new Font("Consolas", 10, FontStyle.Regular))
                 {
-                    Color textColor = isFeatured ? NeonCyan : (isSelected ? Color.White : TextPrimary);
+                    Color textColor = isFeatured ? NeonCyan : (isSelected ? VerticalTableThemeHelpers.Cur.GridHeaderSelectedForeColor : TextPrimary);
                     using (var brush = new SolidBrush(textColor))
                     {
                         var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };

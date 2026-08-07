@@ -200,3 +200,47 @@ With groups flowing and captions single, what a real ribbon still needs:
    ribbon fits three small rows or one large button.
 4. **Group separators** between adjacent groups.
 5. **Theming** — the flat blue band is the unthemed default, not a resolved theme.
+
+## Metrics, taken from established ribbon implementations
+
+Researched rather than invented, because "it looks like boxes" needs numbers to fix. Sources:
+Fluent.Ribbon's own theme XAML (`Themes/Controls/RibbonGroupBox.xaml`), its sizing documentation, and
+Microsoft's Fluent ribbon overview.
+
+The two anchors that come straight out of Fluent.Ribbon's group template:
+
+- the group's inter-group **separator is 55px tall** — that is the content region, above the caption
+- **22** recurs as the row/state unit (`QuickAccess State Height = 22`)
+- the group **dialog launcher is 16x16**, sitting on the caption strip
+
+From those, the standard Office layout this control should target:
+
+| element | value |
+|---|---|
+| small button row height | 22px, 16px icon, label beside it |
+| small rows per group | 3 (3 x 22 = 66px content) |
+| large button | spans all three rows (~66px tall), 32px icon above the label |
+| group caption strip | ~22px, below the content, with the dialog launcher at its right |
+| **group total height** | **~88px** (66 content + 22 caption) |
+| ribbon content panel | ~90-95px |
+
+### What this means for the current code
+
+The content panel is **59px**. That is the whole reason every command renders as bare text: 59px fits
+two 17px rows and leaves nothing for a caption strip, so `BeepRibbonGroup.Text` has nowhere to go and
+large buttons cannot exist at all. `GetGroupHeight()` returns 40/48/56 by density — every one of them
+below the 66px a three-row group needs, before the caption.
+
+Concretely, to fix:
+
+1. `GetGroupHeight()` -> content 66 (Compact 44 = 2 rows, Touch 88 = 3 x 30). Add a separate caption
+   height of 22.
+2. Raise the ribbon's default `Height` so the content host gets ~90px after the toolstrip (25), the
+   contextual strip (18) and the tab strip (28) take theirs. 150 is not enough; ~165-170 is.
+3. Draw the caption strip in `BeepRibbonGroup.OnPaint` (or the renderer) using `Text`, and reserve it
+   out of the item layout area.
+4. Give `AddCommandButton` a real large/small split: large = 32px icon above label spanning the
+   content height; small = 16px icon beside label at 22px, three per column.
+5. Draw a 1px separator between adjacent groups, inset from the caption strip.
+
+Not started. This is the work that turns the boxes into a ribbon.

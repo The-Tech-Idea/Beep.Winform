@@ -102,21 +102,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 if (!eventsByLane.TryGetValue(lane.Id ?? string.Empty, out var laneEvents))
                     continue;
 
-                foreach (var evt in laneEvents)
+                foreach (var (evt, eventRect) in ComputeLaneEventRects(
+                             laneEvents, startOfWeek, dayCount, laneRect, laneTop, laneHeight, surface))
                 {
-                    int dayOffset = Math.Max(0, (evt.StartTime.Date - startOfWeek).Days);
-                    int endOffset = Math.Min(dayCount - 1, (evt.EndTime.Date - startOfWeek).Days);
-                    if (endOffset < 0 || dayOffset >= dayCount) continue;
-
-                    var firstDayRect = CalendarPainterHelpers.GetColumnRect(contentArea, dayOffset, dayCount);
-                    var lastDayRect = CalendarPainterHelpers.GetColumnRect(contentArea,
-                        Math.Max(dayOffset, endOffset), dayCount);
-                    int insetX = surface.EventInsetX;
-                    int insetY = surface.EventInsetY;
-                    int x = firstDayRect.X + insetX;
-                    int w = Math.Max(24, lastDayRect.Right - firstDayRect.X - (insetX * 2));
-                    var eventRect = new Rectangle(x, laneTop + insetY,
-                        w, Math.Max(1, laneHeight - (insetY * 2)));
                     PaintEventBlock(g, eventRect, evt, args);
                 }
             }
@@ -172,9 +160,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 var lane = resources[laneIndex];
                 if (eventsByLane.TryGetValue(lane.Id ?? string.Empty, out var laneEvents))
                 {
-                    foreach (var evt in laneEvents.OrderByDescending(e => e.StartTime))
+                    var rects = ComputeLaneEventRects(
+                        laneEvents, startOfWeek, dayCount, laneRect, laneTop, laneHeight, surface);
+                    // Reversed: later-placed blocks paint later, so on any residual overlap the one
+                    // the user SEES on top is the one the click should hit.
+                    for (int ri = rects.Count - 1; ri >= 0; ri--)
                     {
-                        var eventRect = GetTimelineEventRect(evt, startOfWeek, dayCount, laneRect, laneTop, laneHeight, surface);
+                        var (evt, eventRect) = rects[ri];
                         if (eventRect.Contains(location))
                         {
                             var edge = CalendarPainterHelpers.ResolveResizeEdge(location, eventRect, 6);
@@ -281,19 +273,75 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             lastVisibleLane = Math.Min(laneCount - 1, Math.Max(firstVisibleLane, (visibleBottom - lanesTop) / laneStride));
         }
 
-        private static Rectangle GetTimelineEventRect(CalendarEvent evt, DateTime startOfWeek, int dayCount,
+        /// <summary>
+        /// Computes the rectangle of every event in a lane, stacked into sub-rows so overlapping
+        /// day-spans do not coincide.
+        /// </summary>
+        /// <remarks>
+        /// Every event used to get the full lane height at <c>laneTop + insetY</c>, so two events on
+        /// the same day painted at identical bounds and only the last was visible — the probe's
+        /// "Overlap A" vanished under "Overlap B". Greedy sub-row assignment: an event takes the
+        /// first row whose previous occupant ends before this one starts, and the lane height is
+        /// divided among the rows actually used.
+        ///
+        /// One method serves Paint and HitTest both. They previously computed event rects
+        /// independently (Paint inline, HitTest via a helper), which is exactly the two-implementations
+        /// drift the plans warn about — stacking added to one but not the other would put clicks on
+        /// the wrong event.
+        /// </remarks>
+        private static List<(CalendarEvent Evt, Rectangle Rect)> ComputeLaneEventRects(
+            IEnumerable<CalendarEvent> laneEvents, DateTime startOfWeek, int dayCount,
             Rectangle laneRect, int laneTop, int laneHeight, CalendarSurfaceModel surface)
         {
-            int startOffset = Math.Max(0, (evt.StartTime.Date - startOfWeek).Days);
-            int endOffset = Math.Min(dayCount - 1, (evt.EndTime.Date - startOfWeek).Days);
-            if (endOffset < startOffset) endOffset = startOffset;
-            var firstDayRect = CalendarPainterHelpers.GetColumnRect(laneRect, startOffset, dayCount);
-            var lastDayRect = CalendarPainterHelpers.GetColumnRect(laneRect, endOffset, dayCount);
+            var ordered = laneEvents
+                .OrderBy(e => e.StartTime)
+                .ThenByDescending(e => e.EndTime)
+                .ToList();
+
+            var rowLastEnd = new List<int>();          // per sub-row: last occupied end-day offset
+            var placed = new List<(CalendarEvent Evt, int Row, int StartOffset, int EndOffset)>();
+
+            foreach (var evt in ordered)
+            {
+                int startOffset = Math.Max(0, (evt.StartTime.Date - startOfWeek).Days);
+                int endOffset = Math.Min(dayCount - 1, (evt.EndTime.Date - startOfWeek).Days);
+                if (endOffset < 0 || startOffset >= dayCount) continue;
+                if (endOffset < startOffset) endOffset = startOffset;
+
+                int row = -1;
+                for (int r = 0; r < rowLastEnd.Count; r++)
+                {
+                    if (rowLastEnd[r] < startOffset) { row = r; break; }
+                }
+                if (row < 0) { row = rowLastEnd.Count; rowLastEnd.Add(endOffset); }
+                else rowLastEnd[row] = endOffset;
+
+                placed.Add((evt, row, startOffset, endOffset));
+            }
+
             int insetX = surface.EventInsetX;
             int insetY = surface.EventInsetY;
-            int x = firstDayRect.X + Math.Min(insetX, Math.Max(0, (firstDayRect.Width - 1) / 2));
-            int width = Math.Max(24, lastDayRect.Right - firstDayRect.X - (insetX * 2));
-            return new Rectangle(x, laneTop + insetY, width, Math.Max(1, laneHeight - (insetY * 2)));
+            int rowCount = Math.Max(1, rowLastEnd.Count);
+            const int rowGap = 2;
+            int rowHeight = Math.Max(14, (laneHeight - insetY * 2 - (rowCount - 1) * rowGap) / rowCount);
+
+            var result = new List<(CalendarEvent, Rectangle)>(placed.Count);
+            foreach (var (evt, row, startOffset, endOffset) in placed)
+            {
+                var firstDayRect = CalendarPainterHelpers.GetColumnRect(laneRect, startOffset, dayCount);
+                var lastDayRect = CalendarPainterHelpers.GetColumnRect(laneRect, endOffset, dayCount);
+                int x = firstDayRect.X + Math.Min(insetX, Math.Max(0, (firstDayRect.Width - 1) / 2));
+                int width = Math.Max(24, lastDayRect.Right - firstDayRect.X - (insetX * 2));
+                int y = laneTop + insetY + row * (rowHeight + rowGap);
+
+                // Rows past the lane's capacity clamp to its bottom edge rather than spilling into
+                // the next lane; a sliver of the block stays visible and clickable.
+                int height = Math.Max(4, Math.Min(rowHeight, laneTop + laneHeight - insetY - y));
+                if (y >= laneTop + laneHeight - insetY - 4) y = laneTop + laneHeight - insetY - 4;
+
+                result.Add((evt, new Rectangle(x, y, width, height)));
+            }
+            return result;
         }
 
         private static void PaintDayHeader(Graphics g, Rectangle rect, DateTime dayDate, bool isToday, ViewPaintArgs args)

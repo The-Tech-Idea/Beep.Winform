@@ -80,3 +80,26 @@ how Fluent.Ribbon's template derives `Accent20/40` from `AccentBase`. No literal
 
 Application order: after the group rewrite lands (its verify pass is running), wire the accent
 ladder into `RibbonTheme` + painter, then re-render and compare against this spec.
+
+## Corroboration: Metro UI v4 ribbon menu (third independent source)
+
+From `olton/Metro-UI-CSS` `source/components/ribbon-menu/ribbon-menu.less` — valuable because CSS
+carries geometry and color in one place, and because it agrees with the Fluent-derived numbers:
+
+- Large button `min-height: 64px`, **32px icon**, 12px caption 8px below, `border-radius: 4px`.
+- Small icon-button row **24px**, **16px icon**, 8px gap, radius 2px. Tool button 24x24.
+- Group caption `.title`: **22px** tall, 11px font — exact match to our `CaptionHeight`.
+- Caption reserved via `.group { padding: 0 4px 24px }` — the same Padding.Bottom technique the
+  rewrite uses; independently validates it.
+- Group divider: 1px. Tabs: 24px tall, `padding: 0 14px`, 12px font.
+- **Hover = accent @ 20% alpha** (`rgba(164,206,249,.2)`) — confirms the accent-ladder rule from
+  Fluent.Ribbon with a concrete number. Active/pressed = same accent @ 80% (punchier than Fluent;
+  we keep the subtler Fluent step).
+- Selected tab is a **card-join**: 1px border on three sides, transparent bottom, active background
+  equal to the content band. (Fluent uses an animated underline instead - either is legitimate;
+  card-join matches our existing tab strip.)
+- Full dark variant through the same variable roles (`#1e1f22` / `#26282e` / `#4a4d51`) — the design
+  is role-based, not palette-based, exactly like our RibbonTheme mapping must be.
+
+Three sources now agree on: 32px large icon, 16px small icon, ~22px caption strip, ~64-66px content
+band, 1px inset separators, flat fills, accent-derived hover.

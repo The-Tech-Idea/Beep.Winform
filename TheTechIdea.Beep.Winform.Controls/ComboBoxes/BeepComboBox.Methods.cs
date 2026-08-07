@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -68,7 +69,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // because the manager's CreateMenu is in control of those flags.
                 var snapshot = _listItems.ToList();
                 var previous = _managerPopupHandle;
-                if (previous != null) { try { previous.Dispose(); } catch { } }
+                if (previous != null)
+                {
+                    try { previous.Dispose(); }
+                    catch (Exception ex)
+                    {
+                        // A popup handle that will not dispose is a leaked window, not a non-event.
+                        BeepLog.Failure(this, "dispose the previous combo popup", ex);
+                    }
+                }
                 _managerPopupHandle = ContextMenuManager.ShowNonBlocking(
                     items: snapshot,
                     screenLocation: screenLocation,

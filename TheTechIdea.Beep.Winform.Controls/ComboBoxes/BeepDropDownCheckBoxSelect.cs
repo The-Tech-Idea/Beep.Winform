@@ -1,4 +1,5 @@
 ﻿using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -105,9 +106,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                     return TextFont;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // fall through to fallback font
+                // A disposed Font throws on first touch. The fallback below genuinely succeeds, but a
+                // control holding a dead font is a lifetime bug upstream and must be visible - once,
+                // because this runs from paint.
+                BeepLog.FallbackOnce($"{nameof(BeepDropDownCheckBoxSelect)}.font", this,
+                                     "use TextFont for chip text", ex);
             }
 
             return BeepFontManager.DefaultFont ?? SystemFonts.DefaultFont;
@@ -267,9 +272,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                                 var imgRect = new Rectangle(c.Rect.X + 4, c.Rect.Y + 4, c.Rect.Height - 8, c.Rect.Height - 8);
                                 try
                                 {
-                                    StyledImagePainter.Paint(g, imgRect, c.Item.ImagePath,BeepControlStyle.Minimal);
+                                    StyledImagePainter.Paint(g, imgRect, c.Item.ImagePath, BeepControlStyle.Minimal);
                                 }
-                                catch { }
+                                catch (Exception ex)
+                                {
+                                    // Keyed by path: one report per bad image, not one per paint at
+                                    // 60fps. Note StyledImagePainter returns quietly for an
+                                    // unresolvable path - this catch only sees a *corrupt* image.
+                                    BeepLog.FailureOnce(c.Item.ImagePath, this,
+                                                        $"render chip icon '{c.Item.ImagePath}'", ex);
+                                }
 
                                 var textRect = new Rectangle(c.TextRect.X + imgRect.Width + 4, c.TextRect.Y, c.TextRect.Width - (imgRect.Width + 4), c.TextRect.Height);
                                 TextRenderer.DrawText(g, c.Text, safeTextFont, textRect, chipFore, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);

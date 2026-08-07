@@ -549,6 +549,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             button.DisabledForeColor = _theme.DisabledText;
             button.BorderColor = _theme.GroupBorder;
 
+            // Focus too, or the GLOBAL theme's focus fill leaks through the ribbon's ladder:
+            // BeepButton's self-theming sets FocusBackColor = ButtonSelectedBackColor, which in the
+            // default theme is a cream that has nothing to do with this surface - so whichever command
+            // happened to hold form focus rendered as a cream box on the band. Focus reads as the
+            // hover tint; the accent focus ring is the affordance that says "focused".
+            button.FocusBackColor = _theme.HoverBack;
+            button.FocusForeColor = Helpers.ColorUtils.EnsureReadable(_theme.Text, _theme.HoverBack);
+
             if (button is BeepRibbonCommandButton command) command.ArrowColor = ink;
         }
 

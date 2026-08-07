@@ -9,11 +9,11 @@ using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace  TheTechIdea.Beep.Winform.Controls.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static class MiscFunctions
 
-    { 
+    {
         public static object CreateObject(string typename)
         {
             object obj = null;
@@ -32,11 +32,11 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
             return obj;
         }
-            
-       /// <summary>
-      /// Helper that tries to load an assembly by path (LoadFrom) or 
-      /// by full name (Load) depending on whether the string is a valid file path.
-      /// </summary>
+
+        /// <summary>
+        /// Helper that tries to load an assembly by path (LoadFrom) or 
+        /// by full name (Load) depending on whether the string is a valid file path.
+        /// </summary>
         public static Assembly LoadAssembly(string assemblyFullNameOrPath)
         {
             try
@@ -58,15 +58,15 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
         private static bool isLogOn = true;
-        public static  void SendLog(string message)
+        public static void SendLog(string message)
         {
-            if(isLogOn)
+            if (isLogOn)
             {
-              //  Console.WriteLine(message);
+                //  Console.WriteLine(message);
                 Debug.WriteLine(message);
                 //  ////MiscFunctions.SendLog(message);
             }
-          
+
         }
         public static string GetAssemblyName(string assemblyFullNameOrPath)
         {
@@ -147,17 +147,17 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     // Set the "MenuStyle" property on the control
                     themeProperty.SetValue(control, theme);
-                //   ////MiscFunctions.SendLog($"MenuStyle property set on control: {control.Name}");
+                    //   ////MiscFunctions.SendLog($"MenuStyle property set on control: {control.Name}");
                     return; // Exit after setting the property
                 }
 
 
 
-             //  ////MiscFunctions.SendLog("No 'MenuStyle' property found on the control or its components.");
+                //  ////MiscFunctions.SendLog("No 'MenuStyle' property found on the control or its components.");
             }
             catch (Exception ex)
             {
-               ////MiscFunctions.SendLog($"Error setting theme property: {ex.Message}");
+                ////MiscFunctions.SendLog($"Error setting theme property: {ex.Message}");
             }
         }
         public static Dictionary<string, object> ConvertPassedArgsToParameters(IPassedArgs passedArgs)
@@ -345,7 +345,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                 return string.Empty;
 
             // 1) Replace underscores with spaces
-           string FieldName = fieldName.Replace('_', ' ');
+            string FieldName = fieldName.Replace('_', ' ');
 
             // 2) Split on spaces so we can handle each "word" or "token" individually.
             //    E.g. "Contact Phone DOB" -> ["Contact", "Phone", "DOB"]
@@ -485,7 +485,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     if (Enum.TryParse(targetType, stringValue, true, out object enumResult))
                         return enumResult;
-                   ////MiscFunctions.SendLog($"ConvertValueToPropertyType: Invalid enum value '{stringValue}' for {targetType}, returning default");
+                    ////MiscFunctions.SendLog($"ConvertValueToPropertyType: Invalid enum value '{stringValue}' for {targetType}, returning default");
                     return GetDefaultValue(targetType);
                 }
 
@@ -494,17 +494,17 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (FormatException ex)
             {
-               ////MiscFunctions.SendLog($"ConvertValueToPropertyType Format Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+                ////MiscFunctions.SendLog($"ConvertValueToPropertyType Format Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
                 return targetType.IsValueType ? GetDefaultValue(targetType) : null;
             }
             catch (ArgumentException ex)
             {
-               ////MiscFunctions.SendLog($"ConvertValueToPropertyType Argument Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+                ////MiscFunctions.SendLog($"ConvertValueToPropertyType Argument Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
                 return targetType.IsValueType ? GetDefaultValue(targetType) : null;
             }
             catch (Exception ex)
             {
-               ////MiscFunctions.SendLog($"ConvertValueToPropertyType Unexpected Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+                ////MiscFunctions.SendLog($"ConvertValueToPropertyType Unexpected Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
                 return targetType.IsValueType ? GetDefaultValue(targetType) : null;
             }
         }
@@ -520,7 +520,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void AddLogMessage(string Source, string Message, DateTime Time, int ErrorCode, string ObjectName, Errors ErrorType)
         {
-          SendLog($"{Source} : {Message} : {Time} : {ErrorCode} : {ObjectName} : {ErrorType}");
+            SendLog($"{Source} : {Message} : {Time} : {ErrorCode} : {ObjectName} : {ErrorType}");
         }
     }
 }

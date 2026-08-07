@@ -75,6 +75,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
             PaintFilterBar(g, new Rectangle(grid.X, grid.Y, grid.Width, filterH), args);
 
+            // Slots first, events second - the hour loop filled every slot opaquely over the
+            // already-painted event blocks, so this view rendered an empty grid while Month showed
+            // the same events. Grid is background; events sit on top.
+            for (int hour = 0; hour < 24; hour++)
+            {
+                var rowRect = CalendarPainterHelpers.GetRowRect(timedArea, hour, 24);
+                var timeLabelRect = new Rectangle(contentRect.X, rowRect.Y, timeColumnWidth, rowRect.Height);
+                CalendarPainterHelpers.DrawText(g,
+                    hour == 0 ? "12 AM" : hour < 12 ? $"{hour} AM" : hour == 12 ? "12 PM" : $"{hour - 12} PM",
+                    args.TimeFont ?? args.DayFont, args.ForegroundColor,
+                    timeLabelRect, StringAlignment.Center, StringAlignment.Near, centerVertically: false);
+                for (int day = 0; day < 4; day++)
+                {
+                    var dayDate = startOfWeek.AddDays(day).Date;
+                    var columnRect = CalendarPainterHelpers.GetColumnRect(
+                        new Rectangle(timedArea.X, rowRect.Y, timedArea.Width, rowRect.Height), day, 4);
+                    // W8 - delegate to developer's IBeepUIComponent TimeSlot factory
+                    // for the (date, hour) cell when one is registered.
+                    string slotKey = $"slot:{dayDate:yyyy-MM-dd}:{hour}";
+                    var slotCtx = new CalendarCellContext(
+                        CalendarCellKind.TimeSlot, null, dayDate,
+                        args.Surface?.ViewMode ?? CalendarViewMode.Week3, hour, day);
+                    if (CalendarPainterHelpers.TryDrawCellComponent(g, columnRect, slotKey, slotCtx, args)) continue;
+                    var back = args.BackgroundColor;
+                    if (hour == currentHour && dayDate == DateTime.Today)
+                        back = Color.FromArgb(40, args.PrimaryColor.R, args.PrimaryColor.G, args.PrimaryColor.B);
+                    g.FillRectangle(new SolidBrush(back), columnRect);
+                    g.DrawLine(new Pen(args.BorderColor), columnRect.X, columnRect.Bottom, columnRect.Right, columnRect.Bottom);
+                }
+            }
+
             for (int day = 0; day < 4; day++)
             {
                 var dayDate = startOfWeek.AddDays(day);
@@ -104,34 +135,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                     var evt = dayEvents[i];
                     var eventRect = CalendarPainterHelpers.GetTimedEventRect(dayColumn, evt, dayDate, 4, 2, 18);
                     PaintEventBlock(g, eventRect, evt, dayDate, day, args);
-                }
-            }
-
-            for (int hour = 0; hour < 24; hour++)
-            {
-                var rowRect = CalendarPainterHelpers.GetRowRect(timedArea, hour, 24);
-                var timeLabelRect = new Rectangle(contentRect.X, rowRect.Y, timeColumnWidth, rowRect.Height);
-                CalendarPainterHelpers.DrawText(g,
-                    hour == 0 ? "12 AM" : hour < 12 ? $"{hour} AM" : hour == 12 ? "12 PM" : $"{hour - 12} PM",
-                    args.TimeFont ?? args.DayFont, args.ForegroundColor,
-                    timeLabelRect, StringAlignment.Center, StringAlignment.Near, centerVertically: false);
-                for (int day = 0; day < 4; day++)
-                {
-                    var dayDate = startOfWeek.AddDays(day).Date;
-                    var columnRect = CalendarPainterHelpers.GetColumnRect(
-                        new Rectangle(timedArea.X, rowRect.Y, timedArea.Width, rowRect.Height), day, 4);
-                    // W8 - delegate to developer's IBeepUIComponent TimeSlot factory
-                    // for the (date, hour) cell when one is registered.
-                    string slotKey = $"slot:{dayDate:yyyy-MM-dd}:{hour}";
-                    var slotCtx = new CalendarCellContext(
-                        CalendarCellKind.TimeSlot, null, dayDate,
-                        args.Surface?.ViewMode ?? CalendarViewMode.Week3, hour, day);
-                    if (CalendarPainterHelpers.TryDrawCellComponent(g, columnRect, slotKey, slotCtx, args)) continue;
-                    var back = args.BackgroundColor;
-                    if (hour == currentHour && dayDate == DateTime.Today)
-                        back = Color.FromArgb(40, args.PrimaryColor.R, args.PrimaryColor.G, args.PrimaryColor.B);
-                    g.FillRectangle(new SolidBrush(back), columnRect);
-                    g.DrawLine(new Pen(args.BorderColor), columnRect.X, columnRect.Bottom, columnRect.Right, columnRect.Bottom);
                 }
             }
         }

@@ -91,14 +91,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                         new Rectangle(r.X + 6, r.Y, r.Width - 8, r.Height),
                         StringAlignment.Near, StringAlignment.Center);
                 }
-                var timedEvents = (args.EventService?.GetEventsForDate(dayDate) ?? new List<CalendarEvent>())
-                    .Where(e => !e.IsAllDay).ToList();
-                for (int i = 0; i < timedEvents.Count; i++)
-                {
-                    var evt = timedEvents[i];
-                    var eventRect = CalendarPainterHelpers.GetTimedEventRect(dayColumn, evt, dayDate, 4, 2, 18);
-                    PaintEventBlock(g, eventRect, evt, dayDate, day, args);
-                }
             }
 
             for (int hour = 0; hour < 24; hour++)
@@ -127,6 +119,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                     g.FillRectangle(new SolidBrush(back), columnRect);
                     g.DrawLine(new Pen(args.BorderColor), columnRect.X, columnRect.Bottom, columnRect.Right, columnRect.Bottom);
                 }
+            }
+
+            // Timed events AFTER the hour loop. They were painted inside the day loop above and the
+            // hour loop then filled every slot opaquely over them - this view rendered an empty grid
+            // while Month showed the same events. Same defect as Day/Week1/Week/WorkWeek, but the
+            // slot fill here is inline, which is why a search for PaintTimeSlot missed it.
+            for (int day = 0; day < 7; day++)
+            {
+                var dayDate = startOfWeek.AddDays(day).Date;
+                var dayColumn = CalendarPainterHelpers.GetColumnRect(timedArea, day, 7);
+                var timedEvents = (args.EventService?.GetEventsForDate(dayDate) ?? new List<CalendarEvent>())
+                        .Where(e => !e.IsAllDay).ToList();
+                    for (int i = 0; i < timedEvents.Count; i++)
+                    {
+                        var evt = timedEvents[i];
+                        var eventRect = CalendarPainterHelpers.GetTimedEventRect(dayColumn, evt, dayDate, 4, 2, 18);
+                        PaintEventBlock(g, eventRect, evt, dayDate, day, args);
+                    }
             }
         }
 

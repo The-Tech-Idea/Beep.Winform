@@ -62,3 +62,22 @@ sample editors, the toolbar hit-testing, undo/redo stacks. The per-painter geome
 Per `CLAUDE.md`: every catch reports through BeepLog; no stubs/legacy; nothing assigns colours
 (semantic event colours excepted); compose from Beep controls; a check must be able to fail; commit
 to master only.
+
+## Probe pass 1 complete — 18/18, three defects found and fixed
+
+1. **Enter never reached a CreateEventRequested subscriber** — the constructor registers a default
+   `CalendarEventEditor`, so the "editor first" order silently swallowed every host subscription,
+   contradicting the documented contract. Subscriber first now.
+2. **Every timed view rendered an empty grid** while Month showed the same events. Day, Week1, Week
+   and WorkWeek painted event blocks and then let the hour loop fill each slot opaquely over them.
+   Slots first, events second.
+3. **Week2/3/7 had the same bug with the slot fill inline** — a name-based search for PaintTimeSlot
+   missed them; only per-view renders exposed it. Same reorder applied (a first patch for Week2 used
+   a DayCount symbol that does not exist there; caught by the build, fixed to the view's literal 7).
+
+Verified by renders: Day shows Standup/Design review at 9/11 AM; Week2 shows all five events in the
+right day columns including the overlapping pair. Aliased-style check: all 10 view modes distinct.
+
+Still open from the plan: Timeline event visibility (no PaintTimeSlot, needs its own look), theme
+responsiveness / 93 literal colours, editor lifecycle probe, drag interactions, and undisposed
+brush/pen allocations in the slot loops (new SolidBrush/Pen per slot per paint).

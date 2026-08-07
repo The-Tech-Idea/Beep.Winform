@@ -3,6 +3,41 @@
 **Kind:** enhancement. Two things every current dialog framework assumes and this folder has no
 mechanism for.
 
+**Status: ◐ overflow done; pending actions not started.** 6 of 6 overflow checks green; suite
+**62 passed / 1 failed**.
+
+### Sizing now has one owner
+
+`DialogHelpers.FitFormToContent` is the single authority. `BeepDialogManager.FitToContent` **states**
+bounds — max height, min width, min height — through `DialogHelpers.SetSizeBounds`, and no longer
+assigns `ClientSize` in competition with it.
+
+That conflict was the blocker behind three separate failed fixes: `MaxContentHeight` being ignored, a
+message row measuring 201px after the designer conversion, and a dialog collapsing to 26px wide when
+the body was made scrollable. Each fix was correct in isolation and lost to whichever authority ran
+on `Load`. With ownership settled, the scroll landed unchanged from the version that had failed.
+
+### The body scrolls
+
+`DialogOverflow` moves the content rows into an `AutoScroll` panel occupying one row, leaving the
+title and the actions in their own rows. It runs last, because callouts, the typed confirmation and
+the acknowledgement each add content rows first — and only when the content actually overflows, so a
+two-line confirmation is left exactly as its designer file declared it.
+
+A scrolling dialog also takes the full height its bound allows: without a floor, the scrollable body's
+small preferred height won and a 4,900-character message opened in a 221px window, making the user
+scroll far more than necessary.
+
+Measured: 4,919 characters produce a 517×514 dialog whose buttons are inside the client area and
+hit-testable, with a scrolling body; `MaxContentHeight = 240` produces a 392px client.
+
+### A units mistake in the check
+
+The bound check compared the dialog's **outer** height against a **content** figure and failed by 12px
+— the caption band `BeepiFormPro` draws inside the client area, which the config says nothing about.
+It compares client height with that band named as the tolerance now. Fifth measurement error of the
+session; the code was right each time.
+
 ## Pending actions
 
 A dialog's primary action usually starts work that takes time — saving, deleting, uploading. The

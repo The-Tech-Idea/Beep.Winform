@@ -27,10 +27,11 @@ the gate now implies the checkbox — with "I understand" as the caption when no
 - `FieldValidators` / `ValidationState` — per-field validation. The largest item here and untouched.
 - `EnableUndoForDestructiveActions` — still defaults to **`true`** while doing nothing, which remains
   the most misleading default in the folder.
-- `MotionProfile` / `StaggerDelay` — the plan's recommendation is deletion, since `Animation`,
+- `MotionProfile` / `StaggerDelay` — **deleted**, on the user's decision. `Animation`,
   `AnimationEasing`, `AnimationDuration` and `ReducedMotion` already cover motion and `ReducedMotion`
-  is genuinely wired. Deleting published properties is a caller-visible break, so it stays a decision
-  rather than something done quietly.
+  is genuinely wired with 13 readers; a second motion surface with zero readers was the duplication
+  this program keeps removing. `DialogManagerOptions.MotionProfile` and the `DialogMotionProfile`
+  type are untouched — those are a different, live setting.
 
 ### A measurement note
 

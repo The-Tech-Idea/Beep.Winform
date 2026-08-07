@@ -2,6 +2,44 @@
 
 **Kind:** enhancement. Three presentation behaviours current frameworks treat as table stakes.
 
+**Status: ◐ narrow presentation done; stacking and scroll lock have nothing to fix yet.**
+4 of 4 adaptive checks green; suite **66 passed / 1 failed**.
+
+### Built: narrow presentation
+
+`DialogAdaptive` runs first in `CreateDialog`, before anything reads the values it may change. Below a
+560px owner width (DPI-scaled) it bounds `MaxWidth` to the owner minus margins, switches
+`ButtonLayout` to `Vertical`, and falls `TitleBar` back to `Centred` — icon-left needs room beside the
+icon that a narrow dialog does not have.
+
+Measured from one config at two owner widths, which is the assertion the plan asks for: at 900px the
+actions stay in a row and the presentation stays `TitleBar`; at 420px they stack in one column, the
+dialog fits inside the owner, and the presentation is `Centred`. **The desktop path is asserted
+unchanged** — measured again at 900px after the narrow pass, because adaptive layout that alters the
+common case is a regression wearing a feature's clothes.
+
+This stage is largely the first real use of the wire stage 05 connected: `DialogButtonLayout.Vertical`
+was implemented and never given the config's value.
+
+### Nothing to fix: stacking
+
+The stage assumes "two dialogs mean two backdrops, and the second dims the first — capture the
+measured opacity before the change". Measured instead: **`DialogBackdropForm` has zero references
+anywhere outside its own file**, and `ShowBackdrop` has zero readers. There are no backdrops to
+deduplicate, compound or count.
+
+So the premise is wrong in the same way stage 03's was, and for the same reason. One backdrop for the
+stack is not a fix to make — **displaying a backdrop at all is unbuilt work**, and it should be scoped
+as that rather than smuggled in as deduplication. Escape already addresses the topmost dialog, because
+each is a modal `ShowDialog` and only the top one has a message loop.
+
+### Nothing to fix: scroll lock
+
+WinForms disables the owner for the duration of a modal `ShowDialog`, which is the mechanism this item
+asks for. It is worth a guard rather than an implementation, and that guard needs a modal show the
+probe cannot currently perform — it builds dialogs non-modally so it can inspect them. Recorded as
+untested rather than claimed.
+
 Scheduled last: all three change layout for every dialog, so they want the layouts from
 [06](06-severity-and-headers.md)–[09](09-async-and-long-content.md) settled first.
 

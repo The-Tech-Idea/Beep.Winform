@@ -262,8 +262,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public DialogShowAnimation Animation { get; set; } = DialogShowAnimation.FadeIn;
         public DialogAnimationEasing AnimationEasing { get; set; } = DialogAnimationEasing.EaseOutCubic;
-        public int StaggerDelay { get; set; } = 0;
-        public DialogMotionProfile? MotionProfile { get; set; }
         public bool ReducedMotion { get; set; } = false;
 
         /// <summary>

@@ -411,6 +411,55 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
         /// lower bound so the form never collapses to zero.
         /// Call this in the form constructor after InitializeComponent().
         /// </summary>
+        /// <summary>
+        /// Bounds a form has to respect when it next measures itself.
+        /// </summary>
+        /// <remarks>
+        /// <b>This method is the single sizing authority for dialogs.</b> It used to compete with
+        /// <c>BeepDialogManager.FitToContent</c>, which clamped at construction while this re-measured
+        /// on <c>Load</c> and won — so <c>MaxContentHeight</c> was ignored, a message row came out
+        /// 201px tall, and moving the body into a scroll panel collapsed a dialog to 26px wide. Three
+        /// separate fixes failed against that conflict before the ownership was settled here.
+        /// <para>
+        /// The manager now states the bounds instead of enforcing them, and this honours them.
+        /// </para>
+        /// </remarks>
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Form, DialogSizeBounds> _bounds = new();
+
+        internal sealed class DialogSizeBounds
+        {
+            public int MaxHeight { get; set; }
+            public int MinWidth { get; set; }
+
+            /// <summary>
+            /// A floor, used when the body scrolls.
+            /// </summary>
+            /// <remarks>
+            /// A scrollable body reports a small preferred height, so a dialog whose content overflows
+            /// would otherwise open cramped — 221px for a 4,900-character message — and make the user
+            /// scroll far more than necessary. When content is scrolling, the dialog should take the
+            /// height it is allowed.
+            /// </remarks>
+            public int MinHeight { get; set; }
+        }
+
+        /// <summary>States the bounds this form must respect. Call before it is shown.</summary>
+        public static void SetSizeBounds(Form form, int maxHeight, int minWidth = 0, int minHeight = 0)
+        {
+            if (form == null) return;
+            _bounds.Remove(form);
+            _bounds.Add(form, new DialogSizeBounds
+            {
+                MaxHeight = maxHeight,
+                MinWidth = minWidth,
+                MinHeight = minHeight,
+            });
+        }
+
+        /// <summary>The bounds stated for this form, or zeroes when none were.</summary>
+        internal static DialogSizeBounds BoundsFor(Form form)
+            => form != null && _bounds.TryGetValue(form, out var b) ? b : new DialogSizeBounds();
+
         public static void FitFormToContent(Form form)
         {
             form.PerformLayout();
@@ -456,6 +505,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
                 Size preferred = root.GetPreferredSize(new Size(Math.Max(1, width - chromeWidth), 0));
 
                 int height = Math.Max(preferred.Height + chromeHeight, form.MinimumSize.Height);
+
+                // The bounds the manager stated, honoured here because this is the last word on size.
+                var bounds = BoundsFor(form);
+                if (bounds.MinWidth > 0) width = Math.Max(width, bounds.MinWidth);
+                if (bounds.MinHeight > 0) height = Math.Max(height, bounds.MinHeight);
+                if (bounds.MaxHeight > 0) height = Math.Min(height, bounds.MaxHeight);
+
                 form.ClientSize = new Size(width, height);
                 return;
             }

@@ -66,20 +66,30 @@ harness the rest report through.
 | [06](06-severity-and-headers.md) | Severity resolver (appearance moved to the theme) | conformance | ☑ done |
 | [07](07-button-hierarchy.md) | Button roles, order and hit targets (colour is the theme's) | conformance | ☑ done |
 | [08](08-body-layouts-and-callouts.md) | Inset callouts built; icon treatments are control work | conformance | ◐ partial |
-| [09](09-async-and-long-content.md) | Pending actions and content that does not fit | enhancement | ☐ open |
-| [10](10-adaptive-presentation.md) | Narrow windows, stacking, scroll lock | enhancement | ☐ open |
+| [09](09-async-and-long-content.md) | Overflow done — body scrolls, bound holds; async not started | enhancement | ◐ partial |
+| [10](10-adaptive-presentation.md) | Narrow presentation done; backdrop is unbuilt, not duplicated | enhancement | ◐ partial |
 | [11](11-verification.md) | A probe harness and the first tests this folder has | verification | ☑ done |
 | [12](12-presentation-styles.md) | Four presentations — arrangement built, colour is the theme's | conformance | ◐ partial |
 
 Status marks: ☐ open · ◐ in progress · ☑ done
 
-**Suite: 56 passed / 1 failed, 0 unexpected.** The three remaining reds are baseline reds owned by
-stages 04 and 05. Both previously-unexpected failures are fixed: the swallow detector's false
+**Suite: 66 passed / 1 failed, 0 unexpected.** The one red is stage 05's dead-property census. Both previously-unexpected failures are fixed: the swallow detector's false
 positive on a comment (it now blanks comments and strings before matching, and is proven still able
 to catch a real `catch { }`), and the multi-select horizontal scrollbar (the `AutoScroll` panel now
 reserves the vertical scrollbar's gutter, so its percent column is sized to a width that survives the
 scrollbar appearing).
 
+> **Resolved: sizing has one owner.** `DialogHelpers.FitFormToContent` decides; the manager states
+> bounds through `SetSizeBounds` and no longer assigns `ClientSize`. The lesson that led there is kept
+> below because it cost three failed fixes to learn.
+>
+> **A third lesson, from stages 06, 09 and the designer conversion: this folder had two sizing
+> authorities and they fought.** `BeepDialogManager.FitToContent` clamps at construction;
+> `DialogHelpers.FitFormToContent` re-measures on `Load` and wins. That is why `MaxContentHeight` is
+> ignored, why a message row came out 201px, and why moving the body into a scroll panel collapsed the
+> dialog to 26px wide. **Resolve the ownership before attempting anything else that touches size** —
+> three separate fixes have now failed against it, each of them correct in isolation.
+>
 > **A second lesson, from stages 02 and 06: suspect the harness before the product.** Both stages lost
 > runs to a hang that was blamed on library code — `SendKeys` posting to whatever window had focus,
 > and a modal `_manager.Show` that nothing closed. Stage 06 cost three bisection runs against the

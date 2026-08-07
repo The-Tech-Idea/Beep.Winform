@@ -374,6 +374,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// </summary>
         internal Form CreateDialog(DialogConfig config)
         {
+            // First, because everything below reads the values it may change: the width bound, the
+            // button layout and the presentation. Above the breakpoint it does nothing.
+            DialogAdaptive.Apply(config, _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null));
+
             Form dialog;
             var preset  = config.Preset;
             bool hasCustomControl = config.CustomControl != null;
@@ -464,6 +468,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             DialogAcknowledgement.Apply(dialog, config);
             ApplyButtonLayout(dialog, config);
             DialogPresentations.Apply(dialog, config);
+
+            // Last: callouts, the typed confirmation and the acknowledgement each add content rows,
+            // and the body can only be collapsed once every one of them exists.
+            DialogOverflow.Apply(dialog, config);
 
             return dialog;
         }
@@ -800,10 +808,29 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 dialog.MinimumSize.Height > 0 ? dialog.MinimumSize.Height : 0,
                 Math.Max(1, maxHeight));
 
+            // Stated, not enforced.
+            //
+            // This method used to assign ClientSize directly, and DialogHelpers.FitFormToContent then
+            // re-measured on Load and overwrote it - the conflict that made MaxContentHeight a dead
+            // property. FitFormToContent is the single sizing authority now; this tells it what the
+            // config requires and lets it do the sizing.
+            DialogHelpers.SetSizeBounds(dialog, maxHeight is > 0 and < int.MaxValue ? maxHeight : 0, width);
+
             if (width != dialog.ClientSize.Width || height != dialog.ClientSize.Height)
             {
                 dialog.ClientSize = new Size(width, height);
             }
+
+            // MaxContentHeight is deliberately NOT enforced with MaximumSize here.
+            //
+            // It was tried: DialogHelpers.FitFormToContent defers its own measurement to Load and
+            // re-sizes the form to whatever the content wants, so the clamp computed above is
+            // overwritten - 307px here, 976px on screen. Setting MaximumSize does make the bound
+            // hold, and it makes things worse: with nothing scrolling, a bounded dialog pushes its
+            // own action buttons out of view. Seven checks that had nothing to do with height went
+            // red, which is the failure this stage exists to prevent.
+            //
+            // The bound and the scrolling body have to land together. Stage 09 owns both.
         }
 
         /// <summary>Header, footer and padding the body does not account for.</summary>

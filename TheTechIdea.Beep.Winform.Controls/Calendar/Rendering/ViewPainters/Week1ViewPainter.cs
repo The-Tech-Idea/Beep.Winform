@@ -217,14 +217,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.CornerRadius, args.BackgroundColor);
             string text = dayDate.ToString("ddd d");
             CalendarPainterHelpers.DrawText(g, text, args.DaysHeaderFont ?? args.HeaderFont,
-                dayDate.Date == DateTime.Today ? args.TodayForeColor : args.ForegroundColor,
+                dayDate.Date == DateTime.Today ? args.TodayForeColor : args.DaysHeaderForeColor,
                 rect, StringAlignment.Center, StringAlignment.Center);
         }
 
         private static void PaintTimeLabel(Graphics g, Rectangle rect, int hour, ViewPaintArgs args)
         {
             string label = hour == 0 ? "12a" : hour < 12 ? $"{hour}a" : hour == 12 ? "12p" : $"{hour - 12}p";
-            CalendarPainterHelpers.DrawText(g, label, args.TimeFont ?? args.DayFont, args.ForegroundColor, rect,
+            CalendarPainterHelpers.DrawText(g, label, args.TimeFont ?? args.DayFont, args.DaysHeaderForeColor, rect,
                 StringAlignment.Center, StringAlignment.Near, centerVertically: false);
         }
 
@@ -252,8 +252,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var ctx = new CalendarCellContext(CalendarCellKind.EventBlock, evt, dayDate, args.Surface.ViewMode, 0, dayIndex);
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
-            CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.EventCornerRadius,
-                args.GetCategoryColor(evt.CategoryId));
+            Color fill = args.GetEventFill(evt);
+            CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.EventCornerRadius, fill);
             if (args.SelectedEvent?.Id == evt.Id)
             {
                 CalendarPainterHelpers.StrokeRoundedRect(g, rect, args.Metrics.EventCornerRadius, args.PrimaryColor, 2f);
@@ -266,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var title = (evt.StartTime.ToString("h:mm tt") + " " + evt.Title).Trim();
             var textRect = new Rectangle(rect.X + args.Metrics.EventAccentWidth + 4, rect.Y + 2,
                 rect.Width - args.Metrics.EventAccentWidth - 6, Math.Max(0, rect.Height - 4));
-            CalendarPainterHelpers.DrawText(g, title, args.EventFont ?? args.DayFont, args.ForegroundColor,
+            CalendarPainterHelpers.DrawText(g, title, args.EventFont ?? args.DayFont, args.GetEventInk(fill),
                 textRect, StringAlignment.Near, StringAlignment.Near, centerVertically: false);
         }
 

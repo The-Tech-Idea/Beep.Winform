@@ -174,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.CornerRadius, args.BackgroundColor);
-            var color = isToday ? args.TodayForeColor : args.ForegroundColor;
+            var color = isToday ? args.TodayForeColor : args.DaysHeaderForeColor;
             CalendarPainterHelpers.DrawText(g, date.ToString("ddd"), args.DaysHeaderFont ?? args.HeaderFont,
                 color, rect, StringAlignment.Center, StringAlignment.Center);
         }
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
             Color numColor = state.IsToday
                 ? args.TodayForeColor
-                : (state.IsCurrentMonth ? args.ForegroundColor : args.OutOfMonthForeColor);
+                : (state.IsCurrentMonth ? args.DaysHeaderForeColor : args.OutOfMonthForeColor);
             int numX = rect.X + 4;
             int numY = rect.Y + 2;
             int numH = Math.Max(14, args.DayFont?.Height ?? 14);
@@ -250,7 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 0, 0);
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
-            Color fill = args.GetCategoryColor(evt.CategoryId);
+            Color fill = args.GetEventFill(evt);
             if (args.SelectedEvent?.Id == evt.Id) fill = args.SelectedBackColor;
             if (args.HoveredEventId == evt.Id) fill = args.HoverBackColor;
 
@@ -263,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var textRect = new Rectangle(rect.X + args.Metrics.EventAccentWidth + 4, rect.Y,
                 rect.Width - args.Metrics.EventAccentWidth - 6, rect.Height);
             CalendarPainterHelpers.DrawText(g, evt.Title,
-                args.EventFont ?? args.DayFont, args.ForegroundColor, textRect,
+                args.EventFont ?? args.DayFont, args.GetEventInk(fill), textRect,
                 StringAlignment.Near, StringAlignment.Center);
         }
 

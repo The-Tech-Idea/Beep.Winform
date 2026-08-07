@@ -129,3 +129,25 @@ Instrumentation route: hit/mode/delta all printed correct (56px -> 02:00), which
 the up path and exposed the capture self-cancel. Verified: 9:00 -> 11:00, snap honoured, duration
 preserved. One probe-side correction along the way: commits REPLACE the event with a clone, so
 assertions must re-query Events, not hold the old reference.
+
+## Theme colour assignment revised — slots only, no literals, one open defect
+
+Per user direction: ViewPaintArgs colour properties have NO initialisers (the Badges rule) and
+ResolveThemeColors assigns THEME SLOTS VERBATIM - CalendarHover/Selected/Today/Title/DaysHeader all
+wired to their dedicated BeepTheme.Calendar slots, last-resort theme = BeepThemesManager.CurrentTheme,
+the literal fallback palette deleted. Event fills: category colour, else the theme's hue slots
+verbatim (Primary/Secondary/Accent/Success/Warning/Error) hashed stably per event; ink picks between
+theme fore/back by contrast (GetContrastingForeground). Two earlier wrong turns, both corrected on
+user review: a hue-rotation palette (invented colours) and softening blends (also invented).
+Or(slot, otherSlot) guards handle instance-unpopulated slots by falling back to ANOTHER slot of the
+same theme.
+
+Verified: probe 29/29 (drag block-finder updated: it hunted GRAY blocks and the fills are now theme
+hues - the failure proved the change); Week2 render shows theme-blue events with legible ink.
+
+**OPEN DEFECT:** title text and the day-header row render invisible under the default theme, and one
+of five events (Overlap A) does not render - consistent with some resolved slots still coming out
+transparent (unpopulated Calendar* slots in the default theme instance, or the `is BeepTheme` gate
+not running so the extended block is skipped). Next step: print the resolved args palette values at
+paint time and check which slots are A=0, then extend Or() coverage or fix the gate. A probe check
+asserting "title text is visible" should be added and MUST fail before the fix.

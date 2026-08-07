@@ -358,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.CornerRadius, args.BackgroundColor);
             CalendarPainterHelpers.DrawText(g, dayDate.ToString("ddd\nd"),
                 args.DaysHeaderFont ?? args.DayFont,
-                isToday ? args.TodayForeColor : args.ForegroundColor,
+                isToday ? args.TodayForeColor : args.DaysHeaderForeColor,
                 rect, StringAlignment.Center, StringAlignment.Center);
         }
 
@@ -375,7 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 0, 0);
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
-            Color fill = args.GetCategoryColor(evt.CategoryId);
+            Color fill = args.GetEventFill(evt);
             if (args.SelectedEvent?.Id == evt.Id) fill = args.SelectedBackColor;
             if (args.HoveredEventId == evt.Id) fill = args.HoverBackColor;
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.EventCornerRadius, fill);
@@ -387,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var textRect = new Rectangle(rect.X + args.Metrics.EventAccentWidth + 4, rect.Y + 2,
                 rect.Width - args.Metrics.EventAccentWidth - 6, Math.Max(0, rect.Height - 4));
             CalendarPainterHelpers.DrawText(g, evt.Title,
-                args.EventFont ?? args.DayFont, args.ForegroundColor, textRect,
+                args.EventFont ?? args.DayFont, args.GetEventInk(fill), textRect,
                 StringAlignment.Near, StringAlignment.Near, centerVertically: false);
         }
 

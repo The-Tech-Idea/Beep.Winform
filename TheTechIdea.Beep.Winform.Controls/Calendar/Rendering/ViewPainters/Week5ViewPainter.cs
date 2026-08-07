@@ -194,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var ctx = new CalendarCellContext(CalendarCellKind.EventBlock, evt, dayDate, args.Surface.ViewMode, cardIndex, dayIndex);
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
-            CalendarPainterHelpers.FillRoundedRect(g, rect, 6, args.GetCategoryColor(evt.CategoryId));
+            CalendarPainterHelpers.FillRoundedRect(g, rect, 6, args.GetEventFill(evt));
             if (args.SelectedEvent?.Id == evt.Id)
                 CalendarPainterHelpers.StrokeRoundedRect(g, rect, 6, args.PrimaryColor, 2f);
             CalendarPainterHelpers.DrawText(g, evt.Title, args.EventFont, args.ForegroundColor,

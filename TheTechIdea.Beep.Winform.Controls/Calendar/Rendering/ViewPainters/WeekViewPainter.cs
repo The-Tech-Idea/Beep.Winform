@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             string text = dayDate.ToString("ddd d");
             CalendarPainterHelpers.DrawText(g, text,
                 args.DaysHeaderFont ?? args.HeaderFont,
-                dayDate.Date == DateTime.Today ? args.TodayForeColor : args.ForegroundColor,
+                dayDate.Date == DateTime.Today ? args.TodayForeColor : args.DaysHeaderForeColor,
                 rect, StringAlignment.Center, StringAlignment.Center);
         }
 
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
         {
             string label = hour == 0 ? "12a" : hour < 12 ? $"{hour}a" : hour == 12 ? "12p" : $"{hour - 12}p";
             CalendarPainterHelpers.DrawText(g, label,
-                args.TimeFont ?? args.DayFont, args.ForegroundColor, rect,
+                args.TimeFont ?? args.DayFont, args.DaysHeaderForeColor, rect,
                 StringAlignment.Center, StringAlignment.Near, centerVertically: false);
         }
 
@@ -229,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 args.Surface?.ViewMode ?? CalendarViewMode.Week, 0, dayIndex);
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
-            Color fill = args.GetCategoryColor(evt.CategoryId);
+            Color fill = args.GetEventFill(evt);
             if (args.SelectedEvent?.Id == evt.Id) fill = args.SelectedBackColor;
             if (args.HoveredEventId == evt.Id) fill = args.HoverBackColor;
 
@@ -243,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 rect.Width - args.Metrics.EventAccentWidth - 6, Math.Max(0, rect.Height - 4));
             var title = (evt.StartTime.ToString("h:mm tt") + " " + evt.Title).Trim();
             CalendarPainterHelpers.DrawText(g, title,
-                args.EventFont ?? args.DayFont, args.ForegroundColor, textRect,
+                args.EventFont ?? args.DayFont, args.GetEventInk(fill), textRect,
                 StringAlignment.Near, StringAlignment.Near, centerVertically: false);
         }
 

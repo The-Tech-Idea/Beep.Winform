@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 0, 0);
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
-            Color fill = args.GetCategoryColor(evt.CategoryId);
+            Color fill = args.GetEventFill(evt);
             if (args.SelectedEvent?.Id == evt.Id) fill = args.SelectedBackColor;
             if (args.HoveredEventId == evt.Id) fill = args.HoverBackColor;
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.EventCornerRadius, fill);
@@ -197,11 +197,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             int textLeft = rect.X + args.Metrics.EventAccentWidth + 8;
             int timeWidth = 110;
             CalendarPainterHelpers.DrawText(g, evt.StartTime.ToString("h:mm tt"),
-                args.EventFont ?? args.DayFont, args.ForegroundColor,
+                args.EventFont ?? args.DayFont, args.GetEventInk(fill),
                 new Rectangle(textLeft, rect.Y, timeWidth, rect.Height),
                 StringAlignment.Near, StringAlignment.Center);
             CalendarPainterHelpers.DrawText(g, evt.Title,
-                args.EventFont ?? args.DayFont, args.ForegroundColor,
+                args.EventFont ?? args.DayFont, args.GetEventInk(fill),
                 new Rectangle(textLeft + timeWidth, rect.Y,
                     rect.Width - timeWidth - args.Metrics.EventAccentWidth - 12, rect.Height),
                 StringAlignment.Near, StringAlignment.Center);

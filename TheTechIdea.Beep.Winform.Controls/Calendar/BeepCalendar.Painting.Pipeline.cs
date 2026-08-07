@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             if (textRect.Width <= 0 || textRect.Height <= 0 || string.IsNullOrEmpty(headerText)) return;
             CalendarPainterHelpers.DrawText(g, headerText,
-                args.HeaderFont, args.ForegroundColor, textRect,
+                args.HeaderFont, args.TitleForeColor, textRect,
                 StringAlignment.Center, StringAlignment.Center);
         }
 

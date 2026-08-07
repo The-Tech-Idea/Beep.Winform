@@ -226,15 +226,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var ctx = new CalendarCellContext(CalendarCellKind.EventBlock, evt, dayDate, args.Surface.ViewMode, 0, dayIndex);
             if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
 
-            CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.EventCornerRadius,
-                args.GetCategoryColor(evt.CategoryId));
+            Color fill = args.GetEventFill(evt);
+            CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.EventCornerRadius, fill);
             if (args.SelectedEvent?.Id == evt.Id)
                 CalendarPainterHelpers.StrokeRoundedRect(g, rect, args.Metrics.EventCornerRadius, args.PrimaryColor, 2f);
 
             var title = (evt.StartTime.ToString("h:mm tt") + " " + evt.Title).Trim();
             var textRect = new Rectangle(rect.X + 6, rect.Y + 4,
                 rect.Width - 12, Math.Max(0, rect.Height - StatusBadgeHeightPx - 8));
-            CalendarPainterHelpers.DrawText(g, title, args.EventFont ?? args.DayFont, args.ForegroundColor,
+            CalendarPainterHelpers.DrawText(g, title, args.EventFont ?? args.DayFont, args.GetEventInk(fill),
                 textRect, StringAlignment.Near, StringAlignment.Near, centerVertically: false);
 
             // Status badge

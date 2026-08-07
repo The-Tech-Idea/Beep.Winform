@@ -53,23 +53,88 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         // ── Owner (for back/fore color fallbacks and density) ─────────────────
         public BeepCalendar Owner { get; set; }
 
-        // ── Computed helpers (resolved once, cached) ──────────────────────────
-        public Color BackgroundColor { get; set; } = Color.White;
-        public Color ForegroundColor { get; set; } = Color.Black;
-        public Color BorderColor { get; set; } = Color.FromArgb(218, 220, 224);
-        public Color PrimaryColor { get; set; } = Color.FromArgb(103, 80, 164);
-        public Color SecondaryColor { get; set; } = Color.FromArgb(66, 133, 244);
-        public Color TodayBackColor { get; set; } = Color.FromArgb(103, 80, 164);
-        public Color TodayForeColor { get; set; } = Color.White;
-        public Color HoverBackColor { get; set; } = Color.FromArgb(241, 243, 244);
-        public Color SelectedBackColor { get; set; } = Color.FromArgb(231, 224, 236);
-        public Color SelectedForeColor { get; set; } = Color.FromArgb(103, 80, 164);
-        public Color WeekendBackColor { get; set; } = Color.FromArgb(252, 252, 252);
-        public Color OutOfMonthBackColor { get; set; } = Color.FromArgb(248, 249, 250);
-        public Color OutOfMonthForeColor { get; set; } = Color.FromArgb(190, 190, 190);
+        // ── Resolved palette ──────────────────────────────────────────────────
+        // No initialisers, deliberately (the Badges rule): every one of these is filled by
+        // ResolveThemeColors from the assigned theme, falling back to BeepThemesManager.CurrentTheme.
+        // The literal defaults that used to sit here were a second palette that showed through
+        // whenever resolution was skipped - hardcoded Material colours under every other theme.
+        public Color BackgroundColor { get; set; }
+        public Color ForegroundColor { get; set; }
+        public Color BorderColor { get; set; }
+        public Color PrimaryColor { get; set; }
+        public Color SecondaryColor { get; set; }
+        public Color TodayBackColor { get; set; }
+        public Color TodayForeColor { get; set; }
+        public Color HoverBackColor { get; set; }
+        public Color SelectedBackColor { get; set; }
+        public Color SelectedForeColor { get; set; }
+        public Color WeekendBackColor { get; set; }
+        public Color OutOfMonthBackColor { get; set; }
+        public Color OutOfMonthForeColor { get; set; }
+        public Color TitleForeColor { get; set; }
+        public Color DaysHeaderForeColor { get; set; }
+        public Color HoverForeColor { get; set; }
 
         // ── Style metrics (resolved from ControlStyle) ────────────────────────
         public CalendarStyleMetrics Metrics { get; set; } = CalendarStyleMetrics.Material3();
+
+        /// <summary>
+        /// The fill for an event block: its category's colour when it has one, otherwise a colour
+        /// from the theme's own hue slots, chosen stably per event.
+        /// </summary>
+        /// <remarks>
+        /// The fallback was <see cref="Color.Gray"/>, so every uncategorised event rendered as a flat
+        /// grey slab — nothing like the reference designs (sampleimages/c1..c7), where block colours
+        /// vary per event. The palette is the theme's slots verbatim (see <see cref="EventPalette"/>),
+        /// and the pick is hashed from the event's identity so an event keeps its colour across
+        /// repaints and view switches.
+        /// </remarks>
+        public Color GetEventFill(CalendarEvent evt)
+        {
+            if (evt != null && Categories != null)
+            {
+                for (int i = 0; i < Categories.Count; i++)
+                {
+                    if (Categories[i].Id == evt.CategoryId) return Categories[i].Color;
+                }
+            }
+
+            var palette = EventPalette;
+            int index = evt == null ? 0 : Math.Abs(($"{evt.Id}|{evt.Title}").GetHashCode()) % palette.Length;
+            return palette[index];
+        }
+
+        /// <summary>
+        /// Text colour for content painted on an event fill: whichever of the theme's foreground or
+        /// background reads against it. A choice between two theme colours — never a computed one.
+        /// </summary>
+        public Color GetEventInk(Color fill) =>
+            CalendarDrawingPrimitives.GetContrastingForeground(fill, ForegroundColor, BackgroundColor);
+
+        /// <summary>
+        /// The palette uncategorised events draw from: the theme's own hue slots, verbatim —
+        /// primary, secondary, accent, success, warning, error. The theme author chose these;
+        /// nothing here modifies them.
+        /// </summary>
+        private Color[] EventPalette
+        {
+            get
+            {
+                var theme = Theme as BeepTheme;
+                return new[]
+                {
+                    PrimaryColor,
+                    SecondaryColor,
+                    theme?.AccentColor ?? PrimaryColor,
+                    theme?.SuccessColor ?? SecondaryColor,
+                    theme?.WarningColor ?? PrimaryColor,
+                    theme?.ErrorColor ?? SecondaryColor,
+                };
+            }
+        }
+
+        /// <summary>A theme slot, or a second theme slot when the instance never populated the first.</summary>
+        private static Color Or(Color slot, Color fallbackSlot) => slot.A > 0 ? slot : fallbackSlot;
 
         /// <summary>Resolve a category color, falling back to <see cref="Color.Gray"/>.</summary>
         public Color GetCategoryColor(int categoryId)
@@ -127,7 +192,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 }
             }
 
-            if (UseThemeColors && effectiveTheme != null)
+            // Last resort is the CURRENT theme, never a literal palette. There is always a current
+            // theme; a hardcoded fallback here was a second Material palette that leaked through
+            // whenever style resolution failed.
+            effectiveTheme ??= BeepThemesManager.CurrentTheme;
+
+            if (effectiveTheme != null)
             {
                 BackgroundColor = effectiveTheme.CalendarBackColor;
                 ForegroundColor = effectiveTheme.CalendarForeColor;
@@ -136,16 +206,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 if (effectiveTheme is BeepTheme bt)
                 {
                     SecondaryColor = bt.SecondaryColor;
+
+                    // The theme carries dedicated calendar slots for these, and they were never
+                    // read: Today/Hover/Selected kept their hardcoded Material defaults under
+                    // every theme, so switching themes recoloured the chrome but not the states the
+                    // user actually looks for. The slots are the theme author's decisions - used
+                    // directly, not second-guessed. Only Weekend/OutOfMonth/TodayBack have no slot
+                    // in BeepTheme.Calendar and are quiet tints of colours the theme does define.
+                    // Theme slots, verbatim - no blends, no literals. Or() only handles a slot the
+                    // theme INSTANCE never populated (default(Color), alpha 0): text painted in a
+                    // transparent colour is invisible, which is how the title and the day-header row
+                    // vanished from the render. The fallback is always another slot of the same
+                    // theme, so every colour on screen is still the theme author's.
+                    TodayBackColor = Or(bt.CalendarSelectedDateBackColor, bt.PrimaryColor);
+                    TodayForeColor = Or(bt.CalendarTodayForeColor, bt.CalendarBackColor);
+                    HoverBackColor = Or(bt.CalendarHoverBackColor, bt.CalendarBackColor);
+                    HoverForeColor = Or(bt.CalendarHoverForeColor, bt.CalendarForeColor);
+                    SelectedBackColor = Or(bt.CalendarSelectedDateBackColor, bt.PrimaryColor);
+                    SelectedForeColor = Or(bt.CalendarSelectedDateForColor, bt.CalendarBackColor);
+                    WeekendBackColor = bt.CalendarBackColor;
+                    OutOfMonthBackColor = Or(bt.DisabledBackColor, bt.CalendarBackColor);
+                    OutOfMonthForeColor = Or(bt.DisabledForeColor, bt.CalendarForeColor);
+                    TitleForeColor = Or(bt.CalendarTitleForColor, bt.CalendarForeColor);
+                    DaysHeaderForeColor = Or(bt.CalendarDaysHeaderForColor, bt.CalendarForeColor);
                 }
-            }
-            else
-            {
-                // No theme resolvable at all — fall back to safe built-in defaults.
-                BackgroundColor = Color.White;
-                ForegroundColor = Color.Black;
-                BorderColor = Color.FromArgb(218, 220, 224);
-                PrimaryColor = Color.FromArgb(103, 80, 164);
-                SecondaryColor = Color.FromArgb(66, 133, 244);
             }
         }
 

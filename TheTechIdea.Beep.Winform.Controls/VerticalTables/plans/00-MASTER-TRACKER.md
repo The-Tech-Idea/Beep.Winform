@@ -63,3 +63,26 @@ to fail.
 
 Not yet done: the probe (F3) - render all 14 styles distinct + theme responsiveness + click
 round-trip; renders not yet eyeballed after the sweep.
+
+## Batch 2 done - probe 19/19, and it found a process-killer
+
+**Every click on this control was a StackOverflow that killed the host process.** The layout helper
+registers the control itself as its hit areas' component; the pipeline forwards a hit to the
+component's ReceiveMouseEvent; the override called base.ReceiveMouseEvent, which re-dispatches into
+_input, which runs the same hit test and forwards to the control again. Fixed: the override is the
+terminal receiver, no base call. Found by the probe's first click - uncatchable, so no BeepLog line
+ever fired; only running it could expose it.
+
+Probe: 14/14 styles paint real content and render distinctly; Style6 differs between two themes (the
+239-literal sweep proven live); CellClicked verified through BOTH paths - the full OS pipeline (with
+the real cursor parked, since _input.OnClick reads Cursor.Position, not event args) and the direct
+ReceiveMouseEvent receiver. Style6 render eyeballed: clean themed table, alternating rows, feature
+column, grid lines.
+
+Instrument notes for the next reader: three rounds of guessed click coordinates hit (1) a column
+resize hot zone that consumed the click as a resize-end, (2) empty space, before (3) reflecting the
+layout helper's own first cell rect - the layout is the only authority on where cells are. And the
+pipeline reads the PHYSICAL cursor: synthetic MouseEventArgs alone cannot drive it.
+
+Still open: Style14 identity-palette ruling; hover/multi-select paths unprobed; renders of the other
+13 styles not individually eyeballed.

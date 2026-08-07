@@ -601,7 +601,12 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
         #region Input & Hit Test
         public override void ReceiveMouseEvent(HitTestEventArgs eventArgs)
         {
-            base.ReceiveMouseEvent(eventArgs);
+            // No base call - this override IS the terminal receiver. The pipeline is
+            // OnMouseDown -> input helper -> HitTest -> SendMouseEvent(component), and the layout
+            // helper registers THIS control as its hit areas' component, so the event arrives here
+            // through that forward. base.ReceiveMouseEvent re-dispatches into _input, which runs the
+            // same hit test and forwards to this control again: every click was a StackOverflow that
+            // killed the host process. Found by the probe's first click.
 
             if (eventArgs == null) return;
             if (_layoutHelper == null) CalculateLayout();

@@ -273,3 +273,29 @@ re-verified since these edits** — the last render still showed the old 130px l
 
 Next: read `Minimized.cs` 170-200, find what reassigns `Height`, then re-render before going near the
 button split.
+
+## The structural lesson that was missed
+
+`BeepRibbonGroup : ToolStrip` is why this renders as boxes, and no amount of height tuning fixes it.
+
+A `ToolStrip` is a toolbar: one flow of items, overflowing into a chevron. That is what produced the
+single row of bare text captions and the "More" button on every group — the chevron is the ToolStrip's
+own overflow, and it will keep appearing at any height.
+
+Fluent.Ribbon's `RibbonGroupBox` is not a toolbar. It is a container whose items live in a wrap panel
+that fills **columns of three rows**: small controls stack three-high and then start a new column,
+while large controls span the full content height alongside them. That column-wrap arrangement *is*
+the ribbon look. The metrics recorded above (66px content, 22px caption, 22px rows, 32px/16px icons)
+only mean something once the container arranges items that way.
+
+So the real work is not more tuning of the existing class:
+
+1. Replace the `ToolStrip` base with a `Panel` (or `BaseControl`) that owns its own layout.
+2. Give it a column-wrap layout: fill three 22px rows top-to-bottom, then advance a column; a large
+   item takes a whole column at 66px with a 32px icon above its label.
+3. Host commands as `BeepButton` + `BeepImage` per `CLAUDE.md` rule 4, rather than `ToolStripButton` -
+   which also removes the custom renderer, and with it the double-draw fixed earlier.
+4. Keep the caption strip and separator already written in `OnPaint`; they carry over unchanged.
+
+Everything committed today (group docking, caption strip, metrics, the double-draw fix) is a
+prerequisite for that and none of it is wasted, but on its own it cannot produce a ribbon.

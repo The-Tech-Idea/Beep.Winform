@@ -1386,7 +1386,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
             }
         }
-        private BeepControlStyle _controlstyle = BeepControlStyle.None;
+        // Material3, not None. UseFormStylePaint defaults true, but with ControlStyle = None the
+        // styled branch in ClassicBaseControlPainter never ran - every control fell to the classic
+        // 1px theme-gray DrawBorders rectangle, which is why default borders read faint and
+        // shape-blind (a RoundedPill combo sat inside a radius-4 outline). With a real style the
+        // border comes from the style's own border painter, shaped and weighted by design tokens.
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The visual style/painter to use for rendering the sidebar.")]

@@ -78,3 +78,12 @@ Traced, not assumed (a first attempt wrongly patched the ComboBoxType setter and
 
 Open decision (not taken unilaterally): whether the type's token radius should flow to the base
 border, or whether shaped types should set a non-None `ControlStyle` so the styled branch draws them.
+
+## Decision taken: default ControlStyle = Material3 (was None)
+
+`BaseControl.Properties.cs` — user decision. With `UseFormStylePaint` already true, `None` meant the
+styled branch never ran and every control got the classic 1px gray rectangle. Material3 activates the
+style border painters library-wide. Verified: build clean, ComboProbe 15/15, default combo render now
+shows the Material3 rounded border. NOT re-verified after this global change: Ribbon, BottomNavBars
+and other probes — every BaseControl-derived control is affected and should be spot-checked next
+session.

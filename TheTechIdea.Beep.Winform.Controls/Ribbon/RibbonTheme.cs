@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -147,9 +148,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CommandTypography = CloneTypography(current.ButtonFont, CommandTypography);
                 ContextHeaderTypography = CloneTypography(current.AppBarTitleStyle, ContextHeaderTypography);
             }
-            catch
+            catch (Exception ex)
             {
-                // keep fallback defaults if theme manager is unavailable during early startup
+                // Keeping the fallback defaults is correct during early startup, before the theme
+                // manager has a current theme. Reported once by key, because this runs on every theme
+                // resolve and a genuine failure would otherwise repeat without end.
+                BeepLog.FallbackOnce("RibbonTheme.SyncFromBeepTheme", this,
+                                     "read the current Beep theme for ribbon tokens", ex);
             }
         }
 

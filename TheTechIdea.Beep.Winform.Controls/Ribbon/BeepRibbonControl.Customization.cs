@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Accessibility;
 using TheTechIdea.Beep.Winform.Controls.Customization;
 using TheTechIdea.Beep.Winform.Controls.Search;
@@ -355,8 +356,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var json = System.Text.Json.JsonSerializer.Serialize(state, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(file, json);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, $"save ribbon customization to '{file}'", ex);
             }
         }
 
@@ -414,8 +416,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _backstageNavList.SelectedIndex = state.BackstageSelectedIndex;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                // A partially applied state is worse than none, because the ribbon is left half in the
+                // saved layout and half in the default one with nothing to say so.
+                BeepLog.Failure(this, $"load ribbon customization from '{file}'", ex);
             }
         }
 
@@ -427,8 +432,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var json = System.Text.Json.JsonSerializer.Serialize(tokens, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(file, json);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, $"save ribbon theme tokens to '{file}'", ex);
             }
         }
 
@@ -442,8 +448,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (tokens == null) return;
                 RibbonThemeProvider = tokens.ToTheme(_theme);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, $"load ribbon theme tokens from '{file}'", ex);
             }
         }
     }

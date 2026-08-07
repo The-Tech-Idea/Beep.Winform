@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Accessibility;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -59,8 +60,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 File.WriteAllLines(file, _quickAccessCommandKeys);
             }
-            catch
+            catch (Exception ex)
             {
+                // A save that fails silently loses the user's toolbar with no sign anything happened -
+                // and the caller has no return value to tell it apart from success either.
+                BeepLog.Failure(this, $"save the quick access toolbar to '{file}'", ex);
             }
         }
 
@@ -82,8 +86,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 RebuildQuickAccessToolbar();
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, $"load the quick access toolbar from '{file}'", ex);
             }
         }
 

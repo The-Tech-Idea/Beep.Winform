@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Text.Json;
@@ -626,8 +627,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                         return custom.Trim();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    // The consumer's formatter threw. Falling back to the built-in format is right, but
+                    // silently doing so hides a bug in code the consumer owns and can fix.
+                    BeepLog.Fallback(this, "format a backstage recent-item timestamp with the supplied formatter", ex);
                 }
             }
 

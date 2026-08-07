@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Customization;
@@ -33,9 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BeepThemesManager.FormStyleChanged += OnGlobalFormStyleChanged;
                 _subscribedToThemeManager = true;
             }
-            catch
+            catch (Exception ex)
             {
-                // best effort only
+                // Not "best effort": failing here means the ribbon never follows a theme change again,
+                // and the flag stays false so every later call retries and fails the same way.
+                BeepLog.Failure(this, "subscribe to BeepThemesManager", ex);
             }
         }
 
@@ -47,9 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var nextTheme = e?.NewTheme ?? BeepThemesManager.CurrentTheme;
                 ApplyThemeFromBeep(nextTheme, _ribbonFormStyle);
             }
-            catch
+            catch (Exception ex)
             {
-                // keep ribbon stable if theme manager fails
+                // Staying up with the old colours is the right fallback, but it has to be visible:
+                // silently, this looked exactly like a theme that simply did not apply.
+                BeepLog.Failure(this, "apply theme change to the ribbon", ex);
             }
         }
 
@@ -70,9 +75,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
                 BeepThemesManager.FormStyleChanged -= OnGlobalFormStyleChanged;
             }
-            catch
+            catch (Exception ex)
             {
-                // no-op
+                // ThemeChanged is static, so a failed detach keeps this ribbon alive for the life of
+                // the process. That is a leak, not a no-op, and it needs to be visible.
+                BeepLog.Failure(this, "unsubscribe from BeepThemesManager", ex);
             }
             _subscribedToThemeManager = false;
         }
@@ -90,7 +97,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     else
                         ShowPlaceholder();
                 }
-                catch { ShowPlaceholder(); }
+                catch (Exception ex)
+                {
+                    // The placeholder is a real fallback, so this is a Fallback rather than a Failure -
+                    // but at design time a ribbon that quietly shows its placeholder instead of the
+                    // items you just configured is the single most confusing thing it can do.
+                    BeepLog.Fallback(this, "build the ribbon from CommandItems at design time", ex);
+                    ShowPlaceholder();
+                }
                 return;
             }
             BuildFromSimpleItems();

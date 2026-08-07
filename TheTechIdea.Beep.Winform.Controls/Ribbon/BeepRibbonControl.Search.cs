@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Accessibility;
 using TheTechIdea.Beep.Winform.Controls.Search;
@@ -99,9 +100,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 await RunSearchAsync(rawQuery);
             }
-            catch
+            catch (Exception ex)
             {
-                // Keep ribbon stable if search fails.
+                // An async void method: without this catch the exception reaches the synchronization
+                // context and takes the process down, so catching is right. Reporting is what turns
+                // "search silently returns nothing" into something diagnosable.
+                BeepLog.Failure(this, $"run ribbon search for '{rawQuery}'", ex);
             }
         }
 
@@ -144,8 +148,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     RaiseSearchExecuted(query, list.Count, providerUsed: true, providerFailed: false, usedLocalFallback: false, sw.ElapsedMilliseconds);
                     return;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    // Falling back to the local index is the designed behaviour and the raised event
+                    // carries providerFailed: true - but a flag says only "it failed", never why. The
+                    // provider is the consumer's code, so give them the exception.
+                    BeepLog.Fallback(this, $"query the ribbon search provider for '{query}'", ex);
+
                     if (version != _searchRequestVersion) return;
                     var fallback = QueryLocalSearch(query);
                     ApplySearchResults(fallback);
@@ -613,8 +622,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 File.WriteAllLines(file, _searchHistory);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, $"save ribbon search history to '{file}'", ex);
             }
         }
 
@@ -637,8 +647,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _searchHistory.Clear();
                 _searchHistory.AddRange(lines);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, $"load ribbon search history from '{file}'", ex);
             }
         }
 

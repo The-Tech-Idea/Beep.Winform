@@ -25,6 +25,77 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         /// <summary>No overhang: a style whose shapes stay inside the bar band needs no headroom.</summary>
         public virtual int GetTopOverhang(int contentHeight) => 0;
 
+        /// <summary>Whether this style renders the CTA itself, rather than taking the shared one.</summary>
+        protected virtual bool DrawsOwnCta => false;
+
+        /// <summary>
+        /// The CTA for styles that do not define one of their own: a filled accent disc carrying the
+        /// item's icon.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately sized to sit *inside* the band. The four CTA styles raise their disc above the
+        /// bar and reserve headroom through <see cref="GetTopOverhang"/>, but that reservation is made
+        /// per style and cannot depend on whether a CTA is configured — so a raised shared CTA would
+        /// have left dead space above every bar that has no CTA at all. Contained here, it needs no
+        /// headroom and changes no control's height.
+        /// </remarks>
+        protected virtual void PaintDefaultCta(Graphics g, SimpleItem item, Rectangle cell,
+                                               BottomBarPainterContext context)
+        {
+            if (cell.Width <= 0 || cell.Height <= 0) return;
+
+            int radius = Math.Max(12, Math.Min(cell.Height / 2 - 2, 24));
+            var centre = new Point(cell.Left + cell.Width / 2, cell.Top + cell.Height / 2);
+            var disc = new Rectangle(centre.X - radius, centre.Y - radius, radius * 2, radius * 2);
+
+            var previous = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            using (var fill = new SolidBrush(ResolveAccent(context)))
+            {
+                g.FillEllipse(fill, disc);
+            }
+            g.SmoothingMode = previous;
+
+            int icon = Math.Max(12, Math.Min(24, radius + 2));
+            PaintTintedIcon(g, string.IsNullOrEmpty(item?.ImagePath) ? context.DefaultImagePath : item.ImagePath,
+                            new Rectangle(centre.X - icon / 2, centre.Y - icon / 2, icon, icon),
+                            ResolveOnAccent(context), context);
+
+            PaintItemBadge(g, item, disc, context);
+        }
+
+        /// <summary>
+        /// Geometry of a floating CTA disc: the disc radius, the radius of the outermost decoration
+        /// (halo or ring) and the disc centre's offset below the band's top edge.
+        /// </summary>
+        /// <remarks>
+        /// One source of truth, because there were two and they disagreed. <c>GetTopOverhang</c>
+        /// reserved room for a radius of <c>(contentHeight / 2 + 6) * 1.35</c>, while <c>Paint</c> drew
+        /// a radius of <c>Math.Min(cellWidth, cellHeight) / 2 + 6</c> and then a halo <c>1.4x</c> that.
+        /// On a 64px bar the control reserved 26px and the painter drew a shape needing 28 — and the
+        /// halo ran 14px past the band, landing exactly on the control's bottom edge. Both ends of the
+        /// disc were wrong, which is what "the vertical height is not correct with a CTA" looks like.
+        ///
+        /// The placement is the one these styles already had — centre <c>contentHeight/2 - 10</c> below
+        /// the band's top edge, radius <c>contentHeight/2 + 6</c>. Only the *reservation* was wrong, so
+        /// only the reservation changes. An earlier attempt here also moved the centre onto the band's
+        /// top edge, on the reasoning that a floating CTA should sit half above the bar; that is a
+        /// redesign, not a fix, and it made every CTA bar noticeably taller and emptier.
+        ///
+        /// The radius comes from the band height, never from the cell: cell width varies with the item
+        /// count and the CTA width factor, and a disc that resizes with it cannot have its overhang
+        /// reserved in advance. On the standard layout the two agree, which is why the sizes below are
+        /// unchanged from what the painters drew before.
+        /// </remarks>
+        protected static (int Radius, int OuterRadius, int CentreOffset) CtaDiscGeometry(
+            int contentHeight, float outerScale)
+        {
+            int radius = Math.Max(14, contentHeight / 2 + 6);
+            int centreOffset = contentHeight / 2 - 10;
+            int outer = (int)Math.Ceiling(radius * Math.Max(1f, outerScale));
+            return (radius, Math.Max(radius, outer), centreOffset);
+        }
+
         /// <summary>Static between interactions unless a style says otherwise.</summary>
         public virtual bool WantsContinuousAnimation => false;
 
@@ -152,6 +223,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
         protected virtual void PaintMenuItem(Graphics g, SimpleItem item, Rectangle rect, int index, BottomBarPainterContext context)
         {
+            // A CTA cell is laid out 1.6x wider than the others by the layout helper, for every style.
+            // Only four painters drew anything in it, so on the other six a configured CTA produced one
+            // conspicuously wide cell holding an ordinary icon - the grid looked broken and the CTA
+            // looked ignored, because it was. Styles with a CTA treatment of their own opt out.
+            if (!DrawsOwnCta && index >= 0 && index == context.CTAIndex)
+            {
+                PaintDefaultCta(g, item, rect, context);
+                return;
+            }
+
             bool isSelected = index == context.SelectedIndex;
             bool isHovered = index == context.HoverIndex;
             bool isFocused = index >= 0 && context.HoverIndex == index;

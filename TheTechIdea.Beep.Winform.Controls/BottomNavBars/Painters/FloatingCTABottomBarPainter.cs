@@ -10,14 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         public override string Name => "FloatingCTA";
 
+        /// <summary>This style draws its own raised CTA, so it does not take the shared disc.</summary>
+        protected override bool DrawsOwnCta => true;
+
         /// <summary>This style breathes its selected decoration, so it needs the ticker.</summary>
         public override bool WantsContinuousAnimation => true;
 
-        /// <summary>As the plain CTA, plus the 1.35x halo ring this style draws around it.</summary>
+        /// <summary>Scale of the soft halo drawn around the CTA disc.</summary>
+        public float HaloScale { get; set; } = 1.35f;
+
+        /// <summary>Room for the halo, taken from the same geometry the paint uses.</summary>
         public override int GetTopOverhang(int contentHeight)
         {
-            int radius = (int)((contentHeight / 2 + 6) * 1.35f);
-            return Math.Max(0, radius - (contentHeight / 2 - 10));
+            var disc = CtaDiscGeometry(contentHeight, HaloScale);
+            return Math.Max(0, disc.OuterRadius - disc.CentreOffset);
         }
         public float NotchRadiusFactor { get; set; } = 1.05f;
         public override void Paint(BottomBarPainterContext context)
@@ -68,9 +74,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             if (context.CTAIndex >= 0 && context.CTAIndex < context.Items.Count)
             {
                 var rect = _layoutHelper.GetItemRect(context.CTAIndex);
-                var center = new Point(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2 - 10);
-                int baseRadius = Math.Min(rect.Width, rect.Height) / 2 + 6;
-                // pulsing scale from context animation phase -> 1.0 .. 1.08
+                var disc = CtaDiscGeometry(context.Bounds.Height, HaloScale);
+                var center = new Point(rect.Left + rect.Width / 2, context.Bounds.Top + disc.CentreOffset);
+                int baseRadius = disc.Radius;
+                // pulsing scale from context animation phase -> 1.0 .. 1.06. The pulse grows the disc,
+                // so the overhang has to cover the disc at full pulse, not at rest - CtaDiscGeometry's
+                // outer radius already accounts for it through HaloScale.
                 float scale = 1.0f + 0.06f * context.AnimationPhase;
                 int radius = (int)(baseRadius * scale);
 
@@ -98,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     var outerAlpha = Math.Max(24, baseShadow.A / 5); // softer outer
                     using (var outer = new SolidBrush(Color.FromArgb(outerAlpha, baseShadow.R, baseShadow.G, baseShadow.B)))
                     {
-                        var outerRect = new Rectangle(center.X - (int)(radius * 1.35), center.Y - (int)(radius * 1.35) + context.CTAShadowYOffset, (int)(radius * 2.7), (int)(radius * 2.7));
+                        var outerRect = new Rectangle(center.X - disc.OuterRadius, center.Y - disc.OuterRadius + context.CTAShadowYOffset, disc.OuterRadius * 2, disc.OuterRadius * 2);
                         context.Graphics.FillEllipse(outer, outerRect);
                     }
                     // inner shadow: more concentrated and slightly offset
@@ -118,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                         // soft halo
                         using (var halo = new SolidBrush(Color.FromArgb(32, ResolveAccent(context))))
                         {
-                            var haloRect = new Rectangle(center.X - (int)(radius * 1.35), center.Y - (int)(radius * 1.35), (int)(radius * 2.7), (int)(radius * 2.7));
+                            var haloRect = new Rectangle(center.X - disc.OuterRadius, center.Y - disc.OuterRadius, disc.OuterRadius * 2, disc.OuterRadius * 2);
                             context.Graphics.FillEllipse(halo, haloRect);
                         }
                         context.Graphics.FillEllipse(fill, circleRect);

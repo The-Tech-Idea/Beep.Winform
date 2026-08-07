@@ -20,6 +20,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         public override string Name => "Diamond";
 
+        /// <summary>This style draws its own raised CTA, so it does not take the shared disc.</summary>
+        protected override bool DrawsOwnCta => true;
+
         /// <summary>
         /// The circle is centred 10px above the cell's middle with a radius of half the cell plus 6,
         /// so a little over half of it sits above the band. Derived rather than guessed, so it stays
@@ -27,12 +30,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         /// </summary>
         public override int GetTopOverhang(int contentHeight)
         {
-            int radius = (int)((contentHeight / 2 + 6) * 1.06f);
-            return Math.Max(0, radius - (contentHeight / 2 - 10));
+            var disc = CtaDiscGeometry(contentHeight, 1f);
+            return Math.Max(0, DiamondHalfHeight(contentHeight) - disc.CentreOffset);
         }
 
-        /// <summary>How far the CTA diamond rises above the centre of its cell.</summary>
-        private const int CtaLift = 10;
+        /// <summary>Half the diamond's height — the same value <c>PaintCtaDiamond</c> draws with.</summary>
+        private static int DiamondHalfHeight(int contentHeight) => Math.Max(10, contentHeight / 2);
 
         public override void Paint(BottomBarPainterContext context)
         {
@@ -76,8 +79,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
         private void PaintCtaDiamond(Graphics g, Rectangle cell, BottomBarPainterContext context, Color accent)
         {
-            var centre = new Point(cell.Left + cell.Width / 2, cell.Top + cell.Height / 2 - CtaLift);
-            int size = Math.Min(cell.Width, cell.Height) / 2;
+            // Same geometry the overhang reserves. Sizing from the cell instead meant the diamond
+            // needed 10px above the band while the control reserved 17, leaving a strip of dead space
+            // above every diamond bar - and the two numbers moved independently of each other.
+            var disc = CtaDiscGeometry(context.Bounds.Height, 1f);
+            var centre = new Point(cell.Left + cell.Width / 2, context.Bounds.Top + disc.CentreOffset);
+            int size = DiamondHalfHeight(context.Bounds.Height);
             var points = DiamondPoints(centre, size);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;

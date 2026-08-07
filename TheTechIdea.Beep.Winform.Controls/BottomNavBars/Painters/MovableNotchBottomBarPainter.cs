@@ -10,15 +10,24 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         public override string Name => "MovableNotch";
 
+        /// <summary>This style draws its own raised CTA, so it does not take the shared disc.</summary>
+        protected override bool DrawsOwnCta => true;
+
         /// <summary>
         /// The circle is centred 10px above the cell's middle with a radius of half the cell plus 6,
         /// so a little over half of it sits above the band. Derived rather than guessed, so it stays
         /// correct when the bar is made taller or shorter.
         /// </summary>
+        /// <remarks>
+        /// The tallest thing this style draws above the band is whichever is deeper: the notch cut-out
+        /// (<see cref="NotchDepth"/> above the band's top edge) or the CTA disc. Reserving for only one
+        /// of them left the notch arc sliced flat, because NotchDepth is 22 and the old formula
+        /// reserved 17.
+        /// </remarks>
         public override int GetTopOverhang(int contentHeight)
         {
-            int radius = (int)((contentHeight / 2 + 6) * 1.06f);
-            return Math.Max(0, radius - (contentHeight / 2 - 10));
+            var disc = CtaDiscGeometry(contentHeight, 1f);
+            return Math.Max((int)NotchDepth, Math.Max(0, disc.Radius - disc.CentreOffset));
         }
         public float NotchDepth { get; set; } = 22f;
         public float NotchWidthFactor { get; set; } = 1.15f;
@@ -39,7 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             barPath.AddArc(barRect.Left, barRect.Bottom - barRadius, barRadius, barRadius, 90, 90);
             barPath.CloseFigure();
 
-            int anchorIdx = context.CTAIndex >= 0 ? context.CTAIndex : context.SelectedIndex;
+            // The notch exists to make room for the raised CTA button. Without a CTA there is nothing
+            // to make room for, and cutting one anyway takes a bite out of the bar with nothing in it -
+            // on the leftmost cell (where the selection starts) it also ate the bar's rounded corner.
+            // It used to fall back to the selected item, so every notch bar with no CTA looked damaged.
+            int anchorIdx = context.CTAIndex;
             if (anchorIdx >= 0 && anchorIdx < context.Items.Count)
             {
                 var r = _layoutHelper.GetItemRect(anchorIdx);
@@ -52,7 +65,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 // stray notch clipped the bar's rounded corner.
                 if (context.CTAIndex < 0 && context.AnimatedIndicatorWidth > 0f)
                     cx = context.AnimatedIndicatorX + context.AnimatedIndicatorWidth / 2f;
-                int baseRadius = Math.Min(r.Width, r.Height) / 2 + 6;
+                // Unchanged geometry - GetTopOverhang now reserves for NotchDepth, which is what this
+                // draws, instead of a separate formula that came up 5px short.
+                var disc = CtaDiscGeometry(barRect.Height, 1f);
+                int baseRadius = disc.Radius;
                 int notchW = (int)(baseRadius * NotchWidthFactor * 1.4f);
                 int notchH = (int)NotchDepth;
 
@@ -81,8 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 if (context.CTAIndex >= 0 && context.CTAIndex < context.Items.Count)
                 {
                     var rect = _layoutHelper.GetItemRect(context.CTAIndex);
-                    var center = new Point(rect.Left + rect.Width/2, rect.Top + rect.Height/2 - 10);
-                    int cRadius = Math.Min(rect.Width, rect.Height) / 2 + 6;
+                    var center = new Point(rect.Left + rect.Width / 2, barRect.Top + disc.CentreOffset);
+                    int cRadius = disc.Radius;
                     using (var sh = new SolidBrush(context.NavigationShadowColor == Color.Empty ? Color.FromArgb(60, ResolveBarFore(context)) : context.NavigationShadowColor))
                     {
                         var shRect = new Rectangle(center.X - cRadius, center.Y - cRadius + context.CTAShadowYOffset, cRadius*2, cRadius*2);
@@ -130,8 +146,13 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var rects = _layoutHelper.GetItemRectangles();
             for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
-                var item = context.Items[i];
-                PaintMenuItem(context.Graphics, item, rects[i], context);
+                // The CTA is drawn above as a raised disc carrying its own icon. Without this skip the
+                // same item was also painted as an ordinary cell, so its icon and label rendered a
+                // second time underneath the disc - two draws of one item. Every other CTA style
+                // already skipped it; this one did not.
+                if (i == context.CTAIndex) continue;
+
+                PaintMenuItem(context.Graphics, context.Items[i], rects[i], i, context);
             }
         }
 

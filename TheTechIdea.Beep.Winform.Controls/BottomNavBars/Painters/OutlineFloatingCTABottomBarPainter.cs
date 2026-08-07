@@ -10,11 +10,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         public override string Name => "OutlineFloatingCTA";
 
-        /// <summary>As the plain CTA, plus the 1.35x halo ring this style draws around it.</summary>
+        /// <summary>This style draws its own raised CTA, so it does not take the shared disc.</summary>
+        protected override bool DrawsOwnCta => true;
+
+        /// <summary>Room for the halo, taken from the same geometry the paint uses.</summary>
         public override int GetTopOverhang(int contentHeight)
         {
-            int radius = (int)((contentHeight / 2 + 6) * 1.35f);
-            return Math.Max(0, radius - (contentHeight / 2 - 10));
+            var disc = CtaDiscGeometry(contentHeight, HaloScale);
+            return Math.Max(0, disc.OuterRadius - disc.CentreOffset);
         }
         public int RingStrokeWidth { get; set; } = 4;
         public int HaloAlpha { get; set; } = 36;
@@ -39,12 +42,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             if (context.CTAIndex >= 0 && context.CTAIndex < context.Items.Count)
             {
                 var r = _layoutHelper.GetItemRect(context.CTAIndex);
-                var center = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2 - 10);
-                int radius = Math.Min(r.Width, r.Height) / 2 + 6;
+                var disc = CtaDiscGeometry(barRect.Height, HaloScale);
+                var center = new Point(r.Left + r.Width / 2, barRect.Top + disc.CentreOffset);
+                int radius = disc.Radius;
                 // outer halo
                 using (var halo = new SolidBrush(Color.FromArgb(HaloAlpha, ResolveAccent(context))))
                 {
-                    var haloRect = new Rectangle(center.X - (int)(radius * HaloScale), center.Y - (int)(radius * HaloScale), (int)(radius * 2 * HaloScale), (int)(radius * 2 * HaloScale));
+                    var haloRect = new Rectangle(center.X - disc.OuterRadius, center.Y - disc.OuterRadius,
+                                                 disc.OuterRadius * 2, disc.OuterRadius * 2);
                     g.FillEllipse(halo, haloRect);
                 }
                 // inner shadow / subtle inner fill

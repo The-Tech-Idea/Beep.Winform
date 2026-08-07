@@ -87,3 +87,13 @@ style border painters library-wide. Verified: build clean, ComboProbe 15/15, def
 shows the Material3 rounded border. NOT re-verified after this global change: Ribbon, BottomNavBars
 and other probes — every BaseControl-derived control is affected and should be spot-checked next
 session.
+
+## Closed: token radius flows to the base border; font fallbacks report
+
+ComboBoxType setter now pushes the type's token radius into BorderRadius (MinimalBorderless drops the
+frame via ShowAllBorders=false), so the styled-branch border and the field interior share one shape -
+RoundedPill renders an actual pill outline. GetSafeFontHeight/MeasureTextSafe report via FallbackOnce.
+ComboProbe 15/15; pill render verified by eye.
+
+Still open: popup keyboard navigation + search filtering probe (needs real key injection - not
+attempted rather than half-done), and the post-Material3 spot-checks of Ribbon/BottomNavBars.

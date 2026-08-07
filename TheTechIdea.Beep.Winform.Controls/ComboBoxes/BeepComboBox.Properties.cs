@@ -208,7 +208,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Force re-application of painter defaults for new type
                 _layoutDefaultsInitialized = false;
                 ApplyLayoutDefaultsFromPainter(force: true);
-                
+
+                // The base border (styled branch, Material3 by default) is built from BorderRadius -
+                // the type's token radius shaped only the field interior, so RoundedPill (18) sat
+                // inside the base's radius-4 outline and MinimalBorderless still carried a frame.
+                // One radius, one outline.
+                var shapeTokens = ComboBoxVisualTokenCatalog.Resolve(_comboBoxType);
+                if (_comboBoxType == ComboBoxType.MinimalBorderless)
+                {
+                    ShowAllBorders = false;
+                }
+                else if (shapeTokens.CornerRadius > 0)
+                {
+                    ShowAllBorders = true;
+                    BorderRadius = shapeTokens.CornerRadius;
+                }
+
                 InvalidateLayout();
                 // Update dropdown properties
                 if (BeepContextMenu != null)

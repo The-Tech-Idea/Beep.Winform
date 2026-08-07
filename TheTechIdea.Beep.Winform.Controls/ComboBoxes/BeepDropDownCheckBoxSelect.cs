@@ -124,8 +124,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
             {
                 return Math.Max(1, font?.Height ?? SystemFonts.DefaultFont.Height);
             }
-            catch
+            catch (Exception ex)
             {
+                // Same disposed-font family as ResolveSafeTextFont; once, because this is paint-path.
+                BeepLog.FallbackOnce("DropDownCheckBoxSelect.fontHeight", null, "measure font height", ex);
                 return Math.Max(1, SystemFonts.DefaultFont.Height);
             }
         }
@@ -138,14 +140,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 SizeF measured = TextUtils.MeasureText(text, font, int.MaxValue);
                 return new Size(Math.Max(1, (int)Math.Ceiling(measured.Width)), Math.Max(1, (int)Math.Ceiling(measured.Height)));
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("DropDownCheckBoxSelect.measure", null, "measure chip text via TextUtils", ex);
                 try
                 {
                     return TextRenderer.MeasureText(text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
                 }
-                catch
+                catch (Exception ex2)
                 {
+                    // Both the supplied font and TextUtils failed - only the system font is left.
+                    BeepLog.FallbackOnce("DropDownCheckBoxSelect.measure2", null, "measure chip text with the supplied font", ex2);
                     return TextRenderer.MeasureText(text, SystemFonts.DefaultFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
                 }
             }

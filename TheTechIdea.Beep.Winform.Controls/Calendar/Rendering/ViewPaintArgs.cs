@@ -143,55 +143,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         }
 
         /// <summary>
-        /// Project the theme + style + control flags into the resolved color set above.
-        ///
-        /// Pattern (same as every other Beep control):
-        /// 1. Re-resolve <see cref="Metrics"/> from <see cref="ControlStyle"/>
-        ///    so per-style layout/visual constants are current.
-        /// 2. If a theme is supplied, project <see cref="Theme.CalendarBackColor"/>
-        ///    / <see cref="Theme.CalendarForeColor"/> / <see cref="Theme.CalendarBorderColor"/>
-        ///    / <see cref="Theme.PrimaryColor"/> into the resolved palette.
-        /// 3. If no theme is supplied, resolve the default theme for the
-        ///    owning control's <c>ControlStyle</c> via
-        ///    <c>BeepStyling.GetFormStyle</c> +
-        ///    <c>BeepThemesManager.GetThemeNameForFormStyle</c> +
-        ///    <c>BeepThemesManager.GetTheme</c> and use its colors.
-        ///    This mirrors <c>BaseControl.Properties.cs:382</c>:
-        ///    <c>Theme = BeepStyling.GetThemeStyle(_controlstyle);</c>.
-        /// 4. Only as a final safety net (no theme resolvable) fall back to
-        ///    built-in static defaults.
+        /// Assigns the resolved palette from the theme — the same shape as every other Beep
+        /// control's ApplyTheme: one slot, one assignment. There is always a theme
+        /// (<see cref="BeepThemesManager.CurrentTheme"/> when the caller supplied none); the
+        /// style-to-theme resolution machinery that used to live here — with its own silent catch —
+        /// was complication the other painters never needed.
         /// </summary>
         public void ResolveThemeColors()
         {
             Metrics = CalendarStyleMetrics.For(ControlStyle);
 
-            IBeepTheme effectiveTheme = Theme;
-            if (effectiveTheme == null)
-            {
-                // Resolve the default theme for the owner's control style
-                // (this is the same mapping BaseControl uses when its
-                // ControlStyle property is set).
-                BeepControlStyle ownerStyle = Owner?.ControlStyle ?? ControlStyle;
-                FormStyle formStyle = BeepStyling.GetFormStyle(ownerStyle);
-                try
-                {
-                    string themeName = BeepThemesManager.GetThemeNameForFormStyle(formStyle);
-                    if (!string.IsNullOrEmpty(themeName))
-                    {
-                        effectiveTheme = BeepThemesManager.GetTheme(themeName);
-                    }
-                }
-                catch
-                {
-                    /* fall through to defaults */
-                }
-            }
-
-            // There is always a theme - BeepThemesManager guarantees a current one. No null
-            // checks, no per-slot fallbacks: the slots are assigned as the theme defines them, and a
-            // wrong-looking colour is the THEME's bug, fixed in the theme. (User directive; the
-            // guard-and-fallback version quietly substituted colours and made theme bugs invisible.)
-            effectiveTheme ??= BeepThemesManager.CurrentTheme;
+            IBeepTheme effectiveTheme = Theme ?? BeepThemesManager.CurrentTheme;
 
             BackgroundColor = effectiveTheme.CalendarBackColor;
             ForegroundColor = effectiveTheme.CalendarForeColor;
@@ -218,16 +180,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         /// <summary>
         /// Set <see cref="Theme"/> and re-resolve the resolved color palette +
         /// <see cref="Metrics"/>. Does NOT touch fonts; call
-        /// <see cref="ApplyThemeFonts"/> for that. Safe to call with
-        /// <c>null</c> (resets to built-in defaults).
+        /// <see cref="ApplyThemeFonts"/> for that. A null theme means the current theme —
+        /// there is no themeless mode.
         /// </summary>
         public void ApplyTheme(IBeepTheme theme)
         {
             Theme = theme;
-            if (theme == null)
-            {
-                UseThemeColors = false;
-            }
             ResolveThemeColors();
         }
 

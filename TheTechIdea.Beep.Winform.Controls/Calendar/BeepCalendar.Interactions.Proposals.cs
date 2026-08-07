@@ -5,9 +5,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
     public partial class BeepCalendar
     {
+        /// <summary>
+        /// The event a move/resize proposal is computed against: the one the pointer went down on,
+        /// falling back to the selection.
+        /// </summary>
+        /// <remarks>
+        /// These builders read only <c>_state.SelectedEvent</c>, which made the drag pipeline
+        /// silently inert for any event that was not already selected: the commit asked for a
+        /// proposed start, the builder saw no selection, returned null, and the commit fell back to
+        /// "unchanged". Selection is a click outcome; the drag target is the hit — the same rule
+        /// <c>CommitExistingEventMutation</c> follows.
+        /// </remarks>
+        private CalendarEvent InteractionEvent => _activeInteractionHit?.Event ?? _state.SelectedEvent;
+
         private DateTime? BuildProposedStart(Point location, Point delta)
         {
-            if (_state.SelectedEvent == null)
+            var evt = InteractionEvent;
+            if (evt == null)
             {
                 if (_state.InteractionMode == CalendarInteractionMode.RangeSelect || _state.InteractionMode == CalendarInteractionMode.CreateEvent)
                 {
@@ -19,12 +33,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             if (_state.InteractionMode == CalendarInteractionMode.MoveEvent)
             {
-                return SnapDateTime(_state.SelectedEvent.StartTime.Add(CalculateTimedDelta(delta)));
+                return SnapDateTime(evt.StartTime.Add(CalculateTimedDelta(delta)));
             }
 
             if (_state.InteractionMode == CalendarInteractionMode.ResizeStart)
             {
-                return SnapDateTime(_state.SelectedEvent.StartTime.Add(CalculateTimedDelta(delta)));
+                return SnapDateTime(evt.StartTime.Add(CalculateTimedDelta(delta)));
             }
 
             if (_state.InteractionMode == CalendarInteractionMode.RangeSelect)
@@ -32,12 +46,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 return GetSnappedStartFromLocation(location);
             }
 
-            return _state.SelectedEvent.StartTime;
+            return evt.StartTime;
         }
 
         private DateTime? BuildProposedEnd(Point location, Point delta)
         {
-            if (_state.SelectedEvent == null)
+            var evt = InteractionEvent;
+            if (evt == null)
             {
                 if (_state.InteractionMode == CalendarInteractionMode.RangeSelect || _state.InteractionMode == CalendarInteractionMode.CreateEvent)
                 {
@@ -49,12 +64,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             if (_state.InteractionMode == CalendarInteractionMode.MoveEvent)
             {
-                return SnapDateTime(_state.SelectedEvent.EndTime.Add(CalculateTimedDelta(delta)));
+                return SnapDateTime(evt.EndTime.Add(CalculateTimedDelta(delta)));
             }
 
             if (_state.InteractionMode == CalendarInteractionMode.ResizeEnd)
             {
-                return SnapDateTime(_state.SelectedEvent.EndTime.Add(CalculateTimedDelta(delta)));
+                return SnapDateTime(evt.EndTime.Add(CalculateTimedDelta(delta)));
             }
 
             if (_state.InteractionMode == CalendarInteractionMode.RangeSelect || _state.InteractionMode == CalendarInteractionMode.CreateEvent)
@@ -63,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 return start?.AddMinutes(Math.Max(InteractionSnapIntervalMinutes, 60));
             }
 
-            return _state.SelectedEvent.EndTime;
+            return evt.EndTime;
         }
 
     }

@@ -8,12 +8,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
     {
         private bool CommitExistingEventMutation(Point location, Point delta)
         {
-            if (_state.SelectedEvent == null)
+            // The dragged event is whatever the pointer went DOWN on, not whatever was selected
+            // beforehand. This gated on _state.SelectedEvent, so dragging an unselected event
+            // silently did nothing - the pipeline armed, escalated and committed against a null and
+            // returned false. Worse, the fallback then mutated the SELECTED event: with event A
+            // selected, dragging event B would have moved A. Selection is a click outcome; the drag
+            // target is the hit.
+            var dragTarget = _activeInteractionHit?.Event ?? _state.SelectedEvent;
+            if (dragTarget == null)
             {
                 return false;
             }
 
-            var source = _events.FirstOrDefault(e => e.Id == _state.SelectedEvent.Id) ?? _state.SelectedEvent;
+            var source = _events.FirstOrDefault(e => e.Id == dragTarget.Id) ?? dragTarget;
             var proposedStart = BuildProposedStart(location, delta) ?? source.StartTime;
             var proposedEnd = BuildProposedEnd(location, delta) ?? source.EndTime;
             var copyOperation = _state.InteractionMode == CalendarInteractionMode.MoveEvent && IsCopyModifierDown();

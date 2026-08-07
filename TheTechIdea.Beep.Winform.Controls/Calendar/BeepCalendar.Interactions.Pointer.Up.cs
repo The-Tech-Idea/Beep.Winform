@@ -20,9 +20,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             // capture. Safe to assign false unconditionally because
             // WinForms ignores Capture = false when the control doesn't
             // actually have capture.
+            // Clear _pointerDown BEFORE releasing capture. Capture = false fires
+            // OnMouseCaptureChanged synchronously, whose guard is (!Capture && _pointerDown) ->
+            // CancelInteraction(). With _pointerDown still true at that instant, every drag was
+            // cancelled by its own mouse-up: the cancel wiped InteractionMode and _dragInProgress,
+            // then control returned here, saw !_pointerDown, and never committed. A genuine capture
+            // loss (Alt+Tab mid-drag) still cancels, because there _pointerDown is true when the
+            // notification arrives.
+            bool pointerWasDown = _pointerDown;
+            _pointerDown = false;
             Capture = false;
 
-            if (!_pointerDown)
+            if (!pointerWasDown)
             {
                 return;
             }

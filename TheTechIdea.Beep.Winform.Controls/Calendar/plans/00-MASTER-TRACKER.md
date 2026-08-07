@@ -114,3 +114,18 @@ MoveEvent), so the break is inside one of ResolveInteractionTarget / ResolveDrag
 CommitExistingEventMutation. Needs instrumentation (log the hit TargetKind and InteractionMode at
 each stage) - next session's first calendar task. The failing check stays in the probe as the
 regression tripwire.
+
+## Drag FIXED — three defects deep (probe 29/29)
+
+1. Commit gated on _state.SelectedEvent, so dragging an unselected event did nothing - and with A
+   selected, dragging B would have moved A. Drag target is the hit now.
+2. BuildProposedStart/End read only the selection too - same fix (InteractionEvent).
+3. The killer: OnMouseUp set Capture=false BEFORE clearing _pointerDown; OnMouseCaptureChanged fired
+   synchronously, its (!Capture && _pointerDown) guard passed, and CancelInteraction wiped the drag -
+   EVERY drag was cancelled by its own mouse-up since the W2-Redo-18 capture-loss handler was added.
+   _pointerDown clears first now; genuine capture loss (Alt+Tab) still cancels.
+
+Instrumentation route: hit/mode/delta all printed correct (56px -> 02:00), which pinned the break to
+the up path and exposed the capture self-cancel. Verified: 9:00 -> 11:00, snap honoured, duration
+preserved. One probe-side correction along the way: commits REPLACE the event with a clone, so
+assertions must re-query Events, not hold the old reference.

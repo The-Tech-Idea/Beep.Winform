@@ -98,9 +98,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             }
         }
 
-        /// <summary>A populated theme slot, or a second slot when the instance left the first empty.</summary>
-        private static Color Slot(Color slot, Color fallbackSlot) => slot.A > 0 ? slot : fallbackSlot;
-
         public static Color StatusColor(CalendarEventStatus status)
         {
             // Semantic states resolve from the theme's semantic slots (CLAUDE.md rule 3) - these
@@ -109,10 +106,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var t = ThemeManagement.BeepThemesManager.CurrentTheme;
             return status switch
             {
-                CalendarEventStatus.Confirmed => Slot(t?.SuccessColor ?? Color.Empty, t?.PrimaryColor ?? Color.Gray),
-                CalendarEventStatus.Tentative => Slot(t?.WarningColor ?? Color.Empty, t?.SecondaryColor ?? Color.Gray),
-                CalendarEventStatus.Cancelled => Slot(t?.ErrorColor ?? Color.Empty, t?.PrimaryColor ?? Color.Gray),
-                _ => Slot(t?.DisabledForeColor ?? Color.Empty, t?.CalendarForeColor ?? Color.Gray)
+                CalendarEventStatus.Confirmed => t.SuccessColor,
+                CalendarEventStatus.Tentative => t.WarningColor,
+                CalendarEventStatus.Cancelled => t.ErrorColor,
+                _ => t.DisabledForeColor
             };
         }
 
@@ -121,10 +118,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var th = ThemeManagement.BeepThemesManager.CurrentTheme;
             return (priority?.ToLowerInvariant()) switch
             {
-                "critical" or "emergency" => Slot(th?.ErrorColor ?? Color.Empty, th?.PrimaryColor ?? Color.Gray),
-                "high" => Slot(th?.WarningColor ?? Color.Empty, th?.SecondaryColor ?? Color.Gray),
-                "medium" => Slot(th?.AccentColor ?? Color.Empty, th?.PrimaryColor ?? Color.Gray),
-                _ => Slot(th?.DisabledForeColor ?? Color.Empty, th?.CalendarForeColor ?? Color.Gray)
+                "critical" or "emergency" => th.ErrorColor,
+                "high" => th.WarningColor,
+                "medium" => th.AccentColor,
+                _ => th.DisabledForeColor
             };
         }
 

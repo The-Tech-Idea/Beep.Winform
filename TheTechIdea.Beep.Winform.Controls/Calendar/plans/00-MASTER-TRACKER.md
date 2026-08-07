@@ -151,3 +151,12 @@ transparent (unpopulated Calendar* slots in the default theme instance, or the `
 not running so the extended block is skipped). Next step: print the resolved args palette values at
 paint time and check which slots are A=0, then extend Or() coverage or fix the gate. A probe check
 asserting "title text is visible" should be added and MUST fail before the fix.
+
+## Final colour rule (user directive): there is always a theme - just assign
+
+All guard/fallback machinery removed: no `is BeepTheme` cast, no Or()/Slot() per-slot fallbacks, no
+null-conditional theme access. ResolveThemeColors and the cell-template helpers assign the theme's
+slots directly; a wrong-looking colour is the THEME's bug, fixed in the theme, not silently
+substituted by the control. OutOfMonth uses the calendar surface with DisabledForeColor numbers -
+the dark slabs in Month were DisabledBackColor standing in as a cell surface. Probe 33/33; Month
+render verified clean.

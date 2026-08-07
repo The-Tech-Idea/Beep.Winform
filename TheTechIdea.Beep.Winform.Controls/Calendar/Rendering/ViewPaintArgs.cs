@@ -128,9 +128,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             }
         }
 
-        /// <summary>A theme slot, or a second theme slot when the instance never populated the first.</summary>
-        private static Color Or(Color slot, Color fallbackSlot) => slot.A > 0 ? slot : fallbackSlot;
-
         /// <summary>Resolve a category color, falling back to the theme's primary.</summary>
         public Color GetCategoryColor(int categoryId)
         {
@@ -190,47 +187,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 }
             }
 
-            // Last resort is the CURRENT theme, never a literal palette. There is always a current
-            // theme; a hardcoded fallback here was a second Material palette that leaked through
-            // whenever style resolution failed.
+            // There is always a theme - BeepThemesManager guarantees a current one. No null
+            // checks, no per-slot fallbacks: the slots are assigned as the theme defines them, and a
+            // wrong-looking colour is the THEME's bug, fixed in the theme. (User directive; the
+            // guard-and-fallback version quietly substituted colours and made theme bugs invisible.)
             effectiveTheme ??= BeepThemesManager.CurrentTheme;
 
-            if (effectiveTheme != null)
-            {
-                // IBeepTheme declares EVERY slot used here - no cast. This block was gated behind
-                // `is BeepTheme`, and the default theme is a DefaultTheme that implements the
-                // interface without deriving from that class - so for it (and any host theme built
-                // the same way) the extended slots never resolved: transparent title and day-header
-                // text, invisible event fills, and states stuck at whatever the last palette was.
-                // The probe's one-shot dump (`theme: DefaultTheme  isBeepTheme=False`) was the proof.
-                //
-                // Slots verbatim; Or() only covers a slot the theme instance never populated
-                // (alpha 0), and its fallback is always another slot of the same theme.
-                BackgroundColor = effectiveTheme.CalendarBackColor;
-                ForegroundColor = effectiveTheme.CalendarForeColor;
-                BorderColor = effectiveTheme.CalendarBorderColor;
-                PrimaryColor = effectiveTheme.PrimaryColor;
-                SecondaryColor = Or(effectiveTheme.SecondaryColor, effectiveTheme.PrimaryColor);
-                TodayBackColor = Or(effectiveTheme.CalendarSelectedDateBackColor, effectiveTheme.PrimaryColor);
-                TodayForeColor = Or(effectiveTheme.CalendarTodayForeColor, effectiveTheme.CalendarBackColor);
-                HoverBackColor = Or(effectiveTheme.CalendarHoverBackColor, effectiveTheme.CalendarBackColor);
-                HoverForeColor = Or(effectiveTheme.CalendarHoverForeColor, effectiveTheme.CalendarForeColor);
-                SelectedBackColor = Or(effectiveTheme.CalendarSelectedDateBackColor, effectiveTheme.PrimaryColor);
-                SelectedForeColor = Or(effectiveTheme.CalendarSelectedDateForColor, effectiveTheme.CalendarBackColor);
-                WeekendBackColor = effectiveTheme.CalendarBackColor;
-                // The calendar surface, NOT DisabledBackColor: that slot is a control-state gray, and
-                // mapping it here turned every neighbouring-month cell into a dark slab - the gray the
-                // month view kept showing. Out-of-month reads as muted through its NUMBER colour
-                // (OutOfMonthForeColor = DisabledForeColor), not through a different surface.
-                OutOfMonthBackColor = effectiveTheme.CalendarBackColor;
-                OutOfMonthForeColor = Or(effectiveTheme.DisabledForeColor, effectiveTheme.CalendarForeColor);
-                TitleForeColor = Or(effectiveTheme.CalendarTitleForColor, effectiveTheme.CalendarForeColor);
-                DaysHeaderForeColor = Or(effectiveTheme.CalendarDaysHeaderForColor, effectiveTheme.CalendarForeColor);
-                SuccessColor = Or(effectiveTheme.SuccessColor, effectiveTheme.PrimaryColor);
-                WarningColor = Or(effectiveTheme.WarningColor, SecondaryColor);
-                ErrorColor = Or(effectiveTheme.ErrorColor, effectiveTheme.PrimaryColor);
-                AccentColor = Or(effectiveTheme.AccentColor, effectiveTheme.PrimaryColor);
-            }
+            BackgroundColor = effectiveTheme.CalendarBackColor;
+            ForegroundColor = effectiveTheme.CalendarForeColor;
+            BorderColor = effectiveTheme.CalendarBorderColor;
+            PrimaryColor = effectiveTheme.PrimaryColor;
+            SecondaryColor = effectiveTheme.SecondaryColor;
+            TodayBackColor = effectiveTheme.CalendarSelectedDateBackColor;
+            TodayForeColor = effectiveTheme.CalendarTodayForeColor;
+            HoverBackColor = effectiveTheme.CalendarHoverBackColor;
+            HoverForeColor = effectiveTheme.CalendarHoverForeColor;
+            SelectedBackColor = effectiveTheme.CalendarSelectedDateBackColor;
+            SelectedForeColor = effectiveTheme.CalendarSelectedDateForColor;
+            WeekendBackColor = effectiveTheme.CalendarBackColor;
+            OutOfMonthBackColor = effectiveTheme.CalendarBackColor;
+            OutOfMonthForeColor = effectiveTheme.DisabledForeColor;
+            TitleForeColor = effectiveTheme.CalendarTitleForColor;
+            DaysHeaderForeColor = effectiveTheme.CalendarDaysHeaderForColor;
+            SuccessColor = effectiveTheme.SuccessColor;
+            WarningColor = effectiveTheme.WarningColor;
+            ErrorColor = effectiveTheme.ErrorColor;
+            AccentColor = effectiveTheme.AccentColor;
         }
 
         /// <summary>

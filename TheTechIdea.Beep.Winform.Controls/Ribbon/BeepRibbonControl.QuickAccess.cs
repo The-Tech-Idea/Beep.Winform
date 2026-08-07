@@ -16,9 +16,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (string.IsNullOrWhiteSpace(commandKey)) return false;
             if ((_personalizationOptions & RibbonPersonalizationOptions.QuickAccess) == 0) return false;
-            if (_quickAccessCommandKeys.Contains(commandKey, StringComparer.OrdinalIgnoreCase)) return false;
 
-            _quickAccessCommandKeys.Add(commandKey);
+            // Resolve against the real commands rather than trusting the caller's string. This method
+            // accepted anything: AddCommandToQuickAccess("NoSuchCommand") returned true and put the
+            // literal text in the key list beside genuine keys, where it survived a save/load round
+            // trip and could never resolve to a command. A true return meant only "the string was not
+            // already in the list".
+            string? resolved = ResolveQuickAccessKey(commandKey, strict: true);
+            if (resolved == null)
+            {
+                BeepLog.Warn(this, $"add '{commandKey}' to the quick access toolbar",
+                             "no command with that key or display text exists in the ribbon");
+                return false;
+            }
+
+            if (_quickAccessCommandKeys.Contains(resolved, StringComparer.OrdinalIgnoreCase)) return false;
+
+            _quickAccessCommandKeys.Add(resolved);
             RebuildQuickAccessToolbar();
             return true;
         }
@@ -161,15 +175,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private string? ResolveQuickAccessKey(string token)
+        private string? ResolveQuickAccessKey(string token) => ResolveQuickAccessKey(token, strict: false);
+
+        /// <summary>
+        /// Maps a key or a command's display text onto a real command key.
+        /// </summary>
+        /// <param name="strict">
+        /// When true, an unmatched token returns null instead of itself. The lenient behaviour is kept
+        /// for loading a saved file, where the ribbon may not be built yet and the key has to be taken
+        /// on trust; it is wrong for a caller adding a command by name, which is how an arbitrary
+        /// string ended up in the toolbar.
+        /// </param>
+        private string? ResolveQuickAccessKey(string token, bool strict)
         {
             if (string.IsNullOrWhiteSpace(token)) return null;
-            if (_commandLookup.Count == 0) return token;
+
+            // Nothing to resolve against yet - during load, before the commands are built.
+            if (_commandLookup.Count == 0) return strict ? null : token;
+
             if (_commandLookup.ContainsKey(token)) return token;
 
             var match = _commandLookup.FirstOrDefault(kv =>
                 string.Equals(GetDisplayText(kv.Value), token, StringComparison.OrdinalIgnoreCase));
-            return string.IsNullOrWhiteSpace(match.Key) ? token : match.Key;
+            if (!string.IsNullOrWhiteSpace(match.Key)) return match.Key;
+
+            return strict ? null : token;
         }
     }
 }

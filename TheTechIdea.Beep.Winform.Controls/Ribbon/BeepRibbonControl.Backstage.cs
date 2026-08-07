@@ -22,9 +22,22 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private void InitializeBackstageLayout()
         {
-            _backstageSplit.SplitterDistance = 180;
+            // Width first, then the minimums, then the distance.
+            //
+            // A SplitContainer is 150px wide until a parent lays it out, and Dock.Fill does not apply
+            // inside a constructor. Assigning Panel2MinSize re-validates SplitterDistance against
+            // Width - Panel2MinSize, which at 150px wide is -110 - an empty valid range. WinForms threw
+            // InvalidOperationException out of InitializeBackstageLayout, and since this runs from the
+            // constructor, `new BeepRibbonControl()` failed outright: the control could not be created.
+            //
+            // The order matters as much as the width. Setting SplitterDistance first, as it was, means
+            // the value is validated twice against limits that do not exist yet.
+            int required = 140 + 260 + _backstageSplit.SplitterWidth;
+            if (_backstageSplit.Width < required) _backstageSplit.Width = required + 40;
+
             _backstageSplit.Panel1MinSize = 140;
             _backstageSplit.Panel2MinSize = 260;
+            _backstageSplit.SplitterDistance = 180;
 
             _backstageSplit.Panel1.Controls.Clear();
             _backstageSplit.Panel1.Controls.Add(_backstageNavList);

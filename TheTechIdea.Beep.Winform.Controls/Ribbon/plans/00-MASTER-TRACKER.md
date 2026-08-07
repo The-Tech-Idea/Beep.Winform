@@ -72,3 +72,53 @@ Recorded so this does not read as a finished review:
 
 Per `CLAUDE.md`: report every catch through `BeepLog`; no stubs or legacy paths; nothing assigns
 colours; compose from Beep controls; a check must be able to fail for the reason it was written.
+
+## Behavioural probe (scratchpad `RibbonProbe`)
+
+22 checks, asserted from the control's own model rather than from pixels. Two defects, both found by
+the first run.
+
+### `new BeepRibbonControl()` threw from its own constructor
+
+`InitializeBackstageLayout` set `SplitterDistance = 180`, then `Panel1MinSize = 140`, then
+`Panel2MinSize = 260`. A `SplitContainer` is 150px wide until a parent lays it out, and `Dock.Fill`
+does not apply inside a constructor — so assigning `Panel2MinSize` re-validated `SplitterDistance`
+against `Width - Panel2MinSize` = **-110**, an empty range, and WinForms threw. The control could not
+be constructed at all.
+
+Fixed by widening the container to a satisfiable size first, then the minimums, then the distance.
+Order matters as much as width: setting the distance first validates it against limits that do not
+exist yet.
+
+**This is why the probe was worth writing.** The static pass over this folder found real problems and
+a clean build, and none of it could have caught a control that cannot be instantiated.
+
+### `AddCommandToQuickAccess(string)` accepted any string
+
+It checked only for null/whitespace, the personalization flag, and duplicates — never the command
+lookup. `AddCommandToQuickAccess("NoSuchCommand")` returned **true** and put the literal text in the
+key list beside genuine GUID keys, where it survived a save/load round trip and could never resolve to
+a command. A `true` return meant only "that string was not already in the list".
+
+`ResolveQuickAccessKey` had the matching fault: on no match it returned the token unchanged, so a
+stale key in a saved file was accepted too. It now takes a `strict` flag — strict for a caller adding
+by name, lenient for file loading, where the ribbon may not be built yet and the key must be taken on
+trust.
+
+### One instrument error, corrected
+
+The first run reported "3 tabs built — got 0" for build, merge and customization load. `RibbonTabs` is
+an *input* collection (`Core.cs:63` converts it into `CommandItems` when that is empty), not the built
+result. The control caught it: an **empty** ribbon also reported 0, so the check could not tell the
+two cases apart. Assertions now read `CommandItems`.
+
+### Covered
+
+Build from SimpleItems, quick access add/reject/move/remove, save+load round trips for quick access,
+customization and theme tokens, corrupt-file reporting, merge scope begin/merge/end, search history
+persistence, minimise/restore.
+
+### Still not covered
+
+KeyTips, contextual tabs, the backstage UI itself, the gallery, accessibility, and every rendering
+path. The 54 literal colour references remain unchecked against rule 3.

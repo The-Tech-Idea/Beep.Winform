@@ -44,7 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     var centerY = bubble.Top + bubble.Height / 2;
                     var scBubble = new Rectangle(centerX - w / 2, centerY - h / 2, w, h);
                     using (var gp = new GraphicsPath())
-                    using (var brush = new SolidBrush(Color.FromArgb(36, context.AccentColor)))
+                    // ResolveAccent, not the raw context colour: an unset AccentColor is Color.Empty,
+                    // and FromArgb(36, Empty) is transparent - the bubble simply would not appear.
+                    using (var brush = new SolidBrush(Color.FromArgb(36, ResolveAccent(context))))
                     {
                         gp.AddEllipse(scBubble);
                         context.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -52,12 +54,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                         context.Graphics.SmoothingMode = SmoothingMode.Default;
                     }
 
-                    // For selected item, tint icon to accent color
-                    var prevFill = context.ImagePainter.FillColor;
-                    context.ImagePainter.FillColor = context.AccentColor;
+                    // The icon is tinted by the shared item painter, which already uses the accent for
+                    // the selected item. Setting ImagePainter.FillColor around the call did nothing:
+                    // nothing reads it on this path.
                     var item = context.Items[i];
                     PaintMenuItem(context.Graphics, item, r, context);
-                    context.ImagePainter.FillColor = prevFill;
                 }
                 else
                 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Icons
 {
@@ -131,8 +132,32 @@ namespace TheTechIdea.Beep.Icons
         }
 
         // Shared helper for nested icon categories
+        /// <summary>
+        /// Resolves a curated constant to its embedded resource name.
+        /// </summary>
+        /// <remarks>
+        /// This used to be <c>$"{BaseNamespace}.{file}" ?? string.Empty</c>, which builds a path
+        /// without ever asking whether the resource exists — and the <c>??</c> is dead code, because an
+        /// interpolated string is never null. A constant naming a file that is not embedded therefore
+        /// produced a perfectly plausible path that silently resolved to nothing, and the image
+        /// painters return quietly when they cannot load an image, so the icon simply did not appear.
+        ///
+        /// Eight of the 919 constants were in that state, including <c>Common.Home</c> — which is how
+        /// this was found: a nav bar rendered every icon except Home, and the missing one looked like a
+        /// selection-painting bug for as long as Home was also the selected item.
+        ///
+        /// Resolving through <see cref="_byFileName"/> costs nothing (it is built anyway), returns the
+        /// manifest's own spelling rather than a reconstruction of it, and makes a bad name report
+        /// itself once instead of never.
+        /// </remarks>
         private static string Require(string file)
-            => $"{BaseNamespace}.{file}" ?? string.Empty;
+        {
+            if (_byFileName.Value.TryGetValue(file, out var resolved)) return resolved;
+
+            BeepLog.WarnOnce($"SvgsUIcons:{file}", typeof(SvgsUIcons), $"resolve icon '{file}'",
+                             "no such embedded resource — the constant names a file that is not in the assembly");
+            return string.Empty;
+        }
 
         /// <summary>
         /// Strongly-typed curated subset of common UI icons.
@@ -142,7 +167,7 @@ namespace TheTechIdea.Beep.Icons
         {
             // Actions
             public static string Add => Require("fi-tr-add.svg");
-            public static string Edit => Require("fi-tr-pen.svg");
+            public static string Edit => Require("fi-tr-pen-clip.svg");
             public static string Delete => Require("fi-tr-trash-empty.svg");
             public static string Save => Require("fi-tr-floppy-disk-pen.svg");
             public static string Upload => Require("fi-tr-file-upload.svg");
@@ -168,7 +193,7 @@ namespace TheTechIdea.Beep.Icons
             public static string Unlock => Require("fi-tr-lock-open-alt.svg");
 
             // Navigation
-            public static string Home => Require("fi-tr-house.svg");
+            public static string Home => Require("fi-tr-house-blank.svg");
             public static string Back => Require("fi-tr-arrow-left.svg");
             public static string Forward => Require("fi-tr-arrow-right.svg");
             public static string ChevronLeft => Require("fi-tr-angle-left.svg");
@@ -468,8 +493,8 @@ namespace TheTechIdea.Beep.Icons
             public static string Right => Require("fi-tr-arrow-right.svg");
             public static string DoubleLeft => Require("fi-tr-angle-double-left.svg");
             public static string DoubleRight => Require("fi-tr-angle-double-right.svg");
-            public static string DoubleUp => Require("fi-tr-angle-double-up.svg");
-            public static string DoubleDown => Require("fi-tr-angle-double-down.svg");
+            public static string DoubleUp => Require("fi-tr-angle-double-small-up.svg");
+            public static string DoubleDown => Require("fi-tr-angle-double-small-down.svg");
             public static string ExternalLink => Require("fi-tr-up-right-from-square.svg");
         }
 
@@ -897,7 +922,7 @@ namespace TheTechIdea.Beep.Icons
         // Connectivity
         public static class Connectivity
         {
-            public static string Bluetooth => Require("fi-tr-bluetooth.svg");
+            public static string Bluetooth => Require("fi-tr-bluetooth-alt.svg");
             public static string BluetoothAlt => Require("fi-tr-bluetooth-alt.svg");
             public static string Wifi => Require("fi-tr-wifi.svg");
             public static string Ethernet => Require("fi-tr-ethernet.svg");
@@ -1503,9 +1528,10 @@ namespace TheTechIdea.Beep.Icons
         // Data Pipelines / Queues
         public static class DataPipelines
         {
-            public static string Pipeline => Require("fi-tr-pipeline.svg");
-            public static string Pipelines => Require("fi-tr-pipelines.svg");
-            public static string PipelineData => Require("fi-tr-pipeline-data.svg");
+            // Pipeline, Pipelines and PipelineData named fi-tr-pipeline*.svg, none of which is in the
+            // icon set - there is no pipeline glyph in uiicons at all. Removed rather than repointed at
+            // an unrelated icon: nothing referenced them, and Flowchart below is the real thing a
+            // caller wants here.
             public static string SourceData => Require("fi-tr-source-data.svg");
             public static string SourceDocument => Require("fi-tr-source-document.svg");
             public static string SourceDocumentAlt => Require("fi-tr-source-document-alt.svg");

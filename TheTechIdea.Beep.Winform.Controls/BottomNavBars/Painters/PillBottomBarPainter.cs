@@ -124,16 +124,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             int iconSize = Math.Min(22, rect.Height - 12);
             var iconRect = new Rectangle(pillRect.Left + 12, pillRect.Top + (pillRect.Height - iconSize) / 2, iconSize, iconSize);
 
-            context.ImagePainter.ImagePath = string.IsNullOrEmpty(item.ImagePath) ? context.DefaultImagePath : item.ImagePath;
-            context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-            var prevFill = context.ImagePainter.FillColor;
-            context.ImagePainter.FillColor = ResolveOnAccent(context);
-            // white icon in pill
-            var prevTheme = context.ImagePainter.ApplyThemeOnImage;
-            context.ImagePainter.ApplyThemeOnImage = false;
-            context.ImagePainter.DrawImage(g, iconRect);
-            context.ImagePainter.ApplyThemeOnImage = prevTheme;
-            context.ImagePainter.FillColor = prevFill;
+            PaintTintedIcon(g, string.IsNullOrEmpty(item.ImagePath) ? context.DefaultImagePath : item.ImagePath,
+                            iconRect, ResolveOnAccent(context), context);
 
             // draw label to the right
             Font labelFont = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodySmall) ?? SystemFonts.DefaultFont;

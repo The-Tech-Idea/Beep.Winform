@@ -135,12 +135,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                         center.Y - (int)(12 * iconScale),
                         (int)(24 * iconScale),
                         (int)(24 * iconScale));
-                    context.ImagePainter.ImagePath = string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath) ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath;
-                    context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-                    var prevFill = context.ImagePainter.FillColor;
-                    context.ImagePainter.FillColor = ResolveOnAccent(context);
-                    context.ImagePainter.DrawImage(context.Graphics, scaledIconRect);
-                    context.ImagePainter.FillColor = prevFill;
+                    PaintTintedIcon(context.Graphics,
+                                    string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath)
+                                        ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath,
+                                    scaledIconRect, ResolveOnAccent(context), context);
                 }
 
                 // handle indicator for normal items - rounded pill using animated values if provided

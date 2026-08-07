@@ -129,22 +129,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
                 Rectangle dest = new Rectangle(0, 0, bmp.Width, bmp.Height);
 
-                float rFactor = tint.R / 255f;
-                float gFactor = tint.G / 255f;
-                float bFactor = tint.B / 255f;
-                float aFactor = opacity;
-
-                var cm = new ColorMatrix(new float[][] {
-                    new float[] { rFactor, 0, 0, 0, 0 },
-                    new float[] { 0, gFactor, 0, 0, 0 },
-                    new float[] { 0, 0, bFactor, 0, 0 },
-                    new float[] { 0, 0, 0, aFactor, 0 },
-                    new float[] { 0, 0, 0, 0, 1 }
-                });
-
                 using (var ia = new ImageAttributes())
                 {
-                    ia.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                    ia.SetColorMatrix(BuildTintMatrix(tint, opacity), ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
                     tg.DrawImage(baseImage, dest, 0, 0, baseImage.Width, baseImage.Height, GraphicsUnit.Pixel, ia);
                 }
             }
@@ -760,22 +747,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
                 Rectangle dest = new Rectangle(0, 0, bmp.Width, bmp.Height);
 
-                float rFactor = tint.R / 255f;
-                float gFactor = tint.G / 255f;
-                float bFactor = tint.B / 255f;
-                float aFactor = opacity;
-
-                var cm = new ColorMatrix(new float[][] {
-                    new float[] { rFactor, 0, 0, 0, 0 },
-                    new float[] { 0, gFactor, 0, 0, 0 },
-                    new float[] { 0, 0, bFactor, 0, 0 },
-                    new float[] { 0, 0, 0, aFactor, 0 },
-                    new float[] { 0, 0, 0, 0, 1 }
-                });
-
                 using (var ia = new ImageAttributes())
                 {
-                    ia.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                    ia.SetColorMatrix(BuildTintMatrix(tint, opacity), ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
                     tg.DrawImage(baseImage, dest, 0, 0, baseImage.Width, baseImage.Height, GraphicsUnit.Pixel, ia);
                 }
             }
@@ -1010,6 +984,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             _painterCache.TryAdd(normalizedPath, painter);
             return painter;
         }
+
+        /// <summary>
+        /// Colour matrix that paints an image in <paramref name="tint"/>, keeping its alpha.
+        /// </summary>
+        /// <remarks>
+        /// This used to scale each channel by the tint (<c>out.R = src.R * tint.R/255</c>), which is a
+        /// multiply, not a tint. Multiplying cannot lighten: a black glyph stays black whatever colour
+        /// is asked for, and the icon SVGs in this library rasterise to near-black. So every one of the
+        /// 124 call sites — all of which pass a foreground colour such as <c>iconColor</c>,
+        /// <c>TextMuted</c> or <c>Color.White</c> — got a black icon and no error.
+        ///
+        /// It showed up in the bottom nav bars, where the selected item is supposed to be accent
+        /// coloured in every reference design: the selected and unselected icons measured as the same
+        /// ink, because the tint had never been applied to either.
+        ///
+        /// The translation row sets RGB to the tint outright and the alpha row keeps the source's own
+        /// alpha, so antialiased edges stay soft and a transparent background stays transparent.
+        ///
+        /// The trade-off, taken deliberately: a multi-coloured image tinted this way becomes a flat
+        /// silhouette. That is what tinting means for the glyphs these call sites pass. A caller that
+        /// wants a photograph shaded rather than recoloured wants a different operation, and would not
+        /// have got it from the multiply either — the old path turned dark artwork black.
+        /// </remarks>
+        private static ColorMatrix BuildTintMatrix(Color tint, float opacity) =>
+            new ColorMatrix(new float[][]
+            {
+                new float[] { 0, 0, 0, 0, 0 },
+                new float[] { 0, 0, 0, 0, 0 },
+                new float[] { 0, 0, 0, 0, 0 },
+                new float[] { 0, 0, 0, opacity, 0 },
+                new float[] { tint.R / 255f, tint.G / 255f, tint.B / 255f, 0, 1 }
+            });
 
         private static Image LoadImage(string imagePath)
         {

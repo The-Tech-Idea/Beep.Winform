@@ -342,7 +342,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 
         [Browsable(true)]
         [Category("Data")]
-        public string DefaultItemImagePath { get; set; } = Svgs.Menu;
+        // The uiicons set, not the legacy Svgs one: it is the consistent line-icon family the
+        // reference designs use, and Svgs.Menu is a hamburger, which is not a sensible stand-in for a
+        // navigation item that has no icon of its own.
+        public string DefaultItemImagePath { get; set; } = SvgsUIcons.Common.Settings;
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -1159,15 +1162,31 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             UpdateAccessibilityMetadata();
         }
 
+        /// <summary>
+        /// Which item is under a point, by the rectangle that actually responds to a click.
+        /// </summary>
+        /// <remarks>
+        /// Reads the hit helper rather than the raw grid. A style that enlarges a cell - the CTA
+        /// circle, the selected pill - registers the bigger region, and this used to consult the plain
+        /// grid cell instead: hover, the tooltip and the accessible bounds all disagreed with where
+        /// the control would actually respond.
+        /// </remarks>
         private int GetItemIndexAt(Point clientPoint)
         {
+            if (_bbHitTestHelper != null)
+            {
+                for (int i = 0; i < _bbHitTestHelper.ItemRectCount; i++)
+                {
+                    if (_bbHitTestHelper.GetItemRect(i).Contains(clientPoint)) return i;
+                }
+
+                return -1;
+            }
+
             var rects = _layoutHelper.GetItemRectangles();
             for (int i = 0; i < rects.Count; i++)
             {
-                if (rects[i].Contains(clientPoint))
-                {
-                    return i;
-                }
+                if (rects[i].Contains(clientPoint)) return i;
             }
 
             return -1;

@@ -66,14 +66,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 }
                 // draw CTA icon
                 var iconRect = new Rectangle(center.X - 12, center.Y - 12, 24, 24);
-                var prev = context.ImagePainter.FillColor;
-                context.ImagePainter.ImagePath = string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath) ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath;
-                context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-                // Accent too: the ring is an outline, so the icon sits on the bar, not on a filled
-                // accent disc. On-accent white would have made it invisible alongside the ring.
-                context.ImagePainter.FillColor = ResolveAccent(context);
-                context.ImagePainter.DrawImage(g, iconRect);
-                context.ImagePainter.FillColor = prev;
+                // Accent, not on-accent: the ring is an outline, so the icon sits on the bar, not on a
+                // filled accent disc. On-accent white would have made it invisible.
+                PaintTintedIcon(g, string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath)
+                                       ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath,
+                                iconRect, ResolveAccent(context), context);
             }
 
             var rects = _layoutHelper.GetItemRectangles();

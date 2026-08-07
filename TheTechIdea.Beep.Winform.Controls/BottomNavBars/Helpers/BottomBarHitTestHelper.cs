@@ -78,12 +78,27 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         /// Painters hand over a rectangle now; the handler stays here, so every cell on the bar
         /// behaves the same way whichever style painted it.
         /// </remarks>
+        /// <summary>
+        /// The clickable rectangle for an item - the painted region, not necessarily the grid cell.
+        /// </summary>
+        public Rectangle GetItemRect(int index)
+            => index >= 0 && index < _itemRectangles.Count ? _itemRectangles[index] : Rectangle.Empty;
+
+        /// <summary>How many item rectangles are recorded.</summary>
+        public int ItemRectCount => _itemRectangles.Count;
+
         public void SetItemHitArea(int index, Rectangle rect)
         {
             if (index < 0 || index >= _items.Count) return;
 
             int idx = index;
             _hitTestHelper.AddHitArea($"BottomBarItem_{index}", rect, null, () => HandleItemClick(idx, MouseButtons.Left));
+
+            // Keep the recorded cell in step with the clickable one. Hover, the tooltip, the popup
+            // anchor and the accessible bounds all read this list, and leaving it as the plain grid
+            // cell meant a CTA circle or a selected pill reported one rectangle to a screen reader
+            // while responding to clicks in another.
+            if (index < _itemRectangles.Count) _itemRectangles[index] = rect;
         }
 
         private void HandleItemClick(int index, MouseButtons button)

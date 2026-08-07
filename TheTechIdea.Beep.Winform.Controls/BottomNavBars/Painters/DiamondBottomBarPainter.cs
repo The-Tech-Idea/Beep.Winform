@@ -97,15 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             // Icon in the on-accent colour, centred in the diamond.
             var item = context.Items[context.CTAIndex];
             var iconRect = new Rectangle(centre.X - 12, centre.Y - 12, 24, 24);
-            context.ImagePainter.ImagePath = string.IsNullOrEmpty(item?.ImagePath) ? context.DefaultImagePath : item.ImagePath;
-            context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-            var previousFill = context.ImagePainter.FillColor;
-            var previousApplyTheme = context.ImagePainter.ApplyThemeOnImage;
-            context.ImagePainter.ApplyThemeOnImage = false;
-            context.ImagePainter.FillColor = ResolveOnAccent(context);
-            context.ImagePainter.DrawImage(g, iconRect);
-            context.ImagePainter.ApplyThemeOnImage = previousApplyTheme;
-            context.ImagePainter.FillColor = previousFill;
+            PaintTintedIcon(g, string.IsNullOrEmpty(item?.ImagePath) ? context.DefaultImagePath : item.ImagePath,
+                            iconRect, ResolveOnAccent(context), context);
 
             g.SmoothingMode = SmoothingMode.Default;
         }

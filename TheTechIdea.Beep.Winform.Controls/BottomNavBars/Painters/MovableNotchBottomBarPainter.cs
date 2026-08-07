@@ -44,7 +44,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             {
                 var r = _layoutHelper.GetItemRect(anchorIdx);
                 float cx = r.Left + r.Width / 2f;
-                if (context.AnimatedIndicatorWidth > 0f) cx = context.AnimatedIndicatorX + context.AnimatedIndicatorWidth / 2f;
+
+                // Follow the animated indicator only when the notch is anchored to the SELECTION.
+                // The indicator tracks the selected item, so when a CTA is configured this moved the
+                // notch to the selected cell while the CTA circle below was drawn at CTAIndex - the
+                // cut-out sat over one item and the button over another, and on the leftmost cell the
+                // stray notch clipped the bar's rounded corner.
+                if (context.CTAIndex < 0 && context.AnimatedIndicatorWidth > 0f)
+                    cx = context.AnimatedIndicatorX + context.AnimatedIndicatorWidth / 2f;
                 int baseRadius = Math.Min(r.Width, r.Height) / 2 + 6;
                 int notchW = (int)(baseRadius * NotchWidthFactor * 1.4f);
                 int notchH = (int)NotchDepth;
@@ -104,12 +111,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                         }
                     }
                     var iconRect = new Rectangle(center.X - 12, center.Y - 12, 24, 24);
-                    var prev = context.ImagePainter.FillColor;
-                    context.ImagePainter.ImagePath = string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath) ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath;
-                    context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-                    context.ImagePainter.FillColor = ResolveOnAccent(context);
-                    context.ImagePainter.DrawImage(g, iconRect);
-                    context.ImagePainter.FillColor = prev;
+                    // On-accent when the disc is filled, accent when it is an outline ring - otherwise
+                    // the outline variant paints a white glyph onto the bar's white background.
+                    PaintTintedIcon(g, string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath)
+                                           ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath,
+                                    iconRect,
+                                    OutlineCTA ? ResolveAccent(context) : ResolveOnAccent(context), context);
                 }
             }
             else

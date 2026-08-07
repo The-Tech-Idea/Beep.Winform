@@ -96,6 +96,16 @@ literal colours, an `AccessibleName` that says `"Card"` for every one of 56 layo
 that render but cannot be clicked or focused.
 
 - **`BeepImage` for every icon.** It is the control that renders and themes SVGs.
+- **In a painter, recolour an icon with `StyledImagePainter.PaintWithTint` — never
+  `ImagePainter.FillColor`.** `FillColor` is applied by `ApplyThemeToSvg`, which the
+  `ApplyThemeOnImage` setter calls *only on a false→true transition*. Assigning `FillColor` around a
+  `DrawImage` call therefore tints nothing, silently: the glyph renders in the SVG's own near-black.
+  Six bottom-bar painters did this, so every selected item and every CTA glyph was black — including
+  black-on-purple inside a filled accent disc.
+- **Tinting replaces the RGB and keeps the alpha; it does not multiply.** A multiply cannot lighten, so
+  a dark glyph stays dark whatever colour is asked for. Consequently a tinted multi-colour image
+  becomes a flat silhouette — which is what tinting a glyph means, and why `PaintWithTint` is for
+  icons, not photographs.
 - **`BeepLabel` needs both `WordWrap` and `Multiline`** — one decides where lines break, the other
   renders more than one.
 - **Two grids cannot be aligned by adjusting either.** Items that must share a left edge belong in the
@@ -125,6 +135,8 @@ This repo has produced more wrong *instruments* than wrong code. Actual examples
 | `Custom` and `Rectangle` shapes differ | both badges were parented at `(0,0)` and overlapped |
 | composed cards build 20× faster than raw controls | 500 siblings in one panel is O(n²); the baseline was wrong |
 | the dialog is unthemed | the sample point landed on the form border, not the control |
+| the selected nav item never draws its icon | the *Home* icon did not resolve — and Home was also the item every render selected |
+| the selected icon is tinted (its ink differs from its neighbour's) | different icons have different ink anyway; the tint was never applied to either |
 
 Practical consequences:
 
@@ -135,6 +147,9 @@ Practical consequences:
   is foreground — it captured a file explorer twice.
 - **Guard a comparison against being blind.** Before concluding "A renders the same as B", assert that
   two known-different inputs render differently.
+- **Change one thing.** If the item under test is also the item in the special state, the two
+  explanations predict the same picture and no amount of staring separates them. Moving the selection
+  to a different cell settled in one run what several rounds of reading the paint order had not.
 - **A result that flatters the change is exactly as suspect as one that condemns it.**
 - Locate sample points from control geometry, and convert to screen coordinates before comparing
   bounds across different parents.

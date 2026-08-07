@@ -223,7 +223,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         ///
         /// <c>StyledImagePainter.PaintWithTint</c> is the supported path and is what the Docks
         /// painters already use.
+        ///
+        /// <c>PaintWithTint</c> itself then turned out to be applying a multiply rather than a tint,
+        /// so it could not lighten a near-black glyph either — see <c>StyledImagePainter</c>. Both
+        /// halves had to be right before a selected icon came out accent-coloured.
         /// </remarks>
+        protected static void PaintTintedIcon(Graphics g, string imagePath, Rectangle iconRect, Color tint,
+                                              BottomBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(imagePath) || iconRect.Width <= 0 || iconRect.Height <= 0)
+                return;
+
+            using var path = new GraphicsPath();
+            path.AddRectangle(iconRect);
+            StyledImagePainter.PaintWithTint(g, path, imagePath, tint);
+        }
 
         /// <summary>
         /// Whether the item still carries the badge colours <c>SimpleItem</c> starts with.
@@ -242,17 +256,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         private static bool HasDefaultBadgeColours(SimpleItem item)
             => (Color)item.BadgeBackColor == (Color)BeepColor.Red
             && (Color)item.BadgeForeColor == (Color)BeepColor.White;
-
-        protected static void PaintTintedIcon(Graphics g, string imagePath, Rectangle iconRect, Color tint,
-                                              BottomBarPainterContext context)
-        {
-            if (string.IsNullOrEmpty(imagePath) || iconRect.Width <= 0 || iconRect.Height <= 0)
-                return;
-
-            using var path = new GraphicsPath();
-            path.AddRectangle(iconRect);
-            StyledImagePainter.PaintWithTint(g, path, imagePath, tint);
-        }
 
         protected virtual void PaintItemBadge(Graphics g, SimpleItem item, Rectangle iconRect, BottomBarPainterContext context)
         {

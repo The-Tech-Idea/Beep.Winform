@@ -53,10 +53,52 @@ marker in the wrong cell. Visible in the render: the bubble sat on "Add" while "
 
 | Finding | Note |
 |---|---|
-| Accessible bounds/hover/tooltip use grid cells, not the painted region | on CTA styles the click target is elsewhere than the reported bounds |
 | `IsOverflow` is computed and nothing acts on it | a missing overflow strategy, not dead code — left in place |
 | No default selection | the bar opens with no active tab |
-| Icons never rendered in the probe | the sample SVG paths did not resolve, so icon rendering is **unverified** here |
+
+## Icon rendering — verified, and three defects behind it
+
+Icon rendering was previously listed here as unverified, because the probe's sample paths
+(`"home.svg"`) did not resolve. With real embedded resources it rendered — and three separate faults
+surfaced, each of which had been hiding the next.
+
+**1. `SvgsUIcons.Common.Home` named a resource that does not exist.** `Require()` built
+`$"{BaseNamespace}.{file}"` without ever checking the manifest (its `?? string.Empty` is dead code — an
+interpolated string is never null), so a mistyped constant produced a plausible path that silently
+resolved to nothing. An audit of all **919** constants found **8** in that state. `Require` now resolves
+through the manifest dictionary the class already builds, and reports a bad name once through
+`BeepLog`. Five were repointed at the real asset; `DataPipelines.Pipeline`, `Pipelines` and
+`PipelineData` were removed — no pipeline glyph exists in the set and nothing referenced them.
+
+**2. `StyledImagePainter.PaintWithTint` multiplied instead of tinting.** `out.R = src.R * tint.R/255`
+cannot lighten, and these SVGs rasterise near-black, so every icon came out black whatever colour was
+asked for — across **124 call sites**, all of which pass a foreground colour. Now a matrix that sets RGB
+to the tint and keeps the source alpha.
+
+**3. Six painters bypassed it**, setting `ImagePainter.FillColor` around `DrawImage`. That never
+applies — `FillColor` is honoured by `ApplyThemeToSvg`, which the `ApplyThemeOnImage` setter calls only
+on a false→true transition. Pill, Diamond, FloatingCTA, OutlineFloatingCTA and MovableNotch now use
+`PaintTintedIcon`; Bubble's copy was removed outright, as the shared item painter already tints the
+selected icon. MovableNotch picks accent or on-accent by `OutlineCTA`, so the outline variant does not
+paint a white glyph onto a white bar.
+
+Verified: the selected cell's ink changes with selection (accent `96,80,255` vs foreground `33,37,41`),
+and the CTA glyph is white on an accent disc. That last check was confirmed able to fail — adding
+`OutlineFloatingCTA` (0 white px, an outline ring) and `Classic` (0 accent px, no CTA) both turn it red.
+
+**MovableNotch's notch and CTA had come apart.** The notch was anchored to `CTAIndex` but its centre
+was then overwritten with the animated indicator, which tracks the *selection* — so the cut-out sat
+over the selected cell while the button was drawn at the CTA, and on the leftmost cell the stray notch
+clipped the bar's rounded corner. It now follows the indicator only when no CTA is configured.
+
+**Not a defect, checked and cleared:** SegmentedTrack's indicator looked like it sat below its track in
+the render. Measured, the track spans y=46–52 and the indicator y=47–51 — inside it. NotionMinimal's
+top indicator (y=13–15) likewise sits above its icon (y=16–35), not over it. Both readings came from
+eyeballing a 446px-wide render and were wrong.
+
+**Accessible bounds now follow the painted region.** `SetItemHitArea` also updates the helper's item
+rectangle, and `GetItemIndexAt` reads the hit helper, so hover, tooltip, popup anchor and accessible
+bounds agree with the enlarged cell a CTA or pill painter registers.
 
 ## A correction to this review's own first finding
 

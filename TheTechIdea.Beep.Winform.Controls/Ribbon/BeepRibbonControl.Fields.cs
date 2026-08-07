@@ -27,7 +27,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly Panel _contextHeader = new() { Dock = DockStyle.Top };
 
         private readonly BindingList<SimpleItem> _commandItems = new();
+        // Two maps, not one keyed on object. The quick access toolbar, the drop-down menus and the
+        // minimized popup are still ToolStrip items and are looked up by owner (QuickAccess.cs); the
+        // commands inside a group are now real controls. A single object-keyed dictionary would have
+        // cost that lookup its type.
         private readonly Dictionary<ToolStripItem, SimpleItem> _commandMap = new();
+        private readonly Dictionary<Control, SimpleItem> _controlCommandMap = new();
         private readonly Dictionary<BeepRibbonGroup, List<SimpleItem>> _groupCommandNodes = new();
         private readonly Dictionary<string, SimpleItem> _commandLookup = new(StringComparer.OrdinalIgnoreCase);
 
@@ -60,8 +65,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Func<SimpleItem, RibbonSuperTooltipModel>? _superTooltipModelProvider;
 
         private readonly ToolTip _keyTipToolTip = new() { ShowAlways = true, AutomaticDelay = 0, InitialDelay = 0, ReshowDelay = 0 };
-        private readonly Dictionary<ToolStripItem, string> _keyTips = [];
-        private readonly Dictionary<string, ToolStripItem> _keyTipLookup = new(StringComparer.OrdinalIgnoreCase);
+
+        // Key tip targets are a ToolStripItem (quick access, menus) or a Control (a command in a
+        // group). Both are reachable through the same buffer, so the key handling stays one path.
+        private readonly Dictionary<object, string> _keyTips = [];
+        private readonly Dictionary<string, object> _keyTipLookup = new(StringComparer.OrdinalIgnoreCase);
         private readonly RibbonKeyboardMap _keyboardMap = new();
 
         private RibbonVariantMatrix _variantMatrix = RibbonVariantMatrix.CreateDefault();
@@ -85,7 +93,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _allowMinimize = true;
         private bool _isMinimized;
         private bool _showMinimizedPopupOnTabClick = true;
-        private int _expandedRibbonHeight = 130;
+        // 0 until a minimize captures the real expanded height. This was initialised to 130 - the old
+        // default ribbon height - and the restore branch of ApplyMinimizedState writes it back on
+        // EVERY rebuild, not only after a minimize. So the first command anyone added stomped whatever
+        // height the constructor, the designer or the host had set, back down to a stale 130.
+        private int _expandedRibbonHeight;
+
+        // The height ApplyRibbonChromeMetrics itself last set, so it can tell its own value apart from
+        // one the designer or the host chose and must not touch.
+        private int _appliedRibbonHeight;
         private bool _isMerged;
         private bool _suspendCommandRebuild;
 
@@ -94,6 +110,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<string>? _defaultQuickAccessSnapshot;
 
         private bool _isApplyingResponsiveLayout;
+        private int _lastResponsiveWidth = -1;
+        private readonly Timer _responsiveLayoutTimer = new() { Interval = 90 };
 
         private IRibbonSearchProvider? _searchProvider;
         private bool _followGlobalFormStyle = true;

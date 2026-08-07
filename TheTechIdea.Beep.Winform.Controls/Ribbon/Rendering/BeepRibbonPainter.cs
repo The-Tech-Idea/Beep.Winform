@@ -79,55 +79,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Rendering
 
         // ── Group Panel ────────────────────────────────────────────────────────
 
-        public void PaintGroupPanel(Graphics g, Rectangle bounds)
-        {
-            int radius = S(4);
-            using var path = CreateRoundedRect(bounds, radius);
-            using var fill = new SolidBrush(_theme.GroupBack);
-            g.FillPath(fill, path);
-            using var border = new Pen(_theme.GroupBorder, S(1));
-            g.DrawPath(border, path);
-        }
-
+        /// <summary>Vertical rule between two columns of a group, or on a group's trailing edge.</summary>
         public void PaintGroupSeparator(Graphics g, int x, int y, int height)
         {
             using var pen = new Pen(_theme.Separator, S(1));
             g.DrawLine(pen, x, y + S(8), x, y + height - S(8));
         }
 
+        /// <summary>
+        /// The group's caption strip.
+        /// </summary>
+        /// <remarks>
+        /// Drawn in <see cref="RibbonTheme.DisabledText"/>, not <see cref="RibbonTheme.Text"/>. A group
+        /// caption is a label for the commands above it, and at full text contrast it competes with
+        /// them for attention — Office and Fluent both mute it. Muted is not the same as invisible, so
+        /// the colour still goes through <c>EnsureReadable</c> against the group's own surface.
+        ///
+        /// <paramref name="bounds"/> is the caption strip itself. This used to carve a fixed 14px band
+        /// out of the bottom of whatever it was handed, which clipped the caption whenever the theme's
+        /// group typography was larger than that guess — and the method had no caller to notice.
+        /// </remarks>
         public void PaintGroupTitle(Graphics g, Rectangle bounds, string title)
         {
             if (string.IsNullOrEmpty(title)) return;
             var font = BeepThemesManager.ToFont(_theme.GroupTypography) ?? SystemFonts.DefaultFont;
-            var titleRect = new Rectangle(bounds.X, bounds.Bottom - S(16), bounds.Width, S(14));
-            TextRenderer.DrawText(g, title, font, titleRect, _theme.Text,
+
+            // A theme's group typography is its menu-title font and can be taller than the 22px caption
+            // strip, which crops the descenders off "Clipboard". Step down to the command font rather
+            // than draw a clipped caption.
+            if (font.Height > bounds.Height)
+                font = BeepThemesManager.ToFont(_theme.CommandTypography) ?? SystemFonts.DefaultFont;
+
+            var color = ColorUtils.EnsureReadable(_theme.DisabledText, _theme.GroupBack);
+            TextRenderer.DrawText(g, title, font, bounds, color,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
         }
 
         // ── Command Buttons ──────────────────────────────────────────────────
-
-        public void PaintLargeButton(Graphics g, Rectangle bounds, string? iconPath, string label,
-            bool hovered, bool pressed, bool enabled = true)
-        {
-            PaintButtonBackground(g, bounds, hovered, pressed, enabled);
-            int iconSize = S(32);
-            if (!string.IsNullOrEmpty(iconPath) && iconSize > 0)
-            {
-                var iconRect = new Rectangle(bounds.X + (bounds.Width - iconSize) / 2,
-                    bounds.Y + S(6), iconSize, iconSize);
-                PaintIcon(g, iconRect, iconPath, enabled);
-            }
-            if (!string.IsNullOrEmpty(label))
-            {
-                var font = BeepThemesManager.ToFont(_theme.CommandTypography) ?? SystemFonts.DefaultFont;
-                var labelRect = new Rectangle(bounds.X + S(2), bounds.Bottom - S(18), bounds.Width - S(4), S(16));
-                var textColor = enabled ? _theme.Text : _theme.DisabledText;
-                TextRenderer.DrawText(g, label, font, labelRect, textColor,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
-                    TextFormatFlags.EndEllipsis | TextFormatFlags.WordBreak);
-            }
-        }
 
         public void PaintSmallButton(Graphics g, Rectangle bounds, string? iconPath, string label,
             bool hovered, bool pressed, bool enabled = true, bool isSplit = false)

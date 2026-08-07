@@ -6,7 +6,18 @@ using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum RibbonItemSize { Large, Medium, Small }
+    /// <summary>How much of a ribbon group's column grid a command occupies.</summary>
+    public enum RibbonItemSize
+    {
+        /// <summary>A whole column: a 32px icon above a centred label, across the full content band.</summary>
+        Large,
+
+        /// <summary>Laid out as <see cref="Small"/>. Kept because the designer model has always offered it.</summary>
+        Medium,
+
+        /// <summary>One row of a column: a 16px icon with its label beside it.</summary>
+        Small
+    }
 
     [ToolboxItem(false)]
     [DesignTimeVisible(false)]
@@ -104,9 +115,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override SimpleItem BuildSimpleItem()
         {
-            return new SimpleItem
+            var item = new SimpleItem
             {
-                Text = Size == RibbonItemSize.Large ? Text : Text,
+                Text = Text,
                 Value = CommandKey,
                 ImagePath = ImagePath,
                 IsEnabled = Enabled,
@@ -115,6 +126,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChecked = Checked,
                 ToolTip = ToolTip
             };
+
+            // Size had no effect at all: the only thing it decided was "Text = Size == Large ? Text :
+            // Text". Carrying it on the command is what lets the group's column layout honour it.
+            item.Data[BeepRibbonControl.RibbonItemSizeKey] = Size.ToString();
+            return item;
         }
     }
 
@@ -138,6 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = Text, Value = CommandKey, ImagePath = ImagePath,
                 IsEnabled = Enabled, IsVisible = Visible, ToolTip = ToolTip
             };
+            item.Data[BeepRibbonControl.RibbonItemSizeKey] = Size.ToString();
             foreach (var d in DropDownItems)
                 if (d.Visible) item.Children.Add(d.ToSimpleItem());
             return item;

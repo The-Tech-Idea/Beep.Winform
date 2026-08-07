@@ -186,18 +186,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_isMinimized)
             {
+                // Math.Max, not a plain assignment: BuildFromSimpleItems re-enters this method while
+                // _isMinimized is true, when Height is already the minimized height, and a plain
+                // assignment would clobber the expanded height that was captured on the way in.
                 _expandedRibbonHeight = Math.Max(_expandedRibbonHeight, Height);
                 Height = CalculateMinimizedHeight();
             }
             else
             {
                 HideMinimizedPopup();
-                int minimumExpandedHeight = CalculateMinimizedHeight() + 18;
-                if (_expandedRibbonHeight < minimumExpandedHeight)
+
+                // Only restore a height that a minimize actually captured. Writing this branch
+                // unconditionally is what made every rebuild - including the very first, triggered by
+                // adding a single command - overwrite the control's real height with the field's
+                // initialiser, so the ribbon reported 130px however tall it had been set.
+                if (_expandedRibbonHeight > 0)
                 {
-                    _expandedRibbonHeight = minimumExpandedHeight;
+                    int minimumExpandedHeight = CalculateMinimizedHeight() + 18;
+                    Height = Math.Max(_expandedRibbonHeight, minimumExpandedHeight);
                 }
-                Height = _expandedRibbonHeight;
             }
 
             _tabStrip.Invalidate();

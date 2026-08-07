@@ -100,6 +100,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_density == value) return;
                 _density = value;
+
+                // Density changes the height of a group's item band, so it changes the ribbon's own
+                // height. Without this the groups stayed docked to the old, taller content panel and a
+                // Compact ribbon was a 44px band of commands with 44px of empty space under its caption.
+                ApplyRibbonChromeMetrics();
                 RefreshCommandView();
             }
         }

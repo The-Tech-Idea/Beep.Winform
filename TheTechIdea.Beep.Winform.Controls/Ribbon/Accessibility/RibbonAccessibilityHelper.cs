@@ -51,6 +51,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Accessibility
             return fallbackText;
         }
 
+        /// <summary>
+        /// The accessible description for a command, for callers that apply accessibility to a hosted
+        /// control rather than to a ToolStrip item.
+        /// </summary>
+        public static string BuildCommandDescription(SimpleItem item) =>
+            item == null ? string.Empty : BuildDescription(item);
+
         private static string BuildDescription(SimpleItem item)
         {
             if (!string.IsNullOrWhiteSpace(item.ToolTip) && !string.IsNullOrWhiteSpace(item.ShortcutText))
@@ -76,24 +83,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Accessibility
             return GetDisplayText(item, string.Empty);
         }
 
-        public static AccessibleRole GetCommandRole(SimpleItem command, ToolStripItem item)
+        /// <summary>
+        /// The role a command carries, from the command itself.
+        /// </summary>
+        /// <remarks>
+        /// This used to be decided by the host type — <c>ToolStripControlHost</c> meant Grouping,
+        /// <c>ToolStripDropDownButton</c> meant ButtonDropDown. Commands inside a group are ordinary
+        /// controls now, so the question has to be answered by what the command *is*, which is where it
+        /// belonged: a command with children opens a menu whatever paints it.
+        /// </remarks>
+        public static AccessibleRole GetCommandRole(SimpleItem command)
         {
             if (command == null)
             {
                 return AccessibleRole.PushButton;
             }
 
-            if (command.IsSeparator || item is ToolStripSeparator)
+            if (command.IsSeparator)
             {
                 return AccessibleRole.Separator;
             }
 
-            if (item is ToolStripControlHost)
-            {
-                return AccessibleRole.Grouping;
-            }
-
-            if (item is ToolStripDropDownButton || command.Children.Count > 0)
+            if (command.Children.Count > 0)
             {
                 return AccessibleRole.ButtonDropDown;
             }
@@ -104,6 +115,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Accessibility
             }
 
             return AccessibleRole.PushButton;
+        }
+
+        public static AccessibleRole GetCommandRole(SimpleItem command, ToolStripItem item)
+        {
+            if (item is ToolStripSeparator)
+            {
+                return AccessibleRole.Separator;
+            }
+
+            if (item is ToolStripDropDownButton)
+            {
+                return AccessibleRole.ButtonDropDown;
+            }
+
+            return GetCommandRole(command);
         }
     }
 }

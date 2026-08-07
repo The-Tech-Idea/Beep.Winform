@@ -36,9 +36,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // keep text from theme if available
                 t.Text = theme.AppBarTitleForeColor;
                 t.IconColor = theme.AppBarButtonForeColor;
-                t.HoverBack = ShiftLuminance(theme.AppBarBackColor, .08f);
-                t.PressedBack = ShiftLuminance(theme.AppBarBackColor, .16f);
-                t.SelectionBack = theme.ButtonSelectedBackColor;
+
+                // Same two rules as the light path below: one surface, and an accent ladder rather
+                // than luminance-shifted grays. Slightly stronger steps - a tint needs more presence
+                // against a dark surface (Metro's dark variant does the same).
+                t.GroupBack = t.TabActiveBack;
+                t.HoverBack = Blend(t.TabActiveBack, theme.AccentColor, 0.24f);
+                t.PressedBack = Blend(t.TabActiveBack, theme.AccentColor, 0.36f);
+                t.SelectionBack = Blend(t.TabActiveBack, theme.AccentColor, 0.28f);
                 t.FocusBorder = theme.FocusIndicatorColor;
                 t.Separator = theme.BorderColor;
                 t.CornerRadius = Math.Max(2, theme.BorderRadius);
@@ -60,16 +65,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return t;
             }
 
-            // Light mapping from Beep theme
+            // Light mapping from Beep theme.
+            //
+            // Two rules, both taken from real ribbons (plans/01-VISUAL-DESIGN.md):
+            //
+            // ONE SURFACE. The tab content band and every group on it share a single colour. This
+            // mapped Background, TabActiveBack and GroupBack to three different derivations, so the
+            // groups sat as visibly different rectangles on the band - the "boxes" look is mostly
+            // that patchwork. Groups are distinguished by separators and captions, not by fill.
+            //
+            // ACCENT LADDER. Hover, pressed and checked are accent tints over the surface (Fluent's
+            // AccentLight2/3 and Accent20; Metro UI's accent @ 20% / 80%), not luminance-shifted
+            // grays - gray hover is toolbar styling. Blended here rather than alpha'd so painters
+            // that fill opaquely get the same colour a translucent overlay would have produced.
             t.Background = theme.AppBarBackColor;
             t.TabActiveBack = theme.ButtonBackColor;
             t.TabInactiveBack = ShiftLuminance(theme.AppBarBackColor, .1f);
             t.TabBorder = theme.BorderColor;
-            t.GroupBack = ShiftLuminance(theme.AppBarBackColor, .15f);
-            t.GroupBorder = ShiftLuminance(theme.BorderColor, -0.25f);
-            t.HoverBack = theme.ButtonHoverBackColor;
-            t.PressedBack = theme.ButtonPressedBackColor;
-            t.SelectionBack = theme.ButtonSelectedBackColor;
+            t.GroupBack = t.TabActiveBack;
+            t.GroupBorder = theme.BorderColor;
+            t.HoverBack = Blend(t.TabActiveBack, theme.AccentColor, 0.18f);
+            t.PressedBack = Blend(t.TabActiveBack, theme.AccentColor, 0.30f);
+            t.SelectionBack = Blend(t.TabActiveBack, theme.AccentColor, 0.22f);
             t.FocusBorder = theme.FocusIndicatorColor;
             t.Separator = theme.BorderColor;
             t.CornerRadius = Math.Max(2, theme.BorderRadius);

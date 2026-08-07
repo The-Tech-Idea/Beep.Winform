@@ -1,7 +1,5 @@
-using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Accessibility;
 using TheTechIdea.Beep.Winform.Controls.Gallery;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Tooltips;
 
@@ -79,7 +77,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                ApplyResponsiveLayout();
                 RebuildQuickAccessToolbar();
                 if (_searchMode != RibbonSearchMode.Off && !string.IsNullOrWhiteSpace(_searchBox.Text))
                 {
@@ -94,77 +91,108 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        /// <summary>
+        /// Fills a group's column grid, sending whatever the tab has no room for to a drop-down.
+        /// </summary>
+        /// <remarks>
+        /// The ToolStrip version computed a provisional group width from the commands, then asked
+        /// whether the commands fitted inside that width — a circular test, and the reason nearly
+        /// every group chose small buttons and then overflowed most of them anyway. Here the group's
+        /// width is an *output*: items are placed into columns, the group measures what it needs, and
+        /// only a real shortfall against the width the tab can still give this group causes overflow.
+        /// </remarks>
         private void BuildGroupCommands(BeepRibbonGroup group, IEnumerable<SimpleItem> commandNodes)
         {
-            var commands = commandNodes.Where(IsVisibleNode).ToList();
-            commands = NormalizeSeparators(commands);
+            var commands = NormalizeSeparators(commandNodes.Where(IsVisibleNode));
+
+            ForgetGroupCommandControls(group);
+            group.ClearItems();
+
             if (commands.Count == 0)
             {
+                group.PerformGroupLayout();
                 return;
             }
 
-            // Size the group to its own content before anything reads its width. Docked Left a group is
-            // as wide as what it holds, and every decision below goes through GetAvailableGroupWidth -
-            // which would otherwise see the default width and push most commands into the overflow
-            // menu on every tab.
-            int provisional = commands.Sum(c => EstimateCommandWidth(c, useLargeButtons: false)) + 16;
-            group.Width = Math.Clamp(provisional, 72, 560);
+            int budget = GetGroupWidthBudget(group);
+            var overflow = FillGroup(group, commands, budget);
 
-            bool useLargeButtons = DetermineLayoutSize(commands, group);
-            int available = GetAvailableGroupWidth(group);
-            int reservedOverflowWidth = EstimateOverflowButtonWidth();
-            int used = 0;
-            var overflow = new List<SimpleItem>();
-
-            foreach (var command in commands)
+            if (overflow.Count > 0)
             {
-                int commandWidth = EstimateCommandWidth(command, useLargeButtons);
-                bool fits = used + commandWidth <= available;
-                bool reserveOverflow = used + commandWidth <= available - reservedOverflowWidth;
+                // Re-fill with room reserved for the overflow affordance itself. Without this the
+                // "More" button was appended past the group's own width and then swallowed by the
+                // toolbar's own chevron - two overflow mechanisms, neither of them visible to the
+                // command map, the key tips or the accessibility audit.
+                ForgetGroupCommandControls(group);
+                group.ClearItems();
+                overflow = FillGroup(group, commands, budget - OverflowButtonWidth);
 
-                if (!fits || (_layoutMode == RibbonLayoutMode.Simplified && !reserveOverflow))
+                var overflowCommands = NormalizeSeparators(overflow);
+                if (overflowCommands.Count > 0)
+                {
+                    var overflowButton = CreateOverflowButton(group, overflowCommands);
+                    group.AddItem(overflowButton, RibbonItemSize.Small);
+                }
+            }
+
+            group.PerformGroupLayout();
+        }
+
+        /// <summary>
+        /// Adds commands until one does not fit, then returns that command and everything after it.
+        /// </summary>
+        private List<SimpleItem> FillGroup(BeepRibbonGroup group, List<SimpleItem> commands, int budget)
+        {
+            var overflow = new List<SimpleItem>();
+            bool placedFirst = false;
+
+            for (int index = 0; index < commands.Count; index++)
+            {
+                var command = commands[index];
+
+                if (overflow.Count > 0)
                 {
                     overflow.Add(command);
                     continue;
                 }
 
-                AddCommandToGroup(group, command, useLargeButtons);
-                used += commandWidth;
+                AddCommandToGroup(group, command, ResolveItemSize(command, !placedFirst));
+                if (!command.IsSeparator) placedFirst = true;
+
+                // A group always shows at least its first command, however narrow the tab is: a group
+                // that is nothing but a "More" button tells the user nothing about what is inside it.
+                if (index == 0 || group.MeasureContentWidth() <= budget) continue;
+
+                var removed = group.RemoveLastItem();
+                if (removed != null) _controlCommandMap.Remove(removed);
+                overflow.Add(command);
             }
 
-            if (overflow.Count > 0)
-            {
-                var overflowCommands = NormalizeSeparators(overflow);
-                if (overflowCommands.Count > 0)
-                {
-                    var overflowButton = CreateOverflowButton(overflowCommands);
-                    group.Items.Add(overflowButton);
-                }
-            }
+            return overflow;
         }
 
-        private void AddCommandToGroup(BeepRibbonGroup group, SimpleItem command, bool useLargeButtons)
+        private void AddCommandToGroup(BeepRibbonGroup group, SimpleItem command, RibbonItemSize size)
         {
             if (command.IsSeparator)
             {
-                group.Items.Add(new ToolStripSeparator());
+                group.AddSeparator();
                 return;
             }
 
             if (IsGalleryCommand(command))
             {
-                AddGalleryToGroup(group, command, useLargeButtons);
+                AddGalleryToGroup(group, command, size);
                 return;
             }
 
             if (command.Children.Count > 0)
             {
-                var dropdown = CreateDropDownButton(command, useLargeButtons);
-                group.Items.Add(dropdown);
+                var dropdown = CreateDropDownButton(group, command, size);
+                group.AddItem(dropdown, size);
                 return;
             }
 
-            AddCommandButton(group, command, useLargeButtons);
+            AddCommandButton(group, command, size);
         }
 
         private bool IsGalleryCommand(SimpleItem command)
@@ -187,16 +215,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                    ContainsGalleryToken(command.ItemType.ToString());
         }
 
-        private void AddGalleryToGroup(BeepRibbonGroup group, SimpleItem command, bool useLargeButtons)
+        private void AddGalleryToGroup(BeepRibbonGroup group, SimpleItem command, RibbonItemSize size)
         {
+            bool large = size == RibbonItemSize.Large;
             string galleryKey = GetCommandKey(command);
             var gallery = new BeepRibbonGallery
             {
-                Compact = !useLargeButtons,
+                Compact = !large,
                 EnableCategoryHeaders = true,
                 EnableLargePreviewPopup = true,
-                Width = EstimateGalleryWidth(command, useLargeButtons),
-                Height = Math.Max(28, GetGroupHeight() - 6),
+                Width = EstimateGalleryWidth(command, large),
+                Height = group.ContentBandHeight,
                 Margin = new Padding(0),
                 TabStop = true
             };
@@ -228,20 +257,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 gallery.SetRecentKeys(GetGalleryRecentKeysFromMetadata(command));
             }
 
-            var host = new ToolStripControlHost(gallery)
-            {
-                AutoSize = false,
-                Width = gallery.Width,
-                Height = Math.Max(30, GetGroupHeight() - 2),
-                Margin = new Padding(1),
-                Padding = Padding.Empty
-            };
-
             gallery.ItemSelected += (_, e) =>
             {
                 _galleryLastSelection[galleryKey] = GetCommandKey(e.Item);
                 RecordSearchCommandUsage(e.Item);
-                RaiseCommandInvoked(e.Item, host);
+                RaiseCommandInvoked(e.Item, gallery);
             };
             gallery.StateChanged += (_, e) =>
             {
@@ -256,9 +276,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     .ToList();
             };
 
-            ConfigureCommandItem(host, command);
-            group.Items.Add(host);
-            _commandMap[host] = command;
+            // No ToolStripControlHost. The wrapper existed only so a Control could live inside a
+            // toolbar; in a panel the gallery is simply a child, and the host's undisposed lifetime
+            // (Items.Clear() never disposed it) goes with it.
+            ConfigureCommandControl(gallery, command, AccessibleRole.List);
+            group.AddItem(gallery, size);
+            _controlCommandMap[gallery] = command;
         }
 
         private IEnumerable<SimpleItem> GetGalleryItems(SimpleItem command)
@@ -328,51 +351,76 @@ namespace TheTechIdea.Beep.Winform.Controls
                 .Take(10);
         }
 
-        private void AddCommandButton(BeepRibbonGroup group, SimpleItem command, bool useLargeButtons)
+        private void AddCommandButton(BeepRibbonGroup group, SimpleItem command, RibbonItemSize size)
         {
             string text = GetDisplayText(command);
-            Image? image = CreateCommandImage(command.ImagePath, !useLargeButtons);
-            ToolStripButton button = useLargeButtons
-                ? group.AddLargeButton(text, image)
-                : group.AddSmallButton(text, image);
 
-            ConfigureCommandItem(button, command);
-            button.CheckOnClick = command.IsCheckable;
-            button.Checked = command.IsChecked;
-            button.Click += (_, __) => RaiseCommandInvoked(command, button);
-            _commandMap[button] = command;
+            // The icon path goes straight to the button. BeepImage inside BeepButton renders and themes
+            // the SVG itself, so the per-rebuild rasterise-to-Bitmap-then-dispose cycle that
+            // ToolStripItem.Image forced is gone for every command in a group.
+            var button = size == RibbonItemSize.Large
+                ? group.AddLargeButton(text, command.ImagePath)
+                : group.AddSmallButton(text, command.ImagePath);
+
+            ConfigureCommandControl(button, command, RibbonAccessibilityHelper.GetCommandRole(command));
+            button.IsSelectedOptionOn = command.IsCheckable;
+            button.IsSelected = command.IsChecked;
+            button.Click += (_, _) =>
+            {
+                if (command.IsCheckable) command.IsChecked = button.IsSelected;
+                RaiseCommandInvoked(command, button);
+            };
+            _controlCommandMap[button] = command;
         }
 
-        private ToolStripDropDownButton CreateDropDownButton(SimpleItem command, bool useLargeButtons)
+        private BeepRibbonCommandButton CreateDropDownButton(BeepRibbonGroup group, SimpleItem command, RibbonItemSize size)
         {
-            Image? image = CreateCommandImage(command.ImagePath, !useLargeButtons);
-            var button = new ToolStripDropDownButton(GetDisplayText(command), image)
-            {
-                ImageScaling = useLargeButtons ? ToolStripItemImageScaling.None : ToolStripItemImageScaling.SizeToFit,
-                TextImageRelation = useLargeButtons ? TextImageRelation.ImageAboveText : TextImageRelation.ImageBeforeText,
-                AutoSize = !useLargeButtons,
-                Width = useLargeButtons ? GetLargeItemWidth() : 0,
-                Height = GetGroupHeight(),
-                Font = BeepThemesManager.ToFont(_theme.CommandTypography)
-            };
+            var button = group.NewCommandButton(GetDisplayText(command), command.ImagePath, size);
+            button.ShowDropDownArrow = true;
+            button.DropDownMenu = CreateCommandDropDown(group, command.Children);
 
-            ConfigureCommandItem(button, command);
-            BuildDropDownMenu(button.DropDownItems, command.Children);
-            _commandMap[button] = command;
+            ConfigureCommandControl(button, command, AccessibleRole.ButtonDropDown);
+            _controlCommandMap[button] = command;
             return button;
         }
 
-        private ToolStripDropDownButton CreateOverflowButton(IEnumerable<SimpleItem> overflowNodes)
+        /// <summary>
+        /// The affordance that holds what the tab had no room for.
+        /// </summary>
+        /// <remarks>
+        /// The old "More" button was never registered in the command map, never had
+        /// <c>ConfigureCommandItem</c> called on it and never had a Tag - so it had no accessible name,
+        /// no role, no super-tooltip and no quick-access right click. It is a real command control now,
+        /// and its own drop-down carries the overflowed commands.
+        /// </remarks>
+        private BeepRibbonCommandButton CreateOverflowButton(BeepRibbonGroup group, IEnumerable<SimpleItem> overflowNodes)
         {
-            var button = new ToolStripDropDownButton("More")
+            var button = group.NewCommandButton("More", null, RibbonItemSize.Small);
+            button.ShowDropDownArrow = true;
+            button.DropDownMenu = CreateCommandDropDown(group, overflowNodes);
+            RibbonAccessibilityHelper.ApplyControlAccessibility(
+                button,
+                $"More {group.Text} commands",
+                "Commands that did not fit the ribbon",
+                AccessibleRole.ButtonDropDown);
+            return button;
+        }
+
+        private ToolStripDropDownMenu CreateCommandDropDown(BeepRibbonGroup group, IEnumerable<SimpleItem> nodes)
+        {
+            var menu = new ToolStripDropDownMenu
             {
-                AutoSize = true,
-                Height = GetGroupHeight(),
+                ShowImageMargin = true,
+                AutoClose = true,
                 Font = BeepThemesManager.ToFont(_theme.CommandTypography),
-                ForeColor = _theme.Text
+                ForeColor = _theme.Text,
+                BackColor = _theme.GroupBack,
+                Renderer = new BeepRibbonToolStripRenderer(this)
             };
-            BuildDropDownMenu(button.DropDownItems, overflowNodes);
-            return button;
+
+            BuildDropDownMenu(menu.Items, nodes);
+            group.TrackPopup(menu);
+            return menu;
         }
 
         private void BuildDropDownMenu(ToolStripItemCollection parent, IEnumerable<SimpleItem> nodes)
@@ -404,6 +452,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        /// <summary>
+        /// Applies a command's state, tooltip, accessibility and personalisation wiring to a menu or
+        /// toolbar item. Still needed by the quick access toolbar, the drop-down menus and the
+        /// minimized popup, all of which remain ToolStrip-based.
+        /// </summary>
         private void ConfigureCommandItem(ToolStripItem item, SimpleItem command)
         {
             item.Enabled = command.IsEnabled;
@@ -413,15 +466,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             var role = RibbonAccessibilityHelper.GetCommandRole(command, item);
             RibbonAccessibilityHelper.ApplyCommandAccessibility(item, command, GetDisplayText(command), role);
             item.Tag = command;
-            if (item is ToolStripControlHost host && host.Control != null)
-            {
-                RibbonAccessibilityHelper.ApplyControlAccessibility(
-                    host.Control,
-                    GetDisplayText(command),
-                    BuildToolTip(command),
-                    AccessibleRole.Grouping);
-                host.Control.TabStop = true;
-            }
 
             if (_useSuperToolTips)
             {
@@ -440,6 +484,47 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 item.MouseUp -= CommandItem_MouseUp;
                 item.MouseUp += CommandItem_MouseUp;
+            }
+        }
+
+        /// <summary>The same contract as <see cref="ConfigureCommandItem"/>, for a hosted control.</summary>
+        private void ConfigureCommandControl(Control control, SimpleItem command, AccessibleRole role)
+        {
+            control.Enabled = command.IsEnabled;
+            control.Visible = command.IsVisible;
+            control.Tag = command;
+
+            RibbonAccessibilityHelper.ApplyControlAccessibility(
+                control,
+                GetDisplayText(command),
+                RibbonAccessibilityHelper.BuildCommandDescription(command),
+                role);
+
+            if (control is BeepButton button)
+            {
+                // Two tooltips for one command is one too many: BaseControl's own rich tooltip stands
+                // down while the ribbon's super-tooltip is the thing that shows.
+                button.ToolTipText = BuildToolTip(command);
+                button.EnableTooltip = !_useSuperToolTips;
+            }
+
+            if (_useSuperToolTips)
+            {
+                control.MouseHover -= CommandControl_MouseHover;
+                control.MouseHover += CommandControl_MouseHover;
+                control.MouseLeave -= CommandControl_MouseLeave;
+                control.MouseLeave += CommandControl_MouseLeave;
+            }
+            else
+            {
+                control.MouseHover -= CommandControl_MouseHover;
+                control.MouseLeave -= CommandControl_MouseLeave;
+            }
+
+            if ((_personalizationOptions & RibbonPersonalizationOptions.QuickAccess) != 0)
+            {
+                control.MouseUp -= CommandControl_MouseUp;
+                control.MouseUp += CommandControl_MouseUp;
             }
         }
 
@@ -495,17 +580,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            var model = BuildSuperTooltipModel(command);
-            if (model.IsEmpty)
-            {
-                return;
-            }
-
-            _hoveredTooltipCommand = command;
-            _hoveredTooltipModel = model;
-            int x = Math.Max(0, item.Bounds.Left + 2);
-            int y = Math.Max(0, item.Bounds.Bottom + 2);
-            _superTooltip.Show(owner, new Point(x, y), model, _superTooltipDurationMs);
+            ShowSuperTooltip(command, owner, item.Bounds);
         }
 
         private void CommandItem_MouseLeave(object? sender, EventArgs e)
@@ -523,7 +598,66 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private void RaiseCommandInvoked(SimpleItem command, ToolStripItem source)
+        private void CommandControl_MouseHover(object? sender, EventArgs e)
+        {
+            if (!_useSuperToolTips) return;
+            if (sender is not Control control) return;
+            if (!TryResolveCommand(control, out var command)) return;
+
+            // ToolStripItem.Owner has no Control equivalent - the parent is the owner, and the item's
+            // bounds are already relative to it.
+            var owner = control.Parent;
+            if (owner == null) return;
+
+            ShowSuperTooltip(command, owner, control.Bounds);
+        }
+
+        private void CommandControl_MouseLeave(object? sender, EventArgs e)
+        {
+            if (sender is not Control control) return;
+
+            _hoveredTooltipCommand = null;
+            _hoveredTooltipModel = null;
+            if (control.Parent != null)
+            {
+                _superTooltip.Hide(control.Parent);
+            }
+        }
+
+        private void ShowSuperTooltip(SimpleItem command, Control owner, Rectangle bounds)
+        {
+            var model = BuildSuperTooltipModel(command);
+            if (model.IsEmpty)
+            {
+                return;
+            }
+
+            _hoveredTooltipCommand = command;
+            _hoveredTooltipModel = model;
+            int x = Math.Max(0, bounds.Left + 2);
+            int y = Math.Max(0, bounds.Bottom + 2);
+            _superTooltip.Show(owner, new Point(x, y), model, _superTooltipDurationMs);
+        }
+
+        private bool TryResolveCommand(Control control, out SimpleItem command)
+        {
+            if (_controlCommandMap.TryGetValue(control, out var mapped))
+            {
+                command = mapped;
+                return true;
+            }
+
+            if (control.Tag is SimpleItem tagged)
+            {
+                command = tagged;
+                return true;
+            }
+
+            command = null!;
+            return false;
+        }
+
+        private void RaiseCommandInvoked(SimpleItem command, object source)
         {
             HideSearchResultsDropDown();
             HideMinimizedPopup();
@@ -542,6 +676,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 command = taggedCommand;
             }
 
+            ShowCommandContextMenu(command);
+        }
+
+        private void CommandControl_MouseUp(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            if ((_personalizationOptions & RibbonPersonalizationOptions.QuickAccess) == 0) return;
+            if (sender is not Control control) return;
+            if (!TryResolveCommand(control, out var command)) return;
+
+            ShowCommandContextMenu(command);
+        }
+
+        private void ShowCommandContextMenu(SimpleItem command)
+        {
             string commandKey = GetCommandKey(command);
             bool inQuickAccess = _quickAccessCommandKeys.Contains(commandKey, StringComparer.OrdinalIgnoreCase);
             var menu = new ContextMenuStrip();

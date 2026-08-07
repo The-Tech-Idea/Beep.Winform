@@ -82,15 +82,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (panel == null) continue;
                 panel.BackColor = _theme.TabActiveBack;
 
+                // No Renderer. A group is a panel that owns its own layout and paints its own caption
+                // and rules; ToolStripProfessionalRenderer's item pipeline could never have drawn a
+                // large button, which is why BeepRibbonPainter.PaintLargeButton sat uncallable.
                 foreach (var group in panel.Controls.OfType<BeepRibbonGroup>())
                 {
-                    group.Renderer = new BeepRibbonToolStripRenderer(this);
                     group.Density = _density;
                     group.ApplyTheme(_theme);
 
-                    foreach (var host in group.Items.OfType<ToolStripControlHost>())
-                        if (host.Control is BeepRibbonGallery gallery)
-                            gallery.ApplyTheme(_theme, _density);
+                    foreach (var gallery in group.Controls.OfType<BeepRibbonGallery>())
+                        gallery.ApplyTheme(_theme, _density);
                 }
             }
 
@@ -132,8 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 foreach (var group in panel.Controls.OfType<BeepRibbonGroup>())
                 {
                     group.RightToLeft = rtl;
-                    foreach (var host in group.Items.OfType<ToolStripControlHost>())
-                        if (host.Control != null) host.Control.RightToLeft = rtl;
+                    foreach (Control item in group.Controls) item.RightToLeft = rtl;
                 }
             }
         }

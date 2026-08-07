@@ -16,13 +16,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_contextHeader);
             Controls.Add(_quickAccess);
             _contextHeader.Height = ContextHeaderHeight;
-            // The chrome above the content takes a fixed toll: the QAT toolstrip (25), the contextual
-            // header (18) and the tab strip (28) - 71px before a single command is drawn. At the old
-            // default of 130 that left 59px of content, which fits two 17px text rows and nothing else:
-            // no caption strip, no icons, no large buttons, and most commands pushed into the overflow
-            // menu at any window width. A group needs 66px of items plus a 22px caption.
-            Height = DpiScalingHelper.ScaleValue(
-                71 + BeepRibbonGroup.ContentHeight + BeepRibbonGroup.CaptionHeight, this);
+
+            // Unscaled here on purpose. DpiScalingHelper.GetDpiScaleFactor returns 1.0 while the
+            // control has no handle, so scaling in the constructor produced the same raw number on
+            // every monitor. OnHandleCreated does the scaling, and only if this value is untouched.
+            Height = NaturalRibbonHeight;
+            _appliedRibbonHeight = Height;
 
             _commandItems.ListChanged += CommandItems_ListChanged;
             _backstageItems.ListChanged += BackstageItems_ListChanged;
@@ -50,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _keyboardMap.Register(Keys.F6, () => FocusRibbonPane(1));
             _keyboardMap.Register(Keys.Shift | Keys.F6, () => FocusRibbonPane(-1));
+            _responsiveLayoutTimer.Tick += ResponsiveLayoutTimer_Tick;
             _contextTransitionTimer.Tick += ContextTransitionTimer_Tick;
             _backstageTransitionTimer.Tick += BackstageTransitionTimer_Tick;
 
@@ -63,15 +63,78 @@ namespace TheTechIdea.Beep.Winform.Controls
             else ApplyTheme();
         }
 
+        /// <summary>
+        /// Height of an expanded ribbon at 96 DPI, for the current density.
+        /// </summary>
+        /// <remarks>
+        /// The chrome above the content takes a fixed toll: the quick access toolstrip (25), the
+        /// contextual header (18) and the tab strip (28) - 71px before a single command is drawn. At
+        /// the old default of 130 that left 59px of content, which fits two 17px text rows and nothing
+        /// else: no caption strip, no icons, no large buttons. A group needs its item band plus a 22px
+        /// caption.
+        /// </remarks>
+        private int NaturalRibbonHeight =>
+            71 + BeepRibbonGroup.ContentFor(_density) + BeepRibbonGroup.CaptionHeight;
+
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            ApplyRibbonChromeMetrics();
+
             if (!DesignMode && RibbonTabs.Count > 0 && _commandItems.Count == 0)
             {
                 foreach (var tab in RibbonTabs)
                     if (tab.Visible) _commandItems.Add(tab.ToSimpleItem());
                 BuildFromSimpleItems();
             }
+        }
+
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+            ApplyRibbonChromeMetrics();
+        }
+
+        /// <summary>
+        /// Sizes the chrome for the current density and for the monitor the ribbon is actually on.
+        /// </summary>
+        /// <remarks>
+        /// Only moves a height this method itself last set. A designer or host height differs from
+        /// <c>_appliedRibbonHeight</c> and is left alone — which is what makes the guard able to fail
+        /// for the reason it was written rather than always taking one branch.
+        /// </remarks>
+        private void ApplyRibbonChromeMetrics()
+        {
+            _contextHeader.Height = ContextHeaderHeight;
+            if (_isMinimized) return;
+
+            if (_appliedRibbonHeight != 0 && Height != _appliedRibbonHeight) return;
+
+            int target = DpiScalingHelper.ScaleValue(NaturalRibbonHeight, this);
+            if (Height != target) Height = target;
+            _appliedRibbonHeight = target;
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            if (DesignMode || !IsHandleCreated) return;
+            if (_isApplyingResponsiveLayout || _suspendCommandRebuild) return;
+            if (Width == _lastResponsiveWidth) return;
+
+            // Debounced: a drag-resize raises this per pixel, and each pass rebuilds every command in
+            // every group. ApplyResponsiveLayout was never wired to a resize at all before, so despite
+            // the name nothing responded to the window getting narrower.
+            _lastResponsiveWidth = Width;
+            _responsiveLayoutTimer.Stop();
+            _responsiveLayoutTimer.Start();
+        }
+
+        private void ResponsiveLayoutTimer_Tick(object? sender, EventArgs e)
+        {
+            _responsiveLayoutTimer.Stop();
+            if (IsDisposed || Disposing) return;
+            ApplyResponsiveLayout();
         }
 
         protected override void Dispose(bool disposing)
@@ -90,6 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _tabStrip.MouseDoubleClick -= Tabs_MouseDoubleClick;
                 _tabStrip.MouseUp -= Tabs_MouseUp;
                 UnsubscribeThemeManager();
+                _responsiveLayoutTimer.Stop(); _responsiveLayoutTimer.Tick -= ResponsiveLayoutTimer_Tick; _responsiveLayoutTimer.Dispose();
                 _contextTransitionTimer.Stop(); _contextTransitionTimer.Tick -= ContextTransitionTimer_Tick; _contextTransitionTimer.Dispose();
                 _backstageTransitionTimer.Stop(); _backstageTransitionTimer.Tick -= BackstageTransitionTimer_Tick; _backstageTransitionTimer.Dispose();
                 _keyboardMap.Clear();

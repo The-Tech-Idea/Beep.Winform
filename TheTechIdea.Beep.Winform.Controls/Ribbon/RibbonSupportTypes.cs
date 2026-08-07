@@ -9,14 +9,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public sealed class RibbonCommandInvokedEventArgs : EventArgs
     {
-        public RibbonCommandInvokedEventArgs(SimpleItem command, ToolStripItem source)
+        public RibbonCommandInvokedEventArgs(SimpleItem command, object source)
         {
             Command = command;
             Source = source;
         }
 
         public SimpleItem Command { get; }
-        public ToolStripItem Source { get; }
+
+        /// <summary>
+        /// What the user activated: a <see cref="Control"/> for a command inside a ribbon group, a
+        /// <see cref="ToolStripItem"/> for the quick access toolbar, a drop-down menu or the minimized
+        /// popup.
+        /// </summary>
+        /// <remarks>
+        /// Typed <see cref="ToolStripItem"/> until ribbon groups stopped being toolbars. A group's
+        /// commands are real controls now, so no single WinForms type covers both origins.
+        /// </remarks>
+        public object Source { get; }
     }
 
     public sealed class BackstageCommandInvokedEventArgs : EventArgs

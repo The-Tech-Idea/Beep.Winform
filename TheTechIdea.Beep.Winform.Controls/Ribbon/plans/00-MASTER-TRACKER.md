@@ -299,3 +299,124 @@ So the real work is not more tuning of the existing class:
 
 Everything committed today (group docking, caption strip, metrics, the double-draw fix) is a
 prerequisite for that and none of it is wasted, but on its own it cannot produce a ribbon.
+
+---
+
+## DONE — the group is a column-wrap container, not a toolbar
+
+All four numbered items above are landed, plus the height override that blocked them.
+
+### The height override
+
+`Ribbon/BeepRibbonControl.Fields.cs` initialised `_expandedRibbonHeight = 130` — the old default — and
+`ApplyMinimizedState`'s **else** branch wrote it back to `Height` on *every* rebuild, not only after a
+minimize. `BuildFromSimpleItems` ends in `ApplyMinimizedState`, so the first command anyone added
+stomped the constructor's 159 back to 130. The field is now `0` until a real minimize captures a
+height, and the else branch only restores a captured one.
+
+Two DPI faults went with it. `DpiScalingHelper.GetDpiScaleFactor` returns `1.0` while a control has no
+handle, so the constructor's `ScaleValue` was a no-op on every monitor. The chrome height is now
+computed in `ApplyRibbonChromeMetrics`, called from `OnHandleCreated`, `OnDpiChangedAfterParent` and
+the `Density` setter, and it only moves a height it set itself (`_appliedRibbonHeight`), so a designer
+or host height survives.
+
+### The container
+
+`BeepRibbonGroup : Panel`. Items go into `GroupSlot`s and are placed by `ComputeLayout`, which fills
+columns of `RowsFor(density)` rows: a small command takes one 22px row and the column is as wide as its
+widest member; a large command closes the current column and takes a whole one at the full content
+band; a separator closes the column and reserves a slot for a painted vertical rule. `Width` is an
+*output* of that fill. `MeasureContentWidth()` runs the same computation without moving anything, which
+is what the overflow decision is made on — a real measurement, not the old pile of magic numbers.
+
+Commands are `BeepRibbonCommandButton : BeepButton`: `ImagePath` straight to the button (no
+rasterise-to-Bitmap per rebuild), `MaxImageSize` 32 or 16 by size, `ImageAboveText`/`ImageBeforeText`
+geometry, and a chevron for a command that opens a menu. Galleries are direct children — the
+`ToolStripControlHost` wrapper and its undisposed lifetime are gone.
+
+`MinTouchTargetWidth`, `IsPopupOpen`, `CloseChildPopup`, `PopupOpened`/`PopupClosed` had no writer or
+reader anywhere while the group was a toolbar. Rather than delete them they were wired up:
+`MinTouchTargetWidth` is the small-item floor at Touch density, and `TrackPopup` follows a command's
+drop-down so the popup members mean something.
+
+### Overflow
+
+Both old mechanisms are gone. The ToolStrip chevron vanished with the base class. The hand-rolled
+"More" button is now a real command control with an accessible name, a role and a key tip, holding the
+leftovers in its own drop-down; the group is filled twice when it overflows, the second time with
+`OverflowButtonWidth` reserved, so the affordance cannot itself be the thing that does not fit.
+`ApplyResponsiveLayout` is no longer a duplicate build at the end of `BuildFromSimpleItems` — it is
+what a (debounced) resize calls, which is what its name always claimed.
+
+### Decisions taken, and the option not taken
+
+- **`RibbonItemSize` was not re-declared.** `RibbonItems.cs` already had `Large/Medium/Small` for the
+  designer model, and `RibbonButtonItem.Size` did nothing at all (`Text = Size == Large ? Text : Text`).
+  It now flows to `SimpleItem.Data["RibbonItemSize"]` and the group honours it; `Medium` lays out as
+  `Small`, because the grid has no third row height to give it.
+- **Per-command size, not a per-group boolean.** `DetermineLayoutSize` asked whether `72 x n` fitted
+  inside a width derived from the small-button estimates — circular, and it answered "small" almost
+  everywhere. Replaced by `ResolveItemSize`: an explicit declaration wins, a gallery is always large,
+  otherwise the leading command of a group is large and the rest stack.
+- **Two command maps, not one keyed on `object`.** The quick access toolbar looks its items up by
+  `ToolStripItem.Owner`; a single object-keyed dictionary would have cost that lookup its type.
+- **`RibbonCommandInvokedEventArgs.Source` is now `object`.** No WinForms type covers both a group's
+  controls and the quick access toolbar's items. Breaking change; no consumer in this solution.
+- **Deleted:** `BeepRibbonPainter.PaintGroupPanel` and `PaintLargeButton` (both had zero callers and
+  the large button is now a control), `DetermineLayoutSize`, `GetAvailableGroupWidth`,
+  `EstimateCommandWidth`, `GetGroupHeight`, `GetLargeItemWidth`, `EstimateOverflowButtonWidth`,
+  `BeepRibbonGroup.ApplyMetrics`, and `GetCommandRole`'s host-type tests.
+- **`PaintGroupSeparator` and `PaintGroupTitle` were kept and made live** — the group's `OnPaint` calls
+  them, which is what they were written for. `PaintGroupTitle`'s fixed 14px sub-rect was clipping the
+  caption once it had a caller.
+
+### Verified
+
+A probe (65 assertions, all from the control tree) covers: 3 tabs from SimpleItems; 2 groups on Home;
+the group is a `Panel`; commands are `BeepButton`s; large leading command at 66px with a 32px icon;
+three small commands stacked at y 0/22/44 in one 22px-row column; a separator starting a new column;
+group width equal to its columns; a gallery as a direct child; a chevron and a populated menu on a
+command with children; a checkable command selected; accessible names and tab stops on every command
+and a clean accessibility audit; key tips assigned to group commands; Compact/Touch densities;
+14 commands placed at 1200px and overflowed with nothing lost at 430px, then restored on widening;
+quick access add/reject/move/remove; quick access and customization save+load round trips; merge scope;
+minimize/restore; and label contrast on the group surface.
+
+Each load-bearing check was made to go red first. Restoring `_expandedRibbonHeight = 130` reproduced
+the reported symptom exactly (ribbon 130, group crushed to 59) and turned "expanded ribbon fits a
+group" and "group height is content + caption" red. Setting `RowsFor` to 99 turned "small rows are
+22px", "stacked rows are at y 0/22/44" and all three overflow checks red. Note that "a rebuild does not
+stomp the height" did **not** go red under the first break: it compares against a baseline captured
+after the stomp, so it only catches a change *during* a rebuild — "expanded ribbon fits a group" is the
+check that catches the defect.
+
+**Not verified:** Simplified layout mode, RTL, the minimized tab popup's contents, the backstage, the
+super-tooltip and quick-access right-click paths on the new controls (wired and compiling, never
+exercised), the split-button gap (a command with children still only opens a menu; there is no
+icon-half/arrow-half behaviour), and any DPI other than 96 — `ApplyRibbonChromeMetrics` is where that
+now happens but no high-DPI run was made.
+
+## The rewrite landed — verified by looking at it
+
+`BeepRibbonGroup` is a `Panel` with a column-grid layout: small commands stack three 22px rows per
+column, a large command takes a whole column at the 66px band with a 32px icon above its label, and
+group width is an *output* of the fill. Commands are `BeepRibbonCommandButton : BeepButton` with
+`ImagePath` (BeepImage renders and themes the SVG) — the ToolStrip renderer no longer touches groups,
+and the rasterise-to-Bitmap image cycle is gone with it.
+
+The `Height = 130` mystery: `_expandedRibbonHeight = 130` hard-coded in `Fields.cs:88`, applied by
+`Minimized.cs:200` after the constructor asked for 159. A second copy of the old default. Removed.
+
+Theming per `01-VISUAL-DESIGN.md`: `RibbonThemeMapper` now derives **one surface**
+(`GroupBack = TabActiveBack`) — the group patchwork was three different derivations of the band
+colour — and an **accent ladder** (hover 18%, checked 22%, pressed 30% accent blends; stronger in
+dark). The old luminance-shift hovers were toolbar styling.
+
+Verified by rendering (`ribbon-home/insert/narrow.png`) and reading the images: large+small icons at
+32/16, captions under groups, separators, continuous surface, checked toggle in accent, overflow
+"More" only when genuinely narrow (414px). Behavioural probe 65/65, including its own
+can-this-fail controls.
+
+Not verified visually: hover/pressed fills (static renders cannot show them; the assignments are
+asserted, the pixels are not). Known nits: the tab strip does not repaint the active card when a
+section is shown programmatically in the render harness; gallery tiles read slightly disabled.

@@ -166,6 +166,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             if (_placementParent != null)
                 _placementParent.SizeChanged += PlacementParent_SizeChanged;
 
+            // Whether the CTA can be drawn outside the control depends entirely on the new parent -
+            // and so does this control's own height, since headroom is only reserved when it cannot.
+            ApplyBarHeight();
+            UpdateCtaExternalDrawing();
+
             ApplyPlacement();
         }
 

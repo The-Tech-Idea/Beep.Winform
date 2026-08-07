@@ -47,7 +47,24 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         public int IconLabelGap { get; set; } = 3;
 
         /// <summary>Device pixels per logical pixel, so the spec above is honoured on scaled displays.</summary>
-        public float DpiScale { get; set; } = 1f;
+        /// <remarks>
+        /// Changing this marks the layout dirty. As an auto-property it did not, and the grid was
+        /// never scaled: SyncLayoutAndHitTest calls EnsureLayout during construction with the default
+        /// scale of 1 and clears the dirty flag, so the assignment OnPaint makes one line before its
+        /// own EnsureLayout call arrived at a guard that early-returns on unchanged bounds. The value
+        /// was stored and never acted on.
+        /// </remarks>
+        public float DpiScale
+        {
+            get => _dpiScale;
+            set
+            {
+                if (Math.Abs(_dpiScale - value) < 0.001f) return;
+                _dpiScale = value;
+                _dirty = true;
+            }
+        }
+        private float _dpiScale = 1f;
 
         private int Scaled(int logical) =>
             DpiScale > 0f && Math.Abs(DpiScale - 1f) > 0.001f
@@ -175,12 +192,28 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
                 }
             }
 
-            _cachedIndicatorRect = new Rectangle(_cachedItemRects[0].Left + 8, _cachedItemRects[0].Top + 6, Math.Max(16, _cachedItemRects[0].Width - 16), _cachedItemRects[0].Height - 12);
-            if (ctaIndex >= 0 && ctaIndex < _cachedItemRects.Count)
-            {
-                var ctaRect = _cachedItemRects[ctaIndex];
-                _cachedIndicatorRect = new Rectangle(ctaRect.Left + 6, ctaRect.Top + 2, ctaRect.Width - 12, ctaRect.Height - 4);
-            }
+            // The indicator marks the SELECTED item.
+            //
+            // It used to be computed from item 0 and then, whenever a CTA was configured, overwritten
+            // with the CTA's rectangle - so GetIndicatorRect() returned the CTA no matter what was
+            // selected. BottomBar seeds its animated indicator from this on the first paint, so every
+            // style that reads AnimatedIndicatorX drew its selection marker on the CTA: the Bubble
+            // style painted its bubble over the CTA item while a different item's label was
+            // highlighted, and Pill, Classic, MovableNotch and both FloatingCTA styles had the same
+            // marker in the same wrong place.
+            //
+            // The CTA is not a selection. It is a fixed action button that happens to sit in the row.
+            int indicatorIndex = selectedIndex >= 0 && selectedIndex < _cachedItemRects.Count
+                ? selectedIndex
+                : 0;
+
+            var target = _cachedItemRects[indicatorIndex];
+            _cachedIndicatorRect = new Rectangle(
+                target.Left + 8,
+                target.Top + 6,
+                Math.Max(16, target.Width - 16),
+                Math.Max(1, target.Height - 12));
+
             _dirty = false;
         }
 

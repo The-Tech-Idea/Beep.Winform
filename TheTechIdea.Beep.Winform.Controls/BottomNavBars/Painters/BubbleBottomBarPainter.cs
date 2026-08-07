@@ -8,6 +8,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     internal class BubbleBottomBarPainter : BaseBottomBarPainter
     {
         public override string Name => "Bubble";
+
+        /// <summary>This style breathes its selected decoration, so it needs the ticker.</summary>
+        public override bool WantsContinuousAnimation => true;
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
@@ -17,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
 
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var r = rects[i];
                 // Draw bubble when selected
@@ -77,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var centerX = bubble.Left + bubble.Width / 2;
             var centerY = bubble.Top + bubble.Height / 2;
             var scBubble = new Rectangle(centerX - w / 2, centerY - h / 2, w, h);
-            context.HitTest.AddHitArea($"BottomBarItem_{selected}", scBubble, null, () => context.OnItemClicked?.Invoke(selected, MouseButtons.Left));
+            context.BarHitTest?.SetItemHitArea(selected, scBubble);
         }
     }
 }

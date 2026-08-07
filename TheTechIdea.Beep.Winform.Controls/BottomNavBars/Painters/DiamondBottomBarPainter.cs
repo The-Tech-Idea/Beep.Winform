@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
@@ -19,6 +20,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         public override string Name => "Diamond";
 
+        /// <summary>
+        /// The circle is centred 10px above the cell's middle with a radius of half the cell plus 6,
+        /// so a little over half of it sits above the band. Derived rather than guessed, so it stays
+        /// correct when the bar is made taller or shorter.
+        /// </summary>
+        public override int GetTopOverhang(int contentHeight)
+        {
+            int radius = (int)((contentHeight / 2 + 6) * 1.06f);
+            return Math.Max(0, radius - (contentHeight / 2 - 10));
+        }
+
         /// <summary>How far the CTA diamond rises above the centre of its cell.</summary>
         private const int CtaLift = 10;
 
@@ -36,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var rects = _layoutHelper.GetItemRectangles();
             bool hasCta = context.CTAIndex >= 0 && context.CTAIndex < rects.Count;
 
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var r = rects[i];
 

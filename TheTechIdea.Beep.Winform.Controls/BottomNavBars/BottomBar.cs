@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters;
 using TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 {
@@ -48,13 +49,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         private string _lastTooltipText = "";
         private bool _isDisposed;
 
+        /// <summary>Height of the visible bar band, excluding any CTA headroom above it.</summary>
+        private int _barHeight = 72;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BottomBar"/> control.
         /// </summary>
         public BottomBar()
         {
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-            Height = 72;
+            Height = _barHeight;
 
             // Placement, not Dock. DockStyle.Bottom forces the bar to span the parent's full width,
             // and a docked control cannot be centred because docking owns its bounds - so the
@@ -69,25 +73,90 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             _bbHitTestHelper.PopupRequested += BottomBarHit_PopupRequested;
             _bbHitTestHelper.PopupClosed += BottomBarHit_PopupClosed;
             InitializePainterFromStyle(_style);
+
+            // The painter decides the headroom, so the control can only be sized once one exists.
+            ApplyBarHeight();
+            UpdateTickerState();
+
             TabStop = true; // enable keyboard focus
             this.AccessibleRole = AccessibleRole.MenuBar;
             this.AccessibleName = "Bottom Navigation";
             _tickerTimer = new Timer { Interval = 50 };
             _tickerTimer.Tick += TickerTimer_Tick;
-            _tickerTimer.Start();
+
+            // Started by UpdateTickerState, not here. This used to Start() unconditionally in the
+            // constructor and never stop: a bar that was hidden, had no items, or used a style with
+            // nothing to animate still invalidated the whole control twenty times a second for the
+            // lifetime of the form.
             _toolTip = new ToolTip { InitialDelay = 400, ReshowDelay = 100, ShowAlways = true };
             UpdateAccessibilityMetadata();
         }
 
         private void TickerTimer_Tick(object? sender, EventArgs e)
         {
-            if (_isDisposed || _tickerTimer == null || !Visible || !IsHandleCreated || Items == null || Items.Count == 0)
+            if (!ShouldAnimate)
             {
+                UpdateTickerState();
                 return;
             }
 
-            _tickerMs += _tickerTimer.Interval;
+            _tickerMs += _tickerTimer!.Interval;
             Invalidate();
+        }
+
+        /// <summary>Whether there is anything worth repainting on a timer right now.</summary>
+        private bool ShouldAnimate =>
+            !_isDisposed
+            && _tickerTimer != null
+            && Visible
+            && IsHandleCreated
+            && Items is { Count: > 0 }
+            && _animateContinuously
+            && (_bottomBarPainter?.WantsContinuousAnimation ?? false);
+
+        private bool _animateContinuously = true;
+
+        /// <summary>
+        /// Whether styles with a breathing selection effect keep animating.
+        /// </summary>
+        /// <remarks>
+        /// The motion was perpetual and had no off switch. A navigation bar that never stops moving is
+        /// a distraction on a desktop and a battery cost on a laptop, and reduced-motion settings have
+        /// nothing to turn off. The default keeps the existing look; setting this false stops the
+        /// ticker outright.
+        /// </remarks>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(true)]
+        [Description("Whether styles with a breathing selection effect keep animating.")]
+        public bool AnimateContinuously
+        {
+            get => _animateContinuously;
+            set
+            {
+                if (_animateContinuously == value) return;
+                _animateContinuously = value;
+                UpdateTickerState();
+                Invalidate();
+            }
+        }
+
+        /// <summary>Runs the ticker only while something is actually animating.</summary>
+        internal void UpdateTickerState()
+        {
+            if (_tickerTimer == null) return;
+
+            bool run = ShouldAnimate;
+            if (run == _tickerTimer.Enabled) return;
+
+            if (run) _tickerTimer.Start();
+            else _tickerTimer.Stop();
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            UpdateTickerState();
         }
 
         private void BottomBarHit_ItemClicked(object? sender, ItemClickEventArgs e)
@@ -176,7 +245,18 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                     _items.ListChanged -= Items_ListChanged;
                 _items = value ?? new BindingList<SimpleItem>();
                 _items.ListChanged += Items_ListChanged;
-                Invalidate();
+
+                // Rebuild the layout and hit areas, exactly as a change WITHIN the list does.
+                //
+                // This used to call Invalidate() alone. EnsureLayout skips recomputing when the bounds
+                // have not changed and nothing marked it dirty, and the item list is not part of that
+                // test - so the cached rectangles from the PREVIOUS list survived. Painters then walk
+                // `for (i = 0; i < rects.Count; i++) context.Items[i]`, and a shorter list threw
+                // ArgumentOutOfRangeException out of OnPaint, which has no catch: the ticker's
+                // Invalidate re-raised it about twenty times a second. A longer list failed the other
+                // way - the extra items were never painted and never hit-testable.
+                SyncLayoutAndHitTest();
+                ApplyPlacement();
             }
         }
 
@@ -194,6 +274,18 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 {
                     _style = value;
                     InitializePainterFromStyle(_style);
+
+                    // Styles differ in how far their CTA protrudes, so the control's height follows
+                    // the style rather than staying at whatever the previous one needed.
+                    ApplyBarHeight();
+
+                    // ...and only some styles animate, so the ticker follows the style too.
+                    UpdateTickerState();
+
+                    // A style that protrudes registers its overhang with the parent; one that does
+                    // not must clear a registration the previous style left behind.
+                    UpdateCtaExternalDrawing();
+
                     SyncLayoutAndHitTest();
                 }
             }
@@ -222,10 +314,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         [DefaultValue(72)]
         public int BarHeight
         {
-            get => Height;
+            get => _barHeight;
             set
             {
-                Height = Math.Max(48, value);
+                _barHeight = Math.Max(48, value);
+                ApplyBarHeight();
                 SyncLayoutAndHitTest();
             }
         }
@@ -253,7 +346,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 
         [Browsable(true)]
         [Category("Behavior")]
-        [DefaultValue(false)]
+        // [DefaultValue] must match the initialiser or the designer omits the property when it is
+        // set to the value it claims is default - here it would drop ShowCTAShadow = false and the
+        // shadow would come back on the next load.
+        [DefaultValue(true)]
         public bool ShowCTAShadow { get; set; } = true;
 
         [Browsable(true)]
@@ -383,15 +479,155 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         #endregion
 
         #region Overrides
+
+        /// <summary>
+        /// The band the painters draw the bar into, and the same rectangle the hit areas are built
+        /// from.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// One method, three callers. This was computed independently in OnPaint, in
+        /// SyncLayoutAndHitTest and in StartIndicatorAnimationToSelected - once via the PainterInset
+        /// constant and twice as a literal 8. They agreed only because the numbers happened to match,
+        /// and paint and hit-testing disagreeing means clicking one item and selecting another.
+        /// </para>
+        /// <para>
+        /// The top is pulled down by whatever headroom the current style needs, so a CTA that
+        /// protrudes above the bar has somewhere to go inside the control instead of being clipped
+        /// by its top edge.
+        /// </para>
+        /// </remarks>
+        private Rectangle GetPainterBounds()
+        {
+            var rect = ClientRectangle;
+            rect.Inflate(-PainterInset, -PainterInset);
+
+            int band = BandContentHeight;
+            int overhang = CanDrawOutsideBounds ? 0 : CurrentTopOverhang(band);
+
+            if (overhang > 0 && rect.Height > band)
+            {
+                rect.Y += rect.Height - band;
+                rect.Height = band;
+            }
+
+            return rect;
+        }
+
+        /// <summary>The band's inner height - what BarHeight asks for, less the painter inset.</summary>
+        private int BandContentHeight => Math.Max(1, _barHeight - PainterInset * 2);
+
+        /// <summary>Headroom the current style needs above the bar band.</summary>
+        internal int CurrentTopOverhang(int contentHeight)
+            => _bottomBarPainter?.GetTopOverhang(contentHeight) ?? 0;
+
+        /// <summary>
+        /// Sizes the control to the band plus whatever headroom the current style needs.
+        /// </summary>
+        /// <remarks>
+        /// BarHeight is the height of the visible bar. A style whose CTA protrudes above it makes the
+        /// CONTROL taller so the shape has somewhere to go; the band keeps the height that was asked
+        /// for. Taking the headroom out of the band instead was tried first and does not work - at any
+        /// ordinary bar height the CTA wants more room than the band can spare, so the overhang was
+        /// simply skipped and the shape stayed clipped.
+        /// </remarks>
+        private void ApplyBarHeight()
+        {
+            // On a provider parent the CTA is drawn outside the control, so no headroom is reserved
+            // and the control is exactly the bar. Everywhere else the headroom is what stops the
+            // shape being clipped.
+            int overhang = CanDrawOutsideBounds ? 0 : CurrentTopOverhang(BandContentHeight);
+            int desired = _barHeight + overhang;
+            if (Height != desired) Height = desired;
+        }
+
+
+        /// <summary>
+        /// Whether the parent can host drawing that falls outside this control's bounds.
+        /// </summary>
+        /// <remarks>
+        /// Only BaseControl-derived containers and BeepiFormPro implement the provider, so this is
+        /// false for a plain Panel or Form - and the fallback below matters, because the alternative
+        /// there is not a clipped CTA but no CTA at all.
+        /// </remarks>
+        private bool CanDrawOutsideBounds => Parent is IExternalDrawingProvider;
+
+        /// <summary>
+        /// Registers the protruding part of the CTA to be drawn on the parent's own surface.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// WinForms has no real transparency. Reserving headroom inside the control and letting
+        /// IsChild fill it with the parent's back colour works over a flat parent - which is what
+        /// IsChild samples - but over a gradient, an image, or another control it is a flat rectangle
+        /// of one sampled colour sitting where the background should show through.
+        /// </para>
+        /// <para>
+        /// Drawing on the parent has no such limit, so it is the preferred path and the control keeps
+        /// its band height. The reserved headroom remains the fallback for parents that cannot host
+        /// external drawing.
+        /// </para>
+        /// </remarks>
+        private void UpdateCtaExternalDrawing()
+        {
+            if (Parent is not IExternalDrawingProvider provider) return;
+
+            provider.ClearChildExternalDrawing(this);
+
+            if (CurrentTopOverhang(BandContentHeight) <= 0) return;
+
+            provider.AddChildExternalDrawing(this, DrawCtaOnParent, DrawingLayer.AfterAll);
+            try { Parent?.Invalidate(); } catch (Exception ex) { BeepLog.Fallback(this, "invalidate parent for CTA overhang", ex); }
+        }
+
+        /// <summary>Draws the bar onto the parent, clipped to the strip above this control.</summary>
+        private void DrawCtaOnParent(Graphics parentGraphics, Rectangle childBounds)
+        {
+            int overhang = CurrentTopOverhang(BandContentHeight);
+            if (overhang <= 0 || parentGraphics == null) return;
+
+            var strip = new Rectangle(childBounds.Left, childBounds.Top - overhang, childBounds.Width, overhang);
+            if (strip.Height <= 0 || strip.Width <= 0) return;
+
+            var saved = parentGraphics.Save();
+            try
+            {
+                // Only the part above the control lands; the rest is already painted on the control.
+                parentGraphics.SetClip(strip);
+                parentGraphics.TranslateTransform(childBounds.Left, childBounds.Top);
+                PaintBar(parentGraphics);
+            }
+            catch (Exception ex)
+            {
+                BeepLog.Failure(this, "draw the CTA overhang on the parent", ex);
+            }
+            finally
+            {
+                parentGraphics.Restore(saved);
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            var g = e.Graphics;
+            PaintBar(e.Graphics);
+        }
+
+        /// <summary>
+        /// Paints the whole bar into <paramref name="g"/>, in control-local coordinates.
+        /// </summary>
+        /// <remarks>
+        /// Called twice for a style whose CTA protrudes, when the parent supports external drawing:
+        /// once onto the control, and once onto the parent clipped to the strip above the control.
+        /// The same painter draws both halves, so the two cannot drift apart the way a separate
+        /// "draw just the CTA" routine in each painter would.
+        /// </remarks>
+        private void PaintBar(Graphics g)
+        {
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             // Create painter context
-            var rect = ClientRectangle;
-            rect.Inflate(-PainterInset, -PainterInset);
+            var rect = GetPainterBounds();
             if (Items == null || Items.Count == 0) return;
 
             var ctx = new BottomBarPainterContext
@@ -402,6 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 SelectedIndex = Items.IndexOf(SelectedItem),
                 HoverIndex = _bbHitTestHelper?.HoveredIndex ?? -1,
                 HitTest = _bbHitTestHelper?.ControlHitTest,
+                BarHitTest = _bbHitTestHelper,
                 ImagePainter = _imagePainter,
                 DefaultImagePath = DefaultItemImagePath,
                 CTAIndex = CTAIndex,
@@ -491,9 +728,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             _bottomBarPainter?.CalculateLayout(ctx);
             // Ensure hit helper is updated with computed rectangles
             _bbHitTestHelper?.UpdateItems(ctx.Items,
-                new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetItemRectangles()),
-                new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetIconRectangles()),
-                new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetLabelRectangles()));
+                new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetItemRectangles()));
             // allow painter to register additional or expanded hit areas (CTA, pill, etc.)
             _bottomBarPainter?.RegisterHitAreas(ctx);
             // Initialize indicator position on first layout
@@ -742,24 +977,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             SyncLayoutAndHitTest();
         }
 
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            base.OnVisibleChanged(e);
-            if (_tickerTimer == null)
-            {
-                return;
-            }
-
-            if (Visible && !_isDisposed)
-            {
-                _tickerTimer.Start();
-            }
-            else
-            {
-                _tickerTimer.Stop();
-            }
-        }
-
         /// <summary>
         /// Cleans up resources used by the BottomBar.
         /// </summary>
@@ -864,19 +1081,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             }
 
             _layoutHelper.InvalidateLayout();
+            UpdateTickerState();
             if (Items == null || Items.Count == 0)
             {
                 Invalidate();
                 return;
             }
 
-            var bounds = ClientRectangle;
-            bounds.Inflate(-8, -8);
+            var bounds = GetPainterBounds();
             _layoutHelper.EnsureLayout(bounds, Items.ToList(), CTAIndex, Items.IndexOf(SelectedItem));
             _bbHitTestHelper?.UpdateItems(Items.ToList(),
-                new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetItemRectangles()),
-                new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetIconRectangles()),
-                new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetLabelRectangles()));
+                new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetItemRectangles()));
             Invalidate();
         }
 
@@ -886,9 +1101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             var idx = Items.IndexOf(SelectedItem);
             if (idx < 0) return;
 
-            var rect = ClientRectangle;
-            rect.Inflate(-8, -8);
-            // Ensure layout computed (with selected for reflow)
+            // The same band the painters and the hit areas use - see GetPainterBounds.
+            var rect = GetPainterBounds();
             _layoutHelper.EnsureLayout(rect, Items.ToList(), CTAIndex, Items.IndexOf(SelectedItem!));
             var itemRects = _layoutHelper.GetItemRectangles();
             if (idx >= 0 && idx < itemRects.Count)

@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -8,6 +9,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     internal class FloatingCTABottomBarPainter : BaseBottomBarPainter
     {
         public override string Name => "FloatingCTA";
+
+        /// <summary>This style breathes its selected decoration, so it needs the ticker.</summary>
+        public override bool WantsContinuousAnimation => true;
+
+        /// <summary>As the plain CTA, plus the 1.35x halo ring this style draws around it.</summary>
+        public override int GetTopOverhang(int contentHeight)
+        {
+            int radius = (int)((contentHeight / 2 + 6) * 1.35f);
+            return Math.Max(0, radius - (contentHeight / 2 - 10));
+        }
         public float NotchRadiusFactor { get; set; } = 1.05f;
         public override void Paint(BottomBarPainterContext context)
         {
@@ -136,15 +147,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 var indicatorRect = _layoutHelper.GetIndicatorRect();
                 float iX = indicatorRect.Left;
                 float iW = indicatorRect.Width;
-                try
+                if (context.AnimatedIndicatorWidth > 0f)
                 {
-                    if (context.AnimatedIndicatorWidth > 0f)
-                    {
-                        iX = context.AnimatedIndicatorX;
-                        iW = context.AnimatedIndicatorWidth;
-                    }
+                    iX = context.AnimatedIndicatorX;
+                    iW = context.AnimatedIndicatorWidth;
                 }
-                catch { }
                 var iRect = new RectangleF(iX, indicatorRect.Top, iW, indicatorRect.Height);
                 using (var ib = new SolidBrush(Color.FromArgb(25, ResolveAccent(context))))
                 using (var gp = new GraphicsPath())
@@ -169,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             // is a configuration, not a reason to draw nothing. Both sibling styles,
             // OutlineFloatingCTA and MovableNotch, already had their loop outside the conditional.
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 if (i == context.CTAIndex) continue; // CTA drawn separately
                 var item = context.Items[i];
@@ -189,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             int radius = (int)(baseRadius * (1.0f + 0.06f * context.AnimationPhase));
             var circleRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
             // Register as same BottomBarItem_{cta} name so click action remains consistent
-            context.HitTest.AddHitArea($"BottomBarItem_{cta}", circleRect, null, () => context.OnItemClicked?.Invoke(cta, MouseButtons.Left));
+            context.BarHitTest?.SetItemHitArea(cta, circleRect);
         }
     }
 }

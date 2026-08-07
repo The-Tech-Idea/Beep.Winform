@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             // indicator is a small rounded capsule track
             var indicatorRect = _layoutHelper.GetIndicatorRect();
             float iX = indicatorRect.Left + (indicatorRect.Width - IndicatorWidth) / 2f; // center under item
-            try { if (context.AnimatedIndicatorWidth > 0f) { iX = context.AnimatedIndicatorX + (context.AnimatedIndicatorWidth - IndicatorWidth)/2f; } } catch { }
+            if (context.AnimatedIndicatorWidth > 0f) { iX = context.AnimatedIndicatorX + (context.AnimatedIndicatorWidth - IndicatorWidth) / 2f; }
             var indRect = new RectangleF(iX, trackRect.Top - (IndicatorHeight - TrackHeight)/2f, IndicatorWidth, IndicatorHeight);
             using (var br = new SolidBrush(ResolveAccent(context)))
             using (var gp = new GraphicsPath())
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
             // draw menu items as usual
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var item = context.Items[i];
                 PaintMenuItem(g, item, rects[i], context);

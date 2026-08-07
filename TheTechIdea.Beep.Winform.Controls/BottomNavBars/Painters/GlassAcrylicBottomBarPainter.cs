@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
             // draw items
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var item = context.Items[i];
                 PaintMenuItem(g, item, rects[i], context);

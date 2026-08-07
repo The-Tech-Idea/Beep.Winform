@@ -13,9 +13,27 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         protected BeepBottomBarLayoutHelper _layoutHelper;
 
+        // One font, rebuilt only when the theme's family/style/size actually changes. ResolveItemFont
+        // allocated a new Font for every label on every paint, and the 50ms ticker repaints the whole
+        // control about twenty times a second - so a five-item bar leaked a hundred GDI font handles
+        // per second onto the finalizer queue.
+        private Font? _cachedLabelFont;
+        private string? _cachedLabelFontKey;
+
         public virtual string Name => "BaseBottomBarPainter";
 
-        public virtual void Dispose() { }
+        /// <summary>No overhang: a style whose shapes stay inside the bar band needs no headroom.</summary>
+        public virtual int GetTopOverhang(int contentHeight) => 0;
+
+        /// <summary>Static between interactions unless a style says otherwise.</summary>
+        public virtual bool WantsContinuousAnimation => false;
+
+        public virtual void Dispose()
+        {
+            _cachedLabelFont?.Dispose();
+            _cachedLabelFont = null;
+            _cachedLabelFontKey = null;
+        }
 
         /// <summary>
         /// Width the selected cell needs, as a multiple of a normal cell. 1.0 keeps the equal grid.
@@ -29,6 +47,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         /// widening every style's selection because one of them needs it.
         /// </remarks>
         protected virtual float SelectedCellWidthFactor => 1.0f;
+
+        /// <summary>
+        /// How many cells a painter may safely draw: never more than there are items to draw with.
+        /// </summary>
+        /// <remarks>
+        /// The rectangles are cached and the item list is not; when they disagree, a loop bounded by
+        /// the rectangle count indexes past the end of the items and throws out of OnPaint - which has
+        /// no catch, so the ticker's Invalidate re-raises it about twenty times a second. The cause of
+        /// the disagreement is fixed at its source (BottomBar.Items now rebuilds the layout), and this
+        /// bound means the same class of mistake can never again become a repaint loop.
+        /// </remarks>
+        protected static int PaintableCount(System.Collections.Generic.IReadOnlyList<Rectangle> rects,
+                                            BottomBarPainterContext context)
+            => Math.Min(rects?.Count ?? 0, context?.Items?.Count ?? 0);
 
         public virtual void CalculateLayout(BottomBarPainterContext context)
         {
@@ -105,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         protected virtual void PaintItems(Graphics g, BottomBarPainterContext context)
         {
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var item = context.Items[i];
                 PaintMenuItem(g, item, rects[i], i, context);
@@ -192,6 +224,25 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         /// <c>StyledImagePainter.PaintWithTint</c> is the supported path and is what the Docks
         /// painters already use.
         /// </remarks>
+
+        /// <summary>
+        /// Whether the item still carries the badge colours <c>SimpleItem</c> starts with.
+        /// </summary>
+        /// <remarks>
+        /// The badge colour used to be chosen with <c>item.BadgeBackColor == Color.Empty</c>. That is
+        /// never true: SimpleItem initialises the field to <c>BeepColor.Red</c>, so the theme branch
+        /// was unreachable and every badge on every style rendered the same hard red and white
+        /// whatever the theme said.
+        ///
+        /// There is no "unset" state to test, so the type's own default is the only available signal
+        /// for "the caller did not choose this". The cost is that a caller who deliberately wants the
+        /// default red gets the theme's badge colour instead - which is the right default anyway, and
+        /// any other colour they pick is still honoured.
+        /// </remarks>
+        private static bool HasDefaultBadgeColours(SimpleItem item)
+            => (Color)item.BadgeBackColor == (Color)BeepColor.Red
+            && (Color)item.BadgeForeColor == (Color)BeepColor.White;
+
         protected static void PaintTintedIcon(Graphics g, string imagePath, Rectangle iconRect, Color tint,
                                               BottomBarPainterContext context)
         {
@@ -217,8 +268,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             int badgeY = iconRect.Top - badgeH / 2;
             var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
 
-            var badgeBack = (Color)(item.BadgeBackColor == Color.Empty ? ResolveBadgeBack(context) : (Color)item.BadgeBackColor);
-            var badgeFore = (Color)(item.BadgeForeColor == Color.Empty ? ResolveBadgeFore(context) : (Color)item.BadgeForeColor);
+            bool defaulted = HasDefaultBadgeColours(item);
+            var badgeBack = defaulted ? ResolveBadgeBack(context) : (Color)item.BadgeBackColor;
+            var badgeFore = defaulted ? ResolveBadgeFore(context) : (Color)item.BadgeForeColor;
 
             using (var brush = new SolidBrush(badgeBack))
             {
@@ -264,7 +316,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var themed = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodySmall);
             var family = themed?.FontFamily ?? SystemFonts.DefaultFont.FontFamily;
             var style = themed?.Style ?? FontStyle.Regular;
-            return new Font(family, LabelPointSize, style, GraphicsUnit.Point);
+
+            // Rebuilt only when the theme actually changes it. This used to return a fresh Font on
+            // every call, and it is called once per label per paint - with the 50ms ticker repainting
+            // the whole control, a five-item bar was allocating a hundred GDI font handles a second.
+            string key = $"{family.Name}|{LabelPointSize}|{style}";
+            if (_cachedLabelFont == null || _cachedLabelFontKey != key)
+            {
+                _cachedLabelFont?.Dispose();
+                _cachedLabelFont = new Font(family, LabelPointSize, style, GraphicsUnit.Point);
+                _cachedLabelFontKey = key;
+            }
+
+            return _cachedLabelFont;
         }
 
         protected void DrawIndicatorPill(Graphics g, RectangleF rect, Color accent, float alpha)

@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -8,6 +9,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     internal class MovableNotchBottomBarPainter : BaseBottomBarPainter
     {
         public override string Name => "MovableNotch";
+
+        /// <summary>
+        /// The circle is centred 10px above the cell's middle with a radius of half the cell plus 6,
+        /// so a little over half of it sits above the band. Derived rather than guessed, so it stays
+        /// correct when the bar is made taller or shorter.
+        /// </summary>
+        public override int GetTopOverhang(int contentHeight)
+        {
+            int radius = (int)((contentHeight / 2 + 6) * 1.06f);
+            return Math.Max(0, radius - (contentHeight / 2 - 10));
+        }
         public float NotchDepth { get; set; } = 22f;
         public float NotchWidthFactor { get; set; } = 1.15f;
         public float NotchRadiusFactor { get; set; } = 1.2f;
@@ -32,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             {
                 var r = _layoutHelper.GetItemRect(anchorIdx);
                 float cx = r.Left + r.Width / 2f;
-                try { if (context.AnimatedIndicatorWidth > 0f) cx = context.AnimatedIndicatorX + context.AnimatedIndicatorWidth / 2f; } catch { }
+                if (context.AnimatedIndicatorWidth > 0f) cx = context.AnimatedIndicatorX + context.AnimatedIndicatorWidth / 2f;
                 int baseRadius = Math.Min(r.Width, r.Height) / 2 + 6;
                 int notchW = (int)(baseRadius * NotchWidthFactor * 1.4f);
                 int notchH = (int)NotchDepth;
@@ -109,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
 
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var item = context.Items[i];
                 PaintMenuItem(context.Graphics, item, rects[i], context);
@@ -123,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             if (idx < 0 || idx >= context.Items.Count) return;
             var r = _layoutHelper.GetItemRect(idx);
             var hitRect = new Rectangle(r.Left - 6, r.Top - 8, r.Width + 12, r.Height + 16);
-            context.HitTest.AddHitArea($"BottomBarItem_{idx}", hitRect, null, () => context.OnItemClicked?.Invoke(idx, MouseButtons.Left));
+            context.BarHitTest?.SetItemHitArea(idx, hitRect);
         }
     }
 }

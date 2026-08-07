@@ -9,6 +9,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         public override string Name => "Pill";
 
+        /// <summary>This style breathes its selected decoration, so it needs the ticker.</summary>
+        public override bool WantsContinuousAnimation => true;
+
         /// <summary>
         /// The pill holds the icon and its label side by side, so the selected cell has to fit both.
         /// </summary>
@@ -22,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
 
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var r = rects[i];
                 if (i == context.SelectedIndex)
@@ -30,18 +33,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     // Draw expanded rounded pill containing icon and label
                     var pillRect = new Rectangle(r.Left - 6, r.Top + 6, r.Width + 12, r.Height - 12);
                     // if animated indicator is present use it to drive position/width
-                    try
+                    if (context.AnimatedIndicatorWidth > 0)
                     {
-                        if (context.AnimatedIndicatorWidth > 0)
-                        {
-                            float pulse = 1.0f + 0.02f * context.AnimationPhase; // slight expansion
-                            int width = (int)((int)context.AnimatedIndicatorWidth + 12);
-                            int w = Math.Max(8, (int)(width * pulse));
-                            int x = (int)context.AnimatedIndicatorX - 6 - (w - width) / 2;
-                            pillRect = new Rectangle(x, r.Top + 6, w, r.Height - 12);
-                        }
+                        float pulse = 1.0f + 0.02f * context.AnimationPhase; // slight expansion
+                        int width = (int)context.AnimatedIndicatorWidth + 12;
+                        int w = Math.Max(8, (int)(width * pulse));
+                        int x = (int)context.AnimatedIndicatorX - 6 - (w - width) / 2;
+                        pillRect = new Rectangle(x, r.Top + 6, w, r.Height - 12);
                     }
-                    catch { }
                     int radius = pillRect.Height / 2;
                     using (var gp = new GraphicsPath())
                     {
@@ -110,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var r = _layoutHelper.GetItemRect(selected);
             var pillRect = new Rectangle(r.Left - 6, r.Top + 6, r.Width + 12, r.Height - 12);
             // Replace or register the hit area for the selected item so the pill area is clickable
-            context.HitTest.AddHitArea($"BottomBarItem_{selected}", pillRect, null, () => context.OnItemClicked?.Invoke(selected, MouseButtons.Left));
+            context.BarHitTest?.SetItemHitArea(selected, pillRect);
         }
 
         private void PaintPillStyleItem(Graphics g, SimpleItem item, Rectangle rect, BottomBarPainterContext context)
@@ -118,14 +117,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             // Use a left-aligned icon + label inside the pill rectangle (expanded managed earlier)
             var pillRect = new Rectangle(rect.Left - 6, rect.Top + 6, rect.Width + 12, rect.Height - 12);
             // override with animated indicator if present
-            try
+            if (context.AnimatedIndicatorWidth > 0)
             {
-                if (context.AnimatedIndicatorWidth > 0)
-                {
-                    pillRect = new Rectangle((int)context.AnimatedIndicatorX - 6, rect.Top + 6, (int)context.AnimatedIndicatorWidth + 12, rect.Height - 12);
-                }
+                pillRect = new Rectangle((int)context.AnimatedIndicatorX - 6, rect.Top + 6, (int)context.AnimatedIndicatorWidth + 12, rect.Height - 12);
             }
-            catch { }
             int iconSize = Math.Min(22, rect.Height - 12);
             var iconRect = new Rectangle(pillRect.Left + 12, pillRect.Top + (pillRect.Height - iconSize) / 2, iconSize, iconSize);
 

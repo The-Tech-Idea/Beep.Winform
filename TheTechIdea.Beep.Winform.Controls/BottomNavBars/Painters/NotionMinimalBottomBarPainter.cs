@@ -6,6 +6,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     internal class NotionMinimalBottomBarPainter : BaseBottomBarPainter
     {
         public override string Name => "NotionMinimal";
+
+        /// <summary>This style breathes its selected decoration, so it needs the ticker.</summary>
+        public override bool WantsContinuousAnimation => true;
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
@@ -15,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
 
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 var r = rects[i];
                 bool isSelected = i == context.SelectedIndex;

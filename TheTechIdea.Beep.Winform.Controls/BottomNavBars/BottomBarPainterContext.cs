@@ -17,6 +17,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         public int SelectedIndex { get; set; }
         public int HoverIndex { get; set; }
         public ControlHitTestHelper HitTest { get; set; }
+
+        /// <summary>
+        /// The bar's own hit-test helper. Painters register expanded cell regions through
+        /// <c>SetItemHitArea</c> so every click funnels through one handler.
+        /// </summary>
+        public BottomBarHitTestHelper BarHitTest { get; set; }
         public BeepBottomBarLayoutHelper LayoutHelper { get; set; }
         public ImagePainter ImagePainter { get; set; }
         public string DefaultImagePath { get; set; }

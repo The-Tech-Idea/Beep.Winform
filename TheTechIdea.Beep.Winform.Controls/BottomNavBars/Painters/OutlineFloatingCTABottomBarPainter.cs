@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -8,6 +9,13 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     internal class OutlineFloatingCTABottomBarPainter : BaseBottomBarPainter
     {
         public override string Name => "OutlineFloatingCTA";
+
+        /// <summary>As the plain CTA, plus the 1.35x halo ring this style draws around it.</summary>
+        public override int GetTopOverhang(int contentHeight)
+        {
+            int radius = (int)((contentHeight / 2 + 6) * 1.35f);
+            return Math.Max(0, radius - (contentHeight / 2 - 10));
+        }
         public int RingStrokeWidth { get; set; } = 4;
         public int HaloAlpha { get; set; } = 36;
         public int InnerAlpha { get; set; } = 12;
@@ -24,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             // draw indicator base if needed
             var indicator = _layoutHelper.GetIndicatorRect();
             float iX = indicator.Left, iW = indicator.Width;
-            try { if (context.AnimatedIndicatorWidth > 0f) { iX = context.AnimatedIndicatorX; iW = context.AnimatedIndicatorWidth; } } catch { }
+            if (context.AnimatedIndicatorWidth > 0f) { iX = context.AnimatedIndicatorX; iW = context.AnimatedIndicatorWidth; }
             var iRect = new RectangleF(iX, indicator.Top, iW, indicator.Height);
 
             // draw outline CTA if CTA present
@@ -69,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
 
             var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
+            for (int i = 0, n = PaintableCount(rects, context); i < n; i++)
             {
                 if (i == context.CTAIndex) continue;
                 var item = context.Items[i];
@@ -85,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var center = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2 - 10);
             int radius = Math.Min(r.Width, r.Height) / 2 + 6;
             var circleRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
-            context.HitTest.AddHitArea($"BottomBarItem_{context.CTAIndex}", circleRect, null, () => context.OnItemClicked?.Invoke(context.CTAIndex, MouseButtons.Left));
+            context.BarHitTest?.SetItemHitArea(context.CTAIndex, circleRect);
         }
     }
 }

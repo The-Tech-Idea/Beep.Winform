@@ -13,8 +13,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         private readonly ControlHitTestHelper _hitTestHelper;
         private List<SimpleItem> _items = new List<SimpleItem>();
         private List<Rectangle> _itemRectangles = new List<Rectangle>();
-        private List<Rectangle> _iconRectangles = new List<Rectangle>();
-        private List<Rectangle> _labelRectangles = new List<Rectangle>();
         private int _hoveredIndex = -1;
         private int _focusedIndex = -1;
         private bool _popupOpen = false;
@@ -41,12 +39,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         public event EventHandler<PopupEventArgs> PopupRequested;
         public event EventHandler<PopupEventArgs> PopupClosed;
 
-        public void UpdateItems(List<SimpleItem> items, List<Rectangle> rectangles, List<Rectangle> iconRects, List<Rectangle> labelRects)
+        /// <summary>
+        /// Takes the item cells and rebuilds the hit areas from them.
+        /// </summary>
+        /// <remarks>
+        /// The icon and label rectangles used to be passed in and stored as well. Their only reader
+        /// was FindHitRegion, which nothing called - so two lists were copied on every layout pass to
+        /// be cleared and copied again. Hit testing works on whole cells, which is what the touch
+        /// target should be anyway.
+        /// </remarks>
+        public void UpdateItems(List<SimpleItem> items, List<Rectangle> rectangles)
         {
             _items = items ?? new List<SimpleItem>();
             _itemRectangles = rectangles ?? new List<Rectangle>();
-            _iconRectangles = iconRects ?? new List<Rectangle>();
-            _labelRectangles = labelRects ?? new List<Rectangle>();
             if (_focusedIndex >= _items.Count) _focusedIndex = -1;
             if (_hoveredIndex >= _items.Count) _hoveredIndex = -1;
             _hitTestHelper.ClearHitList();
@@ -59,9 +64,26 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             }
         }
 
-        public void UpdateItems(List<SimpleItem> items, List<Rectangle> rectangles)
+        /// <summary>
+        /// Replaces one item's clickable region, keeping the one click handler.
+        /// </summary>
+        /// <remarks>
+        /// Painters whose style makes a cell bigger than its grid rectangle - the CTA circle, the
+        /// selected pill or bubble - used to call AddHitArea themselves with the SAME key and a lambda
+        /// straight to OnItemClicked. AddHitArea replaces by name, so that destroyed this helper's
+        /// registration rather than extending it, and the cell stopped going through HandleItemClick:
+        /// an item with Children in that slot raised no PopupRequested and never opened its submenu,
+        /// and FocusedIndex was left pointing at the previously focused cell.
+        ///
+        /// Painters hand over a rectangle now; the handler stays here, so every cell on the bar
+        /// behaves the same way whichever style painted it.
+        /// </remarks>
+        public void SetItemHitArea(int index, Rectangle rect)
         {
-            UpdateItems(items, rectangles, new List<Rectangle>(), new List<Rectangle>());
+            if (index < 0 || index >= _items.Count) return;
+
+            int idx = index;
+            _hitTestHelper.AddHitArea($"BottomBarItem_{index}", rect, null, () => HandleItemClick(idx, MouseButtons.Left));
         }
 
         private void HandleItemClick(int index, MouseButtons button)
@@ -104,8 +126,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         {
             _items.Clear();
             _itemRectangles.Clear();
-            _iconRectangles.Clear();
-            _labelRectangles.Clear();
             _hitTestHelper.ClearHitList();
             _hoveredIndex = -1;
             _focusedIndex = -1;
@@ -156,20 +176,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             return -1;
         }
 
-        public HitRegion FindHitRegion(Point location)
-        {
-            for (int i = 0; i < _itemRectangles.Count; i++)
-            {
-                if (_iconRectangles.Count > i && _iconRectangles[i].Contains(location))
-                    return new HitRegion(i, HitTarget.Icon);
-                if (_labelRectangles.Count > i && _labelRectangles[i].Contains(location))
-                    return new HitRegion(i, HitTarget.Label);
-                if (_itemRectangles[i].Contains(location))
-                    return new HitRegion(i, HitTarget.Item);
-            }
-            return new HitRegion(-1, HitTarget.None);
-        }
-
         private void InvalidateItem(int index)
         {
             if (index < 0 || index >= _itemRectangles.Count)
@@ -180,26 +186,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             var rect = _itemRectangles[index];
             rect.Inflate(6, 6);
             _owner.Invalidate(rect);
-        }
-    }
-
-    public enum HitTarget
-    {
-        None,
-        Item,
-        Icon,
-        Label
-    }
-
-    public class HitRegion
-    {
-        public int ItemIndex { get; }
-        public HitTarget Target { get; }
-
-        public HitRegion(int itemIndex, HitTarget target)
-        {
-            ItemIndex = itemIndex;
-            Target = target;
         }
     }
 

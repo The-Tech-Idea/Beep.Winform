@@ -122,3 +122,34 @@ persistence, minimise/restore.
 
 KeyTips, contextual tabs, the backstage UI itself, the gallery, accessibility, and every rendering
 path. The 54 literal colour references remain unchecked against rule 3.
+
+## The ribbon does not render as a ribbon — group layout is never applied
+
+Found by rendering it, which neither the static pass nor the model-level probe did. With a Home tab of
+three groups (Clipboard, Font, Paragraph), the tab content panel contains:
+
+```
+Panel {X=0,Y=0,Width=1264,Height=59}    <- one group, stretched full width
+Panel {X=0,Y=0,Width=200,Height=100}    <- second group, same origin, default size
+Panel {X=0,Y=0,Width=200,Height=100}    <- third group, same origin, default size
+```
+
+All three sit at **(0,0)**, stacked. Two never left the default `200x100`, so they were neither
+positioned nor sized, and at 100px tall inside a 59px parent they are clipped too.
+
+Everything visible in the render follows from this: only the last group's commands appear, and the
+captions read `BBulllets` / `NNumbering` / `AAlign Lefft` — not a font defect but two overlapping
+panels each drawing their own labels a pixel or two apart.
+
+Beyond the layout itself, the tab content has none of a ribbon's structure: no group caption strip, no
+separators between groups, no large/small command buttons, no icons. Commands render as bare text.
+
+Order to fix:
+
+1. Lay groups out left-to-right across the tab content area, each sized to its content.
+2. Group chrome — caption under each group, separator between them.
+3. Commands as buttons with icons and large/small variants, per `CLAUDE.md` rule 4 (compose from Beep
+   controls; `BeepButton` for an action, `BeepImage` for an icon).
+4. Theme the chrome — the flat blue tab band is unthemed.
+
+Not started.

@@ -1,4 +1,5 @@
 ﻿using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -98,7 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             if (disposing)
             {
-                try { EndEdit(commit: false); } catch { /* swallow on dispose */ }
+                // Dispose must not throw, but a failed teardown is a leak, not a non-event.
+                try { EndEdit(commit: false); }
+                catch (Exception ex) { BeepLog.Failure(this, "end inline edit during dispose", ex); }
                 DeactivateAllCellComponents();
                 if (_componentCache != null)
                 {
@@ -106,16 +109,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 }
                 if (_editorHost != null)
                 {
-                    try { _editorHost.Pool?.DisposeAll(); } catch { }
+                    try { _editorHost.Pool?.DisposeAll(); }
+                    catch (Exception ex) { BeepLog.Failure(this, "dispose the editor pool", ex); }
                 }
                 if (_editorLayer != null)
                 {
-                    try { _editorLayer.MouseDown -= EditorLayer_MouseDownForward; } catch { }
+                    try { _editorLayer.MouseDown -= EditorLayer_MouseDownForward; }
+                    catch (Exception ex) { BeepLog.Failure(this, "detach the editor layer mouse handler", ex); }
                     if (_editorLayer.Parent != null)
                     {
-                        try { _editorLayer.Parent.Controls.Remove(_editorLayer); } catch { }
+                        try { _editorLayer.Parent.Controls.Remove(_editorLayer); }
+                        catch (Exception ex) { BeepLog.Failure(this, "unparent the editor layer", ex); }
                     }
-                    try { _editorLayer.Dispose(); } catch { }
+                    try { _editorLayer.Dispose(); }
+                    catch (Exception ex) { BeepLog.Failure(this, "dispose the editor layer", ex); }
                     _editorLayer = null;
                 }
                 _undoStack.Clear();

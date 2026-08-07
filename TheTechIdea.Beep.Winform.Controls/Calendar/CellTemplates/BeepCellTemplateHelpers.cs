@@ -79,7 +79,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             {
                 var iconRect = new Rectangle(x, y, iconSize, iconSize);
                 try { StyledImagePainter.Paint(g, iconRect, iconPath); }
-                catch { }
+                catch (Exception ex)
+                {
+                    // The painter returns quietly for an unresolvable path; this only sees a corrupt
+                    // image. Keyed by path so a bad asset reports once, not per paint.
+                    Diagnostics.BeepLog.FailureOnce(iconPath, null, $"render cell icon '{iconPath}'", ex);
+                }
                 x += iconSize + 4;
             }
 

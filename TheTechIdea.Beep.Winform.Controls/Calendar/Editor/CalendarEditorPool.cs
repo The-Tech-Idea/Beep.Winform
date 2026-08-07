@@ -59,7 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Editor
             {
                 while (stack.Count > 0)
                 {
-                    try { stack.Pop().Dispose(); } catch { }
+                    try { stack.Pop().Dispose(); }
+                    catch (Exception ex) { Diagnostics.BeepLog.Failure(this, "dispose a pooled editor", ex); }
                 }
             }
             _free.Clear();

@@ -65,7 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellRender
             if (string.IsNullOrEmpty(cellKey)) return false;
             if (_cache.TryGetValue(cellKey, out var comp) && comp is IDisposable d)
             {
-                try { d.Dispose(); } catch { }
+                try { d.Dispose(); }
+                catch (Exception ex) { Diagnostics.BeepLog.Failure(this, $"dispose cached cell component '{cellKey}'", ex); }
             }
             return _cache.Remove(cellKey);
         }

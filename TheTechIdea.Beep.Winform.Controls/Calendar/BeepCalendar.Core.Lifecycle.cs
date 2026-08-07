@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Calendar.CellRender;
@@ -161,9 +162,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 {
                     _ = BeginEdit(hit.Event, InlineEventTitleEditor.Id);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // editor not registered / host not initialized → swallow
+                    // The user double-clicked to edit and nothing happened. That must be visible:
+                    // "editor not registered" is a wiring bug, not a user mistake.
+                    BeepLog.WarnOnce("Calendar.BeginEdit", this, "begin inline edit", ex.Message);
                 }
                 return;
             }
@@ -252,9 +255,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 {
                     _ = BeginEdit(_state.SelectedEvent, InlineEventTitleEditor.Id);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // editor not registered / host not initialized → swallow
+                    // The user double-clicked to edit and nothing happened. That must be visible:
+                    // "editor not registered" is a wiring bug, not a user mistake.
+                    BeepLog.WarnOnce("Calendar.BeginEdit", this, "begin inline edit", ex.Message);
                 }
             }
         }

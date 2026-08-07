@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -357,9 +358,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 }
                 comp.Draw(g, cellRect);
             }
-            catch
+            catch (Exception ex)
             {
-                // drawing failures are non-fatal; the calendar keeps painting
+                // Non-fatal is right - unreported is not. Once per cell key: this runs per paint.
+                BeepLog.FailureOnce($"Calendar.cellDraw.{cellKey}", this, $"draw cell component '{cellKey}'", ex);
             }
         }
 

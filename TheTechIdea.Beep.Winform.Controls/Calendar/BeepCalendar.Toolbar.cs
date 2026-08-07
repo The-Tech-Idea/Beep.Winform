@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -171,7 +172,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                     }
 
                     try { StyledImagePainter.Paint(g, iconRect, btn.IconPath); }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        BeepLog.FailureOnce(btn.IconPath, this, $"render toolbar icon '{btn.IconPath}'", ex);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(btn.Label))

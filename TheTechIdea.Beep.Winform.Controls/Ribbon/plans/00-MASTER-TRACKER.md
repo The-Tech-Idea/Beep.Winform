@@ -244,3 +244,32 @@ Concretely, to fix:
 5. Draw a 1px separator between adjacent groups, inset from the caption strip.
 
 Not started. This is the work that turns the boxes into a ribbon.
+
+## Group metrics applied — but the ribbon height is still being overridden
+
+Done:
+
+- `BeepRibbonGroup.ContentHeight = 66` and `CaptionHeight = 22`, with `ContentFor(density)` as the one
+  place a density maps to an item-area height.
+- The group reserves the caption strip in `Padding.Bottom` and **draws** it in `OnPaint` from `Text`,
+  which `AddGroup` had always set and nothing had ever rendered. A 1px separator on the trailing edge.
+- Two methods were silently undoing this and are fixed: `ApplyDensity` reassigned `Height` to the bare
+  40/48/56 content values, and `ApplyMetrics` reassigned `Padding` without the caption reservation —
+  and `ApplyMetrics` runs from `ApplyTheme`, from `ApplyDensity` and from every `Add*Button`, so the
+  items would have drawn straight over the group title.
+- `GetGroupHeight()` now delegates to `BeepRibbonGroup.ContentFor`.
+- `BeepRibbonControl` constructor asks for `71 + 66 + 22 = 159` instead of 130.
+
+**Not working:** the control still reports `Height = 130` after construction, so the content panel is
+still 59px and each group is still docked to 59px. Verified it is not a stale build — both the library
+and the probe's copy of the DLL carry the same timestamp, and the constructor line is present in the
+compiled source. Something downstream reassigns `Height`; `BeepRibbonControl.Minimized.cs` has
+`CalculateMinimizedHeight()` and a `minimumExpandedHeight` clamp around lines 175-195 that is the
+obvious suspect and has not been read yet.
+
+Until that is found, the visual result is unchanged: groups remain 59px tall, so the caption strip has
+no room and the large/small button split (step 4) cannot be attempted. **The rendering has not been
+re-verified since these edits** — the last render still showed the old 130px layout.
+
+Next: read `Minimized.cs` 170-200, find what reassigns `Height`, then re-render before going near the
+button split.

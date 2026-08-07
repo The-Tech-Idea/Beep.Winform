@@ -16,7 +16,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_contextHeader);
             Controls.Add(_quickAccess);
             _contextHeader.Height = ContextHeaderHeight;
-            Height = DpiScalingHelper.ScaleValue(130, this);
+            // The chrome above the content takes a fixed toll: the QAT toolstrip (25), the contextual
+            // header (18) and the tab strip (28) - 71px before a single command is drawn. At the old
+            // default of 130 that left 59px of content, which fits two 17px text rows and nothing else:
+            // no caption strip, no icons, no large buttons, and most commands pushed into the overflow
+            // menu at any window width. A group needs 66px of items plus a 22px caption.
+            Height = DpiScalingHelper.ScaleValue(
+                71 + BeepRibbonGroup.ContentHeight + BeepRibbonGroup.CaptionHeight, this);
 
             _commandItems.ListChanged += CommandItems_ListChanged;
             _backstageItems.ListChanged += BackstageItems_ListChanged;

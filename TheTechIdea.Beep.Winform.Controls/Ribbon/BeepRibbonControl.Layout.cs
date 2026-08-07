@@ -31,7 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             return Math.Max(52, textWidth + iconWidth + (command.Children.Count > 0 ? 14 : 0) + 18);
         }
 
-        private int GetGroupHeight() => _density switch { RibbonDensity.Compact => 40, RibbonDensity.Touch => 56, _ => 48 };
+        // The item area, excluding the caption strip. Was 40/48/56 - all below the 66px that three 22px
+        // rows need, so commands collapsed to one text line and the rest went to the overflow menu.
+        private int GetGroupHeight() => _density switch
+        {
+            RibbonDensity.Compact => 44,                      // two rows
+            RibbonDensity.Touch   => 90,                      // three roomier rows
+            _                     => BeepRibbonGroup.ContentHeight,
+        };
         private int GetLargeItemWidth() => _density switch { RibbonDensity.Compact => 64, RibbonDensity.Touch => 84, _ => 72 };
         private int GetIconSize(bool small) => _density switch { RibbonDensity.Compact => small ? 14 : 16, RibbonDensity.Touch => small ? 18 : 22, _ => small ? 16 : 20 };
 

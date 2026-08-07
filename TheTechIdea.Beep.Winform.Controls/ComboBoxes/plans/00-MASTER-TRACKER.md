@@ -56,3 +56,25 @@ all legible (combo-*.png in %TEMP%).
 
 Per `CLAUDE.md`: report every catch through `BeepLog`; no stubs or legacy; nothing assigns colours;
 a check must be able to fail for the reason it was written.
+
+## Answered: which painter draws the default border, and why it reads faint
+
+Traced, not assumed (a first attempt wrongly patched the ComboBoxType setter and was reverted):
+
+- `BeepComboBox.DrawContent` calls `base.DrawContent` (`Drawing.cs:45`), so the border comes from
+  `BaseControl`'s pipeline, never from the 13 combo field painters (`ComboBoxFieldPainterBase.DrawBorder`
+  is a reserved no-op).
+- Inside `ClassicBaseControlPainter.Paint` the branch is either/or
+  (`ClassicBaseControlPainter.cs:211`): **styled** (`BeepStyling.PaintControl` + the
+  `Styling/BorderPainters` set) only when `UseFormStylePaint && ControlStyle != None`; otherwise
+  **classic** (`DrawBorders`, line 360).
+- `BaseControl`'s default is `ControlStyle = BeepControlStyle.None` (`BaseControl.Properties.cs:1389`)
+  → the default combo takes the CLASSIC branch. The border on screen is `DrawBorders`: 1px
+  (`BorderThickness`) in the theme's `BorderColor`, `PenAlignment.Inset`, radius = `BorderRadius`(4,
+  set in `BeepComboBox.Core.cs:249`; `IsRounded` defaults true).
+- Why it reads faint/near-square: a 1px low-contrast gray at radius 4. And the `ComboBoxType` token
+  radius (pill = 18) shapes only the field painter's interior - it never reaches the base border, so
+  `RoundedPill` sits inside a radius-4 outline.
+
+Open decision (not taken unilaterally): whether the type's token radius should flow to the base
+border, or whether shaped types should set a non-None `ControlStyle` so the styled branch draws them.

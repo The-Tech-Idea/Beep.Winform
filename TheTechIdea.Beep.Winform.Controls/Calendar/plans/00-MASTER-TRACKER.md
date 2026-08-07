@@ -78,6 +78,11 @@ to master only.
 Verified by renders: Day shows Standup/Design review at 9/11 AM; Week2 shows all five events in the
 right day columns including the overlapping pair. Aliased-style check: all 10 view modes distinct.
 
-Still open from the plan: Timeline event visibility (no PaintTimeSlot, needs its own look), theme
+Timeline looked: it renders events (so no slot-fill bug), but only the LAST event of each day is
+visible - same-day events share one lane at identical bounds, so Design review covers Standup and
+Overlap B covers Overlap A. Needs lane stacking (or per-day row height growth) in
+TimelineViewPainter; deferred as its own work item, not a one-line reorder.
+
+Still open from the plan: Timeline lane stacking (above), theme
 responsiveness / 93 literal colours, editor lifecycle probe, drag interactions, and undisposed
 brush/pen allocations in the slot loops (new SolidBrush/Pen per slot per paint).

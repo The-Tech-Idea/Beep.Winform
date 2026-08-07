@@ -99,3 +99,18 @@ brush/pen allocations in the slot loops (new SolidBrush/Pen per slot per paint).
 Remaining, both needing input injection the probe cannot fake cheaply: the editor lifecycle probe
 (BeginEdit/EndEdit/Escape/pool reuse) and drag interactions (move/resize with snap). Honest status:
 not attempted rather than half-done.
+
+## Probe pass 3 — editor lifecycle CLOSED (6/6), drag is a real open defect
+
+Editor lifecycle, all state-level, no injection needed after all: BeginEdit enters editing and returns
+the hosted editor; Escape through ProcessCmdKey cancels without touching the title; a second session
+reuses the pool without a dead control; EndEdit(commit) closes. 6/6.
+
+Drag: the probe locates the event block from the RENDER, injects OnMouseDown / six OnMouseMove steps
+past the threshold / OnMouseUp two slots lower - and the event does not move (28/29 checks). The
+pipeline is fully wired (Down sets _pointerDown + _activeInteractionHit; Move escalates to
+_dragInProgress + ResolveDragMode; Up gates CommitInteractionMutation on InteractionMode ==
+MoveEvent), so the break is inside one of ResolveInteractionTarget / ResolveDragMode /
+CommitExistingEventMutation. Needs instrumentation (log the hit TargetKind and InteractionMode at
+each stage) - next session's first calendar task. The failing check stays in the probe as the
+regression tripwire.

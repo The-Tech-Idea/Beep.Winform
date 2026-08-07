@@ -101,8 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                     var back = args.BackgroundColor;
                     if (hour == currentHour && dayDate == DateTime.Today)
                         back = Color.FromArgb(40, args.PrimaryColor.R, args.PrimaryColor.G, args.PrimaryColor.B);
-                    g.FillRectangle(new SolidBrush(back), columnRect);
-                    g.DrawLine(new Pen(args.BorderColor), columnRect.X, columnRect.Bottom, columnRect.Right, columnRect.Bottom);
+                    using (var slotBrush = new SolidBrush(back)) g.FillRectangle(slotBrush, columnRect);
+                    using (var linePen = new Pen(args.BorderColor)) g.DrawLine(linePen, columnRect.X, columnRect.Bottom, columnRect.Right, columnRect.Bottom);
                 }
             }
 

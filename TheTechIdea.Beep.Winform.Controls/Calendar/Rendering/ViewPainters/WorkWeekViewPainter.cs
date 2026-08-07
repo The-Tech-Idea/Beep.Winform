@@ -225,8 +225,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
             var back = args.BackgroundColor;
             if (isCurrentHour) back = Color.FromArgb(40, args.PrimaryColor.R, args.PrimaryColor.G, args.PrimaryColor.B);
-            g.FillRectangle(new SolidBrush(back), rect);
-            g.DrawLine(new Pen(args.BorderColor), rect.X, rect.Bottom, rect.Right, rect.Bottom);
+            using (var slotBrush = new SolidBrush(back)) g.FillRectangle(slotBrush, rect);
+            using (var linePen = new Pen(args.BorderColor)) g.DrawLine(linePen, rect.X, rect.Bottom, rect.Right, rect.Bottom);
         }
 
         private static void PaintEventBlock(Graphics g, Rectangle rect, CalendarEvent evt, DateTime dayDate, int dayIndex, ViewPaintArgs args)

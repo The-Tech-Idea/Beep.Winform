@@ -86,3 +86,16 @@ TimelineViewPainter; deferred as its own work item, not a one-line reorder.
 Still open from the plan: Timeline lane stacking (above), theme
 responsiveness / 93 literal colours, editor lifecycle probe, drag interactions, and undisposed
 brush/pen allocations in the slot loops (new SolidBrush/Pen per slot per paint).
+
+## Probe pass 2 — 19/19
+
+- **Timeline lane stacking done** (commit 25e3b1a6): greedy sub-rows, one rect computation shared by
+  Paint and HitTest, dead GetTimelineEventRect deleted. All five probe events visible.
+- **14 undisposed brush/pen sites wrapped in using** across all 7 timed painters - each slot was
+  allocating a SolidBrush and Pen per paint, 24x7 per frame, GC-finalized at best.
+- **Theme responsiveness verified**: Month renders differently under ArcLinuxTheme vs ZenTheme, so
+  the 93 Color.FromArgb literals are fallbacks, not the live palette. F2 closed.
+
+Remaining, both needing input injection the probe cannot fake cheaply: the editor lifecycle probe
+(BeginEdit/EndEdit/Escape/pool reuse) and drag interactions (move/resize with snap). Honest status:
+not attempted rather than half-done.

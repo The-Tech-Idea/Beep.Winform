@@ -64,10 +64,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 EndTime = date.AddHours(1),
                 Title = "New Event"
             };
-            if (!TryOpenEventEditor(proposedEvent, CalendarEventMutationKind.Create, Point.Empty, out var committed) && !committed)
+            // Subscriber FIRST. The contract above says subscribing to CreateEventRequested
+            // overrides the built-in flow - but the constructor registers a default
+            // CalendarEventEditor, so EventEditor is never null and the old order
+            // (editor first, event only if the editor declined) meant a host's
+            // subscription was silently ignored on every create. The host that
+            // subscribes owns creation; the editor serves hosts that do not.
+            if (CreateEventRequested != null)
             {
-                CreateEventRequested?.Invoke(this, new CalendarEventArgs(proposedEvent));
+                CreateEventRequested.Invoke(this, new CalendarEventArgs(proposedEvent));
+                return;
             }
+
+            TryOpenEventEditor(proposedEvent, CalendarEventMutationKind.Create, Point.Empty, out _);
         }
 
         internal bool TryOpenEventEditor(CalendarEvent calendarEvent, CalendarEventMutationKind mutationKind, Point location, out bool committed)

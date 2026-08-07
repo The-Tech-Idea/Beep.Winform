@@ -60,15 +60,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 Math.Max(0, grid.Width - timeColumnWidth), dayHeaderHeight);
             PaintDayHeader(g, headerRect, dayDate, args);
 
-            var dayEvents = args.EventService?.GetEventsForDate(dayDate) ?? new List<CalendarEvent>();
-            foreach (var evt in dayEvents.OrderBy(e => e.StartTime))
-            {
-                var eventRect = CalendarPainterHelpers.GetTimedEventRect(
-                    dayColumn, evt, dayDate,
-                    surface.EventInsetX, surface.EventInsetY, surface.MinEventHitHeight);
-                PaintEventBlock(g, eventRect, evt, dayDate, 0, args);
-            }
-
+            // Slots first, events second. The event blocks were painted and then the hour loop
+            // filled every slot rectangle opaquely over them - all timed views rendered an empty
+            // grid while Month (which has no slot overpaint) showed the same events fine. Grid is
+            // background; events sit on top of it.
             for (int hour = 0; hour < 24; hour++)
             {
                 var rowRect = surface.GetTimeRowRect(hour);
@@ -76,6 +71,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 PaintTimeLabel(g, timeLabelRect, hour, args);
                 var slotRect = new Rectangle(dayColumn.X, rowRect.Y, dayColumn.Width, rowRect.Height);
                 PaintTimeSlot(g, slotRect, hour, hour == currentHour && dayDate == DateTime.Today, dayDate, args);
+            }
+
+            var dayEvents = args.EventService?.GetEventsForDate(dayDate) ?? new List<CalendarEvent>();
+            foreach (var evt in dayEvents.OrderBy(e => e.StartTime))
+            {
+                var eventRect = CalendarPainterHelpers.GetTimedEventRect(
+                    dayColumn, evt, dayDate,
+                    surface.EventInsetX, surface.EventInsetY, surface.MinEventHitHeight);
+                PaintEventBlock(g, eventRect, evt, dayDate, 0, args);
             }
         }
 

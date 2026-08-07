@@ -63,6 +63,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
             PaintSidebar(g, new Rectangle(grid.X, grid.Y, sidebarW, grid.Height), args);
 
+            // Slots first, events second. The event blocks were painted and then the hour loop
+            // filled every slot rectangle opaquely over them - all timed views rendered an empty
+            // grid while Month (which has no slot overpaint) showed the same events fine. Grid is
+            // background; events sit on top of it.
+            for (int hour = 0; hour < 24; hour++)
+            {
+                var rowRect = CalendarPainterHelpers.GetRowRect(timedArea, hour, 24);
+                var timeLabelRect = new Rectangle(contentRect.X, rowRect.Y, timeColumnWidth, rowRect.Height);
+                PaintTimeLabel(g, timeLabelRect, hour, args);
+                for (int day = 0; day < 7; day++)
+                {
+                    var dayDate = startOfWeek.AddDays(day).Date;
+                    var columnRect = CalendarPainterHelpers.GetColumnRect(
+                        new Rectangle(timedArea.X, rowRect.Y, timedArea.Width, rowRect.Height),
+                        day, 7);
+                    PaintTimeSlot(g, columnRect, hour, hour == currentHour && dayDate == DateTime.Today,
+                        dayDate, day, args);
+                }
+            }
+
             for (int day = 0; day < 7; day++)
             {
                 var dayDate = startOfWeek.AddDays(day);
@@ -81,22 +101,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                     var eventRect = CalendarPainterHelpers.GetTimedEventRect(
                         dayColumn, evt, dayDate, 4, 2, 18);
                     PaintEventBlock(g, eventRect, evt, dayDate, day, args);
-                }
-            }
-
-            for (int hour = 0; hour < 24; hour++)
-            {
-                var rowRect = CalendarPainterHelpers.GetRowRect(timedArea, hour, 24);
-                var timeLabelRect = new Rectangle(contentRect.X, rowRect.Y, timeColumnWidth, rowRect.Height);
-                PaintTimeLabel(g, timeLabelRect, hour, args);
-                for (int day = 0; day < 7; day++)
-                {
-                    var dayDate = startOfWeek.AddDays(day).Date;
-                    var columnRect = CalendarPainterHelpers.GetColumnRect(
-                        new Rectangle(timedArea.X, rowRect.Y, timedArea.Width, rowRect.Height),
-                        day, 7);
-                    PaintTimeSlot(g, columnRect, hour, hour == currentHour && dayDate == DateTime.Today,
-                        dayDate, day, args);
                 }
             }
         }

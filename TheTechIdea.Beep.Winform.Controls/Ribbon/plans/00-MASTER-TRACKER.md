@@ -153,3 +153,50 @@ Order to fix:
 4. Theme the chrome — the flat blue tab band is unthemed.
 
 Not started.
+
+### CORRECTION to the section above
+
+The diagnosis "all three groups sit at (0,0)" was **wrong**. Enumerating one level deeper showed those
+three panels were the three *tabs'* content panels — Home's docked Fill and visible, Insert's and
+View's at the default 200x100 and hidden, which is correct. Each held its own groups properly parented.
+
+The real defect was one level down: `BeepRibbonGroup` had `Dock = DockStyle.Top` and `Stretch = true`,
+so groups stacked **vertically**, each spanning the full ribbon width:
+
+```
+Paragraph {X=0,Y=0,  W=1264,H=48}
+Font      {X=0,Y=48, W=1264,H=48}
+Clipboard {X=0,Y=96, W=1264,H=48}
+```
+
+In a 59px-tall content panel only the first was visible and the rest were pushed off the bottom.
+
+**Fixed:** `Dock = DockStyle.Left`, `Stretch = false`, and the group takes its width from its own
+items. `AddGroup` also calls `SetChildIndex(group, 0)` — a left-docked child docks nearest the edge in
+reverse child order, so appending would have put the last group at the far left and reversed the tab.
+
+Now: `Clipboard {X=0,W=272}  Font {X=272,W=196}  Paragraph {X=468,W=233}`.
+
+### Every command caption rendered twice
+
+Visible once the groups were side by side. `OnRenderButtonBackground` passed `btn.Text` to
+`Painter.PaintSmallButton`, which draws the label — and WinForms then called `OnRenderItemText`, which
+drew it again. Two captions per command, a few dozen pixels apart ("Paste  Paste", "Bold  Bold").
+
+Fixed by painting background only and letting `OnRenderItemText` own the text: it already applies the
+theme colour, and the standard pipeline is what gets alignment, `TextImageRelation` and ellipsis right
+for both button layouts.
+
+## Still not a ribbon — remaining work
+
+With groups flowing and captions single, what a real ribbon still needs:
+
+1. **Group caption strips** — "Clipboard"/"Font"/"Paragraph" under each group. `BeepRibbonGroup.Text`
+   is set and never drawn.
+2. **Command icons.** Every button is text-only; `CreateCommandImage` is called but the probe's items
+   carry no `ImagePath`, and nothing falls back to a default glyph.
+3. **Commands overflow too eagerly.** Copy, Format Painter, Underline and Align Left are all behind the
+   "More" chevron at a 1264px width, because only two 17px rows fit in a 59px content panel. A real
+   ribbon fits three small rows or one large button.
+4. **Group separators** between adjacent groups.
+5. **Theming** — the flat blue band is the unthemed default, not a resolved theme.

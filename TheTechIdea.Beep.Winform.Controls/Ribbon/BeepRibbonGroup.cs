@@ -24,11 +24,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepRibbonGroup()
         {
             GripStyle = ToolStripGripStyle.Hidden;
-            Dock = DockStyle.Top;
+
+            // Left, not Top. Groups sit side by side across a ribbon tab; docked Top they stacked
+            // vertically, each stretched to the full width of the ribbon, so on a tab with three groups
+            // only the first was inside the content panel's height and the rest were pushed off the
+            // bottom entirely. Stretch has to go with it - it is what made each group span the whole
+            // width - and the group now takes its width from its own items.
+            Dock = DockStyle.Left;
             RenderMode = ToolStripRenderMode.ManagerRenderMode;
-            Stretch = true;
+            Stretch = false;
             AutoSize = false;
             Height = 48;
+            Width = 120;
         }
 
         [System.ComponentModel.Category("Layout")]

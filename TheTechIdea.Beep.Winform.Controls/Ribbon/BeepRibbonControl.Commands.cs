@@ -103,6 +103,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            // Size the group to its own content before anything reads its width. Docked Left a group is
+            // as wide as what it holds, and every decision below goes through GetAvailableGroupWidth -
+            // which would otherwise see the default width and push most commands into the overflow
+            // menu on every tab.
+            int provisional = commands.Sum(c => EstimateCommandWidth(c, useLargeButtons: false)) + 16;
+            group.Width = Math.Clamp(provisional, 72, 560);
+
             bool useLargeButtons = DetermineLayoutSize(commands, group);
             int available = GetAvailableGroupWidth(group);
             int reservedOverflowWidth = EstimateOverflowButtonWidth();

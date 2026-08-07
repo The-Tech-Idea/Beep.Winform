@@ -20,9 +20,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             protected override void OnRenderButtonBackground(ToolStripItemRenderEventArgs e)
             {
                 Rectangle r = new Rectangle(Point.Empty, e.Item.Size);
-                string? icon = (e.Item as ToolStripButton)?.Image != null ? null : null; // QAT uses small icons from image
+
+                // Background only - no text. This passed btn.Text to PaintSmallButton, which draws the
+                // label, and WinForms then called OnRenderItemText, which drew it a second time. Every
+                // command in the ribbon rendered its caption twice: once where the painter put it and
+                // once where the standard pipeline centres it, a few dozen pixels apart.
+                //
+                // OnRenderItemText owns the text. It already applies the theme colour, and going
+                // through the standard pipeline is what gets alignment, TextImageRelation and
+                // ellipsis right for both the large and small button layouts.
                 if (e.Item is ToolStripButton btn && !string.IsNullOrEmpty(btn.Text))
-                    Painter.PaintSmallButton(e.Graphics, r, null, btn.Text, e.Item.Selected, e.Item.Pressed, e.Item.Enabled);
+                    Painter.PaintSmallButton(e.Graphics, r, null, null, e.Item.Selected, e.Item.Pressed, e.Item.Enabled);
                 else
                     Painter.PaintQatButton(e.Graphics, r, null, e.Item.Selected, e.Item.Pressed);
             }

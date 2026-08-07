@@ -120,6 +120,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             var group = new BeepRibbonGroup { Text = title, Density = _density, Renderer = new BeepRibbonToolStripRenderer(this) };
             group.ApplyTheme(_theme);
             tab.ContentPanel.Controls.Add(group);
+
+            // A left-docked child docks nearest the edge in reverse child order, so appending would put
+            // the LAST group added at the far left and reverse the whole tab. Sending each new group to
+            // index 0 keeps the first one added leftmost, which is the order the caller wrote.
+            tab.ContentPanel.Controls.SetChildIndex(group, 0);
             return group;
         }
     }

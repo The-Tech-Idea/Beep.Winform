@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                         new Rectangle(headerRect.X + headerRect.Width / 2 - 16, headerRect.Y + 18, 32, 24),
                         4, args.PrimaryColor);
                 CalendarPainterHelpers.DrawText(g, dayDate.Day.ToString(), args.HeaderFont,
-                    dayDate.Date == DateTime.Today ? Color.White : color,
+                    dayDate.Date == DateTime.Today ? args.TodayForeColor : color,
                     new Rectangle(headerRect.X, headerRect.Y + 18, headerRect.Width, 24),
                     StringAlignment.Center, StringAlignment.Center);
 

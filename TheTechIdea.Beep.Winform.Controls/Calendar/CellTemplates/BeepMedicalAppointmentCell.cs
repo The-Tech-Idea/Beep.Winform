@@ -15,10 +15,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var appointmentType = Metadatum("AppointmentType", "Appointment");
             var accentColor = appointmentType switch
             {
-                "Emergency" => Color.FromArgb(207, 34, 46),
-                "Surgery" => Color.FromArgb(210, 153, 34),
-                "New" => Color.FromArgb(69, 133, 244),
-                "Follow-up" => Color.FromArgb(46, 160, 67),
+                "Emergency" => BeepCellTemplateHelpers.PriorityColor("critical"),
+                "Surgery" => BeepCellTemplateHelpers.PriorityColor("high"),
+                "New" => BeepCellTemplateHelpers.PriorityColor("medium"),
+                "Follow-up" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
                 _ => BeepCellTemplateHelpers.StatusColor(Event.Status)
             };
 
@@ -81,11 +81,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var patientStatus = Metadatum("PatientStatus", "Scheduled");
             var statusColor = patientStatus switch
             {
-                "Complete" => Color.FromArgb(46, 160, 67),
-                "InProgress" => Color.FromArgb(210, 153, 34),
-                "CheckedIn" => Color.FromArgb(69, 133, 244),
-                "NoShow" => Color.FromArgb(207, 34, 46),
-                _ => Color.FromArgb(46, 160, 67)
+                "Complete" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
+                "InProgress" => BeepCellTemplateHelpers.PriorityColor("high"),
+                "CheckedIn" => BeepCellTemplateHelpers.PriorityColor("medium"),
+                "NoShow" => BeepCellTemplateHelpers.PriorityColor("critical"),
+                _ => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed)
             };
             BeepCellTemplateHelpers.DrawStatusDot(g, rect.Right - 16,
                 rect.Y + rect.Height / 2, statusColor, 5);

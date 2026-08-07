@@ -14,10 +14,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var reservationStatus = Metadatum("ReservationStatus", "Booked");
             var accentColor = reservationStatus switch
             {
-                "Seated" => Color.FromArgb(210, 153, 34),
-                "Completed" => Color.FromArgb(46, 160, 67),
-                "Cancelled" => Color.FromArgb(207, 34, 46),
-                _ => Color.FromArgb(69, 133, 244)
+                "Seated" => BeepCellTemplateHelpers.PriorityColor("high"),
+                "Completed" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
+                "Cancelled" => BeepCellTemplateHelpers.PriorityColor("critical"),
+                _ => BeepCellTemplateHelpers.PriorityColor("medium")
             };
 
             int pad = 6;
@@ -70,10 +70,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
 
             var dotColor = reservationStatus switch
             {
-                "Seated" => Color.FromArgb(210, 153, 34),
-                "Completed" => Color.FromArgb(46, 160, 67),
-                "Cancelled" => Color.FromArgb(207, 34, 46),
-                _ => Color.FromArgb(46, 160, 67)
+                "Seated" => BeepCellTemplateHelpers.PriorityColor("high"),
+                "Completed" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
+                "Cancelled" => BeepCellTemplateHelpers.PriorityColor("critical"),
+                _ => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed)
             };
             BeepCellTemplateHelpers.DrawStatusDot(g, rect.Right - 16,
                 rect.Y + rect.Height / 2, dotColor, 5);

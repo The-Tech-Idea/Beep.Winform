@@ -80,12 +80,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                         headerRect, StringAlignment.Near, StringAlignment.Center);
                 }
 
+                // Zebra from the theme's own alternate surface, not +6-per-channel arithmetic on the
+                // background - the last computed colour in any view painter. If the theme maps hover
+                // to the same surface, lanes render flat; that is the theme author's call.
                 var laneBack = (laneIndex % 2 == 0)
                     ? args.BackgroundColor
-                    : Color.FromArgb(255,
-                        Math.Min(255, args.BackgroundColor.R + 6),
-                        Math.Min(255, args.BackgroundColor.G + 6),
-                        Math.Min(255, args.BackgroundColor.B + 6));
+                    : args.HoverBackColor;
                 using (var laneBrush = new SolidBrush(laneBack))
                 using (var lanePen = new Pen(args.BorderColor))
                 {
@@ -382,7 +382,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             if (args.Metrics.ShowEventAccentStripe)
             {
                 var accent = new Rectangle(rect.X, rect.Y, args.Metrics.EventAccentWidth, rect.Height);
-                CalendarPainterHelpers.FillRoundedRect(g, accent, 0, Color.FromArgb(80, 0, 0, 0));
+                CalendarPainterHelpers.FillRoundedRect(g, accent, 0, Color.FromArgb(80, args.ForegroundColor));
             }
             var textRect = new Rectangle(rect.X + args.Metrics.EventAccentWidth + 4, rect.Y + 2,
                 rect.Width - args.Metrics.EventAccentWidth - 6, Math.Max(0, rect.Height - 4));

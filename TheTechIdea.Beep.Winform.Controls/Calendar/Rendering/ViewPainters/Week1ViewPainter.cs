@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             if (args.Metrics.ShowEventAccentStripe)
             {
                 var accent = new Rectangle(rect.X, rect.Y, args.Metrics.EventAccentWidth, rect.Height);
-                CalendarPainterHelpers.FillRoundedRect(g, accent, 0, Color.FromArgb(80, 0, 0, 0));
+                CalendarPainterHelpers.FillRoundedRect(g, accent, 0, Color.FromArgb(80, args.ForegroundColor));
             }
             var title = (evt.StartTime.ToString("h:mm tt") + " " + evt.Title).Trim();
             var textRect = new Rectangle(rect.X + args.Metrics.EventAccentWidth + 4, rect.Y + 2,

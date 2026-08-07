@@ -74,6 +74,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         public Color TitleForeColor { get; set; }
         public Color DaysHeaderForeColor { get; set; }
         public Color HoverForeColor { get; set; }
+        public Color SuccessColor { get; set; }
+        public Color WarningColor { get; set; }
+        public Color ErrorColor { get; set; }
+        public Color AccentColor { get; set; }
 
         // ── Style metrics (resolved from ControlStyle) ────────────────────────
         public CalendarStyleMetrics Metrics { get; set; } = CalendarStyleMetrics.Material3();
@@ -120,31 +124,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         {
             get
             {
-                var theme = Theme as BeepTheme;
-                return new[]
-                {
-                    PrimaryColor,
-                    SecondaryColor,
-                    theme?.AccentColor ?? PrimaryColor,
-                    theme?.SuccessColor ?? SecondaryColor,
-                    theme?.WarningColor ?? PrimaryColor,
-                    theme?.ErrorColor ?? SecondaryColor,
-                };
+                return new[] { PrimaryColor, SecondaryColor, AccentColor, SuccessColor, WarningColor, ErrorColor };
             }
         }
 
         /// <summary>A theme slot, or a second theme slot when the instance never populated the first.</summary>
         private static Color Or(Color slot, Color fallbackSlot) => slot.A > 0 ? slot : fallbackSlot;
 
-        /// <summary>Resolve a category color, falling back to <see cref="Color.Gray"/>.</summary>
+        /// <summary>Resolve a category color, falling back to the theme's primary.</summary>
         public Color GetCategoryColor(int categoryId)
         {
-            if (Categories == null) return Color.Gray;
-            for (int i = 0; i < Categories.Count; i++)
+            if (Categories != null)
             {
-                if (Categories[i].Id == categoryId) return Categories[i].Color;
+                for (int i = 0; i < Categories.Count; i++)
+                {
+                    if (Categories[i].Id == categoryId) return Categories[i].Color;
+                }
             }
-            return Color.Gray;
+            // The palette's first slot, not Color.Gray - the last non-theme colour in this file.
+            return PrimaryColor;
         }
 
         /// <summary>
@@ -199,37 +197,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
             if (effectiveTheme != null)
             {
+                // IBeepTheme declares EVERY slot used here - no cast. This block was gated behind
+                // `is BeepTheme`, and the default theme is a DefaultTheme that implements the
+                // interface without deriving from that class - so for it (and any host theme built
+                // the same way) the extended slots never resolved: transparent title and day-header
+                // text, invisible event fills, and states stuck at whatever the last palette was.
+                // The probe's one-shot dump (`theme: DefaultTheme  isBeepTheme=False`) was the proof.
+                //
+                // Slots verbatim; Or() only covers a slot the theme instance never populated
+                // (alpha 0), and its fallback is always another slot of the same theme.
                 BackgroundColor = effectiveTheme.CalendarBackColor;
                 ForegroundColor = effectiveTheme.CalendarForeColor;
                 BorderColor = effectiveTheme.CalendarBorderColor;
                 PrimaryColor = effectiveTheme.PrimaryColor;
-                if (effectiveTheme is BeepTheme bt)
-                {
-                    SecondaryColor = bt.SecondaryColor;
-
-                    // The theme carries dedicated calendar slots for these, and they were never
-                    // read: Today/Hover/Selected kept their hardcoded Material defaults under
-                    // every theme, so switching themes recoloured the chrome but not the states the
-                    // user actually looks for. The slots are the theme author's decisions - used
-                    // directly, not second-guessed. Only Weekend/OutOfMonth/TodayBack have no slot
-                    // in BeepTheme.Calendar and are quiet tints of colours the theme does define.
-                    // Theme slots, verbatim - no blends, no literals. Or() only handles a slot the
-                    // theme INSTANCE never populated (default(Color), alpha 0): text painted in a
-                    // transparent colour is invisible, which is how the title and the day-header row
-                    // vanished from the render. The fallback is always another slot of the same
-                    // theme, so every colour on screen is still the theme author's.
-                    TodayBackColor = Or(bt.CalendarSelectedDateBackColor, bt.PrimaryColor);
-                    TodayForeColor = Or(bt.CalendarTodayForeColor, bt.CalendarBackColor);
-                    HoverBackColor = Or(bt.CalendarHoverBackColor, bt.CalendarBackColor);
-                    HoverForeColor = Or(bt.CalendarHoverForeColor, bt.CalendarForeColor);
-                    SelectedBackColor = Or(bt.CalendarSelectedDateBackColor, bt.PrimaryColor);
-                    SelectedForeColor = Or(bt.CalendarSelectedDateForColor, bt.CalendarBackColor);
-                    WeekendBackColor = bt.CalendarBackColor;
-                    OutOfMonthBackColor = Or(bt.DisabledBackColor, bt.CalendarBackColor);
-                    OutOfMonthForeColor = Or(bt.DisabledForeColor, bt.CalendarForeColor);
-                    TitleForeColor = Or(bt.CalendarTitleForColor, bt.CalendarForeColor);
-                    DaysHeaderForeColor = Or(bt.CalendarDaysHeaderForColor, bt.CalendarForeColor);
-                }
+                SecondaryColor = Or(effectiveTheme.SecondaryColor, effectiveTheme.PrimaryColor);
+                TodayBackColor = Or(effectiveTheme.CalendarSelectedDateBackColor, effectiveTheme.PrimaryColor);
+                TodayForeColor = Or(effectiveTheme.CalendarTodayForeColor, effectiveTheme.CalendarBackColor);
+                HoverBackColor = Or(effectiveTheme.CalendarHoverBackColor, effectiveTheme.CalendarBackColor);
+                HoverForeColor = Or(effectiveTheme.CalendarHoverForeColor, effectiveTheme.CalendarForeColor);
+                SelectedBackColor = Or(effectiveTheme.CalendarSelectedDateBackColor, effectiveTheme.PrimaryColor);
+                SelectedForeColor = Or(effectiveTheme.CalendarSelectedDateForColor, effectiveTheme.CalendarBackColor);
+                WeekendBackColor = effectiveTheme.CalendarBackColor;
+                // The calendar surface, NOT DisabledBackColor: that slot is a control-state gray, and
+                // mapping it here turned every neighbouring-month cell into a dark slab - the gray the
+                // month view kept showing. Out-of-month reads as muted through its NUMBER colour
+                // (OutOfMonthForeColor = DisabledForeColor), not through a different surface.
+                OutOfMonthBackColor = effectiveTheme.CalendarBackColor;
+                OutOfMonthForeColor = Or(effectiveTheme.DisabledForeColor, effectiveTheme.CalendarForeColor);
+                TitleForeColor = Or(effectiveTheme.CalendarTitleForColor, effectiveTheme.CalendarForeColor);
+                DaysHeaderForeColor = Or(effectiveTheme.CalendarDaysHeaderForColor, effectiveTheme.CalendarForeColor);
+                SuccessColor = Or(effectiveTheme.SuccessColor, effectiveTheme.PrimaryColor);
+                WarningColor = Or(effectiveTheme.WarningColor, SecondaryColor);
+                ErrorColor = Or(effectiveTheme.ErrorColor, effectiveTheme.PrimaryColor);
+                AccentColor = Or(effectiveTheme.AccentColor, effectiveTheme.PrimaryColor);
             }
         }
 

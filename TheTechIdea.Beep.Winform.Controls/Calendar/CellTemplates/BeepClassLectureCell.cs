@@ -14,10 +14,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var lectureType = Metadatum("LectureType", "Lecture");
             var accentColor = lectureType switch
             {
-                "Exam" => Color.FromArgb(207, 34, 46),
-                "Lab" => Color.FromArgb(46, 160, 67),
-                "Seminar" => Color.FromArgb(210, 153, 34),
-                _ => Color.FromArgb(69, 133, 244)
+                "Exam" => BeepCellTemplateHelpers.PriorityColor("critical"),
+                "Lab" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
+                "Seminar" => BeepCellTemplateHelpers.PriorityColor("high"),
+                _ => BeepCellTemplateHelpers.PriorityColor("medium")
             };
 
             int pad = 6;

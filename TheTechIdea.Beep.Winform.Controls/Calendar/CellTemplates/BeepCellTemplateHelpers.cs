@@ -98,26 +98,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             }
         }
 
+        /// <summary>A populated theme slot, or a second slot when the instance left the first empty.</summary>
+        private static Color Slot(Color slot, Color fallbackSlot) => slot.A > 0 ? slot : fallbackSlot;
+
         public static Color StatusColor(CalendarEventStatus status)
         {
+            // Semantic states resolve from the theme's semantic slots (CLAUDE.md rule 3) - these
+            // were a hardcoded GitHub-ish palette that ignored every theme. Static helpers have no
+            // ViewPaintArgs, so they self-theme from the current theme like other Beep controls.
+            var t = ThemeManagement.BeepThemesManager.CurrentTheme;
             return status switch
             {
-                CalendarEventStatus.Confirmed => Color.FromArgb(46, 160, 67),
-                CalendarEventStatus.Tentative => Color.FromArgb(210, 153, 34),
-                CalendarEventStatus.Cancelled => Color.FromArgb(207, 34, 46),
-                _ => Color.Gray
+                CalendarEventStatus.Confirmed => Slot(t?.SuccessColor ?? Color.Empty, t?.PrimaryColor ?? Color.Gray),
+                CalendarEventStatus.Tentative => Slot(t?.WarningColor ?? Color.Empty, t?.SecondaryColor ?? Color.Gray),
+                CalendarEventStatus.Cancelled => Slot(t?.ErrorColor ?? Color.Empty, t?.PrimaryColor ?? Color.Gray),
+                _ => Slot(t?.DisabledForeColor ?? Color.Empty, t?.CalendarForeColor ?? Color.Gray)
             };
         }
 
         public static Color PriorityColor(string priority)
         {
+            var th = ThemeManagement.BeepThemesManager.CurrentTheme;
             return (priority?.ToLowerInvariant()) switch
             {
-                "critical" or "emergency" => Color.FromArgb(207, 34, 46),
-                "high" => Color.FromArgb(210, 153, 34),
-                "medium" => Color.FromArgb(69, 133, 244),
-                "low" => Color.Gray,
-                _ => Color.Gray
+                "critical" or "emergency" => Slot(th?.ErrorColor ?? Color.Empty, th?.PrimaryColor ?? Color.Gray),
+                "high" => Slot(th?.WarningColor ?? Color.Empty, th?.SecondaryColor ?? Color.Gray),
+                "medium" => Slot(th?.AccentColor ?? Color.Empty, th?.PrimaryColor ?? Color.Gray),
+                _ => Slot(th?.DisabledForeColor ?? Color.Empty, th?.CalendarForeColor ?? Color.Gray)
             };
         }
 

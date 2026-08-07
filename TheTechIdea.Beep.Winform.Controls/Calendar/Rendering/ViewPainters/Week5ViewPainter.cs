@@ -34,7 +34,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
         private const int DayTabsHeightPx = 48;
         private const int DateRowHeightPx = 28;
-        private static readonly string[] DayShortNames = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
         public void Layout(ViewPaintArgs args) { }
 
@@ -73,8 +72,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 if (isActive)
                     CalendarPainterHelpers.FillRoundedRect(g, new Rectangle(tabRect.X + 4, tabRect.Y + 4, tabRect.Width - 8, tabRect.Height - 8),
                         6, args.PrimaryColor);
-                CalendarPainterHelpers.DrawText(g, DayShortNames[day], args.DayFont,
-                    isActive ? Color.White : args.ForegroundColor,
+                // Label from the date itself: a static Mon..Sun array over the Sunday-start range
+                // put every column under the NEXT day's name (Aug 9, a Sunday, read "Mon 9").
+                CalendarPainterHelpers.DrawText(g, dayDate.ToString("ddd"), args.DayFont,
+                    isActive ? args.GetEventInk(args.PrimaryColor) : args.ForegroundColor,
                     tabRect, StringAlignment.Center, StringAlignment.Center);
 
                 CalendarPainterHelpers.DrawText(g, dayDate.Day.ToString(), args.HeaderFont,

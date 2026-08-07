@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 CalendarPainterHelpers.FillRoundedRect(g, r, 6,
                     i == 0 ? args.PrimaryColor : args.SelectedBackColor);
                 CalendarPainterHelpers.DrawText(g, f, args.DayFont,
-                    i == 0 ? Color.White : args.ForegroundColor, r, StringAlignment.Center, StringAlignment.Center);
+                    i == 0 ? args.GetEventInk(args.PrimaryColor) : args.ForegroundColor, r, StringAlignment.Center, StringAlignment.Center);
                 x += w + 6;
             }
         }
@@ -243,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             string status = ResolveStatus(evt);
             Color badgeBack = ResolveStatusColor(status, args);
             CalendarPainterHelpers.FillRoundedRect(g, badgeRect, 4, badgeBack);
-            CalendarPainterHelpers.DrawText(g, status, args.DayFont, Color.White, badgeRect,
+            CalendarPainterHelpers.DrawText(g, status, args.DayFont, args.GetEventInk(badgeBack), badgeRect,
                 StringAlignment.Center, StringAlignment.Center);
         }
 
@@ -261,10 +261,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
         {
             return status switch
             {
-                "Completed" => Color.FromArgb(76, 175, 80),
-                "Cancelled" => Color.FromArgb(244, 67, 54),
-                "In Progress" => Color.FromArgb(255, 152, 0),
-                "Scheduled" => Color.FromArgb(33, 150, 243),
+                "Completed" => args.SuccessColor,
+                "Cancelled" => args.ErrorColor,
+                "In Progress" => args.WarningColor,
+                "Scheduled" => args.AccentColor,
                 _ => args.PrimaryColor
             };
         }

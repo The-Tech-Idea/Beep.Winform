@@ -14,10 +14,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var travelStatus = Metadatum("TravelStatus", "OnTime");
             var accentColor = travelStatus switch
             {
-                "Delayed" or "Cancelled" => Color.FromArgb(207, 34, 46),
-                "Boarding" => Color.FromArgb(210, 153, 34),
-                "Departed" or "Arrived" => Color.FromArgb(46, 160, 67),
-                _ => Color.FromArgb(69, 133, 244)
+                "Delayed" or "Cancelled" => BeepCellTemplateHelpers.PriorityColor("critical"),
+                "Boarding" => BeepCellTemplateHelpers.PriorityColor("high"),
+                "Departed" or "Arrived" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
+                _ => BeepCellTemplateHelpers.PriorityColor("medium")
             };
 
             int pad = 6;
@@ -76,10 +76,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                 var badgeRect = new Rectangle(content.X, drawY, content.Width, lineH);
                 var statusColor = travelStatus switch
                 {
-                    "OnTime" => Color.FromArgb(46, 160, 67),
-                    "Delayed" => Color.FromArgb(210, 153, 34),
-                    "Cancelled" => Color.FromArgb(207, 34, 46),
-                    _ => Color.FromArgb(69, 133, 244)
+                    "OnTime" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
+                    "Delayed" => BeepCellTemplateHelpers.PriorityColor("high"),
+                    "Cancelled" => BeepCellTemplateHelpers.PriorityColor("critical"),
+                    _ => BeepCellTemplateHelpers.PriorityColor("medium")
                 };
                 BeepCellTemplateHelpers.DrawIconLabel(g, badgeRect, detailFont,
                     statusColor, null, travelStatus, 10);

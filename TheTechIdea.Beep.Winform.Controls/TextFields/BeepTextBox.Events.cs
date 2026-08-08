@@ -278,6 +278,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             _helper?.DrawAll(g, DrawingRect, _textRect);
+
+            // These two hooks existed but were never called: search found matches and effects
+            // animated with nothing on screen. Terminal/FadeIn paint over the (suppressed)
+            // base text; search highlights go on top so matches stay visible.
+            if (HasActiveEffectVisual)
+            {
+                DrawEffects(g, _textRect);
+            }
+            DrawSearchHighlights(g, _textRect);
         }
 
         private void DrawCompositionUnderline(Graphics g)

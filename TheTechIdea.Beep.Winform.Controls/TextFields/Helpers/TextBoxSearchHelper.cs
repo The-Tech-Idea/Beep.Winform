@@ -606,9 +606,15 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                     var matchSize = TextRenderer.MeasureText(g, match.MatchedText, font,
                         new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
 
+                    // Single-line text draws vertically CENTRED in textRect; anchoring the
+                    // highlight to textRect.Y floated it a few pixels above the words.
+                    // Multiline draws top-aligned, where textRect.Y is correct.
+                    int highlightY = _textBox.Multiline
+                        ? textRect.Y
+                        : textRect.Y + Math.Max(0, (textRect.Height - matchSize.Height) / 2);
                     var rect = new Rectangle(
                         textRect.X + beforeSize.Width - scrollOffset,
-                        textRect.Y,
+                        highlightY,
                         matchSize.Width,
                         matchSize.Height
                     );

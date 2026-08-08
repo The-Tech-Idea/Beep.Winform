@@ -16,6 +16,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Effects Fields
 
         private TextBoxEffectsHelper _effectsHelper;
+
+        /// <summary>
+        /// True when an effect animates or terminal mode is on - WITHOUT instantiating the
+        /// lazy helper (this is read on every paint).
+        /// </summary>
+        internal bool HasActiveEffectVisual =>
+            _effectsHelper != null && (_effectsHelper.IsEffectRunning || _effectsHelper.TerminalModeEnabled);
+
+        /// <summary>The frame text an active effect wants painted; null when no effect is active.</summary>
+        internal string EffectFrameText =>
+            _effectsHelper != null && _effectsHelper.IsEffectRunning ? _effectsHelper.CurrentDisplayText : null;
+
         private TextEffectMode _effectMode = TextEffectMode.None;
         private TerminalStylePreset _terminalStylePreset = TerminalStylePreset.Classic;
 

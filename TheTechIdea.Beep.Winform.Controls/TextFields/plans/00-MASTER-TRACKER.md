@@ -78,8 +78,27 @@ typed input through real OnKeyPress lands in Text + raises TextChanged, backspac
 OnKeyDown, select-all render shows the themed selection pair. All eyeballed — no geometry
 defects found (this folder was the healthiest of the seven reviewed).
 
-Not verified: IME path, effects modes (Terminal/Matrix render untested — feature presets),
-autocomplete dropdown interaction, validation helper behaviours.
+Not verified: IME path, autocomplete dropdown interaction, validation helper behaviours.
+
+## Batch 4 done — search highlighting and effects finally RENDER (probe 12/12)
+
+User question ("is auto search already built in with effects?") exposed it: both subsystems were
+fully built — search engine (find/replace/incremental), 1,700 lines of effects machinery with
+timers that even invalidated the control — but their two rendering hooks,
+`DrawSearchHighlights` and `DrawEffects`, were **defined and never called from anywhere**.
+Search found matches with nothing on screen; effects animated an invisible string. (Batch 2 had
+themed highlight colours that never painted — the instrument didn't catch a dead method.)
+
+Wiring: the paint path (Events.cs, after DrawAll) now calls both hooks;
+`TextBoxDrawingHelper.GetActualText` paints the effect's frame text while one runs (typewriter
+partials/scramble frames through the normal pipeline), with Terminal and FadeIn suppressing the
+base text — Terminal paints its own surface, FadeIn its alpha overlay. New non-instantiating
+accessors (`HasActiveEffectVisual`/`EffectFrameText`) keep the lazy helper lazy on the paint
+path. Also fixed by eyeball: single-line highlight rects anchored to textRect.Y while the text
+draws vertically centred — highlights floated above the words; now centred to match.
+
+Probe extended and eyeballed: search highlights paint (yellow + orange current match, aligned),
+typewriter mid-frame shows "The qu", terminal renders green-on-black on its own surface.
 
 ## Standing constraints
 

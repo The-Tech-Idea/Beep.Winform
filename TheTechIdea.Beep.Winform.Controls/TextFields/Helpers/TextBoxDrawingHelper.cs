@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
+using Models = TheTechIdea.Beep.Winform.Controls.TextFields.Models;
+
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
     /// <summary>
@@ -660,6 +662,16 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         /// </summary>
         private string GetActualText()
         {
+            // While an effect animates, paint its frame text (typewriter partials, scramble
+            // frames). Terminal paints its own full surface and FadeIn paints an alpha overlay -
+            // both suppress the base text so it cannot show at full opacity underneath.
+            if (_textBox is BeepTextBox fx && fx.HasActiveEffectVisual)
+            {
+                if (fx.TerminalModeEnabled || fx.EffectMode == Models.TextEffectMode.FadeIn)
+                    return string.Empty;
+                return fx.EffectFrameText ?? string.Empty;
+            }
+
             string text = _textBox.Text;
 
             if (string.IsNullOrEmpty(text))

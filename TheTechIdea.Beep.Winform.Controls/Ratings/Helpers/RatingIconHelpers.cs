@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -222,8 +223,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 isFilled,
                 isHovered);
 
-            // For emoji, draw as text instead of icon
-            if (style == RatingStyle.Emoji && iconPath.Length == 1 && char.IsSurrogate(iconPath[0]))
+            // For emoji, draw as text instead of icon. Emoji are surrogate PAIRS
+            // (Length == 2) - the old Length == 1 guard was impossible to satisfy, so
+            // every emoji went to the SVG painter as a fake path and the style rendered
+            // BLANK (the probe caught a 1-colour bitmap).
+            if (style == RatingStyle.Emoji && iconPath.Length <= 2
+                && !iconPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
             {
                 PaintEmoji(g, bounds, iconPath, iconColor, textFont, ownerControl);
                 return;
@@ -238,9 +243,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                     iconPath,
                     iconColor);
             }
-            catch
+            catch (Exception ex)
             {
                 // Fallback: draw a simple shape if icon fails to load
+                BeepLog.FallbackOnce(iconPath, null, $"paint rating icon '{iconPath}'", ex);
                 PaintFallbackIcon(g, bounds, style, iconColor, isFilled);
             }
         }

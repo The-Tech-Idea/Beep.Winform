@@ -75,6 +75,35 @@ F3: all 3 swallows report (conversion WarnOnce, font fallbacks FallbackOnce ×2)
 
 Not verified yet: per-style renders (batch 3).
 
+## Batch 2 done — literal sweep (commit bad4c815)
+
+On-fill ink + secondary text became resolved context roles (`StarRatingSelectedForeColor`,
+`SecondaryTextColor`); glows/gradients are alpha-only veils of the resolved fill (GradientStar
+keeps its radial identity through alpha rings); colour grade defaults ErrorColor→SuccessColor.
+Kept, documented: the white specular spot highlights — lighting, not palette.
+
+## Batch 3 done — probe 20/20, three defects found
+
+RateProbe (scratchpad): 14 styles rendered + eyeballed, cross-style distinctness, half-star
+2.5 ≠ full 3, theme responsiveness as a regression gate, full-star and half-star click
+round-trips through the real handlers.
+
+- **Emoji rendered BLANK (1 colour)**: the draw-as-text guard required `iconPath.Length == 1
+  && char.IsSurrogate(...)` — impossible; emoji are surrogate PAIRS (length 2). Every emoji
+  went to the SVG painter as a fake path and silently vanished. Guard fixed; the adjacent
+  icon-paint swallow now reports (FallbackOnce).
+- **Half-star clicks were silent**: the half-star branch wrote `_preciseRating`/`_selectedRating`
+  fields directly, bypassing the setter — no RatingChanged (data binding never notified) and no
+  repaint. Now raises + invalidates; probe holds it.
+- **DefaultTheme's star palette was a copy-paste bug** (fixed in the THEME, per the standing
+  rule): Material blue pasted into every `StarRating*BackColor` slot — empty stars rendered
+  blue and looked selected; `SelectedForeColor` was Goldenrod — gold ink on the gold fill.
+  Empty is now a muted neutral, on-fill ink a dark brown, hover/selected backs light gold
+  tints. (Touches `TheTechIdea.Beep.Vis.Modules2.0` DefaultTheme parts.)
+
+Not verified: HC branch (review-only, same caveat as prior folders); hover visuals asserted
+only via slots, not cursor-driven renders; other themes' StarRating palettes not audited.
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role, no flag, no guards, no reflection, no

@@ -1338,6 +1338,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                             _preciseRating = newRating;
                         }
                         _selectedRating = (int)Math.Ceiling(_preciseRating);
+                        // Direct field writes bypass the SelectedRating setter - without
+                        // these, a half-star click raised no RatingChanged (data binding
+                        // never saw it) and did not even repaint.
+                        RatingChanged?.Invoke(this, EventArgs.Empty);
+                        Invalidate();
                     }
                     else
                     {

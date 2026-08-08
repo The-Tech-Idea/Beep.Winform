@@ -210,15 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             // Update states before drawing
             _suppressAccessibilityNotifications = true;
             UpdateItemStates(notifyAccessibility: false);
-            if (UseThemeColors && _currentTheme != null)
-            {
-                g.Clear(_currentTheme.SideMenuBackColor);
-            }
-            else
-            {
-                // Paint background based on selected Style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
-            }
+            // SideMenuBackColor was the wrong slot for a radio group surface.
+            g.Clear((_currentTheme ?? BeepThemesManager.CurrentTheme).SurfaceColor);
             // Use DrawingRect from BaseControl for proper bounds
             var drawingBounds = DrawingRect;
             if (drawingBounds.IsEmpty)

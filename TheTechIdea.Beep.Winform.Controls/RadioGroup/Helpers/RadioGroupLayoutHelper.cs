@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -622,7 +623,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             if (ItemMeasurer != null && g != null)
             {
-                try { return ItemMeasurer(item, g); } catch { }
+                try { return ItemMeasurer(item, g); }
+                catch (Exception ex)
+                {
+                    BeepLog.FallbackOnce("RadioGroup.itemMeasure", null, "measure radio item", ex);
+                }
             }
             return ItemSize;
         }
@@ -630,7 +635,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private Graphics? CreateGraphicsSafe()
         {
             try { return _owner.CreateGraphics(); }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("RadioGroup.gfx", null, "create measurement graphics", ex);
+                return null;
+            }
         }
         #endregion
     }

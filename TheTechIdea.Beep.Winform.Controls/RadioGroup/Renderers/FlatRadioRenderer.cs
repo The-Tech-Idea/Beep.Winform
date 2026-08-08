@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
                 var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
                 var iconColor = state.IsEnabled ? (state.IsSelected ? t.Primary : t.OnSurfaceVariant) : t.Disabled;
-                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, UseThemeColors, ControlStyle);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, ControlStyle);
                 currentX += sz + ComponentSpacing;
             }
 

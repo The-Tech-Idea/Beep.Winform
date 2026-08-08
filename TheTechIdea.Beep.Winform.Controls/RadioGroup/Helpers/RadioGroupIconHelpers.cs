@@ -103,7 +103,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             string iconPath,
             Color iconColor,
             IBeepTheme theme = null,
-            bool useThemeColors = false,
             BeepControlStyle controlStyle = BeepControlStyle.Material3)
         {
             if (iconBounds.IsEmpty || string.IsNullOrEmpty(iconPath))

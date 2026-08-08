@@ -16,43 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 {
     public partial class BeepRadioGroup
     {
-        private bool _useThemeColors = true;
         private RadioGroupStyleConfig _styleProfile = new RadioGroupStyleConfig();
-        private RadioGroupColorConfig _colorProfile = new RadioGroupColorConfig();
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of style-based colors.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                if (_useThemeColors != value)
-                {
-                    _useThemeColors = value;
-                    
-                    // Propagate to current renderer
-                    if (_currentRenderer != null)
-                    {
-                        _currentRenderer.UseThemeColors = value;
-                    }
-                    
-                    // Propagate to all renderers
-                    foreach (var renderer in _renderers.Values)
-                    {
-                        renderer.UseThemeColors = value;
-                    }
 
-                    if (!value)
-                    {
-                        ApplyColorProfile(_colorProfile);
-                    }
-                    
-                    RequestVisualRefresh();
-                }
-            }
-        }
         private BeepControlStyle _style = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
@@ -66,13 +31,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 if (_style != value)
                 {
                     _style = value;
-                    
+
                     // Propagate style to current renderer
                     if (_currentRenderer != null)
                     {
                         _currentRenderer.ControlStyle = value;
                     }
-                    
+
                     // Propagate to all renderers
                     foreach (var renderer in _renderers.Values)
                     {
@@ -462,19 +427,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
         }
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Runtime color profile used when UseThemeColors is false.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public RadioGroupColorConfig ColorProfile
-        {
-            get => _colorProfile;
-            set
-            {
-                _colorProfile = value ?? new RadioGroupColorConfig();
-                ApplyColorProfile(_colorProfile);
-            }
-        }
         #endregion
 
         #region Validation Properties

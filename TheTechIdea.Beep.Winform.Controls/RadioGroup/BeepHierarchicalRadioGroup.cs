@@ -1,4 +1,5 @@
 ﻿using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -52,7 +53,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private bool _suppressAccessibilityNotifications;
         private string _lastAccessibilityStatus = string.Empty;
         private RadioGroupStyleConfig _styleProfile = new RadioGroupStyleConfig();
-        private RadioGroupColorConfig _colorProfile = new RadioGroupColorConfig();
         // Reused buffer for OnAnimationTick so we don't allocate a List<int> per 16ms tick.
         private readonly List<int> _animationKeyBuffer = new List<int>();
 
@@ -141,7 +141,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutHelper.ItemPadding = new Padding(8);
             _layoutHelper.AutoSize = true;
             ApplyStyleProfile(_styleProfile);
-            ApplyColorProfile(_colorProfile);
 
             // Animation timer (16ms â‰ˆ 60fps)
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
@@ -508,44 +507,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
         }
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Runtime color profile used when UseThemeColors is false.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public RadioGroupColorConfig ColorProfile
-        {
-            get => _colorProfile;
-            set
-            {
-                _colorProfile = value ?? new RadioGroupColorConfig();
-                ApplyColorProfile(_colorProfile);
-            }
-        }
-
-        private bool _useThemeColors = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of style-based colors.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                if (_useThemeColors == value) return;
-                _useThemeColors = value;
-                if (_renderers != null)
-                {
-                    foreach (var renderer in _renderers.Values)
-                    {
-                        renderer.UseThemeColors = value;
-                    }
-                }
-                if (!value) ApplyColorProfile(_colorProfile);
-                Invalidate();
-            }
-        }
-
         private BeepControlStyle _style = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
@@ -840,10 +801,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     _searchBox.PlaceholderText = SearchPlaceholderText;
                     _searchBox.LeadingIconPath = TheTechIdea.Beep.Icons.Svgs.Search;
                     _searchBox.IsRounded = true;
-                    _searchBox.ApplyTheme();
+                    // No ApplyTheme on the child - parented Beep controls theme themselves.
                 }
-                catch
+                catch (Exception ex)
                 {
+                    BeepLog.Failure(this, "configure hierarchical radio search box", ex);
                 }
                 Controls.Add(_searchBox);
                 _searchBox.BringToFront();
@@ -1641,11 +1603,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 renderer.UpdateTheme(_currentTheme);
             }
 
-            if (!UseThemeColors)
-            {
-                ApplyColorProfile(_colorProfile);
-            }
-
             RequestVisualRefresh();
         }
 
@@ -1911,21 +1868,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             RequestVisualRefresh(resetLayout: true);
         }
 
-        private void ApplyColorProfile(RadioGroupColorConfig profile)
-        {
-            if (profile == null)
-            {
-                return;
-            }
-
-            if (!UseThemeColors)
-            {
-                BackColor = profile.GroupBackgroundColor;
-                ForeColor = profile.TextColor;
-            }
-
-            RequestVisualRefresh();
-        }
 
         private void UpdateAccessibilityMetadata()
         {

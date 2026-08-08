@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
@@ -65,88 +66,39 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
         // Factory methods
         // ─────────────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Creates a token set from an <see cref="IBeepTheme"/>.
-        /// Falls back to <see cref="StyleColors"/> when the theme is null or
-        /// <paramref name="useThemeColors"/> is false.
-        /// </summary>
-        public static RadioGroupColorTokens FromTheme(
-            IBeepTheme theme,
-            bool useThemeColors,
-            BeepControlStyle style = BeepControlStyle.Material3)
+        public static RadioGroupColorTokens FromTheme(IBeepTheme theme)
         {
             if (SystemInformation.HighContrast)
                 return ForHighContrast();
 
-            if (!useThemeColors || theme == null)
-                return FromStyleColors(style);
-
-            var primary = Fallback(theme.PrimaryColor, StyleColors.GetPrimary(style));
-            var background = Fallback(theme.BackgroundColor, StyleColors.GetBackground(style));
-            var foreground = Fallback(theme.ForeColor, StyleColors.GetForeground(style));
-            var surface = Fallback(theme.SurfaceColor, background);
-            var borderColor = Fallback(theme.BorderColor, StyleColors.GetBorder(style));
-            var secondaryText = Fallback(theme.SecondaryTextColor, StyleColors.GetForeground(style));
-
+            // One slot per role (the settled end-state). The previous version blended and
+            // lightened derived roles out of 4-5 base slots and kept a whole parallel
+            // StyleColors palette for a themeless mode that cannot exist - there is always
+            // a theme. State layers stay alpha veils of the Primary slot.
+            var t = theme ?? BeepThemesManager.CurrentTheme;
             return new RadioGroupColorTokens
             {
-                Surface           = background,
-                SurfaceVariant    = Lighten(surface, 0.03f),
-                SurfaceContainer  = Blend(surface, primary, 0.05f),
+                Surface            = t.SurfaceColor,
+                SurfaceVariant     = t.PanelBackColor,
+                SurfaceContainer   = t.CardBackColor,
 
-                OnSurface         = foreground,
-                OnSurfaceVariant  = Blend(secondaryText, Color.Gray, 0.4f),
-                Outline           = borderColor,
-                OutlineVariant    = Lighten(borderColor, 0.4f),
+                OnSurface          = t.ForeColor,
+                OnSurfaceVariant   = t.SecondaryTextColor,
+                Outline            = t.BorderColor,
+                OutlineVariant     = t.InactiveBorderColor,
 
-                Primary           = primary,
-                OnPrimary         = Fallback(theme.ButtonForeColor, Color.White),
-                PrimaryContainer  = Blend(surface, primary, 0.12f),
-                OnPrimaryContainer = Darken(primary, 0.3f),
+                Primary            = t.PrimaryColor,
+                OnPrimary          = t.OnPrimaryColor,
+                PrimaryContainer   = t.ButtonSelectedBackColor,
+                OnPrimaryContainer = t.ButtonSelectedForeColor,
 
-                HoverStateLayer   = Color.FromArgb(8,  primary),
-                FocusStateLayer   = Color.FromArgb(12, primary),
-                PressStateLayer   = Color.FromArgb(12, primary),
+                HoverStateLayer    = Color.FromArgb(8,  t.PrimaryColor),
+                FocusStateLayer    = Color.FromArgb(12, t.PrimaryColor),
+                PressStateLayer    = Color.FromArgb(12, t.PrimaryColor),
 
-                Error             = Fallback(theme.ErrorColor, Color.FromArgb(179, 38, 30)),
-                Disabled          = Fallback(theme.DisabledForeColor, Color.FromArgb(158, 157, 162)),
-                DisabledContainer = Color.FromArgb(30, Color.FromArgb(158, 157, 162))
-            };
-        }
-
-        /// <summary>
-        /// Creates a token set from <see cref="StyleColors"/> only (no theme).
-        /// </summary>
-        public static RadioGroupColorTokens FromStyleColors(BeepControlStyle style)
-        {
-            var primary = StyleColors.GetPrimary(style);
-            var background = StyleColors.GetBackground(style);
-            var foreground = StyleColors.GetForeground(style);
-            var border = StyleColors.GetBorder(style);
-
-            return new RadioGroupColorTokens
-            {
-                Surface           = background,
-                SurfaceVariant    = Lighten(background, 0.03f),
-                SurfaceContainer  = Blend(background, primary, 0.05f),
-
-                OnSurface         = foreground,
-                OnSurfaceVariant  = Blend(foreground, Color.Gray, 0.4f),
-                Outline           = border,
-                OutlineVariant    = Lighten(border, 0.4f),
-
-                Primary           = primary,
-                OnPrimary         = Luminance(primary) > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White,
-                PrimaryContainer  = Blend(background, primary, 0.12f),
-                OnPrimaryContainer = Darken(primary, 0.3f),
-
-                HoverStateLayer   = Color.FromArgb(8,  primary),
-                FocusStateLayer   = Color.FromArgb(12, primary),
-                PressStateLayer   = Color.FromArgb(12, primary),
-
-                Error             = Color.FromArgb(179, 38, 30),
-                Disabled          = Color.FromArgb(158, 157, 162),
-                DisabledContainer = Color.FromArgb(30, Color.FromArgb(158, 157, 162))
+                Error              = t.ErrorColor,
+                Disabled           = t.DisabledForeColor,
+                DisabledContainer  = t.DisabledBackColor
             };
         }
 
@@ -176,42 +128,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
                 FocusStateLayer   = SystemColors.Highlight,
                 PressStateLayer   = SystemColors.Highlight,
 
-                Error             = Color.Red,
+                Error             = SystemColors.MenuHighlight,
                 Disabled          = SystemColors.GrayText,
                 DisabledContainer = SystemColors.Control
             };
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Private colour math utilities
-        // ─────────────────────────────────────────────────────────────────────
-
-        private static Color Fallback(Color candidate, Color fallback)
-            => candidate == Color.Empty ? fallback : candidate;
-
-        /// <summary>Linearly blends <paramref name="a"/> toward <paramref name="b"/> by <paramref name="t"/>.</summary>
-        private static Color Blend(Color a, Color b, float t)
-        {
-            t = Math.Max(0f, Math.Min(1f, t));
-            return Color.FromArgb(
-                (int)(a.A + (b.A - a.A) * t),
-                (int)(a.R + (b.R - a.R) * t),
-                (int)(a.G + (b.G - a.G) * t),
-                (int)(a.B + (b.B - a.B) * t));
-        }
-
-        private static Color Lighten(Color c, float amount)
-            => Blend(c, Color.White, amount);
-
-        private static Color Darken(Color c, float amount)
-            => Blend(c, Color.Black, amount);
-
-        private static float Luminance(Color c)
-        {
-            float r = c.R / 255f;
-            float g = c.G / 255f;
-            float b = c.B / 255f;
-            return (0.299f * r + 0.587f * g + 0.114f * b);
-        }
     }
 }

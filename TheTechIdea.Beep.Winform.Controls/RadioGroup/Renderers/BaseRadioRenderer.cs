@@ -42,8 +42,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public virtual bool AllowMultipleSelection { get; set; }
 
         public virtual BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
-        public virtual bool UseThemeColors { get; set; } = true;
-
         public virtual Size MaxImageSize { get; set; } = new Size(24, 24);
 
         /// <summary>Resolved color tokens for the current paint cycle. Call <see cref="ResolveTokens"/> at the top of <see cref="RenderItem"/>.</summary>
@@ -101,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         /// <summary>Resolves the MD3 token set for the current paint cycle. Call once at the top of <see cref="RenderItem"/>.</summary>
         protected void ResolveTokens()
-            => _tokens = RadioGroupThemeHelpers.ResolveTokens(_theme, UseThemeColors, ControlStyle);
+            => _tokens = RadioGroupColorTokens.FromTheme(_theme);
 
         #endregion
 

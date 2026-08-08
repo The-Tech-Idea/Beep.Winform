@@ -31,12 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             set => _inner.ControlStyle = value;
         }
 
-        public override bool UseThemeColors
-        {
-            get => _inner.UseThemeColors;
-            set => _inner.UseThemeColors = value;
-        }
-
         public override Size MaxImageSize
         {
             get => _inner.MaxImageSize;

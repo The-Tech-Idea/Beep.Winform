@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     /// <para>
     /// Hierarchical parity is achieved in the meantime by mirroring the relevant fields
     /// and properties in <see cref="BeepHierarchicalRadioGroup"/> directly (renderer
-    /// dictionary, animation timer, <c>HasError</c>, <c>UseThemeColors</c>, <c>Style</c>).
+    /// dictionary, animation timer, <c>HasError</c>, <c>Style</c>).
     /// </para>
     /// </remarks>
     public abstract class BeepRadioGroupBase : BaseControl
@@ -42,10 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected IRadioGroupRenderer _currentRenderer;
         protected RadioGroupRenderStyle _renderStyle = RadioGroupRenderStyle.Material;
 
-        protected bool _useThemeColors = true;
         protected BeepControlStyle _style = BeepControlStyle.Material3;
         protected RadioGroupStyleConfig _styleProfile = new RadioGroupStyleConfig();
-        protected RadioGroupColorConfig _colorProfile = new RadioGroupColorConfig();
         protected Size _maxImageSize = new Size(24, 24);
         protected bool _allowMultipleSelection;
         protected bool _autoSizeItems = true;
@@ -90,23 +88,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Shared Properties
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Use theme colors instead of style-based colors.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                if (_useThemeColors == value) return;
-                _useThemeColors = value;
-                PropagateToRenderers(r => r.UseThemeColors = value);
-                if (!value) ApplyColorProfile(_colorProfile);
-                SafeInvalidate();
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Appearance")]
         [Description("The visual Style/painter to use for rendering the radio group.")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
@@ -131,19 +112,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _styleProfile = value ?? new RadioGroupStyleConfig();
                 ApplyStyleProfile(_styleProfile);
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Color profile for non-theme rendering.")]
-        public RadioGroupColorConfig ColorProfile
-        {
-            get => _colorProfile;
-            set
-            {
-                _colorProfile = value ?? new RadioGroupColorConfig();
-                ApplyColorProfile(_colorProfile);
             }
         }
 
@@ -253,12 +221,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             // border radius / padding from their internal constants to keep distinct visuals.
         }
 
-        /// <summary>Applies a color profile to renderers when <see cref="UseThemeColors"/> is false.</summary>
-        public virtual void ApplyColorProfile(RadioGroupColorConfig? profile)
-        {
-            if (profile == null || _useThemeColors) return;
-            SafeInvalidate();
-        }
         #endregion
 
         #region Animation

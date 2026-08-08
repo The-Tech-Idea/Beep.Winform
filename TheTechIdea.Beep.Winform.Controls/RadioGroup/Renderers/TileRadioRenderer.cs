@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 }
                 var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
                 var iconColor = state.IsEnabled ? (state.IsSelected ? t.Primary : t.OnSurfaceVariant) : t.Disabled;
-                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, UseThemeColors, ControlStyle);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, ControlStyle);
             }
 
             if (!string.IsNullOrEmpty(item.Text))

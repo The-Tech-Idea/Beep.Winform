@@ -38,10 +38,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         /// </summary>
         BeepControlStyle ControlStyle { get; set; }
         
-        /// <summary>
-        /// Gets or sets whether to use theme colors (true) or style colors (false)
-        /// </summary>
-        bool UseThemeColors { get; set; }
 
         /// <summary>
         /// Initializes the renderer with the parent control and theme

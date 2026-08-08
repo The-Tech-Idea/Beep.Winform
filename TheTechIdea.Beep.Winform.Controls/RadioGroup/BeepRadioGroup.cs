@@ -1,4 +1,5 @@
 ﻿using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -128,7 +129,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutHelper.ItemPadding = new Padding(8);
             _layoutHelper.AutoSize = true;
             ApplyStyleProfile(_styleProfile);
-            ApplyColorProfile(_colorProfile);
 
             // Animation timer for smooth hover/press/select transitions (16ms â‰ˆ 60fps)
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
@@ -382,11 +382,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     _searchBox.PlaceholderText = SearchPlaceholderText;
                     _searchBox.LeadingIconPath = TheTechIdea.Beep.Icons.Svgs.Search;
                     _searchBox.IsRounded = true;
-                    _searchBox.ApplyTheme();
+                    // No ApplyTheme on the child - parented Beep controls theme themselves.
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Polish is best-effort; the search box still works without it.
+                    BeepLog.Failure(this, "configure radio group search box", ex);
                 }
                 Controls.Add(_searchBox);
                 _searchBox.BringToFront();
@@ -787,21 +787,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             RequestVisualRefresh(resetLayout: true);
         }
 
-        private void ApplyColorProfile(RadioGroupColorConfig profile)
-        {
-            if (profile == null)
-            {
-                return;
-            }
-
-            if (!UseThemeColors)
-            {
-                BackColor = profile.GroupBackgroundColor;
-                ForeColor = profile.TextColor;
-            }
-
-            RequestVisualRefresh();
-        }
 
         protected override void OnEnabledChanged(EventArgs e)
         {

@@ -235,3 +235,13 @@ rasterization, replace-RGB tint) in `SecondaryTextColor` (`DisabledForeColor` wh
 the muted leading-icon ink. Custom `ImagePath` images draw raw through BeepImage; their colours
 belong to the consumer. Probe tightened: the icon zone must contain the muted-gray ink
 (59 px) and near-zero visually-black pixels — verified by zoomed render: crisp gray outline.
+
+## Batch 11 done — textbox icons: JUST PAINTED (probe 33/33)
+
+Final user directive: no ApplyTheme on the image, no tint, no fill — just paint. `DrawImage`
+is now three lines: `StyledImagePainter.Paint(g, imageRect, ImagePath)` — the SVG renders
+with its own artwork colours, rasterized at the target size by the ImagePainter vector path.
+Probe asserts the glyph is present AND an outline (39/960 dark pixels — not blank, not a
+filled block); zoomed render eyeballed. StyledImagePainter's five copy-pasted
+`Debug.WriteLine("Unable to resolve image")` sites now report once through BeepLog (a missing
+icon says so instead of silently painting nothing).

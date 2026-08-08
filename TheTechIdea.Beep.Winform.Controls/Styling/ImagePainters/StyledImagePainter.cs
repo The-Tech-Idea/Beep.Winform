@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             ImagePainter painter = GetOrCreatePainter(imagePath);
             if (painter == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                BeepLog.WarnOnce(imagePath, null, $"resolve image '{imagePath}'", "painter could not load it - nothing painted");
                 return;
             }
 
@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             ImagePainter painter = GetOrCreatePainter(imagePath);
             if (painter == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                BeepLog.WarnOnce(imagePath, null, $"resolve image '{imagePath}'", "painter could not load it - nothing painted");
                 return;
             }
 
@@ -652,7 +652,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             ImagePainter painter = GetOrCreatePainter(imagePath);
             if (painter == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                BeepLog.WarnOnce(imagePath, null, $"resolve image '{imagePath}'", "painter could not load it - nothing painted");
                 return;
             }
 
@@ -676,7 +676,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             ImagePainter painter = GetOrCreatePainter(imagePath);
             if (painter == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                BeepLog.WarnOnce(imagePath, null, $"resolve image '{imagePath}'", "painter could not load it - nothing painted");
                 return;
             }
 
@@ -803,7 +803,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             var painter = GetOrCreatePainter(imagePath);
             if (painter == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                BeepLog.WarnOnce(imagePath, null, $"resolve image '{imagePath}'", "painter could not load it - nothing painted");
                 return;
             }
 

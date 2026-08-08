@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Ratings.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Ratings.Models;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
@@ -35,11 +36,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _hoveredStar = -1;
 
         // Star appearance 
-        private Color _filledStarColor = Color.Gold;
-        private Color _emptyStarColor = Color.Gray;
-        private Color _starBorderColor = Color.Black;
+        // Colour fields are EXPLICIT OVERRIDES - Empty means "the theme decides";
+        // resolution happens per paint through RatingThemeHelpers.
+        private Color _filledStarColor = Color.Empty;
+        private Color _emptyStarColor = Color.Empty;
+        private Color _starBorderColor = Color.Empty;
         private float _starBorderThickness = 1f;
-        private Color _hoverStarColor = Color.Orange;
+        private Color _hoverStarColor = Color.Empty;
 
         // Animation properties
         private bool _enableAnimations = true;
@@ -53,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showLabels = false;
         private string[] _ratingLabels = { "Poor", "Fair", "Good", "Very Good", "Excellent" };
         private Font _labelFont;
-        private Color _labelColor = Color.Black;
+        private Color _labelColor = Color.Empty;
 
         // Business application features
         private bool _readOnly = false;
@@ -1155,10 +1158,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ReadOnly = _readOnly,
                 StarSize = DpiScalingHelper.ScaleValue(_starSize, this),
                 Spacing = Math.Max(1, DpiScalingHelper.ScaleValue(_spacing, this)),
-                FilledStarColor = _filledStarColor,
-                EmptyStarColor = _emptyStarColor,
-                HoverStarColor = _hoverStarColor,
-                StarBorderColor = _starBorderColor,
+                FilledStarColor = RatingThemeHelpers.GetFilledRatingColor(_currentTheme, _ratingStyle, _filledStarColor),
+                EmptyStarColor = RatingThemeHelpers.GetEmptyRatingColor(_currentTheme, _ratingStyle, _emptyStarColor),
+                HoverStarColor = RatingThemeHelpers.GetHoverRatingColor(_currentTheme, _ratingStyle, _hoverStarColor),
+                StarBorderColor = RatingThemeHelpers.GetRatingBorderColor(_currentTheme, _ratingStyle, _starBorderColor),
                 StarBorderThickness = _starBorderThickness,
                 EnableAnimations = _enableAnimations,
                 UseGlowEffect = _useGlowEffect,
@@ -1167,14 +1170,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowLabels = _showLabels,
                 RatingLabels = _ratingLabels,
                 LabelFont = _labelFont,
-                LabelColor = _labelColor,
+                LabelColor = RatingThemeHelpers.GetRatingLabelColor(_currentTheme, _labelColor),
                 ShowRatingCount = _showRatingCount,
                 RatingCount = _ratingCount,
                 ShowAverage = _showAverage,
                 AverageRating = _averageRating,
                 RatingContext = _ratingContext,
                 Theme = _currentTheme,
-                UseThemeColors = UseThemeColors,
                 ControlStyle = ControlStyle,
                 RatingStyle = _ratingStyle,
                 // Sprint 4 additions
@@ -1511,10 +1513,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ReadOnly = _readOnly,
                 StarSize = DpiScalingHelper.ScaleValue(_starSize, this),
                 Spacing = Math.Max(1, DpiScalingHelper.ScaleValue(_spacing, this)),
-                FilledStarColor = _filledStarColor,
-                EmptyStarColor = _emptyStarColor,
-                HoverStarColor = _hoverStarColor,
-                StarBorderColor = _starBorderColor,
+                FilledStarColor = RatingThemeHelpers.GetFilledRatingColor(_currentTheme, _ratingStyle, _filledStarColor),
+                EmptyStarColor = RatingThemeHelpers.GetEmptyRatingColor(_currentTheme, _ratingStyle, _emptyStarColor),
+                HoverStarColor = RatingThemeHelpers.GetHoverRatingColor(_currentTheme, _ratingStyle, _hoverStarColor),
+                StarBorderColor = RatingThemeHelpers.GetRatingBorderColor(_currentTheme, _ratingStyle, _starBorderColor),
                 StarBorderThickness = _starBorderThickness,
                 EnableAnimations = _enableAnimations,
                 UseGlowEffect = _useGlowEffect,
@@ -1523,14 +1525,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowLabels = _showLabels,
                 RatingLabels = _ratingLabels,
                 LabelFont = _labelFont,
-                LabelColor = _labelColor,
+                LabelColor = RatingThemeHelpers.GetRatingLabelColor(_currentTheme, _labelColor),
                 ShowRatingCount = _showRatingCount,
                 RatingCount = _ratingCount,
                 ShowAverage = _showAverage,
                 AverageRating = _averageRating,
                 RatingContext = _ratingContext,
                 Theme = _currentTheme,
-                UseThemeColors = UseThemeColors,
                 ControlStyle = ControlStyle,
                 RatingStyle = _ratingStyle,
                 // Sprint 4 additions
@@ -1563,14 +1564,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ? BeepFontManager.ToFont(_currentTheme.StarUnSelectedFont)
                     : _textFont;
 
-                // Use theme helpers for centralized color management
-                if (UseThemeColors)
-                {
-                    RatingThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
-                }
-
-                // Apply high contrast adjustments if needed
-                RatingAccessibilityHelpers.ApplyHighContrastAdjustments(this, _currentTheme, UseThemeColors);
+                // Colours resolve per paint through RatingThemeHelpers (the old
+                // ApplyThemeColors passed the control's own colours as the always-winning
+                // custom override - the control never followed the theme at all; high
+                // contrast is a per-paint branch in the helpers now, not field stamping).
 
                 // Apply background color
                 BackColor = _currentTheme.BackColor;
@@ -1631,9 +1628,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     SelectedRating = Convert.ToInt32(value);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore conversion errors
+                    BeepLog.WarnOnce("Rating.convert", this, "convert bound rating value", ex.Message);
                 }
             }
         }

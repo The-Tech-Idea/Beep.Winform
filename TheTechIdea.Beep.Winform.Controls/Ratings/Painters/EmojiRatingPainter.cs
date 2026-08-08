@@ -33,7 +33,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                 
                 var iconColor = RatingIconHelpers.GetIconColor(
                     context.Theme,
-                    context.UseThemeColors,
                     RatingStyle.Emoji,
                     isFilled,
                     isHovered,
@@ -50,7 +49,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     iconBounds,
                     iconPath,
                     context.Theme,
-                    context.UseThemeColors,
                     RatingStyle.Emoji,
                     isFilled,
                     isHovered,

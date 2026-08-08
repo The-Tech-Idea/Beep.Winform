@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -115,8 +116,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
                 return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
             }
-            catch
+            catch (ArgumentException ex)
             {
+                BeepLog.FallbackOnce("Rating.font", null, "create rating font", ex);
                 return new Font(baseFont.FontFamily, fontSize, fontStyle);
             }
         }
@@ -159,8 +161,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
                 return BeepFontManager.GetFont(fontFamily.Name, fontSize, fontStyle);
             }
-            catch
+            catch (ArgumentException ex)
             {
+                BeepLog.FallbackOnce("Rating.font", null, "create rating font", ex);
                 return new Font(baseFont.FontFamily, fontSize, fontStyle);
             }
         }

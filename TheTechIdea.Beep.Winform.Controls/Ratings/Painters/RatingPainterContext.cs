@@ -60,7 +60,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
 
         // Theme
         public IBeepTheme Theme { get; set; }
-        public bool UseThemeColors { get; set; }
         public BeepControlStyle ControlStyle { get; set; }
 
         // Style

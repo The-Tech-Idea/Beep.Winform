@@ -30,7 +30,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                 var iconPath = RatingIconHelpers.GetRatingIconPath(RatingStyle.Minimal, isFilled, i);
                 var iconColor = RatingIconHelpers.GetIconColor(
                     context.Theme,
-                    context.UseThemeColors,
                     RatingStyle.Minimal,
                     isFilled,
                     isHovered,

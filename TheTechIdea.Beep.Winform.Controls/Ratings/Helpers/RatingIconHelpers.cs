@@ -102,7 +102,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
         /// </summary>
         public static Color GetIconColor(
             IBeepTheme theme,
-            bool useThemeColors,
             RatingStyle style,
             bool isFilled,
             bool isHovered,
@@ -116,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
 
             if (isHovered)
             {
-                return RatingThemeHelpers.GetHoverRatingColor(theme, useThemeColors, style, null);
+                return RatingThemeHelpers.GetHoverRatingColor(theme, style);
             }
 
             // Filled vs empty
@@ -125,14 +124,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 if (customFilledColor.HasValue)
                     return customFilledColor.Value;
 
-                return RatingThemeHelpers.GetFilledRatingColor(theme, useThemeColors, style, null);
+                return RatingThemeHelpers.GetFilledRatingColor(theme, style);
             }
             else
             {
                 if (customEmptyColor.HasValue)
                     return customEmptyColor.Value;
 
-                return RatingThemeHelpers.GetEmptyRatingColor(theme, useThemeColors, style, null);
+                return RatingThemeHelpers.GetEmptyRatingColor(theme, style);
             }
         }
 
@@ -205,7 +204,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             Rectangle bounds,
             string iconPath,
             IBeepTheme theme,
-            bool useThemeColors,
             RatingStyle style,
             bool isFilled,
             bool isHovered,
@@ -220,7 +218,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             // Get icon color
             Color iconColor = tintColor ?? GetIconColor(
                 theme,
-                useThemeColors,
                 style,
                 isFilled,
                 isHovered);
@@ -256,7 +253,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             Rectangle bounds,
             string iconPath,
             IBeepTheme theme,
-            bool useThemeColors,
             RatingStyle style,
             bool isFilled,
             bool isHovered,
@@ -292,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 bounds.Width * 3 / 4,
                 bounds.Height * 3 / 4);
 
-            PaintIcon(g, iconBounds, iconPath, theme, useThemeColors, style, isFilled, isHovered);
+            PaintIcon(g, iconBounds, iconPath, theme, style, isFilled, isHovered);
         }
 
         /// <summary>
@@ -303,7 +299,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             Rectangle bounds,
             GraphicsPath path,
             IBeepTheme theme,
-            bool useThemeColors,
             RatingStyle style,
             bool isFilled,
             bool isHovered,
@@ -314,8 +309,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 return;
 
             // Get colors
-            Color fill = fillColor ?? GetIconColor(theme, useThemeColors, style, isFilled, isHovered);
-            Color border = borderColor ?? RatingThemeHelpers.GetRatingBorderColor(theme, useThemeColors, style, null);
+            Color fill = fillColor ?? GetIconColor(theme, style, isFilled, isHovered);
+            Color border = borderColor ?? RatingThemeHelpers.GetRatingBorderColor(theme, style);
 
             // Scale path to bounds
             RectangleF pathBounds = path.GetBounds();

@@ -1,311 +1,53 @@
-using System;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Ratings;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
 {
     /// <summary>
-    /// Centralized theme color management for Rating controls
-    /// Provides consistent color retrieval based on theme and rating style
+    /// Rating colour resolution: one slot, one return (the settled end-state). The theme has a
+    /// dedicated 10-slot StarRating* family - the previous version probed it by REFLECTION
+    /// (properties that sit right on IBeepTheme), fell through guard chains to a Gold/Gray
+    /// palette, and its ApplyThemeColors passed the control's own colours as the always-winning
+    /// custom override - so the control never followed the theme at all.
+    /// customColor stays: an explicit caller override is data (Empty falls through to the slot).
     /// </summary>
     public static class RatingThemeHelpers
     {
-        #region Rating Colors
+        private static IBeepTheme T(IBeepTheme theme) => theme ?? BeepThemesManager.CurrentTheme;
 
-        /// <summary>
-        /// Get color for filled ratings (selected stars/icons)
-        /// Priority: Custom color > Theme StarRatingFillColor > Theme Primary/Success > Default Gold
-        /// </summary>
-        public static Color GetFilledRatingColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            RatingStyle style,
-            Color? customColor = null)
+        // Windows high-contrast is a SYSTEM accessibility override, resolved per paint so
+        // toggling it applies on the next repaint. It outranks explicit custom colours.
+        private static bool HC => RatingAccessibilityHelpers.IsHighContrastMode();
+
+        /// <summary>Fill for selected ratings. Hearts/thumbs keep their semantic identity via semantic slots.</summary>
+        public static Color GetFilledRatingColor(IBeepTheme theme, RatingStyle style, Color? customColor = null)
         {
-            // Priority 1: Custom color (highest priority)
-            if (customColor.HasValue)
-                return customColor.Value;
-
-            // Priority 2: Theme colors
-            if (useThemeColors && theme != null)
-            {
-                // Try theme-specific property first
-                var property = typeof(IBeepTheme).GetProperty("StarRatingFillColor");
-                if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
-                    return themeColor;
-
-                // Style-specific fallbacks
-                switch (style)
-                {
-                    case RatingStyle.Heart:
-                        // Hearts typically use red/pink
-                        if (theme.ErrorColor != Color.Empty)
-                            return theme.ErrorColor;
-                        break;
-                    case RatingStyle.Thumb:
-                        // Thumbs use primary color
-                        if (theme.PrimaryColor != Color.Empty)
-                            return theme.PrimaryColor;
-                        break;
-                }
-
-                // General fallbacks
-                if (theme.SuccessColor != Color.Empty)
-                    return theme.SuccessColor;
-
-                if (theme.PrimaryColor != Color.Empty)
-                    return theme.PrimaryColor;
-
-                if (theme.AccentColor != Color.Empty)
-                    return theme.AccentColor;
-            }
-
-            // Priority 3: Default colors based on style
+            if (HC) return SystemColors.Highlight;
+            if (customColor is { } c && c != Color.Empty) return c;
+            var t = T(theme);
             return style switch
             {
-                RatingStyle.Heart => Color.FromArgb(236, 72, 153), // Pink
-                RatingStyle.Thumb => Color.FromArgb(59, 130, 246), // Blue
-                RatingStyle.Circle => Color.FromArgb(59, 130, 246), // Blue
-                _ => Color.FromArgb(255, 215, 0) // Gold for stars
+                RatingStyle.Heart => t.ErrorColor,
+                RatingStyle.Thumb or RatingStyle.Circle => t.PrimaryColor,
+                _ => t.StarRatingFillColor,
             };
         }
 
-        /// <summary>
-        /// Get color for empty ratings (unselected stars/icons)
-        /// Priority: Custom color > Theme StarRatingBackColor > Theme Disabled/Border > Default Gray
-        /// </summary>
-        public static Color GetEmptyRatingColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            RatingStyle style,
-            Color? customColor = null)
-        {
-            // Priority 1: Custom color
-            if (customColor.HasValue)
-                return customColor.Value;
+        public static Color GetEmptyRatingColor(IBeepTheme theme, RatingStyle style, Color? customColor = null)
+            => HC ? SystemColors.ControlDark
+             : customColor is { } c && c != Color.Empty ? c : T(theme).StarRatingBackColor;
 
-            // Priority 2: Theme colors
-            if (useThemeColors && theme != null)
-            {
-                // Try theme-specific property first
-                var property = typeof(IBeepTheme).GetProperty("StarRatingBackColor");
-                if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
-                    return themeColor;
+        public static Color GetHoverRatingColor(IBeepTheme theme, RatingStyle style, Color? customColor = null)
+            => HC ? SystemColors.HotTrack
+             : customColor is { } c && c != Color.Empty ? c : T(theme).StarRatingHoverForeColor;
 
-                // Fallback to disabled color
-                if (theme.DisabledBackColor != Color.Empty)
-                    return theme.DisabledBackColor;
+        public static Color GetRatingBorderColor(IBeepTheme theme, RatingStyle style, Color? customColor = null)
+            => HC ? SystemColors.WindowFrame
+             : customColor is { } c && c != Color.Empty ? c : T(theme).StarRatingBorderColor;
 
-                // Fallback to border color (lighter)
-                if (theme.BorderColor != Color.Empty)
-                    return ShiftLuminance(theme.BorderColor, 0.15f);
-
-                // Fallback to secondary color
-                if (theme.SecondaryColor != Color.Empty)
-                    return theme.SecondaryColor;
-            }
-
-            // Priority 3: Default gray
-            return Color.FromArgb(200, 200, 200);
-        }
-
-        /// <summary>
-        /// Get color for hovered ratings
-        /// Priority: Custom color > Theme StarRatingHoverForeColor > Theme Accent > Default Orange
-        /// </summary>
-        public static Color GetHoverRatingColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            RatingStyle style,
-            Color? customColor = null)
-        {
-            // Priority 1: Custom color
-            if (customColor.HasValue)
-                return customColor.Value;
-
-            // Priority 2: Theme colors
-            if (useThemeColors && theme != null)
-            {
-                // Try theme-specific property first
-                var property = typeof(IBeepTheme).GetProperty("StarRatingHoverForeColor");
-                if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
-                    return themeColor;
-
-                // Fallback to accent color
-                if (theme.AccentColor != Color.Empty)
-                    return theme.AccentColor;
-
-                // Fallback to warning color (orange-like)
-                if (theme.WarningColor != Color.Empty)
-                    return theme.WarningColor;
-
-                // Fallback to primary color (lighter)
-                if (theme.PrimaryColor != Color.Empty)
-                    return ShiftLuminance(theme.PrimaryColor, 0.1f);
-            }
-
-            // Priority 3: Default orange
-            return Color.FromArgb(255, 165, 0); // Orange
-        }
-
-        /// <summary>
-        /// Get color for rating borders
-        /// Priority: Custom color > Theme StarRatingBorderColor > Theme Border > Default
-        /// </summary>
-        public static Color GetRatingBorderColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            RatingStyle style,
-            Color? customColor = null)
-        {
-            // Priority 1: Custom color
-            if (customColor.HasValue)
-                return customColor.Value;
-
-            // Priority 2: Theme colors
-            if (useThemeColors && theme != null)
-            {
-                // Try theme-specific property first
-                var property = typeof(IBeepTheme).GetProperty("StarRatingBorderColor");
-                if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
-                    return themeColor;
-
-                // Fallback to border color
-                if (theme.BorderColor != Color.Empty)
-                    return theme.BorderColor;
-
-                // Fallback to secondary text color (subtle)
-                if (theme.SecondaryTextColor != Color.Empty)
-                    return theme.SecondaryTextColor;
-            }
-
-            // Priority 3: Default (subtle gray)
-            return Color.FromArgb(130, 130, 130);
-        }
-
-        /// <summary>
-        /// Get color for rating labels
-        /// Priority: Custom color > Theme PrimaryTextColor > Theme ForeColor > Default Black
-        /// </summary>
-        public static Color GetRatingLabelColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            Color? customColor = null)
-        {
-            // Priority 1: Custom color
-            if (customColor.HasValue)
-                return customColor.Value;
-
-            // Priority 2: Theme colors
-            if (useThemeColors && theme != null)
-            {
-                if (theme.PrimaryTextColor != Color.Empty)
-                    return theme.PrimaryTextColor;
-
-                if (theme.ForeColor != Color.Empty)
-                    return theme.ForeColor;
-
-                if (theme.CardTextForeColor != Color.Empty)
-                    return theme.CardTextForeColor;
-            }
-
-            // Priority 3: Default dark gray
-            return Color.FromArgb(33, 37, 41);
-        }
-
-        #endregion
-
-        #region Helper Methods
-
-        private static Color ShiftLuminance(Color color, float shift)
-        {
-            float r = color.R / 255f;
-            float g = color.G / 255f;
-            float b = color.B / 255f;
-
-            r = Math.Clamp(r + shift, 0f, 1f);
-            g = Math.Clamp(g + shift, 0f, 1f);
-            b = Math.Clamp(b + shift, 0f, 1f);
-
-            return Color.FromArgb(
-                color.A,
-                (int)(r * 255),
-                (int)(g * 255),
-                (int)(b * 255));
-        }
-
-        #endregion
-
-        #region Bulk Theme Application
-
-        /// <summary>
-        /// Apply theme colors to a rating control
-        /// Updates all color properties based on theme and style
-        /// </summary>
-        public static void ApplyThemeColors(
-            BeepStarRating rating,
-            IBeepTheme theme,
-            bool useThemeColors)
-        {
-            if (rating == null || theme == null)
-                return;
-
-            rating.FilledStarColor = GetFilledRatingColor(
-                theme,
-                useThemeColors,
-                rating.RatingStyle,
-                rating.FilledStarColor);
-
-            rating.EmptyStarColor = GetEmptyRatingColor(
-                theme,
-                useThemeColors,
-                rating.RatingStyle,
-                rating.EmptyStarColor);
-
-            rating.HoverStarColor = GetHoverRatingColor(
-                theme,
-                useThemeColors,
-                rating.RatingStyle,
-                rating.HoverStarColor);
-
-            rating.StarBorderColor = GetRatingBorderColor(
-                theme,
-                useThemeColors,
-                rating.RatingStyle,
-                rating.StarBorderColor);
-
-            rating.LabelColor = GetRatingLabelColor(
-                theme,
-                useThemeColors,
-                rating.LabelColor);
-        }
-
-        /// <summary>
-        /// Get all theme colors for a rating style
-        /// Returns a tuple of (filledColor, emptyColor, hoverColor, borderColor, labelColor)
-        /// </summary>
-        public static (Color filledColor, Color emptyColor, Color hoverColor, Color borderColor, Color labelColor) GetThemeColors(
-            IBeepTheme theme,
-            bool useThemeColors,
-            RatingStyle style,
-            Color? customFilledColor = null,
-            Color? customEmptyColor = null,
-            Color? customHoverColor = null,
-            Color? customBorderColor = null,
-            Color? customLabelColor = null)
-        {
-            return (
-                GetFilledRatingColor(theme, useThemeColors, style, customFilledColor),
-                GetEmptyRatingColor(theme, useThemeColors, style, customEmptyColor),
-                GetHoverRatingColor(theme, useThemeColors, style, customHoverColor),
-                GetRatingBorderColor(theme, useThemeColors, style, customBorderColor),
-                GetRatingLabelColor(theme, useThemeColors, customLabelColor)
-            );
-        }
-
-        #endregion
+        public static Color GetRatingLabelColor(IBeepTheme theme, Color? customColor = null)
+            => HC ? SystemColors.WindowText
+             : customColor is { } c && c != Color.Empty ? c : T(theme).StarRatingForeColor;
     }
 }
-

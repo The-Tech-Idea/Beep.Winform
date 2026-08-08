@@ -31,7 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                 var iconPath = RatingIconHelpers.GetRatingIconPath(RatingStyle.Circle, isFilled, i);
                 var iconColor = RatingIconHelpers.GetIconColor(
                     context.Theme,
-                    context.UseThemeColors,
                     RatingStyle.Circle,
                     isFilled,
                     isHovered,
@@ -55,7 +54,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     iconBounds,
                     iconPath,
                     context.Theme,
-                    context.UseThemeColors,
                     RatingStyle.Circle,
                     isFilled,
                     isHovered,

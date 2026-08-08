@@ -546,6 +546,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             base.AccessibleRole = AccessibleRole.SpinButton;
             
             InitializeComponent();
+
+            // The painter was created ONLY in the NumericStyle setter, which
+            // short-circuits when the value does not change - so a control left at
+            // the default (Standard) NEVER got a painter and rendered an empty box:
+            // no value text, no spin buttons.
+            ConfigureForNumericStyle();
+            InitializePainter();
         }
 
         partial void InitializeComponent();

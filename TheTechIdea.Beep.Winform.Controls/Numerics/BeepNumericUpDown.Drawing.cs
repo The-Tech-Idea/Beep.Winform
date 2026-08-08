@@ -39,14 +39,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
 
-            // Create the control path for BeepStyling
+            // Create the control path
             using (var controlPath = GetControlPath())
             {
-                // Paint background (includes shadow) using BeepStyling
-                BeepStyling.PaintStyleBackground(g, controlPath, ControlStyle);
-
-                // Paint border using BeepStyling
-                BeepStyling.PaintStyleBorder(g, controlPath, IsFocused, ControlStyle);
+                // The control owns its field surface: the generic style painter used the
+                // style-bundled surface colour, so a dark theme's ink landed on a light
+                // Material3 field and the value was unreadable (mixed colour sources).
+                Color fieldBack = Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
+                    _currentTheme, isHovered: IsHovered, isFocused: IsFocused);
+                Color fieldBorder = Helpers.NumericThemeHelpers.GetNumericBorderColor(
+                    _currentTheme, isHovered: IsHovered, isFocused: IsFocused, isDisabled: !Enabled);
+                using (var backBrush = new SolidBrush(fieldBack))
+                {
+                    g.FillPath(backBrush, controlPath);
+                }
+                using (var borderPen = new Pen(fieldBorder, IsFocused ? 2f : 1f))
+                {
+                    g.DrawPath(borderPen, controlPath);
+                }
 
                 // Now let the painter handle layout and content
                 if (_currentPainter != null)

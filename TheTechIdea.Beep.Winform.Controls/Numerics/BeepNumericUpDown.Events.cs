@@ -90,7 +90,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             else if (e.Delta < 0)
                 DecrementValueInternal();
 
-            ((HandledMouseEventArgs)e).Handled = true;
+            // WM_MOUSEWHEEL always delivers HandledMouseEventArgs, but programmatic
+            // forwarding (grid editors, tests) may not - a hard cast crashed there.
+            if (e is HandledMouseEventArgs handled)
+            {
+                handled.Handled = true;
+            }
         }
         #endregion
 

@@ -52,6 +52,36 @@ Eyeball everything.
 1. F1–F4 one batch — build + commit
 2. F5 probe + eyeball — commit fixes
 
+## Batch 1 landed (841437b6) — F1–F4 as planned
+
+## Batch 2 — probe + eyeball (NumProbe 10/10)
+
+Verified: renders value + spin buttons; up-button click/keyboard/wheel change Value and
+raise the right events; Min/Max clamp; SetValue("7.5")/GetValue round trip (the GridX
+editor contract); live ArcLinux→Zen re-render; Standard/Currency/CompactStepper distinct;
+DualPercentage renders. Renders eyeballed under Default/Arc/Zen.
+
+Four real bugs the probe forced out:
+
+1. **A default-configured control rendered an EMPTY BOX** — `InitializePainter()` was
+   called only from the NumericStyle setter, which short-circuits when the value doesn't
+   change; the default (Standard) therefore never created a painter: no value text, no
+   spin buttons (the Switchs construction-gating precedent). Ctor now initialises.
+2. **`OnMouseWheel` hard-cast MouseEventArgs → HandledMouseEventArgs** — safe for real
+   WM_MOUSEWHEEL, a crash for programmatic forwarding (grid editors, tests). Pattern
+   match now.
+3. **BeepDualPercentageControl crashed in its own ctor** — Width/Height set before
+   InitializeComponents fired OnResize → UpdateControlPositions on null labels. Guarded.
+4. **Mixed colour sources washed dark themes out** — the field surface came from
+   BeepStyling's style-bundled painter while the ink came from the theme, so ArcLinux's
+   light ink sat on a light Material3 field. The control owns its surface now
+   (TextBox* slots), the ToolTips precedent.
+
+Also: the mojibake left-icon default in DualPercentage ("ðŸŒ™", encoding-damaged 🌙)
+replaced with the escaped codepoint. Observations (not fixed): DualPercentage's label
+layout overlaps its section fill (needs its own layout pass); InlineStepper/Phone/
+Percentage styles reviewed but not probed; masks/validation events unprobed.
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role from the borrowed TextBox*/Button* families, no

@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             // Left Section Icon
             lblLeftIcon = new BeepLabel
             {
-                Text = "ðŸŒ™",
+                Text = "🌙",
                 Font = fallbackFont,
                 ForeColor = Color.White,
                 AutoSize = true,
@@ -265,6 +265,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         private void UpdateControlPositions()
         {
+            // The ctor sets Width/Height BEFORE InitializeComponents - OnResize fires
+            // into this method while the labels are still null and crashed construction.
+            if (lblLeftIcon == null || lblDivider == null) return;
             int padding = Padding.Left;
             int verticalSpacing = 5;
             int iconSize = 24; // Approximate size for the icon

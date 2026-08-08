@@ -126,11 +126,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             Color fill = step.State switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme, context.UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme),
+                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
             };
 
             using (var br = new SolidBrush(fill))
@@ -167,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 float startY = stepRect.Top + (stepRect.Height - totalTextHeight) / 2f;
                 float headerX = stepRect.Left + (stepRect.Width - headerSize.Width) / 2f;
                 float subX = stepRect.Left + (stepRect.Width - subSize.Width) / 2f;
-                Color fore = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, context.UseThemeColors, step.State);
+                Color fore = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State);
                 using var brush = new SolidBrush(fore);
                 g.DrawString(headerText, headerFont, brush, headerX, startY);
                 g.DrawString(subText, subFont, brush, subX, startY + headerSize.Height);

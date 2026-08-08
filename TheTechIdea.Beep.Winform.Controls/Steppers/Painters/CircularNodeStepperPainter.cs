@@ -113,11 +113,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             Color fillColor = step.State switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme, context.UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme, context.UseThemeColors),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme, context.UseThemeColors),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme, context.UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme, context.UseThemeColors)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme),
+                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme)
             };
 
             using (var fillBrush = new SolidBrush(fillColor))
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (stepIndex == context.SelectedIndex)
             {
-                using var borderPen = new Pen(StepperThemeHelpers.GetStepBorderColor(context.Theme, context.UseThemeColors, step.State, Color.White),
+                using var borderPen = new Pen(StepperThemeHelpers.GetStepBorderColor(context.Theme, step.State, Color.White),
                     StepperAccessibilityHelpers.GetAccessibleBorderWidth(2));
                 g.DrawEllipse(borderPen, stepRect);
             }
@@ -174,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 SizeF textSize = g.MeasureString(text, font);
                 float textX = stepRect.Left + (stepRect.Width - textSize.Width) / 2f;
                 float textY = stepRect.Top + (stepRect.Height - textSize.Height) / 2f;
-                using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme, context.UseThemeColors, step.State, Color.White));
+                using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme, step.State, Color.White));
                 g.DrawString(text, font, textBrush, textX, textY);
             }
         }
@@ -182,8 +182,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)
         {
             var fromState = context.Steps[fromIndex].State;
-            Color trackColor = StepperThemeHelpers.GetConnectorLineColor(context.Theme, context.UseThemeColors, fromState);
-            Color fillColor = StepperThemeHelpers.GetStepActiveColor(context.Theme, context.UseThemeColors);
+            Color trackColor = StepperThemeHelpers.GetConnectorLineColor(context.Theme, fromState);
+            Color fillColor = StepperThemeHelpers.GetStepActiveColor(context.Theme);
             int thickness = StepperAccessibilityHelpers.GetAccessibleConnectorLineWidth(context.StyleConfig?.RecommendedConnectorLineWidth ?? 2);
             using var trackPen = new Pen(trackColor, thickness);
             using var fillPen = new Pen(fillColor, thickness);

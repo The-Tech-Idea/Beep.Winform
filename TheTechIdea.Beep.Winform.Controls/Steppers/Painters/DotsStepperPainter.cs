@@ -102,11 +102,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             Color fill = step.State switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme, context.UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme),
+                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
             };
 
             using (var brush = new SolidBrush(fill))
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)
         {
             var fromState = context.Steps[fromIndex].State;
-            Color color = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, context.UseThemeColors, fromState);
+            Color color = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, fromState);
             int thickness = StepperAccessibilityHelpers.GetAccessibleConnectorLineWidth(context.StyleConfig?.RecommendedConnectorLineWidth ?? 2);
             using var pen = new Pen(color, thickness);
             if (context.Orientation == Orientation.Horizontal)

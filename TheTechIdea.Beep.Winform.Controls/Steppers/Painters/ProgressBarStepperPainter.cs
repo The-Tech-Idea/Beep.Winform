@@ -88,11 +88,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             Color fill = step.State switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme, context.UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme),
+                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
             };
 
             using (var brush = new SolidBrush(fill))
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             var markerSize = g.MeasureString(marker, markerFont);
             float markerX = stepRect.Left + (stepRect.Width - markerSize.Width) / 2f;
             float markerY = stepRect.Top + (stepRect.Height - markerSize.Height) / 2f;
-            using (var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, context.UseThemeColors, step.State, Color.White)))
+            using (var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State, Color.White)))
             {
                 g.DrawString(marker, markerFont, textBrush, markerX, markerY);
             }
@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             var labelSize = g.MeasureString(label, labelFont);
             float labelX = stepRect.Left + (stepRect.Width - labelSize.Width) / 2f;
             float labelY = stepRect.Bottom + 4;
-            using (var labelBrush = new SolidBrush(StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, context.UseThemeColors, step.State)))
+            using (var labelBrush = new SolidBrush(StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State)))
             {
                 g.DrawString(label, labelFont, labelBrush, labelX, labelY);
             }
@@ -131,8 +131,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)
         {
             var fromState = context.Steps[fromIndex].State;
-            Color trackColor = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, context.UseThemeColors, fromState);
-            Color fillColor = StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors);
+            Color trackColor = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, fromState);
+            Color fillColor = StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme);
             int thickness = StepperAccessibilityHelpers.GetAccessibleConnectorLineWidth(context.StyleConfig?.RecommendedConnectorLineWidth ?? 2);
             using var trackPen = new Pen(trackColor, thickness);
             using var fillPen = new Pen(fillColor, thickness);

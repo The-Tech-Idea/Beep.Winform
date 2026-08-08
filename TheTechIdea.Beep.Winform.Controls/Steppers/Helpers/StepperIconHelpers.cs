@@ -210,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             if (useThemeColors && theme != null)
             {
                 // Use text color from theme helpers for consistency
-                return StepperThemeHelpers.GetStepTextColor(theme, useThemeColors, state);
+                return StepperThemeHelpers.GetStepTextColor(theme, state);
             }
 
             // Default: white for completed/active, gray for pending

@@ -71,6 +71,42 @@ mechanical checks (F4.2) then hold the line against regressions.
 3. F4 probe + F5 geometry pass painter by painter; render-eyeball all 14 — commit per fix batch
 4. Filename typo `BeepSteppperBar.cs` → rename only if the user wants the churn (git mv, all refs)
 
+## Batch 1 done — swallows + helpers rewrite (build 0 errors)
+
+F3: the 4 empty swallows report (StepperAccessibilityHelpers ×2 WarnOnce a11yColors/a11yName,
+StepperFontHelpers WarnOnce fontReflect, StepperThemeHelpers — see below, its swallow died with the
+machinery).
+
+F1: `StepperThemeHelpers` rewritten to the settled end-state — 370 lines → 92. The reflection probes
+targeted **phantom property names** (`StepperCompletedColor`, `StepperConnectorPendingColor`, …) that
+do not exist on `IBeepTheme`; they had never hit once, and every call fell through to the hardcoded
+Tailwind palette. Mapping now (real `Stepper*` family, one slot one return, `theme ??
+BeepThemesManager.CurrentTheme`, no flag):
+
+| getter | slot |
+|---|---|
+| Completed fill | `StepperItemCheckedBoxBackColor` |
+| Active fill | `StepperItemSelectedBackColor` |
+| Pending fill | `DisabledBackColor` |
+| Error / Warning fill | `ErrorColor` / `WarningColor` |
+| Connector | completed → CheckedBoxBack, else `StepperBorderColor` |
+| Step text (on-node ink) | active → SelectedFore, completed → CheckedBoxFore, else `StepperItemForeColor` |
+| Label | active → `StepperForeColor`, else `DisabledForeColor` |
+| Background | `StepperBackColor` |
+| Border | active → SelectedBorder, error → `ErrorColor`, else `StepperItemBorderColor` |
+
+`customColor` stays: an explicit caller override is data (`Color.Empty` falls through to the slot).
+144 callsites swept to the flag-less signatures across both controls, 3 partial files, 14 painters.
+
+**Deleted, not kept** (rule 2): `ApplyThemeColors(dynamic)` + its `HasProperty`/`GetPropertyValue`
+reflection — it wrote theme colours INTO `BeepSteppperBar`'s custom-override fields, so after one
+application every themed value looked like an explicit override and no later theme change could land.
+The fields stay `Color.Empty` and per-paint resolution (which already existed at all paint sites) is
+the only path. `GetThemeColors` tuple had zero callers — deleted.
+
+Not verified yet: renders (batch 3's probe); `UseThemeColors` still gates high-contrast accessibility
+application in `BeepSteppperBar` — F2 decides.
+
 ## Standing constraints
 
 There is ALWAYS a theme — assign slots directly, never guard, never blend, never literal (semantic

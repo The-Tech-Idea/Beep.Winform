@@ -268,9 +268,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StepState targetState = StepState.Active;
                 
                 animStart = currentState == StepState.Active 
-                    ? StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors)
-                    : StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors);
-                animEnd = StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors);
+                    ? StepperThemeHelpers.GetStepActiveColor(_currentTheme)
+                    : StepperThemeHelpers.GetStepPendingColor(_currentTheme);
+                animEnd = StepperThemeHelpers.GetStepActiveColor(_currentTheme);
                 
                 animationTimer.Start();
                 selectedIndex = index;
@@ -332,7 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Use theme helpers for background color
             if (_currentTheme != null && UseThemeColors)
             {
-                BackColor = StepperThemeHelpers.GetStepBackgroundColor(_currentTheme, UseThemeColors, BackColor);
+                BackColor = StepperThemeHelpers.GetStepBackgroundColor(_currentTheme, BackColor);
             }
             else
             {

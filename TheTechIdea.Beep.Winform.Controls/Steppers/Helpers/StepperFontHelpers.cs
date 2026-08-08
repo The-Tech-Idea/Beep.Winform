@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -153,9 +154,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore and use fallback
+                BeepLog.WarnOnce("Stepper.fontReflect", null, "read theme font by reflection", ex.Message);
             }
 
             return default;

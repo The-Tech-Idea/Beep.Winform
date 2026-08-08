@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
         {
             var step = context.Steps[stepIndex];
             Font textFont = _stepFont ?? context.StepFont ?? SystemFonts.DefaultFont;
-            Color textColor = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, context.UseThemeColors, step.State);
+            Color textColor = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State);
             string text = $"{stepIndex + 1}. {step.Text}";
             var textSize = g.MeasureString(text, textFont);
             float textX = stepRect.Left + (stepRect.Width - textSize.Width) / 2f;
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
         {
             int x = fromRect.Right - 2;
             int y = fromRect.Top + (fromRect.Height / 2);
-            using var brush = new SolidBrush(StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors));
+            using var brush = new SolidBrush(StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme));
             g.DrawString(">", _stepFont ?? context.StepFont ?? SystemFonts.DefaultFont, brush, x, y - 8);
         }
     }

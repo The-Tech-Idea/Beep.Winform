@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             float headerX = x + (stepLen - headerSize.Width) / 2f;
             float subX = x + (stepLen - subSize.Width) / 2f;
 
-            Color foreColor = StepperThemeHelpers.GetStepLabelColor(_currentTheme, UseThemeColors, state);
+            Color foreColor = StepperThemeHelpers.GetStepLabelColor(_currentTheme, state);
             if (StepperAccessibilityHelpers.IsHighContrastMode())
             {
                 var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();

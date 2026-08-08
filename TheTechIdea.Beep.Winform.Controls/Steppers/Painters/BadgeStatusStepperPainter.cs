@@ -104,22 +104,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             bool hovered = stepIndex == context.HoveredIndex;
 
             Color fill = active
-                ? StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors)
+                ? StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme)
                 : step.State switch
                 {
-                    StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors),
-                    StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors),
-                    StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors),
-                    StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme, context.UseThemeColors),
-                    _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors)
+                    StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme),
+                    StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme),
+                    StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme),
+                    StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme),
+                    _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
                 };
             Color statusRing = step.State switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme),
+                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
             };
 
             using (var fillBrush = new SolidBrush(fill))
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             string marker = step.State == StepState.Completed ? "✓" : (stepIndex + 1).ToString();
             Font font = _numberFont ?? context.NumberFont ?? SystemFonts.DefaultFont;
-            using (var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, context.UseThemeColors, step.State, Color.White)))
+            using (var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State, Color.White)))
             {
                 var markerSize = g.MeasureString(marker, font);
                 float mx = stepRect.Left + ((stepRect.Width - markerSize.Width) / 2f);
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)
         {
-            Color color = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, context.UseThemeColors, context.Steps[fromIndex].State);
+            Color color = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, context.Steps[fromIndex].State);
             using var pen = new Pen(color, StepperAccessibilityHelpers.GetAccessibleConnectorLineWidth(context.StyleConfig?.RecommendedConnectorLineWidth ?? 2));
             if (context.Orientation == Orientation.Horizontal)
             {
@@ -181,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             int badgeSize = DpiScalingHelper.ScaleValue(16, _owner);
             Rectangle badgeRect = new Rectangle(stepRect.Right - (badgeSize / 2), stepRect.Top - (badgeSize / 2), badgeSize, badgeSize);
-            Color badgeColor = StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors);
+            Color badgeColor = StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme);
 
             using (var fill = new SolidBrush(badgeColor))
             using (var border = new Pen(Color.White, 1f))
@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             }
 
             Font font = _labelFont ?? context.LabelFont ?? SystemFonts.DefaultFont;
-            using var brush = new SolidBrush(StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, context.UseThemeColors, context.Steps[stepIndex].State));
+            using var brush = new SolidBrush(StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, context.Steps[stepIndex].State));
             var size = g.MeasureString(labelText, font);
 
             if (context.Orientation == Orientation.Horizontal)

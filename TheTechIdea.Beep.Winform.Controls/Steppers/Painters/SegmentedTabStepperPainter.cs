@@ -76,12 +76,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             bool hovered = stepIndex == context.HoveredIndex;
 
             Color fill = selected
-                ? StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors)
-                : StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors);
-            Color border = StepperThemeHelpers.GetStepBorderColor(context.Theme ?? _theme, context.UseThemeColors, step.State);
+                ? StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme)
+                : StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme);
+            Color border = StepperThemeHelpers.GetStepBorderColor(context.Theme ?? _theme, step.State);
             Color text = selected
-                ? StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, context.UseThemeColors, StepState.Active, Color.White)
-                : StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, context.UseThemeColors, step.State);
+                ? StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, StepState.Active, Color.White)
+                : StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State);
 
             using (var fillBrush = new SolidBrush(fill))
             {

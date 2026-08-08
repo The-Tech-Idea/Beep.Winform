@@ -141,9 +141,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return state switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme),
+                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme)
             };
         }
     }

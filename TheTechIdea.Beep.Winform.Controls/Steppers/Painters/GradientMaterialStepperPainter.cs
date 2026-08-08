@@ -79,25 +79,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             int notch = System.Math.Max(DpiScalingHelper.ScaleValue(12, _owner), stepRect.Width / 7);
             var shape = BuildChevron(stepRect, notch, stepIndex > 0, stepIndex < context.Steps.Count - 1);
 
-            Color leftColor = StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors);
+            Color leftColor = StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme);
             Color rightColor = step.State switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme, context.UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme),
+                _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
             };
 
             if (completed || selected)
             {
-                leftColor = StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors);
-                rightColor = StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors);
+                leftColor = StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme);
+                rightColor = StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme);
             }
 
             using (shape)
             using (var gradient = new LinearGradientBrush(stepRect, leftColor, rightColor, LinearGradientMode.Horizontal))
-            using (var border = new Pen(StepperThemeHelpers.GetStepBorderColor(context.Theme ?? _theme, context.UseThemeColors, step.State), StepperAccessibilityHelpers.GetAccessibleBorderWidth(selected ? 2 : 1)))
+            using (var border = new Pen(StepperThemeHelpers.GetStepBorderColor(context.Theme ?? _theme, step.State), StepperAccessibilityHelpers.GetAccessibleBorderWidth(selected ? 2 : 1)))
             {
                 g.FillPath(gradient, shape);
                 g.DrawPath(border, shape);

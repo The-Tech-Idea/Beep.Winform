@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -293,9 +294,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 if (HasProperty(stepper, "WarningStepColor"))
                     stepper.WarningStepColor = warningColor;
             }
-            catch
+            catch (Exception ex)
             {
-                // Properties may not exist, ignore
+                // Duck-typed property assignment on the stepper failed - the high-contrast colours
+                // were NOT applied, which is an accessibility regression, not a non-event.
+                BeepLog.WarnOnce("Stepper.a11yColors", null, "apply high-contrast stepper colours", ex.Message);
             }
         }
 
@@ -555,9 +558,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                         return stepper.ListItems[stepIndex].Name ?? "";
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore
+                    BeepLog.WarnOnce("Stepper.a11yName", null, "read step name for accessibility", ex.Message);
                 }
                 return "";
             }

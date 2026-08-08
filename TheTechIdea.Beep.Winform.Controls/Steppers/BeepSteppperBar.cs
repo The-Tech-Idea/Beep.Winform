@@ -846,7 +846,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Use theme helpers for connector line color
             Color lineColor = StepperThemeHelpers.GetConnectorLineColor(
                 _currentTheme, 
-                UseThemeColors, 
                 currentStepState,
                 currentStepState == StepState.Completed ? completedStepColor : pendingStepColor);
             
@@ -888,11 +887,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Get step color based on state using theme helpers
             Color fillColor = state switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors, completedStepColor),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors, activeStepColor),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, UseThemeColors, errorStepColor),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, UseThemeColors, warningStepColor),
-                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors, pendingStepColor)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, completedStepColor),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, activeStepColor),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, errorStepColor),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, warningStepColor),
+                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, pendingStepColor)
             };
 
             // Draw step circle
@@ -904,7 +903,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw border for active step using theme helpers
             if (stepIndex == currentStep)
             {
-                Color borderColor = StepperThemeHelpers.GetStepBorderColor(_currentTheme, UseThemeColors, state, Color.White);
+                Color borderColor = StepperThemeHelpers.GetStepBorderColor(_currentTheme, state, Color.White);
                 int borderWidth = StepperAccessibilityHelpers.GetAccessibleBorderWidth(2);
                 using (var borderPen = new Pen(borderColor, borderWidth))
                 {
@@ -985,16 +984,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Use theme helpers for step number text color
             StepState state = GetStepState(stepIndex);
-            Color textColor = StepperThemeHelpers.GetStepTextColor(_currentTheme, UseThemeColors, state, Color.White);
+            Color textColor = StepperThemeHelpers.GetStepTextColor(_currentTheme, state, Color.White);
             
             // Get step fill color for contrast calculation
             Color stepFillColor = state switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors, completedStepColor),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors, activeStepColor),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, UseThemeColors, errorStepColor),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, UseThemeColors, warningStepColor),
-                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors, pendingStepColor)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, completedStepColor),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, activeStepColor),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, errorStepColor),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, warningStepColor),
+                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, pendingStepColor)
             };
             
             // Adjust text color for contrast if needed
@@ -1037,16 +1036,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             var textSize = TextUtils.MeasureText(graphics, label, font);
             
             // Use theme helpers for step label color
-            Color textColor = StepperThemeHelpers.GetStepLabelColor(_currentTheme, UseThemeColors, state);
+            Color textColor = StepperThemeHelpers.GetStepLabelColor(_currentTheme, state);
             
             // Ensure WCAG contrast compliance
             Color stepFillColor = state switch
             {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors, completedStepColor),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors, activeStepColor),
-                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, UseThemeColors, errorStepColor),
-                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, UseThemeColors, warningStepColor),
-                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors, pendingStepColor)
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, completedStepColor),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, activeStepColor),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, errorStepColor),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, warningStepColor),
+                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, pendingStepColor)
             };
             
             // Adjust text color for contrast if needed
@@ -1116,12 +1115,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isApplyingTheme = true;
             try
             {
-                // Use theme helpers for centralized color management
-                if (_currentTheme != null && UseThemeColors)
-                {
-                    StepperThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
-                }
-                
+                // Colours are resolved per paint through StepperThemeHelpers (the fields stay
+                // Color.Empty unless the caller set them explicitly). Writing theme colours into
+                // those fields here made every themed value look like an explicit override, so no
+                // later theme change could ever land.
+
                 // Resolve stepper font from the active theme typography.
                 _textFont = (_currentTheme?.StepperItemFont != null)
                     ? BeepThemesManager.ToFont(_currentTheme.StepperItemFont)

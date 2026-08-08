@@ -99,16 +99,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             }
 
             Color fill = active
-                ? StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors)
+                ? StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme)
                 : step.State switch
                 {
-                    StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme, context.UseThemeColors),
-                    StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors),
-                    StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme, context.UseThemeColors),
-                    StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme, context.UseThemeColors),
-                    _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme, context.UseThemeColors)
+                    StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(context.Theme ?? _theme),
+                    StepState.Active => StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme),
+                    StepState.Error => StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme),
+                    StepState.Warning => StepperThemeHelpers.GetStepWarningColor(context.Theme ?? _theme),
+                    _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
                 };
-            Color border = StepperThemeHelpers.GetStepBorderColor(context.Theme ?? _theme, context.UseThemeColors, step.State);
+            Color border = StepperThemeHelpers.GetStepBorderColor(context.Theme ?? _theme, step.State);
 
             using (var fillBrush = new SolidBrush(fill))
             using (var borderPen = new Pen(border, StepperAccessibilityHelpers.GetAccessibleBorderWidth(active ? 2 : 1)))
@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 // Per-step SVG icon (from SimpleItem.ImagePath -> StepModel.ImagePath).
                 // Painted via StepperIconHelpers.PaintIcon so SVG resources / files render.
                 var iconColor = StepperThemeHelpers.GetStepTextColor(
-                    context.Theme ?? _theme, context.UseThemeColors, step.State, Color.White);
+                    context.Theme ?? _theme, step.State, Color.White);
                 Size iconSize = StepperIconHelpers.GetIconSize(stepRect.Size, step.State);
                 Rectangle iconBounds = StepperIconHelpers.CalculateIconBounds(stepRect, iconSize);
                 StepperIconHelpers.PaintIcon(g, iconBounds, step.ImagePath, iconColor, 1f, step.State);
@@ -151,13 +151,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 var markerSize = g.MeasureString(marker, markerFont);
                 float mx = stepRect.Left + ((stepRect.Width - markerSize.Width) / 2f);
                 float my = stepRect.Top + ((stepRect.Height - markerSize.Height) / 2f);
-                using var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, context.UseThemeColors, step.State, Color.White));
+                using var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State, Color.White));
                 g.DrawString(marker, markerFont, markerBrush, mx, my);
             }
 
             string label = step.Text ?? $"Step {stepIndex + 1}";
             Font labelFont = _labelFont ?? context.LabelFont ?? SystemFonts.DefaultFont;
-            Color labelColor = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, context.UseThemeColors, step.State);
+            Color labelColor = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State);
             var labelSize = g.MeasureString(label, labelFont);
 
             float labelX;
@@ -180,8 +180,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)
         {
             var fromStep = context.Steps[fromIndex];
-            Color track = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, context.UseThemeColors, fromStep.State);
-            Color fill = StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme, context.UseThemeColors);
+            Color track = StepperThemeHelpers.GetConnectorLineColor(context.Theme ?? _theme, fromStep.State);
+            Color fill = StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme);
 
             int thickness = StepperAccessibilityHelpers.GetAccessibleConnectorLineWidth(context.StyleConfig?.RecommendedConnectorLineWidth ?? 3);
             using var trackPen = new Pen(track, thickness);

@@ -107,6 +107,26 @@ Observations (not fixed): two-line tooltips clip the last line's descenders slig
 (pre-existing height math); BeepPopover buttons, tour flow, arrow rendering, markup
 parser, auto-update and delay groups are probe-unverified (recorded, review only).
 
+## Batch 5 — "tooltips don't take the manager's theme" (user report; TipProbe 13/13)
+
+Root cause, two halves:
+
+1. **`BeepThemesManager.DefaultTheme` had ZERO writers** — an auto-property with
+   `internal set` that nothing ever set, so it returned null forever. It now resolves
+   through `GetDefaultTheme()` (DefaultTheme → DefaultBeepTheme → ensure-fallback → any),
+   so the manager genuinely always has a default theme.
+2. **`CustomToolTip` initialised `_theme` from that dead property** — so any tooltip not
+   shown through the manager (BeepPopover, tour tips, direct `ApplyConfig`+Show) started
+   with a NULL theme, and nothing ever re-themed it: the manager's `OnThemeChanged` only
+   reaches manager-TRACKED instances, and `BeepiFormPro`'s own ThemeChanged handler
+   re-themes the form chrome, not the tooltip's `_currentTheme`/`_theme` fields. The ctor
+   now starts from `CurrentTheme`, and the form subscribes to `ThemeChanged` itself
+   (unsubscribed in the existing `Dispose(bool)` — the event is static).
+
+Probe additions: `DefaultTheme` is never null; a DIRECTLY-constructed tooltip (no
+manager) renders the manager's theme and follows a live ArcLinux → Zen change (both
+eyeballed: blue-slate card → charcoal card).
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role from the control's OWN slot family, no flag, no

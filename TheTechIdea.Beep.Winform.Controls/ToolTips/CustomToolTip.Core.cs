@@ -74,12 +74,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             _animationTimer.Interval = 16; // ~60 FPS
             _animationTimer.Tick += OnAnimationTick;
 
-            // Set default theme from BeepThemesManager
-            _theme = BeepThemesManager.DefaultTheme;
+            // Start from the manager's CURRENT theme (which itself falls back to the
+            // default) - this used to read BeepThemesManager.DefaultTheme, a property
+            // nothing ever set, so directly-shown tooltips began with a null theme.
+            _theme = BeepThemesManager.CurrentTheme;
+
+            // Manager-tracked tooltips are re-themed by ToolTipManager.OnThemeChanged,
+            // but popovers and tour tips are shown directly - the form must follow the
+            // global theme itself (and unsubscribe on dispose: the event is static).
+            BeepThemesManager.ThemeChanged += OnGlobalToolTipThemeChanged;
 
             // Set accessibility properties for screen readers
             SetAccessibilityProperties();
         }
+
+        private void OnGlobalToolTipThemeChanged(object sender, ThemeChangeEventArgs e)
+        {
+            if (IsDisposed) return;
+            ApplyTheme(e?.NewTheme ?? BeepThemesManager.CurrentTheme);
+        }
+
 
         #endregion
 

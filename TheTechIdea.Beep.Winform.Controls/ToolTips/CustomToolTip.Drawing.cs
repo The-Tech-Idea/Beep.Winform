@@ -80,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         {
             if (disposing)
             {
+                ThemeManagement.BeepThemesManager.ThemeChanged -= OnGlobalToolTipThemeChanged;
                 _animationTimer?.Stop();
                 _animationTimer?.Dispose();
             }

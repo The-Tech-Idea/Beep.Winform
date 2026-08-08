@@ -275,7 +275,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         // Get current theme object
         public static IBeepTheme CurrentTheme => GetTheme(_currentThemeName);
 
-        public static IBeepTheme DefaultTheme { get; internal set; }
+        /// <summary>
+        /// The default theme. Resolves through <see cref="GetDefaultTheme"/> - this was an
+        /// auto-property with ZERO writers, so it returned null forever and anything that
+        /// initialised from it (tooltips) started with no theme at all.
+        /// </summary>
+        public static IBeepTheme DefaultTheme => GetDefaultTheme();
       
 
         // Get theme by name

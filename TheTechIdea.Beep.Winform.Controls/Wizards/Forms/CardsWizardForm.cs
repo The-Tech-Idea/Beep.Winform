@@ -251,15 +251,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _stepCards.Clear();
 
             // Add wizard title label at top of card panel
+            var titleFont = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.TitleStyle, 13f, FontStyle.Bold);
             var titleLabel = new Label
             {
                 Text = _instance.Config.Title,
                 Dock = DockStyle.Top,
-                Height = DpiScalingHelper.ScaleValue(40, this),
-                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.TitleStyle, 13f, FontStyle.Bold),
+                // From the font: a fixed 40 clipped the descenders of any taller title style.
+                Height = titleFont.Height + DpiScalingHelper.ScaleValue(14, this),
+                Font = titleFont,
                 ForeColor = _textColor,
                 Padding = new Padding(5, 0, 0, 10),
-                TextAlign = ContentAlignment.BottomLeft
+                TextAlign = ContentAlignment.BottomLeft,
+                AutoEllipsis = true
             };
             _cardPanel.Controls.Add(titleLabel);
 
@@ -270,6 +273,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _stepCards.Insert(0, card);
                 _cardPanel.Controls.Add(card);
             }
+
+            // Top-docked children lay out in REVERSE z-order, so the cards added after the title
+            // docked ABOVE it - the wizard title rendered underneath step 3, truncated by the
+            // sidebar. Highest child index docks first: the title goes back to the top.
+            _cardPanel.Controls.SetChildIndex(titleLabel, _cardPanel.Controls.Count - 1);
         }
 
         private Panel CreateStepCard(WizardStep step, int stepIndex)
@@ -301,7 +309,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
             _btnNext.Location = new Point(rightEdge - _btnNext.Width, buttonY);
             _btnBack.Location = new Point(_btnNext.Left - _btnBack.Width - 10, buttonY);
-            _btnCancel.Location = new Point(_cardPanel.Width + 20, buttonY);
+            // The button panel already docks AFTER the left sidebar, so offsetting by the sidebar
+            // width again put Cancel mid-form. Panel-relative left padding is the whole answer.
+            _btnCancel.Location = new Point(_buttonPanel.Padding.Left, buttonY);
 
             _buttonPanel.Controls.Add(_btnNext);
             _buttonPanel.Controls.Add(_btnBack);

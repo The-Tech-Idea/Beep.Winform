@@ -59,3 +59,14 @@ band 60->72. Verified by render: title fully visible.
 
 Open: Cards/Horizontal/Vertical stepper forms not render-eyeballed (heights 70 look adequate, painters
 share the font-height fix pattern only in Minimal); CS8618 _errorPanel nullability untouched.
+
+## Batch 2 - all four hosts rendered, HorizontalStepper sizing fixed (probe 14/14)
+
+All four form hosts render real content. HorizontalStepper had three stacked layout defects, all
+verified by render: the CURRENT step's label was drawn in _titleFont (headline size - it overflowed
+the 120px label box off the form's left edge and read as a clipped giant title); geometry hung off
+band-centre so label+description overran the 100px band; and the counter chip was hard-placed at
+(20,10) on top of circle 1 - right-aligned it then covered circle 3 until the chip got its own row.
+Now: top-anchored rows (chip / circles / label / description), label+desc heights from the font,
+label rects clamped to the band, band 100->112, chip right-aligned via Resize hook. Cards and
+VerticalStepper render sane (eyeball level). CS8618 _errorPanel remains open.

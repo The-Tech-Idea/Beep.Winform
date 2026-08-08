@@ -166,13 +166,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             int padding = DpiScalingHelper.ScaleValue(50, _host);
             int labelOffset = DpiScalingHelper.ScaleValue(8, _host);
             int labelWidth = DpiScalingHelper.ScaleValue(120, _host);
-            int labelHeight = DpiScalingHelper.ScaleValue(24, _host);
+            int labelHeight = _labelFont.Height + 2;   // from the font - a constant clips taller fonts
             float lineWidth = DpiScalingHelper.ScaleValue(3f, _host);
 
             int availableWidth = bounds.Width - (padding * 2);
             int stepSpacing = stepCount > 1 ? availableWidth / (stepCount - 1) : 0;
             int startX = bounds.Left + padding;
-            int centerY = bounds.Top + bounds.Height / 2 - DpiScalingHelper.ScaleValue(5, _host);
+            // Anchored to the TOP, not the band centre: centre-anchoring pushed label+description
+            // past the band bottom (45+18+8+24+16 = 111 in a 100px band), clipping both.
+            int centerY = bounds.Top + circleSize / 2 + DpiScalingHelper.ScaleValue(26, _host);   // row 0..~24 belongs to the counter chip
 
             // Draw connecting lines with animated fill
             if (stepCount > 1)
@@ -294,18 +296,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 
                 // Draw step title below
                 int halfLabelW = labelWidth / 2;
-                var labelRect = new Rectangle(x - halfLabelW, centerY + circleSize / 2 + labelOffset,
+                // Clamped to the band: centred on circle 1 (x=50) the 120px label ran 10px off the
+                // form's left edge.
+                int labelX = Math.Max(bounds.Left + 2, Math.Min(x - halfLabelW, bounds.Right - labelWidth - 2));
+                var labelRect = new Rectangle(labelX, centerY + circleSize / 2 + labelOffset,
                     labelWidth, labelHeight);
                 var labelColor = i == currentIndex ? _textColor : _subtextColor;
-                var font = i == currentIndex ? _titleFont : _labelFont;
-                TextUtils.DrawText(g, step.Title ?? $"Step {i + 1}", font, labelRect, labelColor,
+                // The current step used _titleFont - the form-level TITLE font - which blew the label
+                // up to headline size, overflowed the 120px label box off the form's left edge and
+                // collided with the counter chip. Colour already distinguishes the current step.
+                TextUtils.DrawText(g, step.Title ?? $"Step {i + 1}", _labelFont, labelRect, labelColor,
                     TextFormatFlags.HorizontalCenter);
 
                 // Draw description for current step
                 if (i == currentIndex && !string.IsNullOrEmpty(step.Description))
                 {
-                    int descHeight = DpiScalingHelper.ScaleValue(16, _host);
-                    var descRect = new Rectangle(x - halfLabelW, labelRect.Bottom, labelWidth, descHeight);
+                    int descHeight = _labelFont.Height + 2;
+                    var descRect = new Rectangle(labelX, labelRect.Bottom, labelWidth, descHeight);
                     TextUtils.DrawText(g, step.Description, _labelFont, descRect, _subtextColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.WordBreak);
                 }

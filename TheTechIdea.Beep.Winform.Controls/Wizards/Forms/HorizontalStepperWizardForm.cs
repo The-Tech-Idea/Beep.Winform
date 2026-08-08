@@ -131,7 +131,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _stepIndicatorPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 100,
+                // 112: chip row (~24) + circle (36) + label + description, all font-sized.
+                Height = 112,
                 BackColor = Color.Transparent
             };
             _stepIndicatorPanel.Paint += StepIndicatorPanel_Paint;
@@ -149,6 +150,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             };
             _stepIndicatorPanel.Controls.Add(_lblStepCount);
             _lblStepCount.BringToFront();
+
+            // Top-RIGHT, like the other hosts. Hard-placed at (20,10) the chip sat directly on the
+            // first step circle (circle 1 centre is x=50) and overlapped it at every size.
+            void PlaceStepCount(object s2, EventArgs e2) =>
+                _lblStepCount.Location = new Point(
+                    Math.Max(0, _stepIndicatorPanel.Width - _lblStepCount.Width - 20), 10);
+            _stepIndicatorPanel.Resize += PlaceStepCount;
+            _lblStepCount.SizeChanged += PlaceStepCount;
 
             // Progress bar (below step indicator)
             _progressBar = new BeepProgressBar

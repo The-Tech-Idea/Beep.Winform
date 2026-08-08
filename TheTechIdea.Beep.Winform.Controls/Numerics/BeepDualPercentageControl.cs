@@ -30,8 +30,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             Width = 300;
            
             Padding = new Padding(10);
-            BackColor = Color.White;
-            BorderColor = Color.LightGray;
 
             base.AccessibleRole = AccessibleRole.Grouping;
             SetStyle(ControlStyles.Selectable, true);
@@ -82,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             {
                 Text = "Category 2",
                 Font = fallbackFont,
-                ForeColor = _currentTheme?.PrimaryTextColor ?? Color.Black,
+                ForeColor = _currentTheme.PrimaryTextColor,
                 AutoSize = true,
                 Anchor = AnchorStyles.Right | AnchorStyles.Top
             };
@@ -92,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             {
                 Text = "66%",
                 Font = fallbackFont,
-                ForeColor = _currentTheme?.PrimaryTextColor ?? Color.Black,
+                ForeColor = _currentTheme.PrimaryTextColor,
                 AutoSize = true,
                 Anchor = AnchorStyles.Right | AnchorStyles.Top
             };
@@ -223,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             }
 
             // Draw the colored background for the left section
-            var sectionColor = LeftSectionColor != Color.Empty ? LeftSectionColor : (_currentTheme?.SuccessColor ?? Color.FromArgb(144, 238, 144));
+            var sectionColor = LeftSectionColor != Color.Empty ? LeftSectionColor : _currentTheme.SuccessColor;
             using (SolidBrush sectionBrush = new SolidBrush(Color.FromArgb(200, sectionColor)))
             {
                 int leftSectionWidth = bounds.Width / 2; // Split the control into two halves
@@ -248,11 +246,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             lblRightLabel.ForeColor = _currentTheme.PrimaryTextColor;
             lblRightPercentage.Theme = Theme;
             lblRightPercentage.ForeColor = _currentTheme.PrimaryTextColor;
-            lblDivider.Theme = Theme;
-            lblDivider.ForeColor = Color.LightGray;
 
-            if (_leftSectionColor == Color.Empty)
-                _leftSectionColor = _currentTheme?.SuccessColor ?? Color.FromArgb(144, 238, 144);
+            // Left labels sit on the section fill - WCAG brightness pick over it.
+            Color sectionFill = LeftSectionColor != Color.Empty ? LeftSectionColor : _currentTheme.SuccessColor;
+            Color sectionInk = sectionFill.GetBrightness() > 0.55f ? Color.Black : Color.White;
+            lblLeftIcon.ForeColor = sectionInk;
+            lblLeftLabel.ForeColor = sectionInk;
+            lblLeftPercentage.ForeColor = sectionInk;
+            lblDivider.Theme = Theme;
+            lblDivider.ForeColor = _currentTheme.BorderColor;
 
             Invalidate();
         }

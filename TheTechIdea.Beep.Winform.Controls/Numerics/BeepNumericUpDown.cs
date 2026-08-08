@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         private bool _wrapValues = false;
         private bool _selectAllOnFocus = true;
         private bool _highlightInvalidInput = true;
-        private Color _invalidInputColor = Color.FromArgb(254, 202, 202);
+        private Color _invalidInputColor = Color.Empty;
         private bool _showSpinButtons = true;
         private bool _animateValueChanges = false;
         private bool _isPercentageMode = false;
@@ -376,11 +376,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     MinimumValue = 0;
             }
         }
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("When true, uses theme colors from the current theme.")]
-        public bool UseThemeColors { get; set; } = true;
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -657,29 +652,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             if (_currentTheme == null) return;
 
             BackColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
-                _currentTheme, UseThemeColors);
+                _currentTheme);
             ForeColor = Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
-                _currentTheme, UseThemeColors);
+                _currentTheme);
             BorderColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBorderColor(
-                _currentTheme, UseThemeColors);
+                _currentTheme);
             HoverBackColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
-                _currentTheme, UseThemeColors, isHovered: true);
+                _currentTheme, isHovered: true);
             HoverForeColor = Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
-                _currentTheme, UseThemeColors, isHovered: true);
+                _currentTheme, isHovered: true);
             HoverBorderColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBorderColor(
-                _currentTheme, UseThemeColors, isHovered: true);
+                _currentTheme, isHovered: true);
             
             if (_textBox != null)
             {
                 _textBox.BackColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
-                    _currentTheme, UseThemeColors);
+                    _currentTheme);
                 _textBox.ForeColor = Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
-                    _currentTheme, UseThemeColors);
+                    _currentTheme);
                 _textBox.Font = Numerics.Helpers.NumericFontHelpers.GetNumericFont(ControlStyle);
             }
             
             _invalidInputColor = Numerics.Helpers.NumericThemeHelpers.GetErrorColor(
-                _currentTheme, UseThemeColors);
+                _currentTheme);
             Invalidate();
         }
         #endregion

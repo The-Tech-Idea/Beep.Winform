@@ -65,33 +65,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
         /// </summary>
         public static Color GetIconColor(
             IBeepTheme theme,
-            bool useThemeColors,
             bool isPressed = false,
             bool isHovered = false,
             bool isDisabled = false)
         {
-            if (isDisabled)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.DisabledForeColor != Color.Empty)
-                        return theme.DisabledForeColor;
-                }
-                return Color.FromArgb(180, 180, 180);
-            }
-
-            if (useThemeColors && theme != null)
-            {
-                if (isPressed || isHovered)
-                {
-                    if (theme.PrimaryColor != Color.Empty)
-                        return theme.PrimaryColor;
-                }
-                if (theme.ForeColor != Color.Empty)
-                    return theme.ForeColor;
-            }
-
-            return Color.FromArgb(100, 100, 100);
+            // Spinner glyphs are buttons: the Button* family, same as NumericThemeHelpers.
+            return NumericThemeHelpers.GetButtonIconColor(theme, isPressed, isHovered, isDisabled);
         }
 
         /// <summary>
@@ -118,8 +97,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
             Rectangle iconBounds,
             string iconPath,
             Color iconColor,
-            IBeepTheme theme = null,
-            bool useThemeColors = false,
             BeepControlStyle controlStyle = BeepControlStyle.Material3,
             float opacity = 1.0f)
         {

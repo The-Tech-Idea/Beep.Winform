@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         private void PaintCountryCodeDropdown(Graphics g, Rectangle rect, INumericUpDownPainterContext context)
         {
             Color textColor = GetTextColor(context);
-            Color borderColor = context.Theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
+            Color borderColor = context.Theme.BorderColor;
 
             // Draw flag icon area - use a generic flag or phone icon
             Rectangle flagRect = new Rectangle(rect.X, rect.Y, FlagWidth, rect.Height);

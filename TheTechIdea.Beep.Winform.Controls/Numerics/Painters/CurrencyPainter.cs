@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             Color textColor = GetTextColor(context);
-            Color decimalColor = context.Theme?.SecondaryTextColor ?? Color.FromArgb(150, 150, 150);
+            Color decimalColor = context.Theme.SecondaryTextColor;
 
             using (var font = new Font("Segoe UI", 11f, FontStyle.Bold))
             using (var decimalFont = new Font("Segoe UI", 9f, FontStyle.Regular))

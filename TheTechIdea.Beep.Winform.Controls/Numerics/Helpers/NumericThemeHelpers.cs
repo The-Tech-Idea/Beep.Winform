@@ -2,247 +2,112 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
 {
     /// <summary>
-    /// Centralized helper for managing numeric control theme colors
-    /// Integrates with ApplyTheme() pattern from BaseControl
-    /// Maps numeric control states (normal, hovered, focused, disabled) to theme colors
+    /// Colour resolution for numeric controls: slot-direct, one slot one return. The
+    /// control is a text input, so surfaces borrow the theme's TextBox* family; the
+    /// spinner buttons borrow the Button* family (the previous version derived pressed/
+    /// hover fills with luminance shifts when those slots exist). High contrast per paint.
     /// </summary>
     public static class NumericThemeHelpers
     {
-        /// <summary>
-        /// Gets the background color for the numeric control
-        /// Priority: Custom color > Theme TextBox Background > Default
-        /// </summary>
+        private static IBeepTheme T(IBeepTheme theme) => theme ?? BeepThemesManager.CurrentTheme;
+
+        private static bool HC => SystemInformation.HighContrast;
+
+        /// <summary>Field surface. Custom overrides are caller data (Empty falls through).</summary>
         public static Color GetNumericBackgroundColor(
             IBeepTheme theme,
-            bool useThemeColors,
             bool isHovered = false,
             bool isFocused = false,
             Color? customColor = null)
         {
-            if (customColor.HasValue)
-                return customColor.Value;
+            if (HC) return SystemColors.Window;
+            if (customColor is { } c && c != Color.Empty) return c;
 
-            if (useThemeColors && theme != null)
-            {
-                if (isFocused)
-                {
-                    if (theme.TextBoxSelectedBackColor != Color.Empty)
-                        return theme.TextBoxSelectedBackColor;
-                    if (theme.PrimaryColor != Color.Empty)
-                        return ColorUtils.ShiftLuminance(theme.PrimaryColor, 0.95f);
-                }
-                if (isHovered)
-                {
-                    if (theme.TextBoxHoverBackColor != Color.Empty)
-                        return theme.TextBoxHoverBackColor;
-                }
-                if (theme.TextBoxBackColor != Color.Empty)
-                    return theme.TextBoxBackColor;
-                if (theme.SurfaceColor != Color.Empty)
-                    return theme.SurfaceColor;
-            }
-
-            return Sc(SystemColors.Window);
+            var t = T(theme);
+            if (isFocused) return t.TextBoxSelectedBackColor;
+            if (isHovered) return t.TextBoxHoverBackColor;
+            return t.TextBoxBackColor;
         }
 
-        private static Color Sc(Color lightColor)
-        {
-            return ColorUtils.MapSystemColor(lightColor);
-        }
-
-        /// <summary>
-        /// Gets the text/foreground color for the numeric control
-        /// </summary>
+        /// <summary>Field ink.</summary>
         public static Color GetNumericTextColor(
             IBeepTheme theme,
-            bool useThemeColors,
             bool isHovered = false,
             bool isFocused = false,
             bool isDisabled = false)
         {
-            if (isDisabled)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.DisabledForeColor != Color.Empty)
-                        return theme.DisabledForeColor;
-                }
-                return Color.Gray;
-            }
+            if (HC) return isDisabled ? SystemColors.GrayText : SystemColors.WindowText;
 
-            if (useThemeColors && theme != null)
-            {
-                if (isFocused)
-                {
-                    if (theme.TextBoxSelectedForeColor != Color.Empty)
-                        return theme.TextBoxSelectedForeColor;
-                }
-                if (isHovered)
-                {
-                    if (theme.TextBoxHoverForeColor != Color.Empty)
-                        return theme.TextBoxHoverForeColor;
-                }
-                if (theme.TextBoxForeColor != Color.Empty)
-                    return theme.TextBoxForeColor;
-                if (theme.ForeColor != Color.Empty)
-                    return theme.ForeColor;
-            }
-
-            return Color.FromArgb(33, 33, 33);
+            var t = T(theme);
+            if (isDisabled) return t.DisabledForeColor;
+            if (isFocused) return t.TextBoxSelectedForeColor;
+            if (isHovered) return t.TextBoxHoverForeColor;
+            return t.TextBoxForeColor;
         }
 
-        /// <summary>
-        /// Gets the border color for the numeric control
-        /// </summary>
+        /// <summary>Field outline; focus takes the Selected slot.</summary>
         public static Color GetNumericBorderColor(
             IBeepTheme theme,
-            bool useThemeColors,
             bool isHovered = false,
             bool isFocused = false,
             bool isDisabled = false)
         {
-            if (isDisabled)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.DisabledForeColor != Color.Empty)
-                        return ColorUtils.ShiftLuminance(theme.DisabledForeColor, 0.5f);
-                }
-                return Color.FromArgb(200, 200, 200);
-            }
+            if (HC) return isFocused ? SystemColors.Highlight : SystemColors.WindowFrame;
 
-            if (useThemeColors && theme != null)
-            {
-                if (isFocused)
-                {
-                    if (theme.TextBoxSelectedBorderColor != Color.Empty)
-                        return theme.TextBoxSelectedBorderColor;
-                    if (theme.PrimaryColor != Color.Empty)
-                        return theme.PrimaryColor;
-                }
-                if (isHovered)
-                {
-                    if (theme.TextBoxHoverBorderColor != Color.Empty)
-                        return theme.TextBoxHoverBorderColor;
-                }
-                if (theme.TextBoxBorderColor != Color.Empty)
-                    return theme.TextBoxBorderColor;
-                if (theme.BorderColor != Color.Empty)
-                    return theme.BorderColor;
-            }
-
-            return isFocused
-                ? Color.FromArgb(0, 120, 215) // Windows blue
-                : Color.FromArgb(200, 200, 200);
+            var t = T(theme);
+            if (isDisabled) return t.DisabledBorderColor;
+            if (isFocused) return t.TextBoxSelectedBorderColor;
+            if (isHovered) return t.TextBoxHoverBorderColor;
+            return t.TextBoxBorderColor;
         }
 
-        /// <summary>
-        /// Gets the button background color
-        /// </summary>
+        /// <summary>Spinner button fill: the Button* family (pressed takes the Selected slot).</summary>
         public static Color GetButtonBackgroundColor(
             IBeepTheme theme,
-            bool useThemeColors,
             bool isPressed = false,
             bool isHovered = false,
             bool isDisabled = false)
         {
-            if (isDisabled)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.DisabledBackColor != Color.Empty)
-                        return theme.DisabledBackColor;
-                }
-                return Color.FromArgb(240, 240, 240);
-            }
+            if (HC) return isPressed ? SystemColors.Highlight : SystemColors.ButtonFace;
 
-            if (isPressed)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.PrimaryColor != Color.Empty)
-                        return ColorUtils.ShiftLuminance(theme.PrimaryColor, -0.1f);
-                }
-                return Color.FromArgb(200, 200, 200);
-            }
-
-            if (isHovered)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.SurfaceColor != Color.Empty)
-                        return ColorUtils.ShiftLuminance(theme.SurfaceColor, 0.1f);
-                }
-                return Color.FromArgb(245, 245, 245);
-            }
-
-            if (useThemeColors && theme != null)
-            {
-                if (theme.SurfaceColor != Color.Empty)
-                    return theme.SurfaceColor;
-            }
-
-            return Color.FromArgb(250, 250, 250);
+            var t = T(theme);
+            if (isDisabled) return t.DisabledBackColor;
+            if (isPressed) return t.ButtonSelectedBackColor;
+            if (isHovered) return t.ButtonHoverBackColor;
+            return t.ButtonBackColor;
         }
 
-        /// <summary>
-        /// Gets the button icon/text color
-        /// </summary>
+        /// <summary>Spinner glyph ink.</summary>
         public static Color GetButtonIconColor(
             IBeepTheme theme,
-            bool useThemeColors,
             bool isPressed = false,
             bool isHovered = false,
             bool isDisabled = false)
         {
-            if (isDisabled)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.DisabledForeColor != Color.Empty)
-                        return theme.DisabledForeColor;
-                }
-                return Color.FromArgb(180, 180, 180);
-            }
+            if (HC) return isPressed ? SystemColors.HighlightText : SystemColors.ControlText;
 
-            if (useThemeColors && theme != null)
-            {
-                if (theme.ForeColor != Color.Empty)
-                    return theme.ForeColor;
-            }
-
-            return Color.FromArgb(100, 100, 100);
+            var t = T(theme);
+            if (isDisabled) return t.DisabledForeColor;
+            if (isPressed) return t.ButtonSelectedForeColor;
+            if (isHovered) return t.ButtonHoverForeColor;
+            return t.ButtonForeColor;
         }
 
-        /// <summary>
-        /// Gets the error/invalid input color
-        /// </summary>
-        public static Color GetErrorColor(
-            IBeepTheme theme,
-            bool useThemeColors)
+        /// <summary>Invalid-input ink: the semantic slot.</summary>
+        public static Color GetErrorColor(IBeepTheme theme)
         {
-            if (useThemeColors && theme != null)
-            {
-                if (theme.ErrorColor != Color.Empty)
-                    return theme.ErrorColor;
-            }
-
-            return Color.FromArgb(220, 53, 69); // Bootstrap danger red
+            if (HC) return SystemColors.ControlText;
+            return T(theme).ErrorColor;
         }
 
-        /// <summary>
-        /// Gets all theme colors for a numeric control in one call
-        /// </summary>
+        /// <summary>All colours in one call.</summary>
         public static (Color background, Color text, Color border, Color buttonBg, Color buttonIcon, Color error) GetNumericColors(
             IBeepTheme theme,
-            bool useThemeColors,
             bool isHovered = false,
             bool isFocused = false,
             bool isDisabled = false,
@@ -250,12 +115,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
             bool isButtonHovered = false)
         {
             return (
-                GetNumericBackgroundColor(theme, useThemeColors, isHovered, isFocused),
-                GetNumericTextColor(theme, useThemeColors, isHovered, isFocused, isDisabled),
-                GetNumericBorderColor(theme, useThemeColors, isHovered, isFocused, isDisabled),
-                GetButtonBackgroundColor(theme, useThemeColors, isButtonPressed, isButtonHovered, isDisabled),
-                GetButtonIconColor(theme, useThemeColors, isButtonPressed, isButtonHovered, isDisabled),
-                GetErrorColor(theme, useThemeColors)
+                GetNumericBackgroundColor(theme, isHovered, isFocused),
+                GetNumericTextColor(theme, isHovered, isFocused, isDisabled),
+                GetNumericBorderColor(theme, isHovered, isFocused, isDisabled),
+                GetButtonBackgroundColor(theme, isButtonPressed, isButtonHovered, isDisabled),
+                GetButtonIconColor(theme, isButtonPressed, isButtonHovered, isDisabled),
+                GetErrorColor(theme)
             );
         }
     }

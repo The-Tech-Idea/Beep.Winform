@@ -140,8 +140,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         IBeepTheme Theme { get; }
         /// <summary>Current BeepControlStyle for font and dimension calculations</summary>
         BeepControlStyle ControlStyle { get; }
-        /// <summary>Whether to use theme colors</summary>
-        bool UseThemeColors { get; }
 
         // Actions
         /// <summary>Increment the value</summary>

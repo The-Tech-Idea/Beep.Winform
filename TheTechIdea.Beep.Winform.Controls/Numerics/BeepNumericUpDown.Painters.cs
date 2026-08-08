@@ -171,7 +171,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             // Theme (for text colors only)
             public IBeepTheme Theme => _control._currentTheme;
             public BeepControlStyle ControlStyle => _control.ControlStyle;
-            public bool UseThemeColors => _control.UseThemeColors;
 
             // Actions
             public void IncreaseValue() => _control.IncrementValueInternal();

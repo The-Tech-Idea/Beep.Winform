@@ -93,7 +93,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
             // Use theme helpers for consistent color retrieval
             return TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
                 context.Theme,
-                context.Theme != null, // Assume UseThemeColors if theme is available
                 context.IsHovered,
                 context.IsFocused,
                 !context.IsEnabled);
@@ -117,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
                 : TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.GetDownIconPath();
             
             TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.PaintIcon(
-                g, rect, svgPath, color, null, false, 
+                g, rect, svgPath, color,
                 TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3, 1.0f);
         }
 
@@ -134,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
                 : TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.GetMinusIconPath();
             
             TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.PaintIcon(
-                g, rect, svgPath, color, null, false, 
+                g, rect, svgPath, color,
                 TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3, 1.0f);
         }
 
@@ -157,15 +156,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         protected Color GetIconColor(INumericUpDownPainterContext context, bool isHovered, bool isPressed)
         {
             if (!context.IsEnabled)
-                return context.Theme?.DisabledForeColor ?? Color.LightGray;
+                return context.Theme.DisabledForeColor;
 
             if (isPressed)
-                return context.Theme?.ButtonPressedForeColor ?? Color.FromArgb(0, 90, 158);
+                return context.Theme.ButtonPressedForeColor;
 
             if (isHovered)
-                return context.Theme?.ButtonHoverForeColor ?? Color.FromArgb(0, 120, 212);
+                return context.Theme.ButtonHoverForeColor;
 
-            return context.Theme?.ButtonForeColor ?? Color.FromArgb(96, 96, 96);
+            return context.Theme.ButtonForeColor;
         }
     }
 }

@@ -13,7 +13,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     /// </summary>
     public sealed class CheckboxRadioRenderer : BaseRadioRenderer
     {
-        private readonly FlatRadioRenderer _inner = new FlatRadioRenderer();
+        // AllowMultipleSelection=true is what makes Flat draw SQUARE check boxes - it is
+        // this renderer's whole identity. Forwarding the flag instead of forcing it left
+        // Checkbox rendering pixel-identical to Flat (circles) in single-selection groups.
+        private readonly FlatRadioRenderer _inner = new FlatRadioRenderer { AllowMultipleSelection = true };
 
         public override string StyleName => "Checkbox";
         public override string DisplayName => "Checkbox";
@@ -22,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public override bool AllowMultipleSelection
         {
             get => _inner.AllowMultipleSelection;
-            set => _inner.AllowMultipleSelection = value;
+            set => _inner.AllowMultipleSelection = true; // checkbox visuals regardless of mode
         }
 
         public override BeepControlStyle ControlStyle

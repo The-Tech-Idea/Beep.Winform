@@ -104,6 +104,41 @@ remains (unwired here, harmless). Bonus: the group background cleared with **Sid
 Not verified yet: renders (batch 3). Restored during the sweep: an over-broad cut briefly took
 the `Style` and `TextFont` properties with it — caught by build, restored verbatim.
 
+## Batch 2 done — literal sweep (commit 5e6605a0)
+
+Shadow token added (transparent in HC — no fake depth); card/segmented shadows alpha the slot;
+the selected card's −20 RGB gradient derivation replaced by a solid tokens fill; design-time
+placeholder + hierarchical connector/expander on slots; dead `GetIconColor`/`GetShadowColor`
+deleted. Census: zero literals.
+
+## Batch 3 done — probe 31/31, three real defects found by render
+
+RadioProbe (scratchpad): 12 styles × normal+narrow render, cross-style distinctness, theme
+responsiveness, hit-path click round-trip (SelectedValue + SelectionChanged + ItemClicked),
+keyboard Down+Space, hierarchical render. Every render eyeballed.
+
+Defects found and fixed:
+- **Programmatic selection before Show() was a silent no-op** — `SelectValue` validates against
+  the state helper's item list, but item propagation lived behind `IsHandleCreated`, so
+  `new BeepRadioGroup { Items = ..., SelectedValue = "X" }` (the standard initializer shape)
+  lost the selection and every style rendered UNSELECTED. The eyeball caught it; the colour
+  counters had passed. Items now propagate to the state helper unconditionally; only layout
+  waits for the handle.
+- **Checkbox rendered pixel-identical to Flat** (circles, never a checkbox): the wrapper's
+  documented job was "forces multi-selection visual semantics" but it forwarded the flag
+  instead of forcing it. `AllowMultipleSelection` is now hard-wired true on the inner Flat —
+  that is what draws square check boxes.
+- **Button rendered pixel-identical to Card**: pure pass-through with no identity. It now
+  paints a real button group — filled Primary button with OnPrimary centred text for the
+  selected item, SurfaceContainer buttons otherwise; layout/measure still delegate to Card.
+
+By design, recorded: `RadioGroupRenderStyle.Custom` is the `RegisterRenderer` slot — setting
+it without a registered renderer is a guarded no-op (keeps the current renderer); excluded
+from the probe's distinctness check with a comment.
+
+Not verified: HC token branch (system HC not toggleable from a probe — same caveat as
+Steppers/BreadCrumbs); hierarchical expand/collapse interaction unprobed (renders only).
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role, no flag, no guards, no blends/luminance derivation

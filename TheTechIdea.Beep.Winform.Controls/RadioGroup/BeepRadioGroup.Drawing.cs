@@ -15,6 +15,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Layout and Rendering
         private void UpdateItemsAndLayout()
         {
+            // The state helper must ALWAYS know the current items: SelectValue validates
+            // against its list, so gating this behind the handle made every programmatic
+            // selection before Show() a silent no-op - `new BeepRadioGroup { Items = ...,
+            // SelectedValue = "X" }` lost the selection. Only LAYOUT needs the handle
+            // (OnHandleCreated re-runs this to catch up).
+            _stateHelper.UpdateItems(_items);
+
             // Skip heavy operations in design mode
             if (DesignMode || !IsHandleCreated) return;
             _layoutDirty = true;

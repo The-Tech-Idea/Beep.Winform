@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<TabRemovedEventArgs> TabRemoved;
         
         private string _themeName = string.Empty;
-        protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager.CurrentTheme;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -142,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _themeName = value;
-                _currentTheme = BeepThemesManager.GetTheme(value);
+                _currentTheme = BeepThemesManager.GetTheme(value) ?? BeepThemesManager.CurrentTheme;
                 ApplyTheme();
             }
         }
@@ -160,8 +160,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 if (value == _tabStyle) return;
-                // Start transition from current style to new
-                StartStyleTransition(_tabStyle, value);
+                // Morph only when the control is visible: before the handle exists there is
+                // nothing to see, and animating construction-time styling replayed a 220ms
+                // Classic cross-fade on every form open (the probe caught it mid-blend).
+                if (IsHandleCreated)
+                {
+                    StartStyleTransition(_tabStyle, value);
+                }
                 _tabStyle = value;
                 UpdatePainter();
                 RefreshHeaderLayoutState();
@@ -302,8 +307,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeRuntimeAssets();
             WireControlEvents();
             InitializeAccessibilityMetadata();
+            // ContainerControl, not BaseControl: global theme changes must be followed by
+            // this control itself, or every BeepTabs keeps its construction-time palette.
+            BeepThemesManager.ThemeChanged += OnGlobalThemeChanged;
             ApplyTheme();
             UpdatePainter();
+        }
+
+        private void OnGlobalThemeChanged(object? sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+            _themeName = BeepThemesManager.CurrentThemeName;
+            _currentTheme = BeepThemesManager.CurrentTheme;
+            ApplyTheme();
+            Invalidate();
         }
 
         /// <summary>
@@ -358,6 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
+                BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
                 _underlineTimer?.Stop();
                 _underlineTimer?.Dispose();
                 _underlineTimer = null;

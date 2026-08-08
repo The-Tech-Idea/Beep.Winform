@@ -116,11 +116,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
             return t.TabBorderColor;
         }
 
-        /// <summary>Selected-tab underline/indicator: the accent slot.</summary>
+        /// <summary>
+        /// Selected-tab underline/indicator. TabSelectedBorderColor, NOT PrimaryColor:
+        /// the indicator is a Tab-family accent, and themes like Zen define PrimaryColor
+        /// as a neutral brand tone identical to their tab strip - the indicator vanished.
+        /// </summary>
         public static Color GetTabIndicatorColor(IBeepTheme theme)
         {
             if (IsHighContrast) return SystemColors.Highlight;
-            return T(theme).PrimaryColor;
+            return T(theme).TabSelectedBorderColor;
         }
 
         /// <summary>
@@ -144,15 +148,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 BeepTabBadgeKind.Error => t.ErrorColor,
                 BeepTabBadgeKind.Warning => t.WarningColor,
                 BeepTabBadgeKind.Success => t.SuccessColor,
-                _ => t.PrimaryColor
+                _ => t.TabSelectedBorderColor
             };
         }
 
-        /// <summary>Busy (loading) indicator: the accent slot.</summary>
+        /// <summary>Busy (loading) indicator: the Tab family's accent line slot.</summary>
         public static Color GetBusyIndicatorColor(IBeepTheme theme)
         {
             if (IsHighContrast) return SystemColors.ControlText;
-            return T(theme).PrimaryColor;
+            return T(theme).TabSelectedBorderColor;
         }
 
         /// <summary>
@@ -163,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
         public static Color GetDirtyMarkerColor(IBeepTheme theme)
         {
             if (IsHighContrast) return SystemColors.ControlText;
-            return T(theme).PrimaryColor;
+            return T(theme).TabSelectedBorderColor;
         }
 
         /// <summary>Gets all theme colors for a tab in one call.</summary>

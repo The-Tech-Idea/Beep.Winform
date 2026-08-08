@@ -71,6 +71,40 @@ keyboard nav; close-button hit; every render eyeballed.
 2. F2 theme census fixes — build + commit
 3. F5 probe + eyeball — commit per fix batch
 
+## Batch 3 — probe + eyeball (TabProbe 21/21)
+
+Probe: 7 styles render + selection visible per style + cross-style distinctness, live
+theme change, click-select via the public ReceiveMouse* pipeline + SelectedIndexChanged,
+ArrowRight via the keyboard command router, close click removes the tab + raises
+TabRemoved. All renders eyeballed (including zoomed Zen/ArcLinux crops).
+
+Fixes the probe forced:
+
+1. **BeepTabs never followed global theme changes** — ContainerControl, not BaseControl,
+   and it had no `ThemeChanged` subscription; `_currentTheme` also initialised from
+   `GetDefaultTheme()` instead of the current theme. Now subscribes in the ctor (handler
+   re-applies + invalidates), unsubscribes in Dispose, and the Theme setter falls back to
+   the current theme when given an unknown name.
+2. **Construction-time style morph** — the TabStyle setter unconditionally started a 220ms
+   Classic→style cross-fade, so every form open replayed it (probe renders caught the
+   blend: saturated fills + garbled captions). Transition now only starts when
+   `IsHandleCreated`.
+3. **Tab adornments remapped to the Tab family's accent line** — indicator, busy, dirty
+   and the default badge kind now resolve `TabSelectedBorderColor`, not `PrimaryColor`:
+   ZenTheme defines PrimaryColor as a neutral charcoal identical to its tab strip, so the
+   selected-tab underline was invisible. Zen's palette is deliberate (Accent carries its
+   green); the wrong assumption was ours.
+
+Instrument notes: `TabCloseRequested` fires ONLY as the dirty-close guard (document modes,
+dirty tab) — a plain close raises `TabRemoved`; the close-button check asserts removal.
+`BeepTabHeaderItemLayout` has no Index — items matched by Bounds against `GetTabRect`.
+
+**Second theme home discovered**: themes live in BOTH `Controls/Themes/` (Apply* parts,
+censused and fixed in batch 2) and `Vis.Modules2.0/ThemeTypes/` (property-initialiser
+parts, e.g. ZenTheme). The ThemeTypes population was NOT censused for Tab stamps — Zen's
+Tab part is healthy; the rest are unaudited. Not verified: RTL header layout, overflow
+dropdown, drag-reorder visuals, high-contrast branches (review only).
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role from the control's OWN slot family, no flag, no

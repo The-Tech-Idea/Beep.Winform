@@ -794,9 +794,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 try
                 {
                     ImagePath = TextBoxIconRegistry.GetPath(value);
-                    // Built-in glyphs are monochrome by design: theme them the NORMAL way
-                    // (BeepImage themes its own SVG) - drawn raw they are black on every theme.
-                    if (value != TextBoxIconKind.None) ApplyThemeOnImage = true;
+                    // No ApplyThemeToSvg for textbox icons (user directive): built-in glyphs
+                    // paint through StyledImagePainter.PaintWithTint in DrawImage instead -
+                    // ApplyThemeToSvg filled the whole glyph with TextBoxForeColor, which is
+                    // pure BLACK in the default theme.
                 }
                 finally { _settingImageFromKind = false; }
             }

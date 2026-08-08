@@ -224,3 +224,14 @@ User direction: do not tint at the textbox layer — paint the SVG normally and 
   (`GetCaretPixelPosition` from the layout) — the old math measured the whole prefix as one
   line and pinned the underline to the control's bottom edge. Probe simulates composition and
   the render shows the dashed underline exactly under "second"'s line.
+
+## Batch 10 done — textbox icons: no ApplyThemeToSvg, muted PaintWithTint (probe 33/33)
+
+User reported icons still black-filled, then directed: no ApplyThemeToSvg for textbox icons.
+Root cause confirmed by slot dump: `ApplyThemeToSvg` floods every SVG node's Fill with the
+ImageEmbededin-mapped slot — `TextBoxForeColor`, which is pure BLACK in DefaultTheme. Built-in
+IconKind glyphs now paint through the FIXED `StyledImagePainter.PaintWithTint` (sized
+rasterization, replace-RGB tint) in `SecondaryTextColor` (`DisabledForeColor` when disabled) —
+the muted leading-icon ink. Custom `ImagePath` images draw raw through BeepImage; their colours
+belong to the consumer. Probe tightened: the icon zone must contain the muted-gray ink
+(59 px) and near-zero visually-black pixels — verified by zoomed render: crisp gray outline.

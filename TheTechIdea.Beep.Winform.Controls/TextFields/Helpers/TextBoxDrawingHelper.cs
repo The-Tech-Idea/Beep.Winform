@@ -605,11 +605,22 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             if (_textBox.BeepImage == null || !HasImage()) return;
             _textBox.BeepImage.BackColor = _textBox.BackColor;
-            // No re-clamp here: GetImageSize already produced the DPI-scaled layout rect;
-            // re-clamping with the UNSCALED MaxImageSize shrank the icon back below the
-            // space the layout reserved for it at >100% DPI.
-            // Theming happens the NORMAL way: IconKind turns ApplyThemeOnImage on and the
-            // BeepImage themes its own SVG - no tint override at this layer.
+            // No re-clamp here: GetImageSize already produced the DPI-scaled layout rect.
+
+            // Built-in IconKind glyphs paint through StyledImagePainter.PaintWithTint (the
+            // CLAUDE.md-sanctioned painter path, fixed to rasterize at the requested size) in
+            // the muted secondary ink - NOT via ApplyThemeToSvg, which floods the glyph with
+            // TextBoxForeColor (pure black in the default theme). Custom ImagePath images
+            // draw raw through BeepImage; their colours belong to the consumer.
+            if ((_textBox as BeepTextBox)?.IconKind != Models.TextBoxIconKind.None)
+            {
+                var theme = ThemeManagement.BeepThemesManager.CurrentTheme;
+                bool enabled = (_textBox as Control)?.Enabled != false;
+                Color ink = enabled ? theme.SecondaryTextColor : theme.DisabledForeColor;
+                Styling.ImagePainters.StyledImagePainter.PaintWithTint(g, imageRect, _textBox.ImagePath, ink);
+                return;
+            }
+
             _textBox.BeepImage.Size = imageRect.Size;
             _textBox.BeepImage.DrawImage(g, imageRect);
         }

@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawFocusRing(Graphics g, SwitchState state)
         {
-            Color focusColor = Switchs.Helpers.SwitchThemeHelpers.GetFocusRingColor(_currentTheme, UseThemeColors);
+            Color focusColor = Switchs.Helpers.SwitchThemeHelpers.GetFocusRingColor(_currentTheme);
             if (focusColor == Color.Transparent) return;
 
             Rectangle focusRect = _metrics.TrackRect;

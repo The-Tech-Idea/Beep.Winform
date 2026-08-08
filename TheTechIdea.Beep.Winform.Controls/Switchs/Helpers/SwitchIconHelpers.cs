@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
@@ -39,6 +40,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
                     if (!string.IsNullOrEmpty(iconPath))
                         return iconPath;
                 }
+                // The name resolved to nothing - say so once instead of silently
+                // falling through to the default icon.
+                BeepLog.WarnOnce($"Switch.icon:{iconName}", null, $"resolve switch icon '{iconName}'",
+                                 "no matching SvgsUI member");
             }
 
             // Priority 2: Fallback icon (if provided)
@@ -51,34 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
                 : (SvgsUI.Circle ?? SvgsUI.BoxMultiple);
         }
 
-        /// <summary>
-        /// Gets the icon color based on state and theme
-        /// </summary>
-        public static Color GetIconColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            bool isOn = false)
-        {
-            if (useThemeColors && theme != null)
-            {
-                if (isOn)
-                {
-                    if (theme.SuccessColor != Color.Empty)
-                        return theme.SuccessColor;
-                    if (theme.PrimaryColor != Color.Empty)
-                        return theme.PrimaryColor;
-                }
-                else
-                {
-                    if (theme.ForeColor != Color.Empty)
-                        return theme.ForeColor;
-                }
-            }
-
-            return isOn
-                ? Color.FromArgb(76, 175, 80) // Material Green
-                : Color.FromArgb(158, 158, 158); // Material Gray
-        }
 
         /// <summary>
         /// Calculates the appropriate icon size for a switch thumb
@@ -105,7 +82,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             string iconPath,
             Color iconColor,
             IBeepTheme theme = null,
-            bool useThemeColors = false,
             BeepControlStyle controlStyle = BeepControlStyle.Material3,
             float opacity = 1.0f)
         {

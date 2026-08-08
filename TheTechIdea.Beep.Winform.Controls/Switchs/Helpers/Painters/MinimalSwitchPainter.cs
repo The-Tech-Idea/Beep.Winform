@@ -91,14 +91,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
 
         public void PaintTrack(Graphics g, BeepSwitch owner, GraphicsPath trackPath, SwitchState state)
         {
-            var theme = owner._currentTheme;  // BaseControl's protected field
-            var controlState = ConvertToControlState(state);
-            
-            // Minimal: Just border, no fill
-            var borderPainter = BorderPainterFactory.CreatePainter(owner.ControlStyle);
-            if (borderPainter != null)
+            var theme = owner._currentTheme;
+            // Minimal identity: outline track, filled only when ON.
+            if (SwitchThemeHelpers.IsOn(state))
             {
-                borderPainter.Paint(g, trackPath, false, owner.ControlStyle, theme, owner.UseThemeColors, controlState);
+                using var onBrush = new SolidBrush(SwitchThemeHelpers.GetTrackColor(theme, state));
+                g.FillPath(onBrush, trackPath);
+            }
+            using (var borderPen = new Pen(SwitchThemeHelpers.GetTrackBorderColor(theme, state), 1.5f))
+            {
+                g.DrawPath(borderPen, trackPath);
             }
         }
 
@@ -112,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
             {
                 thumbPath.AddEllipse(thumbRect);
 
-                Color thumbColor = SwitchThemeHelpers.GetThumbColor(theme, owner.UseThemeColors, owner.Checked, isHovered, isDisabled);
+                Color thumbColor = SwitchThemeHelpers.GetThumbColor(theme, owner.Checked, isHovered, isDisabled);
 
                 using (var brush = new SolidBrush(thumbColor))
                 {
@@ -125,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
         {
             var theme = owner._currentTheme;
             bool isDisabled = !owner.Enabled;
-            Color labelColor = SwitchThemeHelpers.GetLabelTextColor(theme, owner.UseThemeColors, isOn: owner.Checked, isActive: true, isDisabled);
+            Color labelColor = SwitchThemeHelpers.GetLabelTextColor(theme, isOn: owner.Checked, isActive: true, isDisabled);
 
             System.Windows.Forms.TextRenderer.DrawText(g, owner.OnLabel, owner.Font, onLabelRect, labelColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);

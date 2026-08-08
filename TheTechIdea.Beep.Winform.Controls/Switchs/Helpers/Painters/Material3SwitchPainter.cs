@@ -107,31 +107,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
         public void PaintTrack(Graphics g, BeepSwitch owner, GraphicsPath trackPath, SwitchState state)
         {
             var theme = owner._currentTheme;
-            var controlState = ConvertToControlState(state);
-            
-            // Use BackgroundPainterFactory!
-            var backgroundPainter = BackgroundPainterFactory.CreatePainter(owner.ControlStyle);
-            if (backgroundPainter != null)
+            // The switch owns its track colours: the generic style background never painted
+            // ON differently from OFF. Slot-direct from the theme's Switch* family.
+            using (var trackBrush = new SolidBrush(SwitchThemeHelpers.GetTrackColor(theme, state)))
             {
-                backgroundPainter.Paint(g, trackPath, owner.ControlStyle, theme, owner.UseThemeColors, controlState);
+                g.FillPath(trackBrush, trackPath);
             }
-            
-            // Track image (using StyledImagePainter!)
+            using (var borderPen = new Pen(SwitchThemeHelpers.GetTrackBorderColor(theme, state), 1.5f))
+            {
+                g.DrawPath(borderPen, trackPath);
+            }
+
             if (owner.Checked && !string.IsNullOrEmpty(owner.OnImagePath))
             {
-                StyledImagePainter.PaintWithTint(g, trackPath, owner.OnImagePath, theme?.SuccessColor ?? Color.Green, opacity: 0.15f);
+                StyledImagePainter.PaintWithTint(g, trackPath, owner.OnImagePath, SwitchThemeHelpers.GetTrackColor(theme, SwitchState.On_Normal), opacity: 0.15f);
             }
             else if (!owner.Checked && !string.IsNullOrEmpty(owner.OffImagePath))
             {
-                StyledImagePainter.PaintWithTint(g, trackPath, owner.OffImagePath, theme?.SecondaryColor ?? Color.Gray, opacity: 0.2f);
+                StyledImagePainter.PaintWithTint(g, trackPath, owner.OffImagePath, SwitchThemeHelpers.GetTrackBorderColor(theme, SwitchState.Off_Normal), opacity: 0.2f);
             }
             
-            // Border
-            var borderPainter = BorderPainterFactory.CreatePainter(owner.ControlStyle);
-            if (borderPainter != null)
-            {
-                borderPainter.Paint(g, trackPath, false, owner.ControlStyle, theme, owner.UseThemeColors, controlState);
-            }
         }
 
         public void PaintThumb(Graphics g, BeepSwitch owner, Rectangle thumbRect, SwitchState state)
@@ -144,11 +139,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
             {
                 thumbPath.AddEllipse(thumbRect);
 
-                Color thumbColor = SwitchThemeHelpers.GetThumbColor(theme, owner.UseThemeColors, owner.Checked, isHovered, isDisabled);
+                Color thumbColor = SwitchThemeHelpers.GetThumbColor(theme, owner.Checked, isHovered, isDisabled);
 
                 if (SwitchStyleHelpers.ShouldShowThumbShadow(owner.ControlStyle))
                 {
-                    Color shadowColor = SwitchThemeHelpers.GetThumbShadowColor(theme, owner.UseThemeColors, 2);
+                    Color shadowColor = SwitchThemeHelpers.GetThumbShadowColor(theme, 2);
                     Point offset = SwitchStyleHelpers.GetShadowOffset(owner.ControlStyle);
                     Rectangle shadowRect = new Rectangle(
                         thumbRect.X + offset.X,
@@ -170,14 +165,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
                     g.FillPath(brush, thumbPath);
                 }
 
-                using (var pen = new Pen(Color.FromArgb(40, 0, 0, 0), 1f))
+                using (var pen = new Pen(SwitchThemeHelpers.GetThumbShadowColor(theme, 2), 1f))
                 {
                     g.DrawPath(pen, thumbPath);
                 }
 
                 if (owner.Checked && !string.IsNullOrEmpty(owner.OnIconName))
                 {
-                    DrawThumbIcon(g, thumbRect, owner.OnIconName, theme?.SuccessColor ?? Color.Green);
+                    DrawThumbIcon(g, thumbRect, owner.OnIconName, SwitchThemeHelpers.GetTrackColor(theme, SwitchState.On_Normal));
                 }
             }
         }
@@ -201,7 +196,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
                 iconPath,
                 iconColor,
                 _owner._currentTheme,
-                _owner.UseThemeColors,
                 _owner.ControlStyle,
                 1.0f);
         }
@@ -211,8 +205,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
             var theme = owner._currentTheme;
             bool isDisabled = !owner.Enabled;
 
-            Color onColor = SwitchThemeHelpers.GetLabelTextColor(theme, owner.UseThemeColors, isOn: true, isActive: owner.Checked, isDisabled);
-            Color offColor = SwitchThemeHelpers.GetLabelTextColor(theme, owner.UseThemeColors, isOn: false, isActive: !owner.Checked, isDisabled);
+            Color onColor = SwitchThemeHelpers.GetLabelTextColor(theme, isOn: true, isActive: owner.Checked, isDisabled);
+            Color offColor = SwitchThemeHelpers.GetLabelTextColor(theme, isOn: false, isActive: !owner.Checked, isDisabled);
 
             System.Windows.Forms.TextRenderer.DrawText(g, owner.OnLabel, owner.Font, onLabelRect, onColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);

@@ -277,6 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawCompositionUnderline(g);
             }
 
+            _helper?.Scrolling?.SetViewportHeight(_textRect.Height);
             _helper?.DrawAll(g, DrawingRect, _textRect);
 
             // These two hooks existed but were never called: search found matches and effects

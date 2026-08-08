@@ -126,9 +126,7 @@ User directive: "revise alignment of text and sizing and other like images and i
 - **The bottom-right green dot** (user question): the typing indicator — on by default and
   surprising. Now opt-in (`EnableTypingIndicator = true` to get it back).
 
-Not verified: multiline vertical scrolling (still stubbed: UpdateContentSize/HandleMouseWheel
-empty — recorded, out of this pass's scope); RTL rendering; Center/Right-aligned overflow
-behaviour (scroll deliberately resets for non-left alignment).
+(Resolved in batch 7 — see below.)
 
 ## Batch 6 done — designer-selectable built-in icons via enum (probe 20/20)
 
@@ -149,3 +147,29 @@ verified.
 
 There is ALWAYS a theme — slots direct; feature palettes (effect presets, syntax tokens) are
 deliberate and stay. A check must be able to fail. Commit to master only.
+
+## Batch 7 done — vertical scrolling for real, RTL, alignment-aware overflow (probe 26/26)
+
+The three recorded gaps, closed:
+
+- **Multiline vertical scrolling** (was five empty stub methods): `TextBoxScrollingHelper` now
+  tracks ContentHeight (lines × line height, refreshed at the END of UpdateLines — a
+  pre-rebuild call was stale by one edit), viewport height pushed by the paint path, clamped
+  `ScrollOffsetY`. Mouse wheel scrolls by `SystemInformation.MouseWheelScrollLines`;
+  `ScrollToCaret` follows the caret's line. Text draws Y-shifted inside a clip and the
+  line-number gutter scrolls in sync (off-viewport rows skipped). Verified: wheel-down shows
+  lines 13-17 with matching gutter, wheel-up clamps at 0, Ctrl+End scrolls the last line in.
+- **Alignment-aware overflow** (`GetTextOriginX`, one origin model for text/selection/caret):
+  when the text fits, alignment decides; when it overflows, the caret-follow offset governs
+  while focused (Home shows the head even right-aligned) and the alignment's natural anchor
+  governs unfocused — right-aligned long text anchors its TAIL at the right edge (verified by
+  render), centred shows its middle. ScrollToCaret no longer resets for non-left alignments.
+  This also fixed selection rects being misplaced for centred/right-aligned text (they assumed
+  left-aligned X).
+- **RTL**: the flag alone only changes reading order — Latin text rendered pixel-identical (the
+  probe's check failed honestly). `EffectiveAlignment` now flips Left/Right under
+  RightToLeft.Yes, matching native textbox behaviour; flags and origin model share it.
+
+Still open: word-wrapped multiline (WordWrap re-wrapping happens at paint; content height uses
+raw line count, so wrapped lines under-measure the scroll range); per-line multiline caret/
+selection drawing (pre-existing single-line math, unchanged by this pass).

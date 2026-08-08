@@ -573,20 +573,81 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
     {
         private readonly IBeepTextBox _textBox;
         public int ScrollOffsetX { get; set; } = 0;
-        public int ScrollOffsetY { get; set; } = 0;
+        public int ScrollOffsetY { get; private set; } = 0;
         public bool ShowVerticalScrollBar { get; set; } = true;
         public bool ShowHorizontalScrollBar { get; set; } = true;
+
+        /// <summary>Total text height in pixels (line count x line height).</summary>
+        public int ContentHeight { get; private set; }
+        /// <summary>Visible text-area height, pushed by the control's paint path.</summary>
+        public int ViewportHeight { get; private set; } = 1;
+        public int LineHeight { get; private set; } = 16;
+        public int MaxScrollY => Math.Max(0, ContentHeight - ViewportHeight);
 
         public TextBoxScrollingHelper(IBeepTextBox textBox, TextBoxPerformanceHelper performance)
         {
             _textBox = textBox;
         }
 
-        public void UpdateContentSize() { }
-        public void InvalidateViewport() { }
-        public void HandleResize() { }
-        public void HandleMouseWheel(MouseEventArgs e) { }
-        public void ScrollToCaret(int caretPosition) { }
+        /// <summary>Recompute content height from the current lines and font.</summary>
+        public void UpdateContentSize()
+        {
+            var font = _textBox.TextFont;
+            LineHeight = font != null
+                ? Math.Max(1, (int)Math.Ceiling(TextUtils.MeasureText("Ag", font).Height))
+                : 16;
+            int lineCount = Math.Max(1, _textBox.GetLines()?.Count ?? 1);
+            ContentHeight = lineCount * LineHeight;
+            ClampY();
+        }
+
+        /// <summary>The paint path reports the visible text-area height here.</summary>
+        public void SetViewportHeight(int height)
+        {
+            ViewportHeight = Math.Max(1, height);
+            ClampY();
+        }
+
+        public void InvalidateViewport() => (_textBox as Control)?.Invalidate();
+
+        public void HandleResize() => ClampY();
+
+        public void HandleMouseWheel(MouseEventArgs e)
+        {
+            if (!_textBox.Multiline || MaxScrollY == 0) return;
+            int step = LineHeight * Math.Max(1, SystemInformation.MouseWheelScrollLines);
+            int newOffset = ScrollOffsetY - Math.Sign(e.Delta) * step;
+            newOffset = Math.Max(0, Math.Min(newOffset, MaxScrollY));
+            if (newOffset != ScrollOffsetY)
+            {
+                ScrollOffsetY = newOffset;
+                InvalidateViewport();
+            }
+        }
+
+        /// <summary>Vertical caret-follow for multiline: keep the caret's line in view.</summary>
+        public void ScrollToCaret(int caretPosition)
+        {
+            if (!_textBox.Multiline) return;
+            UpdateContentSize();
+
+            string text = _textBox.Text ?? string.Empty;
+            caretPosition = Math.Max(0, Math.Min(caretPosition, text.Length));
+            int line = 0;
+            for (int i = 0; i < caretPosition; i++)
+                if (text[i] == '\n') line++;
+
+            int caretY = line * LineHeight;
+            int before = ScrollOffsetY;
+            if (caretY < ScrollOffsetY)
+                ScrollOffsetY = caretY;
+            else if (caretY + LineHeight > ScrollOffsetY + ViewportHeight)
+                ScrollOffsetY = caretY + LineHeight - ViewportHeight;
+            ClampY();
+            if (ScrollOffsetY != before) InvalidateViewport();
+        }
+
+        private void ClampY() => ScrollOffsetY = Math.Max(0, Math.Min(ScrollOffsetY, MaxScrollY));
 
         public void Dispose() { }
     }

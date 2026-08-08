@@ -192,6 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (string.IsNullOrEmpty(_text))
             {
                 _lines.Add("");
+                _helper?.Scrolling?.UpdateContentSize();
                 return;
             }
             
@@ -214,6 +215,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure we always have at least one line
             if (_lines.Count == 0)
                 _lines.Add("");
+
+            // Content height must reflect the REBUILT lines (a pre-rebuild call was stale
+            // by one edit).
+            _helper?.Scrolling?.UpdateContentSize();
         }
         
         private System.Collections.Generic.List<string> WrapLine(string line, Graphics g)

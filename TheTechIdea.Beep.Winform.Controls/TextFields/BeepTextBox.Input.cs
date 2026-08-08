@@ -419,6 +419,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>Current horizontal scroll of the single-line text, in pixels.</summary>
         internal int HorizontalScrollOffset => _helper?.Scrolling?.ScrollOffsetX ?? 0;
 
+        /// <summary>Current vertical scroll of multiline text, in pixels.</summary>
+        internal int VerticalScrollOffset => _helper?.Scrolling?.ScrollOffsetY ?? 0;
+
         /// <summary>The caret's actual position for painting - SelectionStart is the selection
         /// ANCHOR and goes stale after ClearSelection (the painted caret froze at it).</summary>
         internal int VisibleCaretPosition => _helper?.Caret?.CaretPosition ?? 0;
@@ -434,11 +437,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            // Single-line horizontal follow. This was an empty stub: with text longer than
-            // the box the caret walked off the right edge and typing continued invisibly.
-            // Only left-aligned text scrolls; centre/right alignments re-layout instead.
-            if (TextAlignment != HorizontalAlignment.Left) { scrolling.ScrollOffsetX = 0; return; }
-
+            // Single-line horizontal caret-follow, alignment-independent: the offset is
+            // "pixels hidden left of the view"; the drawing origin model anchors unfocused
+            // overflow at the alignment's natural end.
             string text = _text ?? string.Empty;
             int caret = Math.Max(0, Math.Min(_helper.Caret?.CaretPosition ?? 0, text.Length));
             Font font = _textFont ?? Font;

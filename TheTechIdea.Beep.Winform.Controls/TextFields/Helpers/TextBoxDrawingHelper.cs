@@ -41,6 +41,55 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         private int ImageTextGap => S(4);
         private int ImageTextGapV => S(2);
         private int ScrollX => (_textBox as BeepTextBox)?.HorizontalScrollOffset ?? 0;
+        private int ScrollY => (_textBox as BeepTextBox)?.VerticalScrollOffset ?? 0;
+
+        /// <summary>
+        /// Left origin the text is drawn from. No overflow: the alignment decides. Overflow:
+        /// while focused the caret-follow offset governs (Home shows the head even when
+        /// right-aligned); unfocused, the alignment's natural anchor governs (right-aligned
+        /// long text shows its tail, centred shows its middle).
+        /// </summary>
+        /// <summary>
+        /// Alignment with RTL applied: RightToLeft flips Left and Right (a native RTL
+        /// textbox right-aligns its text; the flag alone only changes reading order).
+        /// </summary>
+        private HorizontalAlignment EffectiveAlignment
+        {
+            get
+            {
+                var a = _textBox.TextAlignment;
+                if (_textBox is Control c && c.RightToLeft == RightToLeft.Yes)
+                {
+                    if (a == HorizontalAlignment.Left) return HorizontalAlignment.Right;
+                    if (a == HorizontalAlignment.Right) return HorizontalAlignment.Left;
+                }
+                return a;
+            }
+        }
+
+        private int GetTextOriginX(Rectangle rect, int fullWidth)
+        {
+            if (fullWidth <= rect.Width)
+            {
+                return EffectiveAlignment switch
+                {
+                    HorizontalAlignment.Center => rect.X + (rect.Width - fullWidth) / 2,
+                    HorizontalAlignment.Right => rect.Right - fullWidth,
+                    _ => rect.X,
+                };
+            }
+
+            bool focused = (_textBox as Control)?.Focused == true;
+            int hidden = focused
+                ? ScrollX
+                : EffectiveAlignment switch
+                {
+                    HorizontalAlignment.Center => (fullWidth - rect.Width) / 2,
+                    HorizontalAlignment.Right => fullWidth - rect.Width,
+                    _ => ScrollX,
+                };
+            return rect.X - hidden;
+        }
 
         /// <summary>
         /// THE text rectangle: content rect inset, then adjusted for the image zone.
@@ -160,16 +209,40 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             // Apply text formatting flags
             TextFormatFlags flags = GetTextFormatFlags();
             
-            // Single-line text longer than the box scrolls left so the caret stays visible;
-            // draw shifted inside a clip so nothing bleeds past the text zone.
-            int scrollX = !_textBox.Multiline ? ScrollX : 0;
-            if (scrollX > 0)
+            if (_textBox.Multiline)
+            {
+                // Vertical scroll: draw the whole block shifted up inside a clip.
+                int scrollY = ScrollY;
+                if (scrollY > 0)
+                {
+                    var state = g.Save();
+                    g.SetClip(textRect);
+                    var shifted = new Rectangle(textRect.X, textRect.Y - scrollY,
+                                                textRect.Width, textRect.Height + scrollY);
+                    TextRenderer.DrawText(g, displayText, font, shifted, textColor, flags);
+                    g.Restore(state);
+                }
+                else
+                {
+                    TextRenderer.DrawText(g, displayText, font, textRect, textColor, flags);
+                }
+                return;
+            }
+
+            // Single line: one origin model for every alignment. Overflowing text draws
+            // left-aligned from the computed origin inside a clip (alignment decides the
+            // natural anchor; the caret-follow offset governs while focused).
+            var plainFlags = flags & ~TextFormatFlags.HorizontalCenter & ~TextFormatFlags.Right;
+            int fullW = TextRenderer.MeasureText(g, displayText, font,
+                new Size(int.MaxValue, int.MaxValue), plainFlags).Width;
+            if (fullW > textRect.Width)
             {
                 var state = g.Save();
                 g.SetClip(textRect);
-                var shifted = new Rectangle(textRect.X - scrollX, textRect.Y,
-                                            textRect.Width + scrollX, textRect.Height);
-                TextRenderer.DrawText(g, displayText, font, shifted, textColor, flags);
+                int originX = GetTextOriginX(textRect, fullW);
+                var shifted = new Rectangle(originX, textRect.Y, fullW + 2, textRect.Height);
+                TextRenderer.DrawText(g, displayText, font, shifted, textColor,
+                                      plainFlags | TextFormatFlags.Left);
                 g.Restore(state);
             }
             else
@@ -392,8 +465,11 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             
             Size selectedSize = TextRenderer.MeasureText(g, selectedText, font, actualTextRect.Size, measureFlags);
             
+            int selFullW = TextRenderer.MeasureText(g, text, font,
+                new Size(int.MaxValue, int.MaxValue), measureFlags).Width;
+            int selOriginX = _textBox.Multiline ? actualTextRect.X : GetTextOriginX(actualTextRect, selFullW);
             Rectangle selectionRect = new Rectangle(
-                actualTextRect.X + beforeSize.Width - (!_textBox.Multiline ? ScrollX : 0),
+                selOriginX + beforeSize.Width,
                 actualTextRect.Y,
                 selectedSize.Width,
                 Math.Max(selectedSize.Height, actualTextRect.Height));
@@ -444,20 +520,13 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             // Use the same TextFormatFlags as drawing to ensure consistent measurement
             TextFormatFlags measureFlags = GetTextFormatFlags();
             
-            // Determine left offset based on alignment
+            // One origin model with DrawText - alignment when it fits, scroll when it overflows.
             int baseX = actualTextRect.X;
-            Size fullTextSize = Size.Empty;
             if (!string.IsNullOrEmpty(text))
             {
-                fullTextSize = TextRenderer.MeasureText(g, text, font, actualTextRect.Size, measureFlags);
-                if (_textBox.TextAlignment == HorizontalAlignment.Center)
-                {
-                    baseX = actualTextRect.X + Math.Max(0, (actualTextRect.Width - fullTextSize.Width) / 2);
-                }
-                else if (_textBox.TextAlignment == HorizontalAlignment.Right)
-                {
-                    baseX = actualTextRect.Right - fullTextSize.Width;
-                }
+                int fullW = TextRenderer.MeasureText(g, text, font,
+                    new Size(int.MaxValue, int.MaxValue), measureFlags).Width;
+                baseX = GetTextOriginX(actualTextRect, fullW);
             }
             
             // Calculate caret position within the actual text area
@@ -468,7 +537,6 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 Size textSize = TextRenderer.MeasureText(g, textBeforeCaret, font, actualTextRect.Size, measureFlags);
                 caretX = baseX + textSize.Width;
             }
-            if (!_textBox.Multiline) caretX -= ScrollX;
             
             // Clamp caret within actualTextRect
             if (caretX < actualTextRect.X) caretX = actualTextRect.X;
@@ -506,12 +574,12 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             for (int i = 0; i < lines.Count; i++)
             {
                 string lineNumber = (i + 1).ToString();
+                int lh = GetLineHeight(g, lineFont);
+                int y = lineNumberRect.Y + i * lh - ScrollY; // gutter scrolls with the text
+                if (y + lh < lineNumberRect.Top || y > lineNumberRect.Bottom) continue;
                 Rectangle lineRect = new Rectangle(
-                    lineNumberRect.X + 2,
-                    lineNumberRect.Y + i * GetLineHeight(g, lineFont),
-                    lineNumberRect.Width - 4,
-                    GetLineHeight(g, lineFont));
-                
+                    lineNumberRect.X + 2, y, lineNumberRect.Width - 4, lh);
+
                 TextRenderer.DrawText(g, lineNumber, lineFont, lineRect,
                     _textBox.LineNumberForeColor, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
             }
@@ -667,8 +735,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 flags |= TextFormatFlags.RightToLeft;
             }
             
-            // Alignment
-            switch (_textBox.TextAlignment)
+            // Alignment (RTL flips Left/Right)
+            switch (EffectiveAlignment)
             {
                 case HorizontalAlignment.Left:
                     flags |= TextFormatFlags.Left;

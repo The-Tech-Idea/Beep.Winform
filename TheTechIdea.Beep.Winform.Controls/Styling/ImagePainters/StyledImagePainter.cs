@@ -90,36 +90,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 return;
             }
 
-            Image baseImage = LoadImageSized(imagePath, bounds.Size) ?? LoadImage(imagePath);
+            Image baseImage = GetTintableImage(imagePath, bounds.Size);
             if (baseImage == null)
             {
-                var painter = GetOrCreatePainter(imagePath);
-                if (painter != null)
-                {
-                    var oldApply = painter.ApplyThemeOnImage;
-                    var oldFill = painter.FillColor;
-                    var oldOpacity = painter.Opacity;
-                    try
-                    {
-                        // FillColor FIRST: ApplyThemeOnImage's false->true transition is
-                        // what applies the fill - the old order applied the STALE fill and
-                        // the requested tint never landed (the CLAUDE.md FillColor trap).
-                        painter.FillColor = tint;
-                        painter.Opacity = opacity;
-                        painter.ApplyThemeOnImage = true;
-                        g.SmoothingMode = SmoothingMode.AntiAlias;
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.SetClip(path);
-                        painter.DrawImage(g, bounds);
-                        g.ResetClip();
-                    }
-                    finally
-                    {
-                        painter.ApplyThemeOnImage = oldApply;
-                        painter.FillColor = oldFill;
-                        painter.Opacity = oldOpacity;
-                    }
-                }
+                BeepLog.WarnOnce(imagePath, null, $"resolve image '{imagePath}' for tinting", "nothing painted");
                 return;
             }
 
@@ -708,39 +682,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 return;
             }
 
-            Image baseImage = LoadImageSized(imagePath, bounds.Size) ?? LoadImage(imagePath);
+            Image baseImage = GetTintableImage(imagePath, bounds.Size);
             if (baseImage == null)
             {
-                var painter = GetOrCreatePainter(imagePath);
-                if (painter != null)
-                {
-                    var oldApply = painter.ApplyThemeOnImage;
-                    var oldFill = painter.FillColor;
-                    var oldOpacity = painter.Opacity;
-                    try
-                    {
-                        // FillColor FIRST: ApplyThemeOnImage's false->true transition is
-                        // what applies the fill - the old order applied the STALE fill and
-                        // the requested tint never landed (the CLAUDE.md FillColor trap).
-                        painter.FillColor = tint;
-                        painter.Opacity = opacity;
-                        painter.ApplyThemeOnImage = true;
-                        using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
-                        {
-                            g.SmoothingMode = SmoothingMode.AntiAlias;
-                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                            g.SetClip(path);
-                            painter.DrawImage(g, bounds);
-                            g.ResetClip();
-                        }
-                    }
-                    finally
-                    {
-                        painter.ApplyThemeOnImage = oldApply;
-                        painter.FillColor = oldFill;
-                        painter.Opacity = oldOpacity;
-                    }
-                }
+                BeepLog.WarnOnce(imagePath, null, $"resolve image '{imagePath}' for tinting", "nothing painted");
                 return;
             }
 
@@ -1023,6 +968,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 new float[] { 0, 0, 0, opacity, 0 },
                 new float[] { tint.R / 255f, tint.G / 255f, tint.B / 255f, 0, 1 }
             });
+
+        /// <summary>
+        /// Base artwork for tinting, rasterized at the requested size: sized SVG raster,
+        /// cached bitmap, or - last resort - the ImagePainter rendered to an offscreen
+        /// bitmap with its artwork colours UNTOUCHED. Tinting recolours the pixels that
+        /// exist (replace RGB, keep alpha); it must never route through the FillColor
+        /// machinery, which floods every SVG node and turns outline glyphs into solid
+        /// filled blobs.
+        /// </summary>
+        private static Image GetTintableImage(string imagePath, Size size)
+        {
+            var img = LoadImageSized(imagePath, size) ?? LoadImage(imagePath);
+            if (img != null) return img;
+
+            var painter = GetOrCreatePainter(imagePath);
+            if (painter == null) return null;
+
+            var bmp = new Bitmap(Math.Max(1, size.Width), Math.Max(1, size.Height));
+            using (var tg = Graphics.FromImage(bmp))
+            {
+                tg.Clear(Color.Transparent);
+                tg.SmoothingMode = SmoothingMode.HighQuality;
+                tg.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                tg.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                painter.DrawImage(tg, new Rectangle(0, 0, bmp.Width, bmp.Height));
+            }
+            return bmp;
+        }
 
         private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Image> _sizedSvgCache = new();
 

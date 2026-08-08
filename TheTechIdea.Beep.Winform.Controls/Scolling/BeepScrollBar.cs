@@ -40,11 +40,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         // Helper: effective upper bound for Value (like Win32 ScrollBar: Maximum - LargeChange)
         private int ValueUpperBound => Math.Max(_minimum, _maximum - _largeChange);
 
-        // COLORS (managed via theme but customizable)
-        private Color _trackColor = SystemColors.ControlDark;
-        private Color _thumbColor = SystemColors.ControlDarkDark;
-        private Color _thumbColorHover = SystemColors.ControlDark;
-        private Color _thumbColorActive = SystemColors.ControlDarkDark;
+        // COLORS: Empty = themed; an explicit caller colour survives theme changes
+        // because resolution happens per paint (custom-else-slot), never by stamping.
+        private Color _trackColor = Color.Empty;
+        private Color _thumbColor = Color.Empty;
+        private Color _thumbColorHover = Color.Empty;
+        private Color _thumbColorActive = Color.Empty;
 
         // PROPERTIES
         [Category("Behavior")]
@@ -78,7 +79,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             get => _minimum;
             set
             {
-                if (DesignMode) return;
                 _minimum = value;
                 if (_minimum > _maximum) _maximum = _minimum + 1;
                 if (_largeChange >= _maximum - _minimum)
@@ -96,7 +96,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             get => _maximum;
             set
             {
-                if (DesignMode) return;
                 _maximum = Math.Max(value, _minimum + 1);
                 if (_largeChange > _maximum - _minimum)
                     _largeChange = Math.Max(1, (_maximum - _minimum));
@@ -112,7 +111,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             get => _value;
             set
             {
-                if (DesignMode) return;
                 // Clamp to [Minimum, Maximum - LargeChange]
                 int upper = ValueUpperBound;
                 int newValue = Math.Max(_minimum, Math.Min(value, upper));
@@ -135,7 +133,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             get => _largeChange;
             set
             {
-                if (DesignMode) return;
                 int range = Math.Max(1, (_maximum - _minimum));
                 _largeChange = Math.Max(1, Math.Min(value, range));
                 if (_value > ValueUpperBound) _value = ValueUpperBound;
@@ -150,14 +147,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             get => _smallChange;
             set
             {
-                if (DesignMode) return;
                 _smallChange = Math.Max(1, value);
                 Refresh();
             }
         }
 
         [Category("Appearance")]
-        [DefaultValue(typeof(Color), "ControlDark")]
         public Color TrackColor
         {
             get => _trackColor;
@@ -165,7 +160,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         }
 
         [Category("Appearance")]
-        [DefaultValue(typeof(Color), "ControlDarkDark")]
         public Color ThumbColor
         {
             get => _thumbColor;
@@ -173,7 +167,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         }
 
         [Category("Appearance")]
-        [DefaultValue(typeof(Color), "ControlDark")]
         public Color ThumbColorHover
         {
             get => _thumbColorHover;
@@ -181,34 +174,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         }
 
         [Category("Appearance")]
-        [DefaultValue(typeof(Color), "ControlDarkDark")]
         public Color ThumbColorActive
         {
             get => _thumbColorActive;
             set { _thumbColorActive = value; Refresh(); }
         }
 
-        // Cached GDI resources (UI-thread only, never dispose)
-        private static readonly System.Collections.Generic.Dictionary<int, SolidBrush> _brushes = new();
-        private static SolidBrush GetBrush(Color c)
-        {
-            int k = c.ToArgb();
-            if (_brushes.TryGetValue(k, out var b) && b != null) return b;
-            b = new SolidBrush(c);
-            _brushes[k] = b;
-            return b;
-        }
-
         // CONSTRUCTOR
         public BeepScrollBar()
         {
-            if (!DesignMode)
-            {
-                SetStyle(ControlStyles.AllPaintingInWmPaint |
-                         ControlStyles.OptimizedDoubleBuffer |
-                         ControlStyles.ResizeRedraw |
-                         ControlStyles.UserPaint, true);
-            }
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.UserPaint, true);
             // FIXED: Use DPI-scaled sizes
             if (_scrollOrientation == Orientation.Vertical)
                 Size = new Size(GetScaledScrollbarWidth(), GetScaledScrollbarHeight());
@@ -221,36 +199,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             AccessibleDescription = "A custom scrollbar control";
         }
 
-        // THEMING
-        public override void ApplyTheme()
-        {
-            base.ApplyTheme();
-            BackColor = _currentTheme.ScrollBarBackColor;
-            TrackColor = _currentTheme.ScrollBarTrackColor;
-            ThumbColor = _currentTheme.ScrollBarThumbColor;
-            ThumbColorHover = _currentTheme.ScrollBarHoverThumbColor;
-            ThumbColorActive = _currentTheme.ScrollBarActiveThumbColor;
-        }
-
-        // DRAWING
+        // DRAWING — colours resolve per paint: custom-else-slot from the ScrollBar*
+        // family, high contrast from the system palette. The previous ApplyTheme
+        // STAMPED the slots into the custom properties, which made an explicit caller
+        // colour indistinguishable from a themed one.
         protected override void DrawContent(Graphics g)
         {
             UpdateDrawingRect();
             var r = DrawingRect;
             if (r.Width <= 0 || r.Height <= 0) return;
 
-            // Background
-            g.FillRectangle(GetBrush(BackColor), r);
+            bool hc = SystemInformation.HighContrast;
+            Color track = hc ? SystemColors.ScrollBar
+                : _trackColor != Color.Empty ? _trackColor : _currentTheme.ScrollBarTrackColor;
+            Color thumb;
+            if (_dragging)
+                thumb = hc ? SystemColors.Highlight
+                    : _thumbColorActive != Color.Empty ? _thumbColorActive : _currentTheme.ScrollBarActiveThumbColor;
+            else if (_isHovering)
+                thumb = hc ? SystemColors.Highlight
+                    : _thumbColorHover != Color.Empty ? _thumbColorHover : _currentTheme.ScrollBarHoverThumbColor;
+            else
+                thumb = hc ? SystemColors.ControlText
+                    : _thumbColor != Color.Empty ? _thumbColor : _currentTheme.ScrollBarThumbColor;
 
-            // Track
-            g.FillRectangle(GetBrush(TrackColor), r);
-
-            // Thumb
-            var thumbRect = GetThumbRectangle();
-            Color thumbCol = _dragging ? ThumbColorActive :
-                             _isHovering ? ThumbColorHover :
-                                           ThumbColor;
-            g.FillRectangle(GetBrush(thumbCol), thumbRect);
+            using (var trackBrush = new SolidBrush(track))
+            {
+                g.FillRectangle(trackBrush, r);
+            }
+            using (var thumbBrush = new SolidBrush(thumb))
+            {
+                g.FillRectangle(thumbBrush, GetThumbRectangle());
+            }
         }
         // ADD: Override DPI change handling
         protected override void OnDpiChangedAfterParent(EventArgs e)

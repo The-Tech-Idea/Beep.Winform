@@ -26,9 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         protected internal override Padding StylePadding => new Padding(0);
         #region Fields
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
-        private BeepButton _button;  // Single button instance for drawing
-        private BeepImage _image;    // Single image instance for drawing
-        private BeepLabel _label;    // Single label instance for drawing
+        private BeepImage _image;    // Single image instance for drawing item icons
         private int _itemHeight = 30; // Height for vertical, width for horizontal
         private int _itemWidth = 100; // Width for vertical orientation
         private int _visibleItemsCount;
@@ -82,8 +80,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Color of the scroll indicators")]
-        public Color ScrollIndicatorColor { get; set; } = Color.Gray;
+        [Description("Custom colour of the scroll indicators; Empty follows the theme's scrollbar thumb slot.")]
+        public Color ScrollIndicatorColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -249,24 +247,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             // Enable hit testing
             HitAreaEventOn = true;
 
-            // Initialize drawing components
-            _button = new BeepButton
-            {
-                IsChild = true,
-                ShowAllBorders = false,
-                ShowTopBorder = false,
-                ShowBottomBorder = false,
-                ShowLeftBorder = false,
-                ShowRightBorder = false,
-                IsShadowAffectedByTheme = false,
-                AutoSize = false,
-                TextAlign = ContentAlignment.MiddleLeft,
-                ShowFocusIndicator = false,
-                BorderThickness = 0,
-                UseScaledFont = false,
-                Padding = new Padding(8, 0, 8, 0)
-            };
-
             _image = new BeepImage
             {
                 IsChild = true,
@@ -274,13 +254,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                 Margin = new Padding(0)
             };
 
-            _label = new BeepLabel
-            {
-                IsChild = true,
-                Dock = DockStyle.None,
-                Margin = new Padding(0),
-                TextAlign = ContentAlignment.MiddleLeft
-            };
 
             // Accessibility
             AccessibleRole = AccessibleRole.List;
@@ -314,13 +287,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         #region Virtual Button Management
         public void UpdateVirtualItems()
         {
-            // Clear old hit test areas
-            ClearHitList();
-
-            if (_listItems == null || _listItems.Count == 0)
-                return;
-
-            // Calculate and set up hit areas
             UpdateItemPositions();
         }
 
@@ -339,80 +305,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             }
         }
 
+        /// <summary>
+        /// The ONE item-rect authority. Drawing, hit areas and clicks all use it - the
+        /// previous three copies disagreed (a centred pre-paint layout vs the drawn row
+        /// layout vs a third copy in OnMouseClick), so hit rects never matched the rows
+        /// and every click selected twice.
+        /// </summary>
+        private Rectangle GetItemRect(int i)
+        {
+            float itemPosition = (i - _scrollOffset) * (_itemHeight + _itemSpacing);
+            if (_orientation == ScrollOrientation.VerticalScroll)
+            {
+                int yPos = DrawingRect.Top + Padding.Top + (int)itemPosition;
+                return new Rectangle(DrawingRect.Left, yPos, DrawingRect.Width, _itemHeight);
+            }
+
+            int xPos = DrawingRect.Left + Padding.Left + (int)itemPosition;
+            return new Rectangle(xPos, DrawingRect.Top, _itemHeight, DrawingRect.Height);
+        }
+
         private void UpdateItemPositions()
         {
+            ClearHitList();
             if (_listItems.Count == 0)
                 return;
 
-            // Clear existing hit areas
-            ClearHitList();
-
-            // Calculate visible area dimensions with consistent padding
-            int padding = 8; // Consistent padding value
-            int visibleWidth = DrawingRect.Width - (padding * 2);
-            int visibleHeight = DrawingRect.Height - (padding * 2);
-
-            // Calculate item dimensions with proper spacing
-            int effectiveItemHeight = _itemHeight + _itemSpacing;
-            int effectiveItemWidth = _orientation == ScrollOrientation.VerticalScroll
-                ? Math.Min(_itemWidth, visibleWidth)
-                : _itemHeight;
-
-            // Calculate centering offset
-            float totalSize = _listItems.Count * effectiveItemHeight - _itemSpacing;
-            float visibleSize = _orientation == ScrollOrientation.VerticalScroll ? visibleHeight : visibleWidth;
-            float centeringOffset = Math.Max(0, (visibleSize - totalSize) / 2);
-
-            // Calculate visible range
             int startIndex = Math.Max(0, (int)Math.Floor(_scrollOffset));
-            int endIndex = Math.Min(startIndex + _visibleItemsCount + 2, _listItems.Count); // +2 for partially visible items
+            int endIndex = Math.Min(startIndex + _visibleItemsCount + 2, _listItems.Count);
 
             for (int i = startIndex; i < endIndex; i++)
             {
-                float itemPosition = (i - _scrollOffset) * effectiveItemHeight;
-                Rectangle itemRect;
-
-                if (_orientation == ScrollOrientation.VerticalScroll)
-                {
-                    int yPos = (int)(padding + centeringOffset + itemPosition) + DrawingRect.Top;
-                    int xPos = padding + (visibleWidth - effectiveItemWidth) / 2 + DrawingRect.Left;
-                    itemRect = new Rectangle(xPos, yPos, effectiveItemWidth, _itemHeight);
-                }
-                else
-                {
-                    int xPos = (int)(padding + centeringOffset + itemPosition) + DrawingRect.Left;
-                    int yPos = padding + (visibleHeight - _itemHeight) / 2 + DrawingRect.Top;
-                    itemRect = new Rectangle(xPos, yPos, effectiveItemHeight, _itemHeight);
-                }
-
-                // Capture index for the lambda to avoid closure issues
                 int index = i;
-                AddHitArea(
-                    $"Item_{index}",
-                    itemRect,
-                    null,
-                    () => ItemClicked(index)
-                );
+                AddHitArea($"Item_{index}", GetItemRect(i), null, () => ItemClicked(index));
             }
         }
 
-        // Handler for item click
+        // One method decides: typing, clicks and programmatic assignment all funnel
+        // through the SelectedIndex setter (selection state, auto-scroll, event, repaint).
         private void ItemClicked(int index)
         {
             if (index >= 0 && index < _listItems.Count)
             {
-                // Clear previous selection
-                if (SelectedItem != null)
-                    SelectedItem.IsSelected = false;
-
-                // Set new selection
-                _selectedIndex = index;
-                _listItems[index].IsSelected = true;
-
-                // Fire the event
-                OnItemSelected();
-
-                Invalidate();
+                SelectedIndex = index;
             }
         }
         #endregion
@@ -481,11 +415,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             DrawContent(graphics);
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-        }
-
         // Override DrawContent to render scroll indicators and virtual buttons
         protected override void DrawContent(Graphics g)
         {
@@ -494,55 +423,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             if (_listItems == null || _listItems.Count == 0)
                 return;
 
-            // Clear existing hit areas before adding new ones
-            ClearHitList();
-
             int startIndex = Math.Max(0, (int)Math.Floor(_scrollOffset));
             int endIndex = Math.Min(startIndex + _visibleItemsCount + 1, _listItems.Count);
 
             for (int i = startIndex; i < endIndex; i++)
             {
                 var item = _listItems[i];
-                float itemPosition = (i - _scrollOffset) * (_itemHeight + _itemSpacing);
-                Rectangle itemRect;
+                Rectangle itemRect = GetItemRect(i);
 
-                if (_orientation == ScrollOrientation.VerticalScroll)
-                {
-                    int yPos = DrawingRect.Top + Padding.Top + (int)itemPosition;
-                    itemRect = new Rectangle(DrawingRect.Left, yPos, DrawingRect.Width, _itemHeight);
-                }
-                else
-                {
-                    int xPos = DrawingRect.Left + Padding.Left + (int)itemPosition;
-                    itemRect = new Rectangle(xPos, DrawingRect.Top, _itemHeight, DrawingRect.Height);
-                }
-
-                // Add hit area with captured index
-                int index = i;
-                AddHitArea(
-                    $"Item_{index}",
-                    itemRect,
-                    null,
-                    () => ItemClicked(index)
-                );
-
-                // Draw item background based on state
-                Color backColor = BackColor;
-                Color foreColor = ForeColor;
+                // Item colours from the theme's OWN List* family (the generic control
+                // slots painted every item the panel colour; the List* slots were only
+                // ever stamped into a helper button nothing drew with).
+                Color backColor = _currentTheme.ListBackColor;
+                Color foreColor = _currentTheme.ListItemForeColor;
 
                 if (item.IsSelected)
                 {
-                    backColor = SelectedBackColor;
-                    foreColor = SelectedForeColor;
+                    backColor = _currentTheme.ListItemSelectedBackColor;
+                    foreColor = _currentTheme.ListItemSelectedForeColor;
                 }
                 else if (item == _hoveredItem && EnableItemHoverEffects)
                 {
-                    backColor = HoverBackColor;
-                    foreColor = HoverForeColor;
+                    backColor = _currentTheme.ListItemHoverBackColor;
+                    foreColor = _currentTheme.ListItemHoverForeColor;
                 }
 
-                // Draw the item background
-                g.FillRectangle(GetBrush(backColor), itemRect);
+                using (var itemBrush = new SolidBrush(backColor))
+                {
+                    g.FillRectangle(itemBrush, itemRect);
+                }
 
                 // Draw checkbox if enabled
                 int currentX = itemRect.Left + padding;
@@ -618,7 +527,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
             float scrollPercentage = _scrollOffset / Math.Max(1, _listItems.Count - _visibleItemsCount);
             float visiblePercentage = Math.Min(1.0f, visibleSize / contentSize);
 
-            var indicatorBrush = GetBrush(ScrollIndicatorColor);
+            Color indicatorColor = ScrollIndicatorColor != Color.Empty
+                ? ScrollIndicatorColor
+                : _currentTheme.ScrollBarThumbColor;
+            using var indicatorBrush = new SolidBrush(indicatorColor);
             if (_orientation == ScrollOrientation.VerticalScroll)
             {
                     // Vertical indicators - right side
@@ -659,17 +571,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                         }
                     }
                 }
-        }
-
-        private static readonly System.Collections.Generic.Dictionary<int, SolidBrush> _brushCache = new();
-
-        private static SolidBrush GetBrush(Color color)
-        {
-            int key = color.ToArgb();
-            if (_brushCache.TryGetValue(key, out var b) && b != null) return b;
-            b = new SolidBrush(color);
-            _brushCache[key] = b;
-            return b;
         }
 
         private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
@@ -760,12 +661,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                     ? (e.Y - _dragStartPoint.Y) / (float)(_itemHeight + _itemSpacing)
                     : (e.X - _dragStartPoint.X) / (float)(_itemHeight + _itemSpacing);
 
-                _targetScrollOffset = _dragStartOffset - delta;
-                _scrollOffset = _targetScrollOffset; // Direct update during drag
-
-                // Ensure we stay within bounds
-                _targetScrollOffset = Math.Max(0, Math.Min(_targetScrollOffset,
+                _targetScrollOffset = Math.Max(0, Math.Min(_dragStartOffset - delta,
                     Math.Max(0, _listItems.Count - _visibleItemsCount)));
+                _scrollOffset = _targetScrollOffset; // Direct update during drag
 
                 UpdateItemPositions();
                 Invalidate();
@@ -802,42 +700,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                 Math.Max(0, _listItems.Count - _visibleItemsCount)));
         }
 
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
-
-            if (_listItems == null || _listItems.Count == 0)
-                return;
-
-            // Calculate the visible range of items
-            int startIndex = Math.Max(0, (int)Math.Floor(_scrollOffset));
-            int endIndex = Math.Min(startIndex + _visibleItemsCount + 1, _listItems.Count);
-
-            // Iterate through visible items to check if click is within any item
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                float itemPosition = (i - _scrollOffset) * (_itemHeight + _itemSpacing);
-                Rectangle itemRect;
-
-                if (_orientation == ScrollOrientation.VerticalScroll)
-                {
-                    int yPos = DrawingRect.Top + Padding.Top + (int)itemPosition;
-                    itemRect = new Rectangle(DrawingRect.Left, yPos, DrawingRect.Width, _itemHeight);
-                }
-                else
-                {
-                    int xPos = DrawingRect.Left + Padding.Left + (int)itemPosition;
-                    itemRect = new Rectangle(xPos, DrawingRect.Top, _itemHeight, DrawingRect.Height);
-                }
-
-                if (itemRect.Contains(e.Location))
-                {
-                    // Direct call to item click handler
-                    ItemClicked(i);
-                    return; // Exit after finding and clicking the item
-                }
-            }
-        }
 
         // Add keyboard navigation support
         protected override void OnKeyDown(KeyEventArgs e)
@@ -931,33 +793,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            if (_currentTheme == null) return;
 
-            // Apply theme to button helper
-            if (_button != null)
-            {
-                _button.Theme = Theme;
-                _button.TextFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont) : TextFont;
-                _button.BackColor = _currentTheme.ListBackColor;
-                _button.ForeColor = _currentTheme.ListItemForeColor;
-                _button.HoverBackColor = _currentTheme.ListItemHoverBackColor;
-                _button.HoverForeColor = _currentTheme.ListItemHoverForeColor;
-                _button.SelectedBackColor = _currentTheme.ListItemSelectedBackColor;
-                _button.SelectedForeColor = _currentTheme.ListItemSelectedForeColor;
-            }
-
-            // Apply theme to image helper
             if (_image != null)
             {
                 _image.Theme = Theme;
                 _image.ApplyThemeOnImage = _currentTheme.ApplyThemeToIcons;
             }
 
-            // Apply theme to label helper
-            if (_label != null)
+            // The themed list font reaches the ACTUAL text rendering now - it used to be
+            // stamped into a BeepButton helper that nothing ever drew with.
+            if (UseThemeFont)
             {
-                _label.Theme = Theme;
-                _label.TextFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont) : TextFont;
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont) ?? _textFont;
             }
 
             Invalidate();
@@ -970,10 +817,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
                 _animationTimer?.Stop();
                 _animationTimer?.Dispose();
 
-                // Dispose drawing helpers
-                _button?.Dispose();
                 _image?.Dispose();
-                _label?.Dispose();
             }
             base.Dispose(disposing);
         }

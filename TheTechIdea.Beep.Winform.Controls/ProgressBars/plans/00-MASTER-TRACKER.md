@@ -74,6 +74,24 @@ renders non-Empty after F5 (the census check must fail before the fix). Eyeball.
 2. F5 Rustic wholesale — build + commit
 3. F6 probe + eyeball — commit fixes
 
+## Batches landed
+
+1. d0822ae3 — F1–F4 as planned (getter resolution, flag web + stamping + ColorProfile
+   deleted, helpers rewritten slot-direct incl. the per-call reflection probe, fictional
+   catch towers flattened, HC stamping adapters deleted, painter guards swept).
+2. bb8bf810 — F5: RusticTheme 319 empty slots filled wholesale by role over its palette
+   (hand fixes: ProgressBarForeColor is the FILL not ink; Inactive* had matched the
+   'active' substring and taken selected colours).
+3. BarProbe 8/8, renders eyeballed: fill vs track at 30%, growth to 70%, explicit
+   ProgressColor survives a live theme change, live ArcLinux→Zen re-render, auto-colour
+   resolves Error@20/Success@90 WITHOUT poisoning the custom slot, Linear/Ring/DotsLoader
+   distinct, Rustic paints its sienna fill (previously Color.Empty).
+
+Observation (not fixed): at low values the centred caption sits over the TRACK while the
+WCAG floor adjusts it against the FILL colour, so light themes wash the caption out until
+the fill reaches the centre. Not verified: the other 9 painter kinds (rendered by
+registry, reviewed only), indeterminate mode, milestone/tooltip integration, RTL.
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role from the control's OWN family, customs as

@@ -60,15 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public virtual void ApplyTheme()
         {
-            if (_currentTheme == null)
-            {
-                BackColor = Color.FromArgb(240, 240, 245);
-                ForeColor = Color.FromArgb(33, 37, 41);
-                return;
-            }
-
-            BackColor = TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme, true);
-            ForeColor = TabThemeHelpers.GetTabTextColor(_currentTheme, true);
+            BackColor = TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme);
+            ForeColor = TabThemeHelpers.GetTabTextColor(_currentTheme);
            // Font = BeepThemesManager.ToFont(_currentTheme.TabFont);
             _textFont = TabFontHelpers.ResolveSafeFont(BeepThemesManager.ToFont(_currentTheme.TabFont), this);
 

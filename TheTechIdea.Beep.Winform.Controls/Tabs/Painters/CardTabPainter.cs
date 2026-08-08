@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
             int a = (int)(Math.Clamp(alpha, 0f, 1f) * 255f);
             Color borderColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers
-                .GetTabBorderColor(Theme, Theme != null, itemLayout.Item.IsSelected, false);
+                .GetTabBorderColor(Theme, itemLayout.Item.IsSelected, false);
 
             // Separated cards, and the selected one lifted a little higher than its neighbours.
             int lift = itemLayout.Item.IsSelected ? 0 : Scale(3);
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 // *unselected* cards in the primary colour under MaterialDesignTheme, so the tabs
                 // looked inverted — every unselected tab appeared selected.
                 Color resolved = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers
-                    .GetTabBackgroundColor(Theme, Theme != null, itemLayout.Item.IsSelected, itemLayout.Item.IsHovered);
+                    .GetTabBackgroundColor(Theme, itemLayout.Item.IsSelected, itemLayout.Item.IsHovered);
 
                 // Every tab is a card, not just the selected one — that is what separates this style
                 // from Classic, where only the selected tab has a body at all. An unselected card
@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 if (!itemLayout.Item.IsSelected)
                 {
                     Color header = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers
-                        .GetHeaderBackgroundColor(Theme, Theme != null);
+                        .GetHeaderBackgroundColor(Theme);
                     if (Math.Abs(resolved.R - header.R) + Math.Abs(resolved.G - header.G)
                         + Math.Abs(resolved.B - header.B) <= 24)
                     {
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                     // Accent stripe along the card's top edge, and a merge line along the bottom so
                     // the selected card joins the content area.
                     Color accent = Color.FromArgb(a, TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
-                        .TabThemeHelpers.GetTabIndicatorColor(Theme, Theme != null));
+                        .TabThemeHelpers.GetTabIndicatorColor(Theme));
                     var accentBrush = PaintersFactory.GetSolidBrush(accent);
                     g.FillRectangle(accentBrush, drawRect.X + Scale(2), drawRect.Y,
                         drawRect.Width - Scale(4), Scale(3));

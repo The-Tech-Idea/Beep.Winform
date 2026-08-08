@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             }
 
             // BT-03: Use theme-derived overlay colors
-            Color baseOverlay = TabsOwner?.CurrentTheme?.ForeColor ?? SystemColors.ControlText;
+            Color baseOverlay = TabThemeHelpers.GetTabTextColor(TabsOwner?.CurrentTheme);
             Color overlayColor = itemLayout.Item.IsCloseButtonPressed
                 ? Color.FromArgb(72, baseOverlay)
                 : Color.FromArgb(36, baseOverlay);
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
                 return;
             }
 
-            using Pen markerPen = new Pen(Color.Black, 2f);
+            using Pen markerPen = new Pen(TabThemeHelpers.GetTabIndicatorColor(TabsOwner?.CurrentTheme), 2f);
             graphics.DrawLine(markerPen, DragFeedback.MarkerStart, DragFeedback.MarkerEnd);
         }
 

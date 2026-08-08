@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             // Resolved through the colour seam: reading Theme.ButtonBackColor directly filled
             // *unselected* buttons with the primary colour under MaterialDesignTheme.
             Color fillColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers
-                .GetTabBackgroundColor(Theme, Theme != null, itemLayout.Item.IsSelected, itemLayout.Item.IsHovered);
+                .GetTabBackgroundColor(Theme, itemLayout.Item.IsSelected, itemLayout.Item.IsHovered);
             Color foreColor = GetContrastColor(fillColor);
 
             using (GraphicsPath path = GetRoundedRect(buttonRect, Scale(4)))
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 if (!itemLayout.Item.IsSelected)
                 {
                     var pen = PaintersFactory.GetPen(TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
-                        .TabThemeHelpers.GetTabBorderColor(Theme, Theme != null, false, itemLayout.Item.IsHovered));
+                        .TabThemeHelpers.GetTabBorderColor(Theme, false, itemLayout.Item.IsHovered));
                     g.DrawPath(pen, path);
                 }
             }

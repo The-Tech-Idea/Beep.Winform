@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             {
                 int a = (int)(Math.Clamp(alpha, 0f, 1f) * 255f);
                 Color fill = TabThemeHelpers.GetTabBackgroundColor(
-                    Theme, Theme != null, item.IsSelected, item.IsHovered);
+                    Theme, item.IsSelected, item.IsHovered);
 
                 // Hover is a hint, not a selection: same shape, much lighter.
                 int fillAlpha = item.IsSelected ? a : (int)(a * 0.30f);
@@ -59,8 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         protected override Color GetTabSurfaceColor(BeepTabItem item)
         {
             return item.IsSelected
-                ? TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, true, false)
-                : TabThemeHelpers.GetHeaderBackgroundColor(Theme, Theme != null);
+                ? TabThemeHelpers.GetTabBackgroundColor(Theme, true, false)
+                : TabThemeHelpers.GetHeaderBackgroundColor(Theme);
         }
     }
 }

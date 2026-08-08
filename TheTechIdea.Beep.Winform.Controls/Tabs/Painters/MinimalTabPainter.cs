@@ -35,8 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             // Dim unselected labels toward the strip so the selected one reads as selected without
             // any chrome. Blended rather than alpha-faded so the result stays a solid, legible
             // colour instead of a washed-out one.
-            Color text = TabThemeHelpers.GetTabTextColor(Theme, Theme != null, false, false);
-            Color strip = TabThemeHelpers.GetHeaderBackgroundColor(Theme, Theme != null);
+            Color text = TabThemeHelpers.GetTabTextColor(Theme, false, false);
+            Color strip = TabThemeHelpers.GetHeaderBackgroundColor(Theme);
             Color dimmed = Blend(text, strip, UnselectedTextStrength);
 
             base.DrawTabItemContent(g, itemLayout, alpha, ColorUtils.EnsureReadable(dimmed, strip));
@@ -54,6 +54,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
         /// <summary>This painter draws no tab fill, so the text sits on the header background.</summary>
         protected override Color GetTabSurfaceColor(BeepTabItem item)
-            => TabThemeHelpers.GetHeaderBackgroundColor(Theme, Theme != null);
+            => TabThemeHelpers.GetHeaderBackgroundColor(Theme);
     }
 }

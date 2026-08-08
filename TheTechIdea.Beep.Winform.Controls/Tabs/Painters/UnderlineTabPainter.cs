@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             if (headerBounds.Width <= 0 || headerBounds.Height <= 0) return;
 
             // The rule the accent bar rides on, across the entire strip.
-            Color ruleColor = TabThemeHelpers.GetTabBorderColor(Theme, Theme != null, false, false);
+            Color ruleColor = TabThemeHelpers.GetTabBorderColor(Theme, false, false);
             var brush = PaintersFactory.GetSolidBrush(ruleColor);
             int ruleHeight = Scale(RuleThickness);
             g.FillRectangle(brush,
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         {
             if (accentBounds == RectangleF.Empty || alpha <= 0f) return;
 
-            Color accent = TabThemeHelpers.GetTabIndicatorColor(Theme, Theme != null);
+            Color accent = TabThemeHelpers.GetTabIndicatorColor(Theme);
             Color faded = Color.FromArgb((int)(Math.Clamp(alpha, 0f, 1f) * 255f), accent);
 
             // Full tab width and heavier than the underlying rule, so the selection reads instantly.
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                                                    float alpha, Color? overrideTextColor = null)
         {
             Color? accent = itemLayout.Item.IsSelected
-                ? TabThemeHelpers.GetTabIndicatorColor(Theme, Theme != null)
+                ? TabThemeHelpers.GetTabIndicatorColor(Theme)
                 : (Color?)null;
 
             base.DrawTabItemContent(g, itemLayout, alpha, overrideTextColor ?? accent);
@@ -72,6 +72,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
         /// <summary>This painter draws no tab fill, so the text sits on the header background.</summary>
         protected override Color GetTabSurfaceColor(BeepTabItem item)
-            => TabThemeHelpers.GetHeaderBackgroundColor(Theme, Theme != null);
+            => TabThemeHelpers.GetHeaderBackgroundColor(Theme);
     }
 }

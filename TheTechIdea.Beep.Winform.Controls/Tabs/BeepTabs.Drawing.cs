@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
 
             // BT-01: Error overlay with theme-derived colors
-            using Brush overlayBrush = new SolidBrush(Color.FromArgb(180, _currentTheme?.ErrorColor ?? Color.FromArgb(220, 0, 0)));
+            using Brush overlayBrush = new SolidBrush(Color.FromArgb(180, _currentTheme.ErrorColor));
             g.FillRectangle(overlayBrush, bounds);
 
             Rectangle textBounds = Rectangle.Inflate(bounds, -4, -4);

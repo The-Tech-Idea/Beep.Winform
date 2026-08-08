@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
         // ── Data ──────────────────────────────────────────────────────────────
 
         private readonly IReadOnlyList<BeepTabQuickSwitchEntry> _allEntries;
-        private readonly IBeepTheme?                             _currentTheme;
+        private readonly IBeepTheme                              _currentTheme;
         private List<BeepTabQuickSwitchEntry> _filtered = new();
 
         // ── Result ────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
             Point                                   screenPosition)
         {
             _allEntries   = entries;
-            _currentTheme = theme;
+            _currentTheme = theme ?? BeepThemesManager.CurrentTheme;
 
             // DPI-scale layout constants using a temporary control for DPI context
             var dpi = this;
@@ -103,14 +103,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
             Size            = new Size(PopupWidth, PopupHeight);
             Location        = screenPosition;
             KeyPreview      = true;
-            BackColor       = ThemeColor(_currentTheme?.PanelBackColor, SystemColors.Window);
+            BackColor       = _currentTheme.PanelBackColor;
 
             // ── Outer frame ───────────────────────────────────────────────────
             _frame = new Panel
             {
                 Dock      = DockStyle.Fill,
                 Padding   = new Padding(Pad),
-                BackColor = ThemeColor(_currentTheme?.PanelBackColor, SystemColors.Window),
+                BackColor = _currentTheme.PanelBackColor,
             };
 
             // ── Search box ────────────────────────────────────────────────────
@@ -119,10 +119,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
                 Bounds          = new Rectangle(Pad, Pad, PopupWidth - Pad * 2, SearchH),
                 Anchor          = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 BorderStyle     = BorderStyle.FixedSingle,
-                Font            = BeepThemesManager.ToFont(theme?.BodyMedium) ?? SystemFonts.DefaultFont,
+                Font            = BeepThemesManager.ToFont(_currentTheme.BodyMedium) ?? SystemFonts.DefaultFont,
                 PlaceholderText = "Type to filter tabs…",
-                BackColor       = ThemeColor(_currentTheme?.BackgroundColor, SystemColors.Window),
-                ForeColor       = ThemeColor(_currentTheme?.ForeColor,       SystemColors.WindowText),
+                BackColor       = _currentTheme.BackgroundColor,
+                ForeColor       = _currentTheme.ForeColor,
             };
 
             // ── Results list ──────────────────────────────────────────────────
@@ -136,8 +136,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
                 DrawMode            = DrawMode.OwnerDrawFixed,
                 ItemHeight          = ItemH,
                 BorderStyle         = BorderStyle.None,
-                BackColor           = ThemeColor(_currentTheme?.PanelBackColor, SystemColors.Window),
-                ForeColor           = ThemeColor(_currentTheme?.ForeColor,       SystemColors.WindowText),
+                BackColor           = _currentTheme.PanelBackColor,
+                ForeColor           = _currentTheme.ForeColor,
                 ScrollAlwaysVisible = false,
                 IntegralHeight      = false,
             };
@@ -252,11 +252,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
             bool sel = (e.State & DrawItemState.Selected) != 0;
 
             Color backCol = sel
-                ? ThemeColor(_currentTheme?.PrimaryColor, SystemColors.Highlight)
-                : ThemeColor(_currentTheme?.PanelBackColor, SystemColors.Window);
+                ? _currentTheme.PrimaryColor
+                : _currentTheme.PanelBackColor;
             Color foreCol = sel
-                ? ThemeColor(_currentTheme?.BackgroundColor, SystemColors.HighlightText)
-                : ThemeColor(_currentTheme?.ForeColor, SystemColors.WindowText);
+                ? _currentTheme.OnPrimaryColor
+                : _currentTheme.ForeColor;
 
             using var back = new SolidBrush(backCol);
             e.Graphics.FillRectangle(back, e.Bounds);
@@ -264,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
             // Left indicator bar for the currently open tab
             if (entry.IsSelected)
             {
-                Color barCol = _currentTheme?.PrimaryColor ?? Color.DodgerBlue;
+                Color barCol = _currentTheme.PrimaryColor;
                 using var bar = new SolidBrush(barCol);
                 e.Graphics.FillRectangle(bar,
                     e.Bounds.Left, e.Bounds.Top + 4, 3, e.Bounds.Height - 8);
@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
             // Dirty dot
             if (entry.IsDirty)
             {
-                using var dot = new SolidBrush(Color.OrangeRed);
+                using var dot = new SolidBrush(_currentTheme.WarningColor);
                 int dotY = e.Bounds.Top + (e.Bounds.Height - 8) / 2;
                 e.Graphics.FillEllipse(dot, x, dotY, 8, 8);
                 x += 13;
@@ -286,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
             {
                 Color pinCol = sel
                     ? Color.FromArgb(200, foreCol)
-                    : (_currentTheme?.PrimaryColor ?? Color.SteelBlue);
+                    : _currentTheme.PrimaryColor;
                 using var pin = new SolidBrush(pinCol);
                 int pinY = e.Bounds.Top + (e.Bounds.Height - 8) / 2;
                 e.Graphics.FillEllipse(pin, x, pinY, 6, 8);
@@ -306,10 +306,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs
             using var titleBrush = new SolidBrush(foreCol);
             e.Graphics.DrawString(entry.Title, _list.Font ?? SystemFonts.DefaultFont, titleBrush, titleRect, fmt);
         }
-
-        // ── Colour helpers ─────────────────────────────────────────────────────
-
-        private static Color ThemeColor(Color? themed, Color fallback)
-            => themed.HasValue && themed.Value != Color.Empty ? themed.Value : fallback;
     }
 }

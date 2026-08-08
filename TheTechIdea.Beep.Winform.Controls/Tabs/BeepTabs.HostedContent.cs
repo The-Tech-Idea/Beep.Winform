@@ -979,8 +979,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             host.Theme = themeName;
-            host.BackColor = TabThemeHelpers.GetTabControlBackgroundColor(theme, true);
-            host.ForeColor = TabThemeHelpers.GetTabTextColor(theme, true);
+            host.BackColor = TabThemeHelpers.GetTabControlBackgroundColor(theme);
+            host.ForeColor = TabThemeHelpers.GetTabTextColor(theme);
         }
 
         private static void ApplyThemeToHostedPage(BeepTabPage page, IBeepTheme? theme, string themeName)
@@ -990,8 +990,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            Color pageBackColor = TabThemeHelpers.GetTabControlBackgroundColor(theme, true);
-            Color pageForeColor = TabThemeHelpers.GetTabTextColor(theme, true);
+            Color pageBackColor = TabThemeHelpers.GetTabControlBackgroundColor(theme);
+            Color pageForeColor = TabThemeHelpers.GetTabTextColor(theme);
             page.BackColor = pageBackColor;
             page.ForeColor = pageForeColor;
 

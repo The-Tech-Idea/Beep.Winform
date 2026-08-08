@@ -28,12 +28,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             if (bounds.IsEmpty) return;
 
             int a = (int)(Math.Clamp(alpha, 0f, 1f) * 255f);
-            Color border = Color.FromArgb(a, TabThemeHelpers.GetTabBorderColor(Theme, Theme != null, item.IsSelected));
+            Color border = Color.FromArgb(a, TabThemeHelpers.GetTabBorderColor(Theme, item.IsSelected));
 
             if (item.IsSelected)
             {
                 Color fill = Color.FromArgb(a,
-                    TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, true, false));
+                    TabThemeHelpers.GetTabBackgroundColor(Theme, true, false));
 
                 // A sheet taller than the strip, so its bottom edge falls outside the clip and the
                 // tab reads as continuous with the content area below it.
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 if (item.IsHovered)
                 {
                     Color hover = Color.FromArgb((int)(a * 0.35f),
-                        TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, false, true));
+                        TabThemeHelpers.GetTabBackgroundColor(Theme, false, true));
                     var brush = PaintersFactory.GetSolidBrush(hover);
                     g.FillRectangle(brush, bounds);
                 }

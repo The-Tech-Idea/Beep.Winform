@@ -58,8 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 if (_currentTheme != null)
                 {
-                    page.BackColor = TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme, true);
-                    page.ForeColor = TabThemeHelpers.GetTabTextColor(_currentTheme, true);
+                    page.BackColor = TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme);
+                    page.ForeColor = TabThemeHelpers.GetTabTextColor(_currentTheme);
                 }
 
                 if (UseContentHostPresentation() && page.Parent == this)

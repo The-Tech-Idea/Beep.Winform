@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// This is a diagnostic channel, not error handling: the operation that failed still
         /// throws, so a host that does not subscribe still learns about the failure. Subscribe to
         /// route failures to a log or telemetry sink in a shipped application, where the
-        /// <c>Debug.WriteLine</c> below does not exist.
+        /// <c>BeepLog</c> report below does not exist.
         /// </para>
         /// <para>
         /// Handlers must not throw. This event is raised from inside a <c>catch</c> block that is
@@ -52,10 +52,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _lastError = message;
 
-            // Debug-only: absent from Release builds, which is why TabError exists.
-            System.Diagnostics.Debug.WriteLine($"[BeepTabs] {message}");
             if (ex != null)
-                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                Diagnostics.BeepLog.Failure(this, context, ex);
+            else
+                Diagnostics.BeepLog.Error(this, context);
 
             TabError?.Invoke(this, new BeepTabErrorEventArgs(context, ex));
 

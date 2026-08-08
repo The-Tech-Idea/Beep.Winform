@@ -38,10 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
         /// <summary>
         /// Gets the icon color for close button based on state and theme
         /// </summary>
-        public static Color GetCloseIconColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            bool isHovered = false)
+        public static Color GetCloseIconColor(IBeepTheme theme, bool isHovered = false)
         {
             // Single source for the close glyph colour. TabThemeHelpers used to carry a second,
             // near-identical GetCloseButtonColor that nothing called; it was deleted rather than
@@ -51,25 +48,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 return isHovered ? SystemColors.HighlightText : SystemColors.WindowText;
             }
 
-            if (useThemeColors && theme != null)
-            {
-                if (isHovered)
-                {
-                    if (theme.PrimaryColor != Color.Empty)
-                        return theme.PrimaryColor;
-                    if (theme.AccentColor != Color.Empty)
-                        return theme.AccentColor;
-                }
-                else
-                {
-                    if (theme.ForeColor != Color.Empty)
-                        return theme.ForeColor;
-                }
-            }
-
-            return isHovered
-                ? Color.FromArgb(33, 150, 243) // Material Blue
-                : Color.FromArgb(158, 158, 158); // Material Gray
+            var t = theme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
+            return isHovered ? t.PrimaryColor : t.TabForeColor;
         }
 
         /// <summary>
@@ -95,10 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
             Graphics g,
             Rectangle iconBounds,
             string iconPath,
-            Color iconColor,
-            IBeepTheme theme = null,
-            bool useThemeColors = false,
-            BeepControlStyle controlStyle = BeepControlStyle.Material3)
+            Color iconColor)
         {
             if (iconBounds.IsEmpty || string.IsNullOrEmpty(iconPath))
                 return;
@@ -111,36 +88,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
             // replaces the element colours instead of blending, which is what a themed monochrome
             // icon needs; this is the same fix already applied to the grid toolbar icons.
             StyledImagePainter.PaintSvgRecolored(g, iconBounds, iconPath, iconColor);
-        }
-
-        /// <summary>
-        /// Creates a GraphicsPath for icon bounds based on ControlStyle
-        /// </summary>
-        private static GraphicsPath CreateIconPath(Rectangle bounds, BeepControlStyle controlStyle)
-        {
-            var path = new GraphicsPath();
-            
-            // Most icons are square or circular
-            bool useCircle = controlStyle switch
-            {
-                BeepControlStyle.Material3 => false, // Square for Material
-                BeepControlStyle.iOS15 => true,
-                BeepControlStyle.MacOSBigSur => true,
-                BeepControlStyle.NeoBrutalist => false, // Square for brutalist
-                BeepControlStyle.HighContrast => false, // Square for high contrast
-                _ => false // Default to square
-            };
-
-            if (useCircle)
-            {
-                path.AddEllipse(bounds);
-            }
-            else
-            {
-                path.AddRectangle(bounds);
-            }
-
-            return path;
         }
 
         /// <summary>

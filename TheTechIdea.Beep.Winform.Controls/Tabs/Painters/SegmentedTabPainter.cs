@@ -36,9 +36,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             // A visibly recessed track: shifted away from the header so the whole run reads as one
             // inset control. Taking the plain tab background made the strip almost identical to
             // Capsule's, which draws no track at all.
-            Color header = TabThemeHelpers.GetHeaderBackgroundColor(Theme, Theme != null);
+            Color header = TabThemeHelpers.GetHeaderBackgroundColor(Theme);
             Color trackFill = ShiftToward(header, header.GetBrightness() > 0.5f ? -0.10f : 0.12f);
-            Color trackBorder = TabThemeHelpers.GetTabBorderColor(Theme, Theme != null, false, false);
+            Color trackBorder = TabThemeHelpers.GetTabBorderColor(Theme, false, false);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             using (GraphicsPath path = GetRoundedRect(track, Scale(8)))
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 if (tile.Width > 0 && tile.Height > 0)
                 {
                     Color fill = Color.FromArgb(a,
-                        TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, true, false));
+                        TabThemeHelpers.GetTabBackgroundColor(Theme, true, false));
                     g.SmoothingMode = SmoothingMode.AntiAlias;
                     using GraphicsPath path = GetRoundedRect(tile, Scale(6));
                     var brush = PaintersFactory.GetSolidBrush(fill);
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             else
             {
                 // Divider between segments, inset from the track edges.
-                Color divider = TabThemeHelpers.GetTabBorderColor(Theme, Theme != null, false, false);
+                Color divider = TabThemeHelpers.GetTabBorderColor(Theme, false, false);
                 var pen = PaintersFactory.GetPen(Color.FromArgb((int)(a * 0.55f), divider));
                 g.DrawLine(pen,
                     bounds.Right - 1, bounds.Y + Scale(TrackInset + 4),
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         /// <summary>Unselected labels sit on the recessed track, not on a tab fill.</summary>
         protected override Color GetTabSurfaceColor(BeepTabItem item)
         {
-            return TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, item.IsSelected, false);
+            return TabThemeHelpers.GetTabBackgroundColor(Theme, item.IsSelected, false);
         }
     }
 }

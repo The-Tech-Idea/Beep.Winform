@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         {
              // Resolved through the colour seam so high contrast reaches it, and so the header
              // background is one value rather than two that can drift apart.
-             Color panelColor = TabThemeHelpers.GetHeaderBackgroundColor(Theme, Theme != null);
+             Color panelColor = TabThemeHelpers.GetHeaderBackgroundColor(Theme);
              var brush = PaintersFactory.GetSolidBrush(panelColor);
              g.FillRectangle(brush, headerBounds);
         }
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         protected virtual Color GetTabSurfaceColor(BeepTabItem item)
         {
             return TabThemeHelpers.GetTabBackgroundColor(
-                Theme, Theme != null, item.IsSelected, item.IsHovered);
+                Theme, item.IsSelected, item.IsHovered);
         }
 
         public virtual SizeF MeasureTab(Graphics g, int index, Font font)
@@ -122,16 +122,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 return;
             }
 
-            Color baseColor = TabIconHelpers.GetCloseIconColor(Theme, Theme != null, isHovered);
+            Color baseColor = TabIconHelpers.GetCloseIconColor(Theme, isHovered);
             Color iconColor = Color.FromArgb((int)(Math.Clamp(alpha, 0f, 1f) * 255f), baseColor);
             TabIconHelpers.PaintIcon(
                 g,
                 closeBounds,
                 TabIconHelpers.GetCloseIconPath(),
-                iconColor,
-                Theme,
-                Theme != null,
-                GetTabControlStyle());
+                iconColor);
         }
 
         public RectangleF GetCloseButtonRect(RectangleF tabRect, bool vertical)
@@ -221,14 +218,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
             BeepTabItem item = itemLayout.Item;
             float effectiveAlpha = item.IsEnabled ? alpha : alpha * 0.55f;
-            Color baseTextColor = overrideTextColor ?? TabThemeHelpers.GetTabTextColor(Theme, Theme != null, item.IsSelected);
+            Color baseTextColor = overrideTextColor ?? TabThemeHelpers.GetTabTextColor(Theme, item.IsSelected);
             // Guarantee the label is legible against whatever this painter actually drew behind it.
             baseTextColor = ColorUtils.EnsureReadable(baseTextColor, GetTabSurfaceColor(item));
             Color textColor = Color.FromArgb((int)(Math.Clamp(effectiveAlpha, 0f, 1f) * 255f), baseTextColor);
 
             if (item.HasIcon && !itemLayout.IconBounds.IsEmpty)
             {
-                TabIconHelpers.PaintIcon(g, itemLayout.IconBounds, item.IconPath, textColor, Theme, Theme != null, GetTabControlStyle());
+                TabIconHelpers.PaintIcon(g, itemLayout.IconBounds, item.IconPath, textColor);
             }
 
             if (TabControl.ShouldShowTabText(item.Index))
@@ -352,7 +349,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         private void DrawDirtyMarker(Graphics g, Rectangle bounds, float alpha, Color surface)
         {
             Color dotColor = Color.FromArgb((int)(alpha * 220),
-                SeparateFromSurface(TabThemeHelpers.GetDirtyMarkerColor(Theme, Theme != null), surface));
+                SeparateFromSurface(TabThemeHelpers.GetDirtyMarkerColor(Theme), surface));
             using var brush = new SolidBrush(dotColor);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.FillEllipse(brush, bounds);
@@ -381,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                                float alpha, Color surface)
         {
             int a = (int)(alpha * 220);
-            Color badgeFill = TabThemeHelpers.GetBadgeColor(Theme, Theme != null, adornment.BadgeKind);
+            Color badgeFill = TabThemeHelpers.GetBadgeColor(Theme, adornment.BadgeKind);
 
             badgeFill = SeparateFromSurface(badgeFill, surface);
             Color backColor = Color.FromArgb(a, badgeFill);
@@ -419,7 +416,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             // Was hardcoded to SystemColors.ControlDark: the only adornment that never responded to
             // the theme, and invisible against a dark theme's header.
             Color busy = SeparateFromSurface(
-                TabThemeHelpers.GetBusyIndicatorColor(Theme, Theme != null), surface);
+                TabThemeHelpers.GetBusyIndicatorColor(Theme), surface);
             using var pen = new Pen(Color.FromArgb((int)(alpha * 180), busy), 2f);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawArc(pen, bounds, 0, 270);

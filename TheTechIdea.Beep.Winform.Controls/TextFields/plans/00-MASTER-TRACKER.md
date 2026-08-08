@@ -56,6 +56,31 @@ TextChanged (single Apply path — the Lovs lesson lives nearby); every render e
 2. F2 literal/theming fixes + F3 reflection — build + commit
 3. F5 probe + eyeball — commit per fix batch
 
+## Batch 1 done — all 10 swallows report (commit 33822482)
+
+Clipboard failures are user actions that did NOT happen and now say so (Failure); regex/search/
+measure/UIA/JSON/font/filesystem sites report once; both Debug.WriteLine sites replaced.
+
+## Batch 2 done — theming gaps closed (commit 39608dca)
+
+Char counter (ErrorColor near limit / SecondaryTextColor idle), typing indicator
+(SuccessColor), line numbers (SecondaryTextColor/PanelBackColor — never themed before), search
+highlights (HighlightBackColor/AccentColor), selection ink from the theme's
+`TextBoxSelectedForeColor` pair instead of a brightness guess, drawing-helper text fallbacks
+from slots. `WordWrap` added to `IBeepTextBox`; the reflection probe deleted. Feature palettes
+(TextEffect presets, syntax tokens) kept as designed.
+
+## Batch 3 done — probe 9/9, renders eyeballed
+
+TextProbe (scratchpad): text render, placeholder render, near-limit counter differs from idle
+(error ink visible in render: red "95/100"), themed line-number gutter, theme responsiveness,
+typed input through real OnKeyPress lands in Text + raises TextChanged, backspace through
+OnKeyDown, select-all render shows the themed selection pair. All eyeballed — no geometry
+defects found (this folder was the healthiest of the seven reviewed).
+
+Not verified: IME path, effects modes (Terminal/Matrix render untested — feature presets),
+autocomplete dropdown interaction, validation helper behaviours.
+
 ## Standing constraints
 
 There is ALWAYS a theme — slots direct; feature palettes (effect presets, syntax tokens) are

@@ -74,6 +74,26 @@ indicator appears when content overflows, live theme change. Eyeball everything.
 1. F1–F6 in one batch (small folder) — build + commit
 2. F7 probe + eyeball — commit fixes
 
+## Batch 1 landed (e269ff33) — as planned (F1–F6)
+
+## Batch 2 — probe + eyeball (ScrollProbe 10/10)
+
+Probe: thumb reads against track, thumb tracks Value (one ValueChanged), page-click
+pages forward, wheel steps back, an explicit ThumbColor SURVIVES a live theme change
+(the F1 proof), both controls follow live theme changes, click selects exactly once
+(the F4 proof), keyboard nav auto-scrolls, selection + indicator eyeballed under
+Default/Zen.
+
+One more real bug the probe forced out: **the DPI helpers called
+`DpiScalingHelper.ScaleFactorToDpi(10)`** — which converts a scale FACTOR to a DPI
+value (10 → 960) — instead of `ScaleValue(10, this)`. The minimum thumb size was
+therefore 960px (the thumb swallowed the whole track and page-clicking was impossible),
+and DefaultSize computed 960×9600; consumers only dodged it by setting explicit sizes,
+until an orientation set or DPI change re-fired the poisoned values.
+
+Not verified: horizontal orientation rendering (vertical-only probe), drag-to-scroll on
+the list (wheel/keyboard verified), checkbox mode.
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role from the control's OWN slot family (ScrollBar*/

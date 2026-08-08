@@ -16,10 +16,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
         // EVENTS
         public event EventHandler Scroll;
         public event EventHandler ValueChanged;
-        // DPI-aware property helpers
-        private int GetScaledScrollbarWidth() => DpiScalingHelper.ScaleFactorToDpi(10 );
-        private int GetScaledScrollbarHeight() => DpiScalingHelper.ScaleFactorToDpi(100);
-        private int GetScaledMinThumbSize() => DpiScalingHelper.ScaleFactorToDpi(10);
+        // DPI-aware property helpers. ScaleValue, NOT ScaleFactorToDpi - the latter
+        // converts a scale FACTOR to a DPI value (10 -> 960), which made the minimum
+        // thumb 960px tall (swallowing the whole track) and the default size 960x9600.
+        private int GetScaledScrollbarWidth() => DpiScalingHelper.ScaleValue(10, this);
+        private int GetScaledScrollbarHeight() => DpiScalingHelper.ScaleValue(100, this);
+        private int GetScaledMinThumbSize() => DpiScalingHelper.ScaleValue(10, this);
 
         // FIXED: DPI-aware DefaultSize
         protected override Size DefaultSize => new Size(GetScaledScrollbarWidth(), GetScaledScrollbarHeight());

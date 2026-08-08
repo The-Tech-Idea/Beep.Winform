@@ -93,14 +93,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             if (target == null) return;
             target.IsChild = true;
             target.BackColor = _owner.BackColor;
-            target.ApplyThemeOnImage = true; // apply theme tint so icons match text colour
+            // JUST PAINT the icon (user directive). ApplyThemeOnImage routed every leading/
+            // trailing icon through ApplyThemeToSvg, which floods Fill AND Stroke on every
+            // SVG node with the fore colour - pure Black in the default theme - so every
+            // search box icon rendered as a black filled blob. The artwork's own colours
+            // are the icon; nothing here recolours them.
+            target.ApplyThemeOnImage = false;
             target.PreserveSvgBackgrounds = true;
             target.Size = size;
-
-            // Leading icon uses the owner's ForeColor; trailing uses a muted/accent variant.
-            target.ForeColor = isLeading
-                ? _owner.ForeColor
-                : (_owner._currentTheme?.AccentColor ?? _owner.ForeColor);
 
             if (!string.Equals(target.ImagePath, imagePath, StringComparison.OrdinalIgnoreCase))
             {

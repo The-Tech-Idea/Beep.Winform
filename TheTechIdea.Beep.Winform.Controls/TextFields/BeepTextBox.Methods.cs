@@ -19,21 +19,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.UpdateDrawingRect();
 
-            Rectangle contentArea;
-            // if (PainterKind == BaseControlPainterKind.Material)
-            // {
-            //     contentArea = GetMaterialContentRectangle();
-
-            //     if (contentArea.Width <= 0 || contentArea.Height <= 0)
-            //     {
-            //         contentArea = DrawingRect;
-            //     }
-            // }
-            // else
-            // {
-            //     contentArea = DrawingRect;
-            // }
-            contentArea = DrawingRect;
+            // Exclude the leading/trailing icon zones - using the full DrawingRect drew
+            // the placeholder UNDER the leading search icon ("S[icon]rch..."). BaseControl's
+            // UpdateLayout would compute this into ContentRect, but nothing in the
+            // painter-driven pipeline ever calls it, so the textbox asks the icons helper
+            // directly.
+            Rectangle contentArea = DrawingRect;
+            bool hasEdgeIcons = !string.IsNullOrEmpty(LeadingIconPath) || !string.IsNullOrEmpty(LeadingImagePath)
+                || !string.IsNullOrEmpty(TrailingIconPath) || !string.IsNullOrEmpty(TrailingImagePath) || ShowClearButton;
+            if (hasEdgeIcons)
+            {
+                var icons = new Base.Helpers.BaseControlIconsHelper(this);
+                icons.UpdateLayout(DrawingRect);
+                if (icons.AdjustedContentRect.Width > 0 && icons.AdjustedContentRect.Height > 0)
+                {
+                    contentArea = icons.AdjustedContentRect;
+                }
+            }
             _textRect = contentArea;
 
             int borderOffset = Math.Max(0, _borderWidth);

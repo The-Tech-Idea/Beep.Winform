@@ -26,14 +26,14 @@ namespace TheTechIdea.Beep.Vis.Modules
         public int BorderSize { get; set; } = 1;
         public string IconSet { get; set; }
         public bool ApplyThemeToIcons { get; set; }
-        public Color ShadowColor { get; set; }
+        public Color ShadowColor { get; set; } = Color.FromArgb(80, 62, 39, 35);
         public float ShadowOpacity { get; set; }
         public double AnimationDurationShort { get; set; }
         public double AnimationDurationMedium { get; set; }
         public double AnimationDurationLong { get; set; }
         public string AnimationEasingFunction { get; set; }
         public bool HighContrastMode { get; set; }
-        public Color FocusIndicatorColor { get; set; }
+        public Color FocusIndicatorColor { get; set; } = Color.FromArgb(184, 134, 11);
         public bool IsDarkTheme { get; set; }
     }
 }

@@ -42,12 +42,33 @@ Planned probe (StepperProbe):
 5. Eyeball EVERY painter render individually — this is the complaint; distinctness checks alone
    don't see misalignment.
 
+### F5 — spacing, sizing and alignment revision, ALL 14 painters (user directive)
+
+Not just probe checks — a per-painter geometry pass with the rules that fixed the wizard forms:
+
+1. **Every text rect sized from its font** (`font.Height + pad`), never a constant. A constant rect
+   clips any taller font silently — DrawText clips to its rect (Minimal title, HStepper labels).
+2. **Bands sized from their content stack**, top-anchored: sum of rows (glyph row + label row +
+   description row + gaps), not a guessed height that content overruns (HStepper 100→112).
+3. **Node spacing computed from available width**: first/last nodes inset by half a node + label
+   half-width so edge labels never bleed past control bounds; centres evenly spaced; label rects
+   clamped to bounds (HStepper's label ran 10px off the form edge).
+4. **No collisions between fixed chrome and flowing content** — counters/badges own their row or are
+   anchored opposite the flow (the chip-on-circle collision, twice).
+5. **Vertical painters**: one shared left gutter width for node column, labels x-aligned to a single
+   column edge; connector lines centred on node centres, not rect edges.
+6. **DPI**: every constant through DpiScalingHelper; no raw pixel offsets.
+7. Paddings consistent across painters (same outer inset per orientation) so switching styles does
+   not shift content.
+
+Each painter gets: geometry read → rules applied → render at wide/narrow → eyeball → next. The probe's
+mechanical checks (F4.2) then hold the line against regressions.
+
 ## Order
 
 1. F3 swallows + F1 helpers rewrite (mechanical, settled pattern) — build + commit
 2. F2 painter sweep to slots — build + commit
-3. F4 probe; fix alignment defects it exposes painter by painter; render-eyeball all 14 — commit per
-   fix batch
+3. F4 probe + F5 geometry pass painter by painter; render-eyeball all 14 — commit per fix batch
 4. Filename typo `BeepSteppperBar.cs` → rename only if the user wants the churn (git mv, all refs)
 
 ## Standing constraints

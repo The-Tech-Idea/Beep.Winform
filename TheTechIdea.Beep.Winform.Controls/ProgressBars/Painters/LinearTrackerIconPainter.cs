@@ -43,8 +43,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                     owner,
                     ProgressPainterKind.LinearTrackerIcon,
                     iconPath,
-                    theme,
-                    owner.UseThemeColors,
                     owner.Style);
             }
             else

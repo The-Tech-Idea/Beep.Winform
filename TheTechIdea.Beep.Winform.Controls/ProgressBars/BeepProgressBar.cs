@@ -48,8 +48,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private Dictionary<string, SizeF> _textMeasurementCache = new Dictionary<string, SizeF>();
 
         // GDI resources
-        private SolidBrush _textBrush;
-        private SolidBrush _progressBrush;
+        private Color _textColor = Color.Empty;
+        private Color _progressColor = Color.Empty;
         private Pen _borderPen;
 
         // legacy linear render tuning
@@ -73,16 +73,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private int _totalTasks = 0;
         private bool _showTaskCount = false;
 
-        // color helpers
-        private Color _successColor = Color.FromArgb(34, 197, 94);
-        private Color _warningColor = Color.FromArgb(245, 158, 11);
-        private Color _errorColor = Color.FromArgb(239, 68, 68);
+        // color helpers: Empty = themed (resolved in the property getters)
+        private Color _successColor = Color.Empty;
+        private Color _warningColor = Color.Empty;
+        private Color _errorColor = Color.Empty;
         private bool _autoColorByProgress = false;
         private int _segments = 10;
 
         // secondary progress
         private int _secondaryProgress = 0;
-        private Color _secondaryProgressColor = Color.FromArgb(50, 100, 100, 100);
+        private Color _secondaryProgressColor = Color.Empty;
         private int _stripeWidth = 10;
 
         // milestone tracking
@@ -96,7 +96,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private bool _keyboardFocusVisible;
         private string _lastAccessibilitySnapshot;
         private ProgressBarStyleConfig _styleProfile = new ProgressBarStyleConfig();
-        private ProgressBarColorConfig _colorProfile = new ProgressBarColorConfig();
 
         // Common events
         public event EventHandler ValueChanged;
@@ -112,28 +111,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         internal float GlowIntensity => _glowIntensity;
 
         #region Public API
-        private bool _useThemeColors = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                _useThemeColors = value;
-                if (!_useThemeColors)
-                {
-                    ApplyColorProfile();
-                }
-                else
-                {
-                    ApplyTheme();
-                }
-                RequestVisualRefresh();
-            }
-        }
 
         [Category("Behavior")]
         [DefaultValue(ProgressState.Normal)]
@@ -176,22 +153,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             }
         }
 
-        [Category("Appearance")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public ProgressBarColorConfig ColorProfile
-        {
-            get => _colorProfile;
-            set
-            {
-                _colorProfile = value ?? new ProgressBarColorConfig();
-                if (!UseThemeColors)
-                {
-                    ApplyColorProfile();
-                }
-
-                RequestVisualRefresh();
-            }
-        }
         private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
@@ -289,18 +250,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private Font _textFont;
 
         [Category("Appearance")]
-        [DefaultValue(typeof(Color), "White")]
         public Color TextColor
         {
-            get => _textBrush?.Color ?? Color.White;
-            set { _textBrush?.Dispose(); _textBrush = new SolidBrush(value); RequestVisualRefresh(); }
+            get => Helpers.ProgressBarThemeHelpers.GetProgressBarTextColor(_currentTheme, _textColor);
+            set { _textColor = value; RequestVisualRefresh(); }
         }
 
         [Category("Appearance")]
         public Color ProgressColor
         {
-            get => _progressBrush?.Color ?? Color.LightGreen;
-            set { _progressBrush?.Dispose(); _progressBrush = new SolidBrush(value); RequestVisualRefresh(); }
+            get
+            {
+                if (_autoColorByProgress)
+                {
+                    float pct = ProgressPercentage;
+                    return pct >= 0.66f ? SuccessColor : (pct >= 0.33f ? WarningColor : ErrorColor);
+                }
+
+                return Helpers.ProgressBarThemeHelpers.GetProgressBarForeColor(_currentTheme, _progressColor);
+            }
+            set { _progressColor = value; RequestVisualRefresh(); }
         }
 
         [Category("Appearance")]
@@ -385,9 +354,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         [DefaultValue(false)]
         public bool AutoColorByProgress { get => _autoColorByProgress; set { _autoColorByProgress = value; if (_autoColorByProgress) UpdateColorByProgress(); RequestVisualRefresh(); } }
 
-        [Category("Appearance")] public Color SuccessColor { get => _successColor; set { _successColor = value; UpdateColorByProgress(); } }
-        [Category("Appearance")] public Color WarningColor { get => _warningColor; set { _warningColor = value; UpdateColorByProgress(); } }
-        [Category("Appearance")] public Color ErrorColor { get => _errorColor; set { _errorColor = value; UpdateColorByProgress(); } }
+        [Category("Appearance")] public Color SuccessColor { get => Helpers.ProgressBarThemeHelpers.GetProgressBarSuccessColor(_currentTheme, _successColor); set { _successColor = value; RequestVisualRefresh(); } }
+        [Category("Appearance")] public Color WarningColor { get => Helpers.ProgressBarThemeHelpers.GetProgressBarWarningColor(_currentTheme, _warningColor); set { _warningColor = value; RequestVisualRefresh(); } }
+        [Category("Appearance")] public Color ErrorColor { get => Helpers.ProgressBarThemeHelpers.GetProgressBarErrorColor(_currentTheme, _errorColor); set { _errorColor = value; RequestVisualRefresh(); } }
 
         [Category("Appearance")]
         [DefaultValue(10)]
@@ -397,7 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         [DefaultValue(0)]
         public int SecondaryProgress { get => _secondaryProgress; set { _secondaryProgress = Math.Max(Minimum, Math.Min(value, Maximum)); RequestVisualRefresh(); } }
 
-        [Category("Appearance")] public Color SecondaryProgressColor { get => _secondaryProgressColor; set { _secondaryProgressColor = value; RequestVisualRefresh(); } }
+        [Category("Appearance")] public Color SecondaryProgressColor { get => Helpers.ProgressBarThemeHelpers.GetProgressBarSecondaryColor(_currentTheme, _secondaryProgressColor); set { _secondaryProgressColor = value; RequestVisualRefresh(); } }
         [Category("Appearance")][DefaultValue(10)] public int StripeWidth { get => _stripeWidth; set { _stripeWidth = value; RequestVisualRefresh(); } }
 
         [Category("Tooltip")]
@@ -527,9 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             DoubleBuffered = true; BorderRadius = 6; IsRounded = true;
             // enforce a safe minimum without mutating size during Resize
             MinimumSize = new Size(8, 2);
-            _textBrush = new SolidBrush(Color.White);
-            _progressBrush = new SolidBrush(_currentTheme?.PrimaryColor ?? SystemColors.Highlight);
-            _borderPen = new Pen(Color.FromArgb(30, Color.Black), 1);
+            _borderPen = new Pen(Helpers.ProgressBarThemeHelpers.GetProgressBarBorderColor(_currentTheme), 1);
             _textFont = BeepThemesManager.ToFont(_currentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
             
             // Enable keyboard navigation
@@ -566,16 +533,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             _lastAccessibilitySnapshot = snapshot;
         }
 
-        /// <summary>
-        /// Apply accessibility adjustments (high contrast, reduced motion)
-        /// </summary>
-        private void ApplyAccessibilityAdjustments(IBeepTheme theme, bool useThemeColors)
-        {
-            if (ProgressBarAccessibilityHelpers.IsHighContrastMode())
-            {
-                ProgressBarAccessibilityHelpers.ApplyHighContrastAdjustments(this, theme, useThemeColors);
-            }
-        }
 
         private int GetHeightForSize(ProgressBarSize size)
         {
@@ -654,23 +611,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             _isApplyingTheme = true;
             try
             {
-                // Use theme helpers for centralized color management
-                if (UseThemeColors)
-                {
-                    ProgressBarThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
-                }
-                else
-                {
-                    ApplyColorProfile();
-                }
-                
-                // Apply border color using theme helpers
+                // Colours resolve per read in the property getters (custom-else-slot);
+                // nothing is stamped here. Only the cached border pen re-resolves.
                 _borderPen?.Dispose();
-                Color borderColor = ProgressBarThemeHelpers.GetProgressBarBorderColor(
-                    _currentTheme, 
-                    UseThemeColors, 
-                    _borderPen?.Color);
-                _borderPen = new Pen(borderColor, 1);
+                _borderPen = new Pen(ProgressBarThemeHelpers.GetProgressBarBorderColor(_currentTheme), 1);
                 
                 // Apply font if UseThemeFont is enabled
                 if (UseThemeFont)
@@ -701,8 +645,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
                 ApplyStyleProfile();
                 
-                // Apply accessibility adjustments (high contrast, reduced motion)
-                ApplyAccessibilityAdjustments(_currentTheme, UseThemeColors);
                 
                 RequestVisualRefresh(resetLayoutCache: true);
             }
@@ -732,24 +674,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             ShowGlowEffect = _styleProfile.ShowGlowEffect;
         }
 
-        private void ApplyColorProfile()
-        {
-            if (_colorProfile == null)
-            {
-                return;
-            }
-
-            BackColor = _colorProfile.BackgroundColor;
-            ProgressColor = _colorProfile.ProgressColor;
-            TextColor = _colorProfile.TextColor;
-            SecondaryProgressColor = _colorProfile.SecondaryProgressColor;
-            SuccessColor = _colorProfile.SuccessColor;
-            WarningColor = _colorProfile.WarningColor;
-            ErrorColor = _colorProfile.ErrorColor;
-
-            _borderPen?.Dispose();
-            _borderPen = new Pen(_colorProfile.BorderColor, 1);
-        }
 
         private void RequestVisualRefresh(bool resetLayoutCache = false)
         {
@@ -805,10 +729,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 _indeterminateTimer = null;
             }
 
-            _textBrush?.Dispose();
-            _textBrush = null;
-            _progressBrush?.Dispose();
-            _progressBrush = null;
             _borderPen?.Dispose();
             _borderPen = null;
         }
@@ -1124,10 +1044,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         private void UpdateColorByProgress()
         {
-            if (!_autoColorByProgress) return;
-            float pct = ProgressPercentage;
-            Color c = pct >= 0.66f ? _successColor : (pct >= 0.33f ? _warningColor : _errorColor);
-            ProgressColor = c;
+            // Auto-colour is resolved inside the ProgressColor GETTER - assigning it here
+            // would turn the auto value into a permanent custom override.
+            if (_autoColorByProgress) RequestVisualRefresh();
         }
 
         #region Tooltip Integration

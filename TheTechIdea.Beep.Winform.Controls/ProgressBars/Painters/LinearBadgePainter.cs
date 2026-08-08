@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int offsetY = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "BadgeOffsetY", -badgeRadius - 6));
             string text = ProgressPainterParameterContracts.GetString(p, "BadgeText", $"{(int)(pct * 100)}%");
             var back = ProgressPainterParameterContracts.GetColor(p, "BadgeBackColor", theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor);
-            var fore = ProgressPainterParameterContracts.GetColor(p, "BadgeForeColor", theme.OnPrimaryColor.IsEmpty ? Color.White : theme.OnPrimaryColor);
+            var fore = ProgressPainterParameterContracts.GetColor(p, "BadgeForeColor", theme.OnPrimaryColor);
             if (!owner.Enabled)
             {
                 back = Color.FromArgb(120, back);

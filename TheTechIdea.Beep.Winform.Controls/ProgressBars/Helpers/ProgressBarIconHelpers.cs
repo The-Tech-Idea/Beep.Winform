@@ -47,23 +47,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
         /// Gets the icon color based on progress bar state and theme
         /// Integrates with ProgressBarThemeHelpers for theme-aware colors
         /// </summary>
-        public static Color GetIconColor(
-            BeepProgressBar progressBar,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
+        public static Color GetIconColor(BeepProgressBar progressBar)
         {
-            if (progressBar == null)
-                return Color.Gray;
-
-            // Use theme colors if available
-            if (useThemeColors && theme != null)
-            {
-                // Icons typically use the progress color (foreground)
-                return ProgressBarThemeHelpers.GetProgressBarForeColor(theme, useThemeColors, progressBar.ProgressColor);
-            }
-
-            // Use progress bar's progress color
-            return progressBar.ProgressColor != Color.Empty ? progressBar.ProgressColor : Color.FromArgb(52, 152, 219);
+            // The owner's ProgressColor getter already resolves custom-else-slot
+            // (and auto-colour / high contrast), so the icon just follows the fill.
+            return progressBar?.ProgressColor
+                ?? ThemeManagement.BeepThemesManager.CurrentTheme.ProgressBarForeColor;
         }
 
         /// <summary>
@@ -171,8 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             BeepProgressBar progressBar,
             ProgressPainterKind painterKind,
             string iconPath,
-            IBeepTheme theme = null,
-            bool useThemeColors = false,
+            
             BeepControlStyle controlStyle = BeepControlStyle.Material3)
         {
             if (iconBounds.IsEmpty || progressBar == null || string.IsNullOrEmpty(iconPath))
@@ -187,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
                 return;
 
             // Get icon color
-            Color iconColor = GetIconColor(progressBar, theme, useThemeColors);
+            Color iconColor = GetIconColor(progressBar);
 
             // Create GraphicsPath for icon bounds (square or circle based on style)
             using (var iconPathShape = CreateIconPath(iconBounds, controlStyle))
@@ -212,9 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             float centerY,
             float radius,
             BeepProgressBar progressBar,
-            string iconPath,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
+            string iconPath)
         {
             if (progressBar == null || radius <= 0 || string.IsNullOrEmpty(iconPath))
                 return;
@@ -228,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
                 return;
 
             // Get icon color
-            Color iconColor = GetIconColor(progressBar, theme, useThemeColors);
+            Color iconColor = GetIconColor(progressBar);
 
             // Paint icon in circle using StyledImagePainter
             StyledImagePainter.PaintInCircle(
@@ -248,9 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             Graphics g,
             GraphicsPath path,
             BeepProgressBar progressBar,
-            string iconPath,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
+            string iconPath)
         {
             if (path == null || progressBar == null || string.IsNullOrEmpty(iconPath))
                 return;
@@ -264,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
                 return;
 
             // Get icon color
-            Color iconColor = GetIconColor(progressBar, theme, useThemeColors);
+            Color iconColor = GetIconColor(progressBar);
 
             // Paint icon with path using StyledImagePainter
             StyledImagePainter.PaintWithTint(
@@ -297,7 +281,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
 
             // Try to resolve from SvgsUI static properties using reflection
             // This handles cases where iconPath is a property name like "Activity" or "Loader"
-            try
             {
                 var svgsUIType = typeof(SvgsUI);
                 var property = svgsUIType.GetProperty(iconPath, 
@@ -312,13 +295,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
                         return value;
                 }
             }
-            catch
-            {
-                // Reflection failed, continue with fallback
-            }
 
             // Try core SVG library fallback
-            try
             {
                 var svgsType = typeof(Svgs);
                 var property = svgsType.GetProperty(iconPath,
@@ -331,10 +309,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
                     if (!string.IsNullOrEmpty(value))
                         return value;
                 }
-            }
-            catch
-            {
-                // Ignore and use painter fallback.
             }
 
             // Fallback to recommended icon for painter kind

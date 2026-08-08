@@ -31,26 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
         /// </summary>
         public static bool IsHighContrastMode()
         {
-            try
-            {
-                // Use SystemInformation for reliable detection
-                return SystemInformation.HighContrast;
-            }
-            catch
-            {
-                // Fallback: check via API
-                try
-                {
-                    bool highContrast = false;
-                    SystemParametersInfo(SPI_GETHIGHCONTRAST, 0, ref highContrast, 0);
-                    return highContrast;
-                }
-                catch
-                {
-                    // Final fallback: check SystemColors
-                    return SystemColors.Control != SystemColors.Window;
-                }
-            }
+            // SystemInformation.HighContrast cannot throw - the previous three-level
+            // try/catch tower (P/Invoke fallback, SystemColors heuristic) was fiction.
+            return SystemInformation.HighContrast;
         }
 
         /// <summary>
@@ -58,18 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
         /// </summary>
         public static bool IsReducedMotionEnabled()
         {
-            try
-            {
-                bool animationsEnabled = true;
-                SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, ref animationsEnabled, 0);
-                return !animationsEnabled; // Inverted: if animations disabled, reduced motion is enabled
-            }
-            catch
-            {
-                // Fallback: check environment variable
-                var prefersReducedMotion = Environment.GetEnvironmentVariable("PREFERS_REDUCED_MOTION");
-                return prefersReducedMotion == "1" || prefersReducedMotion?.ToLowerInvariant() == "true";
-            }
+            bool animationsEnabled = true;
+            SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, ref animationsEnabled, 0);
+            return !animationsEnabled;
         }
 
         #endregion
@@ -191,72 +165,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
 
         #region High Contrast Support
 
-        /// <summary>
-        /// Get accessible colors for high contrast mode
-        /// Returns (backColor, foreColor, textColor, borderColor)
-        /// </summary>
-        public static (Color backColor, Color foreColor, Color textColor, Color borderColor) GetHighContrastColors()
-        {
-            if (!IsHighContrastMode())
-            {
-                // Return default colors if not in high contrast
-                return (
-                    Color.FromArgb(240, 240, 240),  // Light gray background
-                    Color.FromArgb(52, 152, 219),   // Blue foreground
-                    Color.White,                     // White text
-                    Color.FromArgb(30, 0, 0, 0)      // Subtle border
-                );
-            }
 
-            // Use system colors in high contrast mode
-            return (
-                SystemColors.Window,                 // Background (system window)
-                SystemColors.Highlight,             // Foreground (system highlight)
-                SystemColors.WindowText,            // Text (system window text)
-                SystemColors.WindowFrame            // Border (system window frame)
-            );
-        }
 
-        /// <summary>
-        /// Adjust colors for high contrast mode
-        /// </summary>
-        public static (Color backColor, Color foreColor, Color textColor, Color borderColor) AdjustColorsForHighContrast(
-            Color preferredBackColor,
-            Color preferredForeColor,
-            Color preferredTextColor,
-            Color preferredBorderColor)
-        {
-            if (!IsHighContrastMode())
-            {
-                // Return preferred colors if not in high contrast
-                return (preferredBackColor, preferredForeColor, preferredTextColor, preferredBorderColor);
-            }
-
-            // Use high contrast system colors
-            return GetHighContrastColors();
-        }
-
-        /// <summary>
-        /// Apply high contrast adjustments to progress bar colors
-        /// </summary>
-        public static void ApplyHighContrastAdjustments(
-            BeepProgressBar progressBar,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
-        {
-            if (progressBar == null || !IsHighContrastMode())
-                return;
-
-            // Get high contrast colors
-            var (backColor, foreColor, textColor, borderColor) = GetHighContrastColors();
-
-            // Apply to progress bar
-            progressBar.BackColor = backColor;
-            progressBar.ProgressColor = foreColor;
-            progressBar.TextColor = textColor;
-            
-            // Border color is applied via border pen in ApplyTheme()
-        }
 
         #endregion
 

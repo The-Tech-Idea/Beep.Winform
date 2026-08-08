@@ -222,23 +222,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                     {
                         var pt = new System.Drawing.PointF(rect.Left + (rect.Width - sz.Width) / 2, rect.Top + (rect.Height - sz.Height) / 2);
                         
-                        // Ensure text color meets WCAG contrast requirements
-                        Color textColor = owner.TextColor;
-                        if (owner.UseThemeColors)
-                        {
-                            textColor = ProgressBarAccessibilityHelpers.AdjustForContrast(
-                                textColor, 
-                                owner.ProgressColor, 
-                                4.5); // WCAG AA minimum
-                        }
-                        
-                        // Use high contrast colors if enabled
-                        if (ProgressBarAccessibilityHelpers.IsHighContrastMode())
-                        {
-                            var (_, _, hcTextColor, _) = ProgressBarAccessibilityHelpers.GetHighContrastColors();
-                            textColor = hcTextColor;
-                        }
-                        
+                        // Owner getters already resolve theme + high contrast; keep the
+                        // WCAG floor against the actual fill (accepted idiom).
+                        Color textColor = ProgressBarAccessibilityHelpers.AdjustForContrast(
+                            owner.TextColor,
+                            owner.ProgressColor,
+                            4.5);
                         using var tb = new SolidBrush(textColor);
                         g.DrawString(text, font, tb, pt);
                     }

@@ -62,8 +62,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                     owner,
                     ProgressPainterKind.RingCenterImage,
                     iconPath,
-                    theme,
-                    owner.UseThemeColors,
                     owner.Style);
             }
             if (hasText)

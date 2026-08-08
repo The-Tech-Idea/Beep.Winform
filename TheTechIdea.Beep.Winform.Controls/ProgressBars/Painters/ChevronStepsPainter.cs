@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             {
                 var fill = i <= current ? activeColor : inactiveColor;
                 var textColor = i <= current
-                    ? (theme.OnPrimaryColor.IsEmpty ? Color.White : theme.OnPrimaryColor)
+                    ? theme.OnPrimaryColor
                     : inactiveTextColor;
                 if (!owner.Enabled && i <= current)
                 {

@@ -21,23 +21,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
         private static IBeepTheme T(IBeepTheme theme) => theme ?? BeepThemesManager.CurrentTheme;
 
+        // Windows high-contrast is a SYSTEM accessibility override, resolved per paint so
+        // toggling it applies on the next repaint. It outranks even explicit custom colours.
+        // The old design stamped these into the controls' custom-override fields instead,
+        // which froze the high-contrast palette in place after the mode was turned off.
+        private static bool HC => StepperAccessibilityHelpers.IsHighContrastMode();
+
         public static Color GetStepCompletedColor(IBeepTheme theme, Color? customColor = null)
-            => customColor is { } c && c != Color.Empty ? c : T(theme).StepperItemCheckedBoxBackColor;
+            => HC ? SystemColors.Highlight
+             : customColor is { } c && c != Color.Empty ? c : T(theme).StepperItemCheckedBoxBackColor;
 
         public static Color GetStepActiveColor(IBeepTheme theme, Color? customColor = null)
-            => customColor is { } c && c != Color.Empty ? c : T(theme).StepperItemSelectedBackColor;
+            => HC ? SystemColors.HotTrack
+             : customColor is { } c && c != Color.Empty ? c : T(theme).StepperItemSelectedBackColor;
 
         public static Color GetStepPendingColor(IBeepTheme theme, Color? customColor = null)
-            => customColor is { } c && c != Color.Empty ? c : T(theme).DisabledBackColor;
+            => HC ? SystemColors.ControlDark
+             : customColor is { } c && c != Color.Empty ? c : T(theme).DisabledBackColor;
 
         public static Color GetStepErrorColor(IBeepTheme theme, Color? customColor = null)
-            => customColor is { } c && c != Color.Empty ? c : T(theme).ErrorColor;
+            => HC ? SystemColors.MenuHighlight
+             : customColor is { } c && c != Color.Empty ? c : T(theme).ErrorColor;
 
         public static Color GetStepWarningColor(IBeepTheme theme, Color? customColor = null)
-            => customColor is { } c && c != Color.Empty ? c : T(theme).WarningColor;
+            => HC ? SystemColors.Info
+             : customColor is { } c && c != Color.Empty ? c : T(theme).WarningColor;
 
         public static Color GetConnectorLineColor(IBeepTheme theme, StepState state, Color? customColor = null)
         {
+            if (HC) return SystemColors.WindowFrame;
             if (customColor is { } c && c != Color.Empty) return c;
             var t = T(theme);
             return state == StepState.Completed ? t.StepperItemCheckedBoxBackColor : t.StepperBorderColor;
@@ -54,6 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepTextColor(IBeepTheme theme, StepState state, Color? customColor = null)
         {
+            // On the Highlight/HotTrack fills the paired system ink is HighlightText;
+            // WindowText pairs with the neutral fills.
+            if (HC) return state is StepState.Active or StepState.Completed
+                ? SystemColors.HighlightText : SystemColors.WindowText;
             if (customColor is { } c && c != Color.Empty) return c;
             var t = T(theme);
             return state switch
@@ -67,6 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
         public static Color GetStepLabelColor(IBeepTheme theme, StepState state, Color? customColor = null)
         {
+            if (HC) return SystemColors.WindowText;
             if (customColor is { } c && c != Color.Empty) return c;
             var t = T(theme);
             return state == StepState.Active ? t.StepperForeColor : t.DisabledForeColor;
@@ -78,10 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         #region Background and Border Colors
 
         public static Color GetStepBackgroundColor(IBeepTheme theme, Color? customColor = null)
-            => customColor is { } c && c != Color.Empty ? c : T(theme).StepperBackColor;
+            => HC ? SystemColors.Control
+             : customColor is { } c && c != Color.Empty ? c : T(theme).StepperBackColor;
 
         public static Color GetStepBorderColor(IBeepTheme theme, StepState state, Color? customColor = null)
         {
+            if (HC) return SystemColors.WindowFrame;
             if (customColor is { } c && c != Color.Empty) return c;
             var t = T(theme);
             return state switch

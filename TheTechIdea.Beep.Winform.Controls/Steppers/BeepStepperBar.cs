@@ -1014,17 +1014,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, pendingStepColor)
             };
             
-            // Adjust text color for contrast if needed
-            if (StepperAccessibilityHelpers.IsHighContrastMode())
-            {
-                var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();
-                textColor = highContrastTextColor;
-            }
-            else
-            {
-                textColor = StepperAccessibilityHelpers.AdjustForContrast(textColor, stepFillColor);
-            }
-            
             using (var textBrush = new SolidBrush(textColor))
             {
                 graphics.DrawString(text, font, textBrush, textX, textY);
@@ -1065,17 +1054,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, warningStepColor),
                 _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, pendingStepColor)
             };
-            
-            // Adjust text color for contrast if needed
-            if (StepperAccessibilityHelpers.IsHighContrastMode())
-            {
-                var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();
-                textColor = highContrastTextColor;
-            }
-            else
-            {
-                textColor = StepperAccessibilityHelpers.AdjustForContrast(textColor, BackColor);
-            }
             
             float textX, textY;
             
@@ -1143,9 +1121,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ? BeepThemesManager.ToFont(_currentTheme.StepperItemFont)
                     : BeepThemesManager.ToFont(_currentTheme?.BodyMedium);
                 InitializePainter();
-                
-                // Apply accessibility adjustments (high contrast, reduced motion)
-                ApplyAccessibilityAdjustments();
             }
             finally
             {
@@ -1165,16 +1140,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             StepperAccessibilityHelpers.ApplyAccessibilitySettings(this, AccessibleName, AccessibleDescription);
         }
 
-        /// <summary>
-        /// Apply accessibility adjustments (high contrast, reduced motion)
-        /// </summary>
-        public void ApplyAccessibilityAdjustments()
-        {
-            if (StepperAccessibilityHelpers.IsHighContrastMode())
-            {
-                StepperAccessibilityHelpers.ApplyHighContrastAdjustments(this);
-            }
-        }
 
         /// <summary>
         /// Override MinimumSize to enforce accessible minimum size

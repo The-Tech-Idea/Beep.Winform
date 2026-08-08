@@ -64,16 +64,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             float subX = x + (stepLen - subSize.Width) / 2f;
 
             Color foreColor = StepperThemeHelpers.GetStepTextColor(_currentTheme, state); // segments are state-filled: on-fill ink
-            if (StepperAccessibilityHelpers.IsHighContrastMode())
-            {
-                var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();
-                foreColor = highContrastTextColor;
-            }
-            else
-            {
-                foreColor = StepperAccessibilityHelpers.AdjustForContrast(foreColor, BackColor);
-            }
-
             using var brush = new SolidBrush(foreColor);
             graphics.DrawString(headerText, headerFont, brush, headerX, startY);
             graphics.DrawString(subText, subFont, brush, subX, startY + headerSize.Height);

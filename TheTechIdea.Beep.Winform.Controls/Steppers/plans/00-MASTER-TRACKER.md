@@ -187,6 +187,33 @@ Not done / open: vertical-orientation distribution for the node painters (horizo
 in-scope); high-contrast override-field freeze from batch 2 still noted; `BeepSteppperBar.cs`
 filename typo still pending user's call on churn.
 
+## Batch 4 done — high-contrast freeze fixed at the root, filename typo renamed (probe 70/70)
+
+High contrast is now a **resolution-time branch inside `StepperThemeHelpers`**: every getter
+returns the paired SystemColors mapping when `IsHighContrastMode()` (fills
+Highlight/HotTrack/ControlDark, ink HighlightText on the selection fills / WindowText elsewhere,
+borders+connectors WindowFrame, background Control). Toggling HC applies on the next repaint, works
+in every painter automatically, outranks even explicit custom colours, and never touches control
+state — the old design stamped system colours into the custom-override fields at ApplyTheme, which
+froze the HC palette in place after the mode was turned off (and was a no-op on the breadcrumb,
+which has no such fields).
+
+**Deleted** (rule 2, all caller-less after the move):
+- `ApplyHighContrastAdjustments` (the duck-typed stamping) + both controls'
+  `ApplyAccessibilityAdjustments` wrappers and their ApplyTheme call sites.
+- `GetHighContrastColors` / `AdjustColorsForHighContrast` tuple getters.
+- The whole WCAG region: `AdjustForContrast` + `CalculateContrastRatio` / `EnsureContrastRatio` /
+  luminance/darken/lighten privates. Its only three call sites were paint-time luminance shifts of
+  theme-resolved ink (banned — a bad pairing is the theme's bug); with those gone the entire chain
+  had zero callers.
+- `HasProperty` (last caller died with the stamping).
+
+`BeepSteppperBar.cs` → `BeepStepperBar.cs` (git mv; class name was already correct, zero code refs
+to the filename; historical plans docs keep the old spelling).
+
+Not verified live: the HC branch itself — `SystemInformation.HighContrast` cannot be toggled from
+the probe, so the mapping is verified by build + review only. Probe 70/70 after both changes.
+
 ## Standing constraints
 
 There is ALWAYS a theme — assign slots directly, never guard, never blend, never literal (semantic

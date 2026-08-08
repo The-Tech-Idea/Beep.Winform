@@ -347,7 +347,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializePainter();
             
             // Apply accessibility adjustments (high contrast, reduced motion)
-            ApplyAccessibilityAdjustments();
 
             Invalidate();  // Trigger repaint
         }
@@ -361,16 +360,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             StepperAccessibilityHelpers.ApplyAccessibilitySettings(this, AccessibleName, AccessibleDescription);
         }
 
-        /// <summary>
-        /// Apply accessibility adjustments (high contrast, reduced motion)
-        /// </summary>
-        public void ApplyAccessibilityAdjustments()
-        {
-            if (StepperAccessibilityHelpers.IsHighContrastMode())
-            {
-                StepperAccessibilityHelpers.ApplyHighContrastAdjustments(this);
-            }
-        }
 
         /// <summary>
         /// Override MinimumSize to enforce accessible minimum size

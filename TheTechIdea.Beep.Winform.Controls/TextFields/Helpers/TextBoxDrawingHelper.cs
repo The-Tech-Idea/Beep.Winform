@@ -427,12 +427,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                     g.FillRectangle(brush, selectionRect);
                 }
                 
-                // Draw selected text with contrasting color
-                Color selectedTextColor = Color.White;
-                if (_textBox.SelectionBackColor.GetBrightness() > 0.5)
-                {
-                    selectedTextColor = Color.Black;
-                }
+                // The theme owns the selection pair - a wrong-looking combination is the
+                // theme's bug, not something to brightness-guess around.
+                Color selectedTextColor = ThemeManagement.BeepThemesManager.CurrentTheme.TextBoxSelectedForeColor;
                 
                 TextRenderer.DrawText(g, selectedText, font, selectionRect, selectedTextColor, GetTextFormatFlags());
             }
@@ -707,14 +704,10 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         }
         
         private static Color GetDisabledTextColor()
-        {
-            return Color.FromArgb(158, 157, 162);
-        }
-        
+            => ThemeManagement.BeepThemesManager.CurrentTheme.DisabledForeColor;
+
         private static Color GetDefaultTextColor()
-        {
-            return Color.FromArgb(33, 37, 41);
-        }
+            => ThemeManagement.BeepThemesManager.CurrentTheme.TextBoxForeColor;
         
         private TextFormatFlags GetTextFormatFlags()
         {
@@ -748,19 +741,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 flags |= TextFormatFlags.Top; // top-align for multiline
                 flags |= TextFormatFlags.ExpandTabs; // better tab handling
                 
-                // Word wrap handling (try to read WordWrap property if available)
-                bool wordWrap = true;
-                try
-                {
-                    var pi = _textBox.GetType().GetProperty("WordWrap");
-                    if (pi != null && pi.PropertyType == typeof(bool))
-                    {
-                        wordWrap = (bool)(pi.GetValue(_textBox) ?? true);
-                    }
-                }
-                catch { /* ignore */ }
-                
-                if (wordWrap)
+                // WordWrap is on the interface now - the old code probed it by reflection.
+                if (_textBox.WordWrap)
                 {
                     flags |= TextFormatFlags.WordBreak;
                 }

@@ -36,6 +36,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderColor = _currentTheme.TextBoxBorderColor;
             _focusBorderColor = _currentTheme.FocusIndicatorColor;
             _placeholderTextColor = _currentTheme.TextBoxPlaceholderColor;
+            _lineNumberForeColor = _currentTheme.SecondaryTextColor;
+            _lineNumberBackColor = _currentTheme.PanelBackColor;
+            if (_searchHelper != null)
+            {
+                _searchHelper.MatchHighlightColor = _currentTheme.HighlightBackColor;
+                _searchHelper.CurrentMatchHighlightColor = _currentTheme.AccentColor;
+            }
             
             if (UseThemeFont)
             {

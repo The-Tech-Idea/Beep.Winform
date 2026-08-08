@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         string Text { get; set; }
         Font TextFont { get; set; }
         bool Multiline { get; set; }
+        bool WordWrap { get; }
         bool ReadOnly { get; set; }
         HorizontalAlignment TextAlignment { get; set; }
         string PlaceholderText { get; set; }

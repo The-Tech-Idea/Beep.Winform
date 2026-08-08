@@ -15,19 +15,22 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
     /// </summary>
     public class VerticalTableStyle14Painter : IVerticalTablePainter
     {
-        // Dark terminal color palette
-        private static readonly Color DarkBg = Color.FromArgb(10, 12, 20);
-        private static readonly Color DarkSurface = Color.FromArgb(18, 22, 36);
-        private static readonly Color DarkHeaderBg = Color.FromArgb(14, 16, 30);
-        private static readonly Color NeonCyan = Color.FromArgb(0, 240, 255);
-        private static readonly Color NeonMagenta = Color.FromArgb(255, 0, 128);
-        private static readonly Color NeonGreen = Color.FromArgb(0, 255, 136);
-        private static readonly Color NeonBlue = VerticalTableThemeHelpers.Cur.PrimaryColor;
-        private static readonly Color GridLine = Color.FromArgb(30, 40, 70);
-        private static readonly Color TextPrimary = Color.FromArgb(220, 230, 245);
-        private static readonly Color TextDim = Color.FromArgb(140, 150, 175);
-        private static readonly Color HoverGlow = Color.FromArgb(20, 180, 255, 50);
-        private static readonly Color SelectedGlow = Color.FromArgb(35, 0, 200, 255);
+        // Terminal-style roles resolved from the theme (user ruling: ALL styles use the theme -
+        // this style's identity is its glow/scanline GEOMETRY, not a private palette). Properties,
+        // not static readonly fields: NeonBlue used to capture Cur.PrimaryColor at TYPE LOAD, so it
+        // never followed a theme change for the life of the process - the static-capture trap.
+        private static Color DarkBg => VerticalTableThemeHelpers.Cur.GridBackColor;
+        private static Color DarkSurface => VerticalTableThemeHelpers.Cur.AltRowBackColor;
+        private static Color DarkHeaderBg => VerticalTableThemeHelpers.Cur.GridHeaderBackColor;
+        private static Color NeonCyan => VerticalTableThemeHelpers.Cur.AccentColor;
+        private static Color NeonMagenta => VerticalTableThemeHelpers.Cur.SecondaryColor;
+        private static Color NeonGreen => VerticalTableThemeHelpers.Cur.SuccessColor;
+        private static Color NeonBlue => VerticalTableThemeHelpers.Cur.PrimaryColor;
+        private static Color GridLine => VerticalTableThemeHelpers.Cur.GridLineColor;
+        private static Color TextPrimary => VerticalTableThemeHelpers.Cur.GridForeColor;
+        private static Color TextDim => VerticalTableThemeHelpers.Cur.DisabledForeColor;
+        private static Color HoverGlow => Color.FromArgb(20, VerticalTableThemeHelpers.Cur.AccentColor);
+        private static Color SelectedGlow => Color.FromArgb(35, VerticalTableThemeHelpers.Cur.PrimaryColor);
 
         public void CalculateLayout(BindingList<SimpleItem> columns, VerticalTableLayoutHelper layout, int headerHeight, int rowHeight, int columnWidth, int padding, bool showImage)
         {
@@ -176,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             }
             else if (isHovered)
             {
-                borderColor = Color.FromArgb(60, 80, 140);
+                borderColor = VerticalTableThemeHelpers.Cur.GridHeaderBorderColor;
                 borderWidth = 1;
             }
 
@@ -316,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             if (item == null) return;
 
             // Cell background: alternating subtly different dark surfaces
-            Color cellBg = (cell.RowIndex % 2 == 0) ? DarkSurface : Color.FromArgb(22, 26, 44);
+            Color cellBg = (cell.RowIndex % 2 == 0) ? DarkSurface : DarkBg;
 
             if (isSelected)
             {
@@ -366,7 +369,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             else if (isNegative)
             {
                 // Neon red X
-                using (var pen = new Pen(Color.FromArgb(255, 60, 80), 2f))
+                using (var pen = new Pen(VerticalTableThemeHelpers.Cur.ErrorColor, 2f))
                 {
                     pen.StartCap = LineCap.Round; pen.EndCap = LineCap.Round;
                     g.DrawLine(pen, iconX + 3, iconY + 3, iconX + iconSize - 3, iconY + iconSize - 3);

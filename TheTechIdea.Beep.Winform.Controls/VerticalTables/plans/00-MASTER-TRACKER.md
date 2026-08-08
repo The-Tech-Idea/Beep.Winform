@@ -86,3 +86,20 @@ pipeline reads the PHYSICAL cursor: synthetic MouseEventArgs alone cannot drive 
 
 Still open: Style14 identity-palette ruling; hover/multi-select paths unprobed; renders of the other
 13 styles not individually eyeballed.
+
+## Batch 3 - Style14 ruling applied, renders eyeballed
+
+Style14 themed per the standing ruling (all styles use the theme; no exceptions were carved out when
+asked twice). Its identity is its terminal typography, scanlines and glow geometry - the palette is
+now live slot reads. Two defects fixed in the process: the named constants were STATIC READONLY, so
+NeonBlue captured PrimaryColor at type load and never followed a theme change for the life of the
+process (the static-capture trap - now arrow properties); and three body literals the family sweep
+missed (dark-navy border, alt-row fill, error pen). Under the light default theme it renders fully
+legible; under a dark theme it goes neon - the theme's call, which is the point.
+
+Eyeballed: Style6 (clean data table), Style14 (before/after), Style4 (dark pricing table with
+gradient headers, amber accents - coherent and legible). Probe 19/19 throughout.
+
+Honestly not done: hover and multi-select paths remain unprobed (hover also routes through the
+physical cursor); the other 11 style renders passed the distinctness and content checks but were not
+individually eyeballed.

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -13,12 +14,24 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private IStepperPainter _stepperPainter;
 
+        private string _painterName = "ChevronBreadcrumb";
+
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue("ChevronBreadcrumb")]
         [TypeConverter(typeof(StepperPainterNameConverter))]
         [Description("Stepper painter name resolved from StepperPainterRegistry.")]
-        public string PainterName { get; set; } = "ChevronBreadcrumb";
+        public string PainterName
+        {
+            get => _painterName;
+            set
+            {
+                if (_painterName == value) return;
+                _painterName = value;
+                InitializePainter();
+                Invalidate();
+            }
+        }
 
         private void InitializePainter()
         {
@@ -89,10 +102,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 StepState state = i < selectedIndex ? StepState.Completed : i == selectedIndex ? StepState.Active : StepState.Pending;
                 bool showLabel = ShouldShowStepLabel(i);
+                // Name and Text usually carry the SAME string (SimpleItem convention here) -
+                // forwarding both as Text + Subtitle doubled every label ("Account"/"Account").
+                string header = ListItems[i].Name ?? string.Empty;
+                string sub = ListItems[i].Text ?? string.Empty;
+                if (string.Equals(sub, header, StringComparison.Ordinal))
+                {
+                    sub = string.Empty;
+                }
                 steps.Add(new StepModel
                 {
-                    Text = showLabel ? (ListItems[i].Name ?? string.Empty) : string.Empty,
-                    Subtitle = showLabel ? (ListItems[i].Text ?? string.Empty) : string.Empty,
+                    Text = showLabel ? header : string.Empty,
+                    Subtitle = showLabel ? sub : string.Empty,
                     Tooltip = GetStepTooltip(i),
                     State = state,
                     IsEnabled = true

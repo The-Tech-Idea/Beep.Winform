@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Models;
 
@@ -12,12 +13,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
     {
         private Font _labelFont;
         private Font _numberFont;
+        private BaseControl _owner;
         private IBeepTheme _theme;
 
         public string Name => "ProgressBar";
 
         public void Initialize(BaseControl owner, IBeepTheme theme, Font stepFont, Font labelFont, Font numberFont)
         {
+            _owner = owner;
             _theme = theme;
             _labelFont = labelFont ?? stepFont;
             _numberFont = numberFont ?? stepFont;
@@ -34,8 +37,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             int count = steps.Count;
             int spacing = styleConfig?.RecommendedStepSpacing ?? 20;
             int nodeSize = System.Math.Max(16, (styleConfig?.RecommendedButtonSize.Width ?? 28));
+
+            // Distribute across the available width (F5 rule 3): the recommended ~20px pitch
+            // left a 4-step bar clustered in the middle of a 900px control, labels touching.
+            if (count > 1)
+            {
+                int edgeInset = System.Math.Max(nodeSize / 2, DpiScalingHelper.ScaleValue(56, _owner));
+                int availW = clientRect.Width - (2 * edgeInset);
+                spacing = System.Math.Max(DpiScalingHelper.ScaleValue(8, _owner),
+                                          (availW - (nodeSize * count)) / (count - 1));
+            }
             int totalLength = (nodeSize * count) + (spacing * (count - 1));
-            int startX = clientRect.Left + (clientRect.Width - totalLength) / 2;
+            int startX = clientRect.Left + System.Math.Max(0, (clientRect.Width - totalLength) / 2);
             int centerY = clientRect.Top + (clientRect.Height / 2);
 
             for (int i = 0; i < count; i++)
@@ -103,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (stepIndex == context.FocusedIndex)
             {
                 var focusRect = Rectangle.Inflate(stepRect, 2, 2);
-                using var pen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2);
+                using var pen = new Pen((context.Theme ?? _theme).PrimaryColor, 2);
                 g.DrawEllipse(pen, focusRect);
             }
 

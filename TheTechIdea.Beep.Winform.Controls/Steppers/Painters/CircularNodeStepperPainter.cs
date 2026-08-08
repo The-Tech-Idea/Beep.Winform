@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Models;
 
@@ -44,9 +45,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             int spacing = styleConfig?.RecommendedStepSpacing ?? 20;
             Size stepSize = styleConfig?.RecommendedButtonSize ?? new Size(32, 32);
             int stepTotalSize = orientation == Orientation.Horizontal ? stepSize.Width : stepSize.Height;
+
+            // Distribute across the available width (F5 rule 3): the recommended ~20px pitch
+            // left a 4-step bar clustered in the middle of a 900px control, labels touching.
+            if (orientation == Orientation.Horizontal && stepCount > 1)
+            {
+                int edgeInset = Math.Max(stepTotalSize / 2, DpiScalingHelper.ScaleValue(56, _owner));
+                int availW = clientRect.Width - (2 * edgeInset);
+                spacing = Math.Max(DpiScalingHelper.ScaleValue(8, _owner),
+                                   (availW - (stepTotalSize * stepCount)) / (stepCount - 1));
+            }
             int totalLength = (stepTotalSize + spacing) * stepCount - spacing;
             Point startPoint = orientation == Orientation.Horizontal
-                ? new Point(clientRect.Left + (clientRect.Width - totalLength) / 2, clientRect.Top + (clientRect.Height - stepSize.Height) / 2)
+                ? new Point(clientRect.Left + Math.Max(0, (clientRect.Width - totalLength) / 2), clientRect.Top + (clientRect.Height - stepSize.Height) / 2)
                 : new Point(clientRect.Left + (clientRect.Width - stepSize.Width) / 2, clientRect.Top + (clientRect.Height - totalLength) / 2);
 
             for (int i = 0; i < stepCount; i++)
@@ -142,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             {
                 int focusGap = 2;
                 var focusRect = Rectangle.Inflate(stepRect, focusGap, focusGap);
-                using var focusPen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2f);
+                using var focusPen = new Pen((context.Theme ?? _theme).PrimaryColor, 2f);
                 g.DrawEllipse(focusPen, focusRect);
             }
 

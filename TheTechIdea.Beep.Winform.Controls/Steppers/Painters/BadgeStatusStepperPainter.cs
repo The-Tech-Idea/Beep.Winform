@@ -41,8 +41,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (orientation == Orientation.Horizontal)
             {
+            // Distribute across the available width (F5 rule 3): the recommended ~20px pitch
+            // left a 4-step bar clustered in the middle of a 900px control, labels touching.
+                if (count > 1)
+                {
+                    int edgeInset = Math.Max(node.Width / 2, DpiScalingHelper.ScaleValue(56, _owner));
+                    int availW = clientRect.Width - (2 * edgeInset);
+                    spacing = Math.Max(DpiScalingHelper.ScaleValue(8, _owner),
+                                       (availW - (node.Width * count)) / (count - 1));
+                }
                 int totalLength = (node.Width * count) + (spacing * (count - 1));
-                int startX = clientRect.Left + ((clientRect.Width - totalLength) / 2);
+                int startX = clientRect.Left + Math.Max(0, (clientRect.Width - totalLength) / 2);
                 int y = clientRect.Top + ((clientRect.Height - node.Height) / 2);
                 for (int i = 0; i < count; i++)
                 {
@@ -138,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (focused)
             {
                 Rectangle focus = Rectangle.Inflate(stepRect, DpiScalingHelper.ScaleValue(3, _owner), DpiScalingHelper.ScaleValue(3, _owner));
-                using var focusPen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2f);
+                using var focusPen = new Pen((context.Theme ?? _theme).PrimaryColor, 2f);
                 g.DrawEllipse(focusPen, focus);
             }
 

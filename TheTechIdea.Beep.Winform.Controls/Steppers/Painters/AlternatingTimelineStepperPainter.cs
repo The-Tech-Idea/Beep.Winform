@@ -41,8 +41,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             int spacing = DpiScalingHelper.ScaleValue(styleConfig?.RecommendedStepSpacing ?? 26, _owner);
             Size node = DpiScalingHelper.ScaleSize(styleConfig?.RecommendedButtonSize ?? new Size(28, 28), _owner);
             int centerX = clientRect.Left + (clientRect.Width / 2);
+
+            // Fit the stack to the available height (same defect as VerticalTimeline: fixed
+            // spacing centred in a short band clipped the first and last nodes off the control).
+            int inset = DpiScalingHelper.ScaleValue(6, _owner);
+            int avail = clientRect.Height - (2 * inset);
+            if (count > 1)
+            {
+                int minSpacing = 2;
+                // Even at minimum spacing the nodes may not fit - shrink the nodes themselves.
+                int maxNode = (avail - (minSpacing * (count - 1))) / count;
+                if (node.Height > maxNode)
+                {
+                    node.Height = Math.Max(8, maxNode);
+                    node.Width = node.Height;
+                }
+                spacing = Math.Min(spacing, Math.Max(minSpacing, (avail - (node.Height * count)) / (count - 1)));
+            }
             int totalHeight = (node.Height * count) + (spacing * (count - 1));
-            int startY = clientRect.Top + ((clientRect.Height - totalHeight) / 2);
+            int startY = clientRect.Top + inset + Math.Max(0, (avail - totalHeight) / 2);
             int offsetX = DpiScalingHelper.ScaleValue(72, _owner);
             int labelWidth = DpiScalingHelper.ScaleValue(160, _owner);
 
@@ -55,7 +72,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
                 bool left = i % 2 == 0;
                 int labelX = left ? (centerX - offsetX - labelWidth) : (centerX + offsetX);
-                _labelRects.Add(new Rectangle(labelX, y - 2, labelWidth, node.Height + DpiScalingHelper.ScaleValue(18, _owner)));
+                // Clamp the card to the content rect - the last card's overhang painted past
+                // the bottom edge of the control.
+                int labelTop = Math.Max(clientRect.Top + 1, y - 2);
+                int labelHeight = Math.Min(node.Height + DpiScalingHelper.ScaleValue(18, _owner),
+                                           clientRect.Bottom - 1 - labelTop);
+                _labelRects.Add(new Rectangle(labelX, labelTop, labelWidth, labelHeight));
 
                 if (i > 0)
                 {
@@ -122,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (focused)
             {
                 Rectangle focusRect = Rectangle.Inflate(stepRect, DpiScalingHelper.ScaleValue(3, _owner), DpiScalingHelper.ScaleValue(3, _owner));
-                using var focusPen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2f);
+                using var focusPen = new Pen((context.Theme ?? _theme).PrimaryColor, 2f);
                 g.DrawEllipse(focusPen, focusRect);
             }
 
@@ -169,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             }
 
             Font font = _labelFont ?? context.LabelFont ?? SystemFonts.DefaultFont;
-            Color labelColor = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State);
+            Color labelColor = StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State);
             using var brush = new SolidBrush(labelColor);
             string title = step.Text ?? "Step";
             string subtitle = step.Subtitle ?? string.Empty;

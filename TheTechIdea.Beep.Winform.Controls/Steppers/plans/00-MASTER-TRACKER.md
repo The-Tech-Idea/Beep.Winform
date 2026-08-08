@@ -141,6 +141,52 @@ Known residue for batch 3's probe to watch: high-contrast application writes sys
 the custom-override fields, so *leaving* HC mode won't restore themed colours until restart —
 noted, not redesigned here.
 
+## Batch 3 done — probe 70/70, geometry + defects found by render (the eyeball earned its keep)
+
+StepperProbe (scratchpad): all 12 painters wide+narrow, blank-guard + cross-painter distinctness,
+mechanical alignment (node centres evenly spaced ≤2px, rects in bounds, top/bottom edge-bleed rows),
+vertical orientation column alignment, theme responsiveness, PainterName switch repaint, CurrentStep
+→ StepChanged, pipeline click navigation, StepValidating.Cancel gate, breadcrumb with real items.
+
+**The colour-count checks passed while every painter rendered ONE node** — only the eyeball caught
+it. Root cause, the repo's documented re-entrant sync disease: `StepCount = 4` → InitializeSteps →
+SyncStepsWithListItems rebuilds ListItems, the FIRST Add fires ListChanged synchronously →
+SyncListItemsWithSteps adopts `stepCount = ListItems.Count` (=1) → the rebuild loop's own bound
+collapses. Every stepper constructed via StepCount ended up with one step; CurrentStep's guard then
+rejected every set, so StepChanged never fired and my first "click navigates" PASS was vacuous
+(CurrentStep was 0 all along). Fix: `_syncingListItems` guard — our own writes don't re-enter
+(SetStepState's IsChecked write guarded too).
+
+Defects found by render + fixed:
+- **PainterName was an auto-property** — assigning it after construction painted the old style until
+  something else re-ran InitializePainter. Both controls: setter now re-initializes (attributes kept
+  on the property, not the backing field).
+- **VerticalTimeline + AlternatingTimeline overflowed the band**: fixed 52px pitch centred in a
+  140px control put node 1 at Y=-24 (clipped AND unclickable). Now: inset + spacing compresses +
+  nodes shrink when even min spacing cannot fit; cards clamped to the content rect.
+- **Completed check never painted**: GetCheckIconPath's "try paths" loop returned the first
+  non-empty STRING ("check.svg") — never a resolvable resource; StyledImagePainter silently no-oped
+  and every completed node was an empty circle. All five icon getters now return SvgsUI constants.
+- **On-fill ink**: GetStepTextColor gained Error/Warning → OnPrimaryColor (the "4" marker was
+  dark-red-on-red in 8 painters); chevron segment text, breadcrumb segment text and both timeline
+  cards moved from label ink (pairs with control bg) to on-fill ink. GetStepOnFillColor briefly
+  existed and was folded back in — one concept, one name.
+- **Distribution (F5 rule 3)**: CircularNode/ProgressBar/IconTimeline/SquareDashed/BadgeStatus
+  clustered a 4-step bar in the middle of a 900px control at the recommended ~20px pitch, labels
+  touching. Horizontal layouts now distribute across available width with a label-safe edge inset
+  (56 scaled) and an 8px floor. Dots stays compact deliberately — pagination idiom. Owner plumbed
+  into the three painters that discarded it (DPI rule 6).
+- **CompactInline underline** sat at the control's bottom edge, a band-height away from the label it
+  marks — now under the label, sized to it.
+- **Breadcrumb doubled every label** ("Account"/"Account"): Name and Text carry the same string by
+  SimpleItem convention here; equal Subtitle is now dropped (painter path + legacy path).
+- 9 `?? Color.DodgerBlue` focus-pen fallbacks the batch-2 census regex missed (named-colour census
+  now clean); 3 Debug.WriteLine → BeepLog.FailureOnce.
+
+Not done / open: vertical-orientation distribution for the node painters (horizontal only was
+in-scope); high-contrast override-field freeze from batch 2 still noted; `BeepSteppperBar.cs`
+filename typo still pending user's call on churn.
+
 ## Standing constraints
 
 There is ALWAYS a theme — assign slots directly, never guard, never blend, never literal (semantic

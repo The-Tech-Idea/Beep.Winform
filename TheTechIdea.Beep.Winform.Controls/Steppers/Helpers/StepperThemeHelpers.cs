@@ -47,6 +47,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
         #region Text Colors
 
+        /// <summary>
+        /// Ink for text/glyphs drawn ON a state-coloured fill (node markers, chevrons, cards).
+        /// Pairs with the state's fill slot; the label ink below pairs with the control
+        /// background. Mixing them up painted dark-red "4" markers on the error-red fill.
+        /// </summary>
         public static Color GetStepTextColor(IBeepTheme theme, StepState state, Color? customColor = null)
         {
             if (customColor is { } c && c != Color.Empty) return c;
@@ -55,6 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             {
                 StepState.Active => t.StepperItemSelectedForeColor,
                 StepState.Completed => t.StepperItemCheckedBoxForeColor,
+                StepState.Error or StepState.Warning => t.OnPrimaryColor,
                 _ => t.StepperItemForeColor,
             };
         }
@@ -65,6 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             var t = T(theme);
             return state == StepState.Active ? t.StepperForeColor : t.DisabledForeColor;
         }
+
 
         #endregion
 

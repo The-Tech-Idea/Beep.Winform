@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Models;
 
@@ -11,12 +12,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
     public sealed class CompactInlineStepperPainter : IStepperPainter
     {
         private Font _stepFont;
+        private BaseControl _owner;
         private IBeepTheme _theme;
 
         public string Name => "CompactInline";
 
         public void Initialize(BaseControl owner, IBeepTheme theme, Font stepFont, Font labelFont, Font numberFont)
         {
+            _owner = owner;
             _stepFont = stepFont ?? labelFont ?? numberFont;
             _theme = theme;
         }
@@ -80,8 +83,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (stepIndex == context.SelectedIndex)
             {
                 int underlineThickness = StepperAccessibilityHelpers.GetAccessibleBorderWidth(2);
-                using var underlinePen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, underlineThickness);
-                g.DrawLine(underlinePen, stepRect.Left + 6, stepRect.Bottom - underlineThickness, stepRect.Right - 6, stepRect.Bottom - underlineThickness);
+                using var underlinePen = new Pen((context.Theme ?? _theme).PrimaryColor, underlineThickness);
+                // Underline the LABEL, sized to it - the full-height segment rect put the line
+                // at the control's bottom edge, a band's height away from the text it marks.
+                float uy = textY + textSize.Height + DpiScalingHelper.ScaleValue(2, _owner);
+                g.DrawLine(underlinePen, textX, uy, textX + textSize.Width, uy);
             }
         }
 

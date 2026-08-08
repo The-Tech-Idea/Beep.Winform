@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (focused)
             {
                 var focusRect = Rectangle.Inflate(stepRect, 1, 1);
-                using var focusPen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2f);
+                using var focusPen = new Pen((context.Theme ?? _theme).PrimaryColor, 2f);
                 g.DrawRectangle(focusPen, focusRect);
             }
 

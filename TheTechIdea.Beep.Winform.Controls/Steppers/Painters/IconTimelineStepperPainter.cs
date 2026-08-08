@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Models;
 
@@ -11,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 {
     public sealed class IconTimelineStepperPainter : IStepperPainter
     {
+        private BaseControl _owner;
         private IBeepTheme _theme;
         private Font _labelFont;
         private Font _numberFont;
@@ -19,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
         public void Initialize(BaseControl owner, IBeepTheme theme, Font stepFont, Font labelFont, Font numberFont)
         {
+            _owner = owner;
             _theme = theme;
             _labelFont = labelFont ?? stepFont;
             _numberFont = numberFont ?? stepFont ?? labelFont;
@@ -35,6 +38,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             int count = steps.Count;
             int spacing = styleConfig?.RecommendedStepSpacing ?? 24;
             Size node = styleConfig?.RecommendedButtonSize ?? new Size(30, 30);
+
+            // Distribute across the available width (F5 rule 3): the recommended ~20px pitch
+            // left a 4-step bar clustered in the middle of a 900px control, labels touching.
+            if (orientation == Orientation.Horizontal && count > 1)
+            {
+                int edgeInset = System.Math.Max(node.Width / 2, DpiScalingHelper.ScaleValue(56, _owner));
+                int availW = clientRect.Width - (2 * edgeInset);
+                spacing = System.Math.Max(DpiScalingHelper.ScaleValue(8, _owner),
+                                          (availW - (node.Width * count)) / (count - 1));
+            }
             int totalLength = ((orientation == Orientation.Horizontal ? node.Width : node.Height) * count) + (spacing * (count - 1));
             Point start = orientation == Orientation.Horizontal
                 ? new Point(clientRect.Left + (clientRect.Width - totalLength) / 2, clientRect.Top + 8)
@@ -126,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (focused)
             {
                 Rectangle focusRect = Rectangle.Inflate(stepRect, 3, 3);
-                using var focusPen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2f);
+                using var focusPen = new Pen((context.Theme ?? _theme).PrimaryColor, 2f);
                 g.DrawEllipse(focusPen, focusRect);
             }
 

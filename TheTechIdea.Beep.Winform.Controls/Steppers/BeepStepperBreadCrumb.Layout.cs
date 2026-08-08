@@ -46,6 +46,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             var headerText = ListItems[stepIndex].Name ?? string.Empty;
             var subText = ListItems[stepIndex].Text ?? string.Empty;
+            // Name and Text usually carry the SAME string (the bar's own sync sets both) -
+            // drawing both doubled every label ("Account" / "Account").
+            if (string.Equals(subText, headerText, StringComparison.Ordinal))
+            {
+                subText = string.Empty;
+            }
             StepState state = stepIndex == selectedIndex ? StepState.Active : StepState.Pending;
             Font headerFont = StepperFontHelpers.GetStepLabelFont(this, ControlStyle, state, _textFont, this);
             Font subFont = StepperFontHelpers.GetStepTextFont(this, ControlStyle, _textFont, this);
@@ -57,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             float headerX = x + (stepLen - headerSize.Width) / 2f;
             float subX = x + (stepLen - subSize.Width) / 2f;
 
-            Color foreColor = StepperThemeHelpers.GetStepLabelColor(_currentTheme, state);
+            Color foreColor = StepperThemeHelpers.GetStepTextColor(_currentTheme, state); // segments are state-filled: on-fill ink
             if (StepperAccessibilityHelpers.IsHighContrastMode())
             {
                 var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();

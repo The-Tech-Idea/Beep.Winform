@@ -36,11 +36,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             }
 
             int count = steps.Count;
-            int spacing = styleConfig?.RecommendedStepSpacing ?? 26;
-            Size node = styleConfig?.RecommendedButtonSize ?? new Size(28, 28);
-            int timelineX = clientRect.Left + 20;
+            int spacing = DpiScalingHelper.ScaleValue(styleConfig?.RecommendedStepSpacing ?? 26, _owner);
+            Size node = DpiScalingHelper.ScaleSize(styleConfig?.RecommendedButtonSize ?? new Size(28, 28), _owner);
+            int timelineX = clientRect.Left + DpiScalingHelper.ScaleValue(20, _owner);
+
+            // Fit the stack to the available height: fixed spacing centred in a short band pushed
+            // the first node off the top of the control (Y=-24 in a 140px band) and the last off
+            // the bottom - clipped pixels AND unclickable hit rects. Spacing compresses to fit.
+            int inset = DpiScalingHelper.ScaleValue(6, _owner);
+            int avail = clientRect.Height - (2 * inset);
+            if (count > 1)
+            {
+                int minSpacing = 2;
+                // Even at minimum spacing the nodes may not fit - shrink the nodes themselves.
+                int maxNode = (avail - (minSpacing * (count - 1))) / count;
+                if (node.Height > maxNode)
+                {
+                    node.Height = Math.Max(8, maxNode);
+                    node.Width = node.Height;
+                }
+                spacing = Math.Min(spacing, Math.Max(minSpacing, (avail - (node.Height * count)) / (count - 1)));
+            }
             int totalHeight = (node.Height * count) + (spacing * (count - 1));
-            int startY = clientRect.Top + (clientRect.Height - totalHeight) / 2;
+            int startY = clientRect.Top + inset + Math.Max(0, (avail - totalHeight) / 2);
 
             for (int i = 0; i < count; i++)
             {
@@ -115,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (focused)
             {
                 Rectangle focus = Rectangle.Inflate(stepRect, 3, 3);
-                using var focusPen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2f);
+                using var focusPen = new Pen((context.Theme ?? _theme).PrimaryColor, 2f);
                 g.DrawEllipse(focusPen, focus);
             }
 
@@ -157,8 +175,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             int subStepCount = (step.HasSubSteps && step.SubSteps != null) ? step.SubSteps.Count : 0;
             int subStepHeight = subStepCount > 0 ? DpiScalingHelper.ScaleValue(14 * subStepCount, _owner) : 0;
             int cardLeft = stepRect.Right + 10;
-            int cardTop = stepRect.Top - 2;
-            int cardHeight = (int)System.Math.Ceiling(titleHeight + subtitleHeight + subStepHeight + 10f);
+            int cardTop = System.Math.Max(context.DrawingRect.Top + 1, stepRect.Top - 2);
+            // Clamp the card to the content rect - the last card painted past the bottom edge.
+            int cardHeight = System.Math.Min(
+                (int)System.Math.Ceiling(titleHeight + subtitleHeight + subStepHeight + 10f),
+                context.DrawingRect.Bottom - 1 - cardTop);
             int cardWidth = System.Math.Max(120, context.DrawingRect.Right - cardLeft - 8);
             Rectangle cardRect = new Rectangle(cardLeft, cardTop, cardWidth, cardHeight);
 
@@ -181,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 g.DrawRectangle(border, cardRect);
             }
 
-            using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State));
+            using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State));
             float titleX = cardRect.Left + padding;
             float titleY = cardRect.Top + 4;
             g.DrawString(title, labelFont, textBrush, titleX, titleY);

@@ -1,4 +1,6 @@
 using System;
+using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
@@ -21,26 +23,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Get recommended check icon path for completed steps
         /// </summary>
-        public static string GetCheckIconPath()
-        {
-            // Try common check icon paths
-            // Note: SvgsUI, SvgsDatasources, Svgs may not have direct properties
-            // Using string literals for common icon names
-            string[] checkPaths = {
-                "check.svg",
-                "checkmark.svg",
-                "check-circle.svg",
-                "done.svg"
-            };
+        // These returned bare filenames ("check.svg") from a fake "try paths" loop that never
+        // verified resolution - StyledImagePainter silently painted nothing and every completed
+        // node was an empty circle. SvgsUI holds the real embedded-resource paths.
+        public static string GetCheckIconPath() => SvgsUI.Check;
 
-            foreach (var path in checkPaths)
-            {
-                if (!string.IsNullOrEmpty(path))
-                    return path;
-            }
+        public static string GetErrorIconPath() => SvgsUI.X;
 
-            return "check.svg"; // Default fallback
-        }
+        public static string GetWarningIconPath() => SvgsUI.AlertTriangle;
+
+        public static string GetActiveIconPath() => SvgsUI.CircleDot;
+
+        public static string GetPendingIconPath() => SvgsUI.Circle;
 
         /// <summary>
         /// Get recommended icon path for a step based on item and state
@@ -72,86 +66,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
             // Priority 3: Default check icon
             return GetCheckIconPath();
-        }
-
-        /// <summary>
-        /// Get error icon path
-        /// </summary>
-        public static string GetErrorIconPath()
-        {
-            string[] errorPaths = {
-                "error.svg",
-                "close.svg",
-                "x.svg",
-                "cancel.svg"
-            };
-
-            foreach (var path in errorPaths)
-            {
-                if (!string.IsNullOrEmpty(path))
-                    return path;
-            }
-
-            return "error.svg";
-        }
-
-        /// <summary>
-        /// Get warning icon path
-        /// </summary>
-        public static string GetWarningIconPath()
-        {
-            string[] warningPaths = {
-                "warning.svg",
-                "alert.svg",
-                "exclamation.svg"
-            };
-
-            foreach (var path in warningPaths)
-            {
-                if (!string.IsNullOrEmpty(path))
-                    return path;
-            }
-
-            return "warning.svg";
-        }
-
-        /// <summary>
-        /// Get active icon path
-        /// </summary>
-        public static string GetActiveIconPath()
-        {
-            string[] activePaths = {
-                "circle.svg",
-                "dot.svg",
-                "radio-button.svg"
-            };
-
-            foreach (var path in activePaths)
-            {
-                if (!string.IsNullOrEmpty(path))
-                    return path;
-            }
-
-            return "circle.svg";
-        }
-
-        /// <summary>
-        /// Get pending icon path
-        /// </summary>
-        public static string GetPendingIconPath()
-        {
-            string[] pendingPaths = {
-                "circle-outline.svg",
-                "circle-empty.svg"
-            };
-
-            foreach (var path in pendingPaths)
-            {
-                if (!string.IsNullOrEmpty(path))
-                    return path;
-            }
-
-            return "circle-outline.svg";
         }
 
         /// <summary>
@@ -273,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[StepperIconHelpers] Error painting icon '{iconPath}': {ex.Message}");
+                BeepLog.FailureOnce(iconPath, null, $"paint step icon '{iconPath}'", ex);
             }
         }
 
@@ -301,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[StepperIconHelpers] Error painting icon in circle: {ex.Message}");
+                BeepLog.FailureOnce(iconPath, null, $"paint step icon in circle '{iconPath}'", ex);
             }
         }
 
@@ -324,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[StepperIconHelpers] Error painting icon with path: {ex.Message}");
+                BeepLog.FailureOnce(iconPath, null, $"paint step icon with path '{iconPath}'", ex);
             }
         }
 

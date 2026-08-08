@@ -151,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (stepIndex == context.FocusedIndex)
             {
-                using var focusPen = new Pen((context.Theme ?? _theme)?.PrimaryColor ?? Color.DodgerBlue, 2f);
+                using var focusPen = new Pen((context.Theme ?? _theme).PrimaryColor, 2f);
                 g.DrawPolygon(focusPen, pts);
             }
 
@@ -167,7 +167,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 float startY = stepRect.Top + (stepRect.Height - totalTextHeight) / 2f;
                 float headerX = stepRect.Left + (stepRect.Width - headerSize.Width) / 2f;
                 float subX = stepRect.Left + (stepRect.Width - subSize.Width) / 2f;
-                Color fore = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State);
+                // The chevron IS the state fill - text on it needs the on-fill ink, not the
+                // label ink (label ink on the error chevron was dark-red-on-red).
+                Color fore = StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State);
                 using var brush = new SolidBrush(fore);
                 g.DrawString(headerText, headerFont, brush, headerX, startY);
                 g.DrawString(subText, subFont, brush, subX, startY + headerSize.Height);

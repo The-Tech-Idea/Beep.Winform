@@ -545,11 +545,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (stepIndex >= 0 && stepIndex < stepCount)
             {
                 stepStates[stepIndex] = state;
-                
-                // Update corresponding ListItem if it exists
+
+                // Update corresponding ListItem if it exists (our own write - don't re-enter sync)
                 if (stepIndex < ListItems.Count)
                 {
-                    ListItems[stepIndex].IsChecked = state == StepState.Completed;
+                    bool wasSyncing = _syncingListItems;
+                    _syncingListItems = true;
+                    try { ListItems[stepIndex].IsChecked = state == StepState.Completed; }
+                    finally { _syncingListItems = wasSyncing; }
                 }
                 
                 Invalidate();
@@ -664,28 +667,43 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Synchronization
+        // Guards our own ListItems writes. Without it, the FIRST ListItems.Add below fired
+        // ListChanged synchronously -> SyncListItemsWithSteps saw Count=1 != stepCount ->
+        // adopted stepCount = 1 -> the rebuild loop's own bound collapsed and every stepper
+        // constructed via StepCount ended up with ONE step. The probe rendered it: a lone node.
+        private bool _syncingListItems;
+
         private void SyncStepsWithListItems()
         {
-            // Clear and rebuild ListItems based on steps
-            ListItems.Clear();
-            
-            for (int i = 0; i < stepCount; i++)
+            _syncingListItems = true;
+            try
             {
-                var item = new SimpleItem
+                // Clear and rebuild ListItems based on steps
+                ListItems.Clear();
+
+                for (int i = 0; i < stepCount; i++)
                 {
-                    ID = i,
-                    Name = GetStepLabel(i),
-                    Text = GetStepLabel(i),
-                    IsChecked = GetStepState(i) == StepState.Completed,
-                    IsSelected = i == currentStep
-                };
-                
-                ListItems.Add(item);
+                    var item = new SimpleItem
+                    {
+                        ID = i,
+                        Name = GetStepLabel(i),
+                        Text = GetStepLabel(i),
+                        IsChecked = GetStepState(i) == StepState.Completed,
+                        IsSelected = i == currentStep
+                    };
+
+                    ListItems.Add(item);
+                }
+            }
+            finally
+            {
+                _syncingListItems = false;
             }
         }
 
         private void ListItems_ListChanged(object sender, ListChangedEventArgs e)
         {
+            if (_syncingListItems) return;
             SyncListItemsWithSteps();
             ApplyAccessibilitySettings();
             UpdateAllStepTooltips();

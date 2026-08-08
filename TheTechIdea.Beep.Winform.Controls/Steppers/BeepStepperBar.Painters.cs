@@ -11,12 +11,26 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private IStepperPainter _stepperPainter;
 
+        private string _painterName = "CircularNode";
+
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue("CircularNode")]
         [TypeConverter(typeof(StepperPainterNameConverter))]
         [Description("Stepper painter name resolved from StepperPainterRegistry.")]
-        public string PainterName { get; set; } = "CircularNode";
+        public string PainterName
+        {
+            get => _painterName;
+            set
+            {
+                if (_painterName == value) return;
+                // An auto-property here left the painter stale: assigning PainterName after
+                // construction painted the OLD style until something else re-initialized.
+                _painterName = value;
+                InitializePainter();
+                Invalidate();
+            }
+        }
 
         private void InitializePainter()
         {

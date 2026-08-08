@@ -115,7 +115,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _headerPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 60,
+                // 72, not 60: the band holds the dot row (top 25 + ring) AND the step title
+                // (25px + padding). 60 clipped the title's bottom half at 96 DPI and worse scaled.
+                Height = 72,
                 BackColor = Color.Transparent
             };
             _headerPanel.Paint += HeaderPanel_Paint;

@@ -242,10 +242,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (selectedItem != null)
             {
                 SelectedItem = selectedItem;
-                
+
+                // Every selection, not every change — see the note in
+                // HandleMenuItemClick (Input.cs). Re-picking the same command
+                // from the popup must dispatch again.
+                OnMenuItemSelected(selectedItem);
+
                 if (SelectedItem.MethodName != null)
                 {
-                   
+
                     RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
                 }
             }
@@ -321,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Mirror the synchronous path's post-select dispatch.
                         if (selectedItem == null) return;
                         SelectedItem = selectedItem;
-                        //OnMenuItemSelected(selectedItem);
+                        OnMenuItemSelected(selectedItem);
                         if (SelectedItem.MethodName != null)
                         {
                             RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);

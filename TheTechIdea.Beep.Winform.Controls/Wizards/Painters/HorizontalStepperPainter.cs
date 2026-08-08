@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -219,13 +220,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 {
                     circleColor = _completedColor;
                     circleBorderColor = _completedColor;
-                    innerColor = Color.White;
+                    innerColor = BeepThemesManager.CurrentTheme.OnPrimaryColor;
                 }
                 else if (i == currentIndex)
                 {
                     circleColor = _currentColor;
                     circleBorderColor = _currentColor;
-                    innerColor = Color.White;
+                    innerColor = BeepThemesManager.CurrentTheme.OnPrimaryColor;
                 }
                 else
                 {
@@ -242,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                     int so = DpiScalingHelper.ScaleValue(2, _host);
                     var sr = new Rectangle(circleRect.X + so, circleRect.Y + so, circleRect.Width, circleRect.Height);
                     using (var sp = CreateRoundedRectangle(sr, circleSize / 2))
-                    using (var sb = new SolidBrush(Color.FromArgb(40, Color.Black)))
+                    using (var sb = new SolidBrush(Color.FromArgb(40, BeepThemesManager.CurrentTheme.ShadowColor)))
                         g.FillPath(sb, sp);
                 }
 
@@ -253,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                     {
                         if (i == currentIndex)
                         {
-                            var lc = Color.FromArgb(220, Color.White);
+                            var lc = Color.FromArgb(220, BeepThemesManager.CurrentTheme.OnPrimaryColor);
                             using (var gb = new System.Drawing.Drawing2D.LinearGradientBrush(circleRect, circleColor, lc, 315f))
                                 g.FillPath(gb, path);
                         }

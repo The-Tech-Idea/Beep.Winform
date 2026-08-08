@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -74,8 +75,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
             {
                 (fromBitmap, toBitmap) = CaptureBitmaps(container, fromControl, toControl, width, height);
             }
-            catch
+            catch (Exception ex)
             {
+                // Capture failed - fall back to an instant switch. The right fallback, made visible.
+                BeepLog.FallbackOnce("Wizard.transitionCapture", null, "capture wizard transition bitmaps", ex);
                 fromBitmap?.Dispose();
                 toBitmap?.Dispose();
                 onComplete?.Invoke();
@@ -135,8 +138,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
             {
                 (fromBitmap, toBitmap) = CaptureBitmaps(container, fromControl, toControl, width, height);
             }
-            catch
+            catch (Exception ex)
             {
+                // Capture failed - fall back to an instant switch. The right fallback, made visible.
+                BeepLog.FallbackOnce("Wizard.transitionCapture", null, "capture wizard transition bitmaps", ex);
                 fromBitmap?.Dispose();
                 toBitmap?.Dispose();
                 onComplete?.Invoke();
@@ -204,8 +209,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
             {
                 (fromBitmap, toBitmap) = CaptureBitmaps(container, fromControl, toControl, width, height);
             }
-            catch
+            catch (Exception ex)
             {
+                // Capture failed - fall back to an instant switch. The right fallback, made visible.
+                BeepLog.FallbackOnce("Wizard.transitionCapture", null, "capture wizard transition bitmaps", ex);
                 fromBitmap?.Dispose();
                 toBitmap?.Dispose();
                 onComplete?.Invoke();
@@ -284,8 +291,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
             {
                 (fromBitmap, toBitmap) = CaptureBitmaps(container, fromControl, toControl, width, height);
             }
-            catch
+            catch (Exception ex)
             {
+                // Capture failed - fall back to an instant switch. The right fallback, made visible.
+                BeepLog.FallbackOnce("Wizard.transitionCapture", null, "capture wizard transition bitmaps", ex);
                 fromBitmap?.Dispose();
                 toBitmap?.Dispose();
                 onComplete?.Invoke();

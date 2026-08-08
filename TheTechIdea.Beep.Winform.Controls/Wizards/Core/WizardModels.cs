@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -368,8 +369,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 {
                     return (T)Convert.ChangeType(value, typeof(T));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    // The typed-get contract returns the default on a bad conversion - but the
+                    // caller asked for a type the stored value is not, and that is worth one warning.
+                    BeepLog.WarnOnce($"Wizard.GetValue.{key}", this, $"convert wizard value '{key}'", ex.Message);
                     return defaultValue;
                 }
             }
@@ -461,7 +465,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             foreach (var kv in _data)
             {
                 try { var json = JsonSerializer.Serialize(kv.Value); state.Data[kv.Key] = kv.Value; }
-                catch { /* skip non-serializable */ }
+                catch (Exception ex)
+                { BeepLog.WarnOnce($"Wizard.serialize.{kv.Key}", this, $"serialize wizard value '{kv.Key}'", ex.Message); }
             }
             foreach (var skv in _stepData)
             {
@@ -469,7 +474,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 foreach (var vk in skv.Value._values)
                 {
                     try { JsonSerializer.Serialize(vk.Value); state.StepData[skv.Key][vk.Key] = vk.Value; }
-                    catch { /* skip */ }
+                    catch (Exception ex)
+                    { BeepLog.WarnOnce($"Wizard.serializeStep.{skv.Key}", this, $"serialize step value '{skv.Key}'", ex.Message); }
                 }
             }
 

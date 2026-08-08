@@ -156,9 +156,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
             var rect = new Rectangle(x, y, size, size);
             var theme = BeepThemesManager.CurrentTheme;
 
-            using (var brush = new SolidBrush(theme?.SuccessColor ?? Color.FromArgb(46, 125, 50)))
+            using (var brush = new SolidBrush((theme ?? BeepThemesManager.CurrentTheme).SuccessColor))
                 g.FillEllipse(brush, rect);
-            using (var pen = new Pen(Color.White, S(4)))
+            using (var pen = new Pen(BeepThemesManager.CurrentTheme.OnPrimaryColor, S(4)))
             {
                 pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
                 pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
 
             using (var brush = new SolidBrush(WizardHelpers.GetErrorColor(theme)))
                 g.FillEllipse(brush, rect);
-            using (var pen = new Pen(Color.White, S(4)))
+            using (var pen = new Pen(BeepThemesManager.CurrentTheme.OnPrimaryColor, S(4)))
             {
                 pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
                 pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;

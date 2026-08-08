@@ -105,7 +105,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             float ringPenWidth = DpiScalingHelper.ScaleValue(2f, _host);
             int centerY = bounds.Top + DpiScalingHelper.ScaleValue(25, _host);
             int titleYOffset = DpiScalingHelper.ScaleValue(15, _host);
-            int titleHeight = DpiScalingHelper.ScaleValue(25, _host);
+            // From the FONT, not a constant: a 25px rect clips any title font taller than 25px -
+            // DrawText clips to its rect, so the title lost its bottom half regardless of band size.
+            int titleHeight = Math.Max(DpiScalingHelper.ScaleValue(25, _host), _titleFont.Height + 2);
             int countYOffset = DpiScalingHelper.ScaleValue(-5, _host);
             int countWidthPad = DpiScalingHelper.ScaleValue(20, _host);
             int countHeight = DpiScalingHelper.ScaleValue(20, _host);
@@ -146,8 +148,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             var titleText = currentStep?.Title ?? $"Step {currentIndex + 1}";
             var countText = $"Step {currentIndex + 1} of {totalSteps}";
 
+            // Anchored to the BAND, not offset from the dots: at the form's 60px header the old
+            // centerY+15 put the title at y40..65 and the next docked panel clipped its bottom half.
+            // Bottom-anchored, the painter fits any band height the host chooses.
+            int titlePad = DpiScalingHelper.ScaleValue(4, _host);
             TextUtils.DrawText(g, titleText, _titleFont,
-                new Rectangle(bounds.Left, centerY + titleYOffset, bounds.Width, titleHeight), _textColor, TextFormatFlags.HorizontalCenter);
+                new Rectangle(bounds.Left, bounds.Bottom - titleHeight - titlePad, bounds.Width, titleHeight),
+                _textColor, TextFormatFlags.HorizontalCenter);
 
             TextUtils.DrawText(g, countText, _stepFont,
                 new Rectangle(bounds.Left, centerY + countYOffset, bounds.Width - countWidthPad, countHeight), _subtextColor, TextFormatFlags.Right);

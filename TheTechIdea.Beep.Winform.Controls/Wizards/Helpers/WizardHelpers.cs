@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,12 +46,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
         /// </summary>
         public static Color GetErrorColor(IBeepTheme? theme)
         {
-            if (theme?.ErrorColor != null && theme.ErrorColor != Color.Empty)
-                return theme.ErrorColor;
-            if (BeepThemesManager.CurrentTheme?.ErrorColor != null
-                && BeepThemesManager.CurrentTheme.ErrorColor != Color.Empty)
-                return BeepThemesManager.CurrentTheme.ErrorColor;
-            return Color.FromArgb(200, 50, 50); // Fallback red
+            // There is always a theme; the slot is the theme's decision (standing directive).
+            return (theme ?? BeepThemesManager.CurrentTheme).ErrorColor;
         }
 
         /// <summary>
@@ -131,7 +128,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
                 float p = Math.Min(1f, (float)sw.ElapsedMilliseconds / durationMs);
                 float eased = WizardAnimationEngine.EaseOutCubic(p);
                 try { if (!bar.IsDisposed) bar.Value = Math.Max(bar.Minimum, Math.Min(bar.Maximum, startValue + (int)(delta * eased))); }
-                catch { timer.Stop(); timer.Dispose(); return; }
+                catch (Exception ex)
+                {
+                    BeepLog.FailureOnce("Wizard.animTick", null, "run wizard animation tick", ex);
+                    timer.Stop(); timer.Dispose(); return;
+                }
                 if (p >= 1f) { timer.Stop(); timer.Dispose(); sw.Stop(); }
             };
             timer.Start();

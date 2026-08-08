@@ -254,7 +254,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 currentMenu = items;
                 SelectedItem = item;
-              
+
+                // Raise the selection unconditionally. SelectedItemChanged is
+                // gated on _selectedItem != value, so choosing the SAME item
+                // twice in a row reports only the first — for a command surface
+                // (Execute Query twice, Insert Record three times) the repeats
+                // were silently dropped. MenuItemSelected means "an item was
+                // selected", not "the selection changed", so it must fire every
+                // time and regardless of MethodName.
+                OnMenuItemSelected(item);
 
                 if (SelectedItem.MethodName != null)
                 {

@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -405,7 +406,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 if (!Directory.Exists(dir)) Directory.CreateDirectory(dir!);
                 File.WriteAllText(_autoSavePath, Context.SaveState());
             }
-            catch { /* best-effort, never throw from auto-save */ }
+            catch (Exception ex)
+            {
+                // Never throw from auto-save - but a failed auto-save silently loses the user's
+                // progress, which is precisely the thing auto-save exists to prevent.
+                BeepLog.Failure(this, "auto-save wizard state", ex);
+            }
         }
 
         /// <summary>
@@ -423,7 +429,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 Context.RestoreState(File.ReadAllText(path));
                 return true;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                BeepLog.Failure(this, "resume wizard auto-save state", ex);
+                return false;
+            }
         }
 
         #endregion
@@ -495,9 +505,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 {
                     validationResult = await stepContent.ValidateAsync();
                 }
-                catch (NotImplementedException)
+                catch (NotImplementedException ex)
                 {
-                    // Fallback for implementations that don't support async validation
+                    // Designed protocol: sync-only implementations throw N.I.E. Once per content
+                    // type, so a wizard with many steps does not repeat it every navigation.
+                    BeepLog.FallbackOnce($"Wizard.syncValidate.{stepContent.GetType().Name}", this,
+                                         "validate synchronously (async not implemented)", ex);
                     validationResult = stepContent.Validate();
                 }
 

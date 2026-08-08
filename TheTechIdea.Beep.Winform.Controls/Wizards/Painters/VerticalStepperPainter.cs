@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -175,9 +176,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 
                 Color circleColor, circleBorderColor, innerColor;
                 if (i < currentIndex || state == StepState.Completed)
-                { circleColor = _completedColor; circleBorderColor = _completedColor; innerColor = Color.White; }
+                { circleColor = _completedColor; circleBorderColor = _completedColor; innerColor = BeepThemesManager.CurrentTheme.OnPrimaryColor; }
                 else if (i == currentIndex)
-                { circleColor = _currentColor; circleBorderColor = _currentColor; innerColor = Color.White; }
+                { circleColor = _currentColor; circleBorderColor = _currentColor; innerColor = BeepThemesManager.CurrentTheme.OnPrimaryColor; }
                 else
                 { circleColor = Color.Transparent; circleBorderColor = _pendingColor; innerColor = _pendingColor; }
 

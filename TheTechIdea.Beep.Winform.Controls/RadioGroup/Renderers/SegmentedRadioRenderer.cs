@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             int shadowAlpha = (int)Math.Round(30 * anim);
             using (var shadowPath = CreateRoundedRectanglePath(
                 new Rectangle(segmentRect.X + 1, segmentRect.Y + 1, segmentRect.Width, segmentRect.Height), S(CornerRadius - 2)))
-            using (var shadowBrush = new SolidBrush(Color.FromArgb(shadowAlpha, 0, 0, 0)))
+            using (var shadowBrush = new SolidBrush(Color.FromArgb(shadowAlpha, Tokens.Shadow)))
             {
                 graphics.FillPath(shadowBrush, shadowPath);
             }

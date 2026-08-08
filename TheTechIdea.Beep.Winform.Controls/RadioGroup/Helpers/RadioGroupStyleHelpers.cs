@@ -86,19 +86,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             };
         }
 
-        /// <summary>
-        /// Gets shadow color based on theme
-        /// </summary>
-        public static Color GetShadowColor(IBeepTheme theme, bool useThemeColors, int elevation = 2)
-        {
-            if (useThemeColors && theme != null)
-            {
-                if (theme.ShadowColor != Color.Empty)
-                    return Color.FromArgb(Math.Min(255, elevation * 10), theme.ShadowColor);
-            }
-
-            return Color.FromArgb(Math.Min(255, elevation * 10), Color.Black);
-        }
 
         /// <summary>
         /// Gets shadow offset for render style

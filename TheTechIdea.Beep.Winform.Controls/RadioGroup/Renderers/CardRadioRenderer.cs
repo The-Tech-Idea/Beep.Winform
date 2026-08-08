@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             for (int i = 0; i < shadowLayers; i++)
             {
                 var shadowRect = new Rectangle(cardRect.X + i, cardRect.Y + i, cardRect.Width, cardRect.Height);
-                using (var brush = new SolidBrush(Color.FromArgb(Math.Max(0, intensity - i * 2), Color.Black)))
+                using (var brush = new SolidBrush(Color.FromArgb(Math.Max(0, intensity - i * 2), Tokens.Shadow)))
                 using (var path = CreateRoundedRectanglePath(shadowRect, S(CornerRadius)))
                 {
                     graphics.FillPath(brush, path);
@@ -95,25 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 backgroundColor = Color.FromArgb(alpha, backgroundColor);
             }
 
-            if (state.IsSelected)
+            // One solid fill for every state. The old selected branch faked depth with a
+            // vertical gradient darkened by -20 RGB - a derived palette the theme cannot veto.
+            using (var brush = new SolidBrush(backgroundColor))
+            using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
             {
-                var darkStop = Color.FromArgb(backgroundColor.A,
-                    Math.Max(0, backgroundColor.R - 20),
-                    Math.Max(0, backgroundColor.G - 20),
-                    Math.Max(0, backgroundColor.B - 20));
-                using (var brush = new LinearGradientBrush(cardRect, backgroundColor, darkStop, LinearGradientMode.Vertical))
-                using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
-                {
-                    graphics.FillPath(brush, path);
-                }
-            }
-            else
-            {
-                using (var brush = new SolidBrush(backgroundColor))
-                using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
-                {
-                    graphics.FillPath(brush, path);
-                }
+                graphics.FillPath(brush, path);
             }
         }
 

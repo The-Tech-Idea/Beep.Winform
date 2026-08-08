@@ -61,6 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
         public Color Disabled         { get; init; }
         /// <summary>Disabled item background</summary>
         public Color DisabledContainer { get; init; }
+        /// <summary>Elevation shadow base - painters apply their own alpha</summary>
+        public Color Shadow           { get; init; }
 
         // ─────────────────────────────────────────────────────────────────────
         // Factory methods
@@ -96,6 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
                 FocusStateLayer    = Color.FromArgb(12, t.PrimaryColor),
                 PressStateLayer    = Color.FromArgb(12, t.PrimaryColor),
 
+                Shadow             = t.ShadowColor,
                 Error              = t.ErrorColor,
                 Disabled           = t.DisabledForeColor,
                 DisabledContainer  = t.DisabledBackColor
@@ -128,6 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
                 FocusStateLayer   = SystemColors.Highlight,
                 PressStateLayer   = SystemColors.Highlight,
 
+                Shadow            = Color.Transparent, // no fake depth in high contrast
                 Error             = SystemColors.MenuHighlight,
                 Disabled          = SystemColors.GrayText,
                 DisabledContainer = SystemColors.Control

@@ -323,13 +323,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         /// </summary>
         private void PaintDesignTimePlaceholder(Graphics g)
         {
-            g.FillRectangle(new SolidBrush(Color.FromArgb(245, 245, 247)), ClientRectangle);
-            using (var pen = new Pen(Color.FromArgb(209, 213, 219), 1))
+            var placeholderTheme = _currentTheme ?? BeepThemesManager.CurrentTheme;
+            g.FillRectangle(new SolidBrush(placeholderTheme.SurfaceColor), ClientRectangle);
+            using (var pen = new Pen(placeholderTheme.BorderColor, 1))
             {
                 g.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
             }
             using (var font = RadioGroupFontHelpers.GetItemFont(Style, false, _currentTheme))
-            using (var brush = new SolidBrush(Color.FromArgb(100, 100, 100)))
+            using (var brush = new SolidBrush(placeholderTheme.SecondaryTextColor))
             {
                 g.DrawString("BeepRadioGroup (Design Mode)", font, brush, 10, 10);
                 g.DrawString($"Style: {RadioGroupStyle}", font, brush, 10, 30);

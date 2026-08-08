@@ -1185,7 +1185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private void DrawHierarchyLines(Graphics g, SimpleItem item, Rectangle itemRect, int itemIndex)
         {
             int indentLevel = _itemIndentLevels[item];
-            Color lineColor = Color.FromArgb(128, _currentTheme?.BorderColor ?? Color.Gray);
+            Color lineColor = Color.FromArgb(128, (_currentTheme ?? BeepThemesManager.CurrentTheme).BorderColor);
 
             using (var pen = new Pen(lineColor, SF(1f)))
             {
@@ -1257,7 +1257,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         {
             Rectangle expanderRect = GetExpanderBounds(item, itemRect);
 
-            Color expanderColor = _currentTheme?.ForeColor ?? Color.Black;
+            Color expanderColor = (_currentTheme ?? BeepThemesManager.CurrentTheme).ForeColor;
             using (var brush = new SolidBrush(Color.FromArgb(240, expanderColor)))
             using (var pen = new Pen(expanderColor, SF(1f)))
             {

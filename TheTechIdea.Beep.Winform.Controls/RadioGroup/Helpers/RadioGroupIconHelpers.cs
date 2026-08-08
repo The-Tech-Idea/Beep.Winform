@@ -40,43 +40,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         }
 
         /// <summary>
-        /// Gets the icon color based on state and theme
-        /// </summary>
-        public static Color GetIconColor(
-            IBeepTheme theme,
-            bool useThemeColors,
-            bool isSelected = false,
-            bool isDisabled = false)
-        {
-            if (isDisabled)
-            {
-                if (useThemeColors && theme != null && theme.DisabledForeColor != Color.Empty)
-                    return theme.DisabledForeColor;
-                return Color.FromArgb(180, 180, 180);
-            }
-
-            if (isSelected)
-            {
-                if (useThemeColors && theme != null)
-                {
-                    if (theme.PrimaryColor != Color.Empty)
-                        return theme.PrimaryColor;
-                    if (theme.AccentColor != Color.Empty)
-                        return theme.AccentColor;
-                }
-                return Color.FromArgb(33, 150, 243); // Material Blue
-            }
-
-            if (useThemeColors && theme != null)
-            {
-                if (theme.ForeColor != Color.Empty)
-                    return theme.ForeColor;
-            }
-
-            return Color.FromArgb(97, 97, 97); // Material Gray
-        }
-
-        /// <summary>
         /// Calculates the appropriate icon size for a radio item
         /// </summary>
         public static Size GetItemIconSize(

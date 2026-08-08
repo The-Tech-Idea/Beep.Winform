@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.TextFields.Models;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -771,6 +772,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region "Properties - Image"
         
+        private TextBoxIconKind _iconKind = TextBoxIconKind.None;
+        private bool _settingImageFromKind;
+
+        /// <summary>
+        /// Built-in icon, designer-selectable. Maps to the validated SvgsUIcons registry.
+        /// Setting ImagePath manually resets this to None - one source of truth at a time.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(TextBoxIconKind.None)]
+        [Description("Built-in icon shown in the textbox. Setting a manual ImagePath overrides and resets this.")]
+        public TextBoxIconKind IconKind
+        {
+            get => _iconKind;
+            set
+            {
+                if (_iconKind == value) return;
+                _iconKind = value;
+                _settingImageFromKind = true;
+                try { ImagePath = TextBoxIconRegistry.GetPath(value); }
+                finally { _settingImageFromKind = false; }
+            }
+        }
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Path to the image file to display in the textbox.")]
@@ -780,6 +805,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _beepImage?.ImagePath ?? "";
             set
             {
+                // A manual path is an explicit override of the built-in icon; keep the two
+                // honest - IconKind must not report a kind the image no longer shows.
+                if (!_settingImageFromKind) _iconKind = TextBoxIconKind.None;
                 if (_beepImage != null)
                 {
                     _beepImage.ImagePath = value;

@@ -130,6 +130,21 @@ Not verified: multiline vertical scrolling (still stubbed: UpdateContentSize/Han
 empty — recorded, out of this pass's scope); RTL rendering; Center/Right-aligned overflow
 behaviour (scroll deliberately resets for non-left alignment).
 
+## Batch 6 done — designer-selectable built-in icons via enum (probe 20/20)
+
+User directive: textbox internal icons via enum backed by `IconsManagement/SvgsUIcons.cs`.
+
+`TextBoxIconKind` (30 curated values: Search/User/Password/Email/Phone/Calendar/…) +
+`TextBoxIconRegistry.GetPath` mapping each to the validated `SvgsUIcons` registry (which
+reports once when a constant names a missing resource). `BeepTextBox.IconKind` property is
+designer-browsable with a dropdown; setting a manual `ImagePath` resets IconKind to None so the
+property never lies about what the image shows (re-entry guarded both directions).
+
+The probe verifies every enum value resolves to an actually-embedded resource — and that check
+FAILED on first run: the guessed `fi-tr-user.svg` is not embedded (→ `fi-tr-circle-user.svg`).
+Render verified: IconKind=Search paints the icon with text offset past it; manual-path reset
+verified.
+
 ## Standing constraints
 
 There is ALWAYS a theme — slots direct; feature palettes (effect presets, syntax tokens) are

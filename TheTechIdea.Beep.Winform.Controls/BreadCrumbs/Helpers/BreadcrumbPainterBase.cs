@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
@@ -44,8 +45,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             {
                 f = new Font(family, size, style);
             }
-            catch
+            catch (ArgumentException ex)
             {
+                BeepLog.FallbackOnce(key, null, $"create breadcrumb font '{family.Name}' {size}pt", ex);
                 f = SystemFonts.DefaultFont;
             }
             _fontCache[key] = f;
@@ -122,7 +124,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                     isLast,
                     isHovered,
                     Theme,
-                    breadcrumb.UseThemeColors,
                     breadcrumb.ControlStyle);
             }
         }

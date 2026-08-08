@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
@@ -86,9 +87,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                         return value;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Reflection failed, continue with fallback
+                // The Svgs registry probe failed - the item gets the generic icon.
+                BeepLog.FallbackOnce("Breadcrumb.iconReflect", null, "resolve breadcrumb icon by reflection", ex);
             }
 
             // Fallback to default icon
@@ -103,20 +105,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             BeepBreadcrump breadcrumb,
             bool isLast,
             bool isHovered,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
+            IBeepTheme theme = null)
         {
-            if (breadcrumb == null)
-                return Color.Gray;
-
-            // Use theme colors if available
-            if (useThemeColors && theme != null)
-            {
-                return BreadcrumbThemeHelpers.GetItemTextColor(theme, useThemeColors, isLast, isHovered);
-            }
-
-            // Use breadcrumb's foreground color
-            return breadcrumb.ForeColor != Color.Empty ? breadcrumb.ForeColor : Color.Gray;
+            return BreadcrumbThemeHelpers.GetItemTextColor(theme, isLast, isHovered);
         }
 
         /// <summary>
@@ -170,7 +161,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             bool isLast,
             bool isHovered,
             IBeepTheme theme = null,
-            bool useThemeColors = false,
             BeepControlStyle controlStyle = BeepControlStyle.Material3)
         {
             if (iconBounds.IsEmpty || breadcrumb == null || string.IsNullOrEmpty(iconPath))
@@ -185,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 return;
 
             // Get icon color
-            Color iconColor = GetIconColor(breadcrumb, isLast, isHovered, theme, useThemeColors);
+            Color iconColor = GetIconColor(breadcrumb, isLast, isHovered, theme);
 
             // Create GraphicsPath for icon bounds (square or circle based on style)
             using (var iconPathShape = CreateIconPath(iconBounds, controlStyle))
@@ -213,8 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             string iconPath,
             bool isLast,
             bool isHovered,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
+            IBeepTheme theme = null)
         {
             if (breadcrumb == null || radius <= 0 || string.IsNullOrEmpty(iconPath))
                 return;
@@ -228,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 return;
 
             // Get icon color
-            Color iconColor = GetIconColor(breadcrumb, isLast, isHovered, theme, useThemeColors);
+            Color iconColor = GetIconColor(breadcrumb, isLast, isHovered, theme);
 
             // Paint icon in circle using StyledImagePainter
             StyledImagePainter.PaintInCircle(
@@ -251,8 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             string iconPath,
             bool isLast,
             bool isHovered,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
+            IBeepTheme theme = null)
         {
             if (path == null || breadcrumb == null || string.IsNullOrEmpty(iconPath))
                 return;
@@ -266,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 return;
 
             // Get icon color
-            Color iconColor = GetIconColor(breadcrumb, isLast, isHovered, theme, useThemeColors);
+            Color iconColor = GetIconColor(breadcrumb, isLast, isHovered, theme);
 
             // Paint icon with path using StyledImagePainter
             StyledImagePainter.PaintWithTint(
@@ -286,11 +274,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             Rectangle iconBounds,
             BeepBreadcrump breadcrumb,
             IBeepTheme theme = null,
-            bool useThemeColors = false,
             BeepControlStyle controlStyle = BeepControlStyle.Material3)
         {
             string homeIconPath = GetHomeIconPath();
-            PaintIcon(g, iconBounds, breadcrumb, homeIconPath, false, false, theme, useThemeColors, controlStyle);
+            PaintIcon(g, iconBounds, breadcrumb, homeIconPath, false, false, theme, controlStyle);
         }
 
         /// <summary>

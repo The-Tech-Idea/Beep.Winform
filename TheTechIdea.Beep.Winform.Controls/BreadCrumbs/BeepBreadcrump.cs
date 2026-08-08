@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -227,9 +228,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Constructor
         public BeepBreadcrump():base()
         {
-
-            BackColor = Color.White;
-            ForeColor = Color.Black;
+            // Pre-theme colours come from the current theme, not a literal palette;
+            // ApplyTheme re-resolves them when the control's own theme lands.
+            BackColor = BreadcrumbThemeHelpers.GetBackgroundColor(null);
+            ForeColor = BeepThemesManager.CurrentTheme.ForeColor;
             Font = new Font("Segoe UI", 9);
             BorderRadius = 8;
             Height = DpiScalingHelper.ScaleValue(36, this);
@@ -404,22 +406,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             UpdateDrawingRect();
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            
-            // Paint background using theme helpers or BeepStyling
-            var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
-            var useTheme = UseThemeColors && theme != null;
-            
-            if (useTheme && theme != null)
-            {
-                // Use theme background color from helpers
-                BackColor = BreadcrumbThemeHelpers.GetBackgroundColor(theme, useTheme, BackColor);
-                g.Clear(BackColor);
-            }
-            else
-            {
-                // Paint background based on selected Style
-                BeepStyling.PaintStyleBackground(g, bounds, ControlStyle);
-            }
+
+            // BackColor is themed in ApplyTheme; paint paths paint, they do not assign state.
+            // (The old branch passed BackColor as its own custom override - the call returned
+            // its input, so this was always just a Clear with the current BackColor anyway.)
+            g.Clear(BackColor);
             
             if (_items.Count == 0) return;
 
@@ -435,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             
             // Get current theme for painter initialization
-            var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+            var theme = _currentTheme ?? BeepThemesManager.CurrentTheme;
             _painter?.Initialize(this, theme, _textFont ?? Font, _showIcons);
 
             int pad = DpiScalingHelper.ScaleValue(8, this);
@@ -443,9 +434,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             int y = DrawingRect.Top;
             int itemHeight = DrawingRect.Height;
 
-            // Get separator color using BreadcrumbThemeHelpers
-            var useTheme = UseThemeColors && theme != null;
-            Color sepColor = BreadcrumbThemeHelpers.GetSeparatorColor(theme, useTheme, 0.5f, ForeColor);
+            // Passing ForeColor as the custom override meant the LabelForeColor slot never
+            // resolved once - the override always wins. The slot decides now.
+            Color sepColor = BreadcrumbThemeHelpers.GetSeparatorColor(theme, 0.5f);
 
             // Prepend home icon if enabled
             int startIndex = 0;
@@ -557,19 +548,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!Focused) return;
 
-            var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
-            var useTheme = UseThemeColors && theme != null;
-
-            // Get focus color from theme or use system highlight color
-            Color focusColor = ColorUtils.MapSystemColor(SystemColors.Highlight);
-            if (useTheme && theme != null)
-            {
-                // Use primary color with reduced opacity for focus indicator
-                if (theme.PrimaryColor != Color.Empty)
-                {
-                    focusColor = Color.FromArgb(200, theme.PrimaryColor);
-                }
-            }
+            var theme = _currentTheme ?? BeepThemesManager.CurrentTheme;
+            Color focusColor = Color.FromArgb(200, theme.PrimaryColor);
 
             // Draw focus rectangle (dashed border)
             using (var pen = new Pen(focusColor, 2f))
@@ -872,47 +852,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isApplyingTheme = true;
             try
             {
-                var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
-                var useTheme = UseThemeColors && theme != null;
+                var theme = _currentTheme ?? BeepThemesManager.CurrentTheme;
+                BackColor = BreadcrumbThemeHelpers.GetBackgroundColor(theme);
+                ForeColor = theme.ForeColor;
 
-                if (useTheme && theme != null)
+                // Both UseThemeFont branches ran the SAME code - the flag decided nothing.
+                var oldFont = _textFont;
+                _textFont = BreadcrumbFontHelpers.GetBreadcrumbFont(this, _style, ControlStyle, this);
+                if (oldFont != null && oldFont != _textFont && oldFont != Font)
                 {
-                    // Apply theme colors using BreadcrumbThemeHelpers
-                    BreadcrumbThemeHelpers.ApplyThemeColors(this, theme, useTheme);
-
-                if (UseThemeFont)
-                {
-                    // Use BreadcrumbFontHelpers for theme font
-                    var oldFont = _textFont;
-                    _textFont = BreadcrumbFontHelpers.GetBreadcrumbFont(this, _style, ControlStyle, this);
-                    // Dispose old font if it was different (and not a system font)
-                    if (oldFont != null && oldFont != _textFont && oldFont != Font)
+                    try { oldFont.Dispose(); }
+                    catch (Exception ex)
                     {
-                        try { oldFont.Dispose(); } catch { }
-                    }
-                }
-                else
-                {
-                    // Apply font theme based on ControlStyle (even if UseThemeFont is false)
-                    // This ensures fonts are consistent with ControlStyle
-                    var oldFont = _textFont;
-                    _textFont = BreadcrumbFontHelpers.GetBreadcrumbFont(this, _style, ControlStyle, this);
-                    if (oldFont != null && oldFont != _textFont && oldFont != Font)
-                    {
-                        try { oldFont.Dispose(); } catch { }
+                        BeepLog.WarnOnce("Breadcrumb.fontDispose", this, "dispose replaced breadcrumb font", ex.Message);
                     }
                 }
 
-                    // Apply theme to drawing components
-                    button.Theme = Theme;
-                    button.ApplyTheme();
-
-                    label.Theme = Theme;
-                    label.ApplyTheme();
-
-                    image.Theme = Theme;
-                    image.ApplyTheme();
-                }
+                // Drawing stamps take the theme by assignment; they apply it themselves.
+                button.Theme = Theme;
+                label.Theme = Theme;
+                image.Theme = Theme;
 
                 InitializePainter();
                 Invalidate();
@@ -922,8 +881,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isApplyingTheme = false;
             }
 
-            // Apply accessibility adjustments after theme is applied
-            ApplyAccessibilityAdjustments();
+            // Keep the accessible minimum size in step with the themed metrics.
+            var accessibleMinSize = BreadcrumbAccessibilityHelpers.GetAccessibleMinimumSize(MinimumSize);
+            if (MinimumSize != accessibleMinSize)
+            {
+                MinimumSize = accessibleMinSize;
+            }
         }
         #endregion
 
@@ -951,36 +914,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void ApplyAccessibilitySettings()
         {
-            // Apply accessibility settings to the control
+            // High contrast is resolved per paint inside BreadcrumbThemeHelpers - stamping
+            // it into Back/ForeColor here kept the HC palette after the mode turned off.
             BreadcrumbAccessibilityHelpers.ApplyAccessibilitySettings(
                 this,
                 AccessibleName,
                 AccessibleDescription);
-
-            // Apply accessibility adjustments (high contrast, reduced motion)
-            ApplyAccessibilityAdjustments();
-        }
-
-        /// <summary>
-        /// Apply accessibility adjustments (high contrast, reduced motion)
-        /// </summary>
-        private void ApplyAccessibilityAdjustments()
-        {
-            var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
-            var useTheme = UseThemeColors && theme != null;
-
-            // Apply high contrast adjustments
-            BreadcrumbAccessibilityHelpers.ApplyHighContrastAdjustments(
-                this,
-                theme,
-                useTheme);
-
-            // Ensure minimum accessible size
-            var accessibleMinSize = BreadcrumbAccessibilityHelpers.GetAccessibleMinimumSize(MinimumSize);
-            if (MinimumSize != accessibleMinSize)
-            {
-                MinimumSize = accessibleMinSize;
-            }
         }
 
         #endregion
@@ -1142,14 +1081,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private ToolTipConfig CreateItemTooltipConfig()
         {
-            var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
-            var useTheme = UseThemeColors && theme != null;
-
             return new ToolTipConfig
             {
                 Type = TooltipType,
                 Style = ControlStyle,
-                UseBeepThemeColors = useTheme,
+                UseBeepThemeColors = true,
                 Placement = TooltipPlacement,
                 Animation = TooltipAnimation,
                 ShowArrow = TooltipShowArrow,

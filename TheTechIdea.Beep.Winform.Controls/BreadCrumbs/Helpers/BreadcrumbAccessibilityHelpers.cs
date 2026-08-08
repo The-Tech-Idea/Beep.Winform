@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
@@ -35,8 +36,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 SystemParametersInfo(SPI_GETANIMATION, 0, ref animation, 0);
                 return animation == 0;
             }
-            catch
+            catch (Exception ex)
             {
+                // SystemParametersInfo failed - animations stay on rather than silently off.
+                BeepLog.WarnOnce("Breadcrumb.reducedMotion", null, "query reduced-motion setting", ex.Message);
                 return false;
             }
         }
@@ -134,156 +137,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 return "Hovered";
             }
             return "Available";
-        }
-
-        #endregion
-
-        #region High Contrast Support
-
-        /// <summary>
-        /// Gets high contrast colors for breadcrumb items
-        /// Returns (textColor, hoverBackColor, separatorColor, borderColor)
-        /// </summary>
-        public static (Color textColor, Color hoverBackColor, Color separatorColor, Color borderColor) GetHighContrastColors()
-        {
-            if (!IsHighContrastMode())
-            {
-                // Return default colors if high contrast is not enabled
-                return (Color.Black, Color.LightGray, Color.Gray, Color.Black);
-            }
-
-            // Use system colors for high contrast mode
-            return (
-                ColorUtils.MapSystemColor(SystemColors.WindowText),
-                ColorUtils.MapSystemColor(SystemColors.Highlight),
-                ColorUtils.MapSystemColor(SystemColors.WindowFrame),
-                ColorUtils.MapSystemColor(SystemColors.WindowFrame)
-            );
-        }
-
-        /// <summary>
-        /// Adjusts colors for high contrast mode
-        /// </summary>
-        public static (Color textColor, Color hoverBackColor, Color separatorColor, Color borderColor) AdjustColorsForHighContrast(
-            Color textColor,
-            Color hoverBackColor,
-            Color separatorColor,
-            Color borderColor)
-        {
-            if (!IsHighContrastMode())
-            {
-                return (textColor, hoverBackColor, separatorColor, borderColor);
-            }
-
-            var (hcTextColor, hcHoverBackColor, hcSeparatorColor, hcBorderColor) = GetHighContrastColors();
-            return (hcTextColor, hcHoverBackColor, hcSeparatorColor, hcBorderColor);
-        }
-
-        /// <summary>
-        /// Applies high contrast adjustments to the breadcrumb control
-        /// </summary>
-        public static void ApplyHighContrastAdjustments(
-            Control control,
-            IBeepTheme theme,
-            bool useThemeColors)
-        {
-            if (control == null || !IsHighContrastMode()) return;
-
-            // Apply system colors
-            if (control is BaseControl baseControl)
-            {
-                // Use system colors for high contrast
-                baseControl.BackColor = ColorUtils.MapSystemColor(SystemColors.Window);
-                baseControl.ForeColor = ColorUtils.MapSystemColor(SystemColors.WindowText);
-            }
-        }
-
-        #endregion
-
-        #region WCAG Compliance
-
-        /// <summary>
-        /// Calculates the contrast ratio between two colors (WCAG formula)
-        /// Returns a value between 1 (no contrast) and 21 (maximum contrast)
-        /// WCAG AA requires 4.5:1 for normal text, 3:1 for large text
-        /// </summary>
-        public static double CalculateContrastRatio(Color color1, Color color2)
-        {
-            double l1 = GetRelativeLuminance(color1);
-            double l2 = GetRelativeLuminance(color2);
-
-            double lighter = Math.Max(l1, l2);
-            double darker = Math.Min(l1, l2);
-
-            return (lighter + 0.05) / (darker + 0.05);
-        }
-
-        /// <summary>
-        /// Calculates the relative luminance of a color (WCAG formula)
-        /// Returns a value between 0 (black) and 1 (white)
-        /// </summary>
-        public static double GetRelativeLuminance(Color color)
-        {
-            double r = color.R / 255.0;
-            double g = color.G / 255.0;
-            double b = color.B / 255.0;
-
-            // Convert to linear RGB
-            r = r <= 0.03928 ? r / 12.92 : Math.Pow((r + 0.055) / 1.055, 2.4);
-            g = g <= 0.03928 ? g / 12.92 : Math.Pow((g + 0.055) / 1.055, 2.4);
-            b = b <= 0.03928 ? b / 12.92 : Math.Pow((b + 0.055) / 1.055, 2.4);
-
-            // Calculate relative luminance
-            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        }
-
-        /// <summary>
-        /// Ensures a color meets the minimum contrast ratio requirement
-        /// </summary>
-        public static bool EnsureContrastRatio(Color foreground, Color background, double minimumRatio = 4.5)
-        {
-            double ratio = CalculateContrastRatio(foreground, background);
-            return ratio >= minimumRatio;
-        }
-
-        /// <summary>
-        /// Adjusts a color to meet the minimum contrast ratio requirement
-        /// </summary>
-        public static Color AdjustForContrast(Color foreground, Color background, double minimumRatio = 4.5)
-        {
-            double ratio = CalculateContrastRatio(foreground, background);
-            if (ratio >= minimumRatio)
-            {
-                return foreground;
-            }
-
-            // Calculate target luminance
-            double bgLuminance = GetRelativeLuminance(background);
-            double targetLuminance = bgLuminance > 0.5
-                ? (bgLuminance + 0.05) / minimumRatio - 0.05  // Darker foreground
-                : (bgLuminance + 0.05) * minimumRatio - 0.05;  // Lighter foreground
-
-            // Clamp target luminance
-            targetLuminance = Math.Max(0, Math.Min(1, targetLuminance));
-
-            // Convert back to RGB
-            int grayValue = bgLuminance > 0.5
-                ? (int)(targetLuminance * 255)
-                : (int)(targetLuminance * 255);
-
-            // Ensure we have enough contrast
-            if (bgLuminance > 0.5)
-            {
-                // Background is light, use darker foreground
-                grayValue = Math.Max(0, Math.Min(255, grayValue));
-                return Color.FromArgb(grayValue, grayValue, grayValue);
-            }
-            else
-            {
-                // Background is dark, use lighter foreground
-                grayValue = Math.Max(0, Math.Min(255, grayValue));
-                return Color.FromArgb(grayValue, grayValue, grayValue);
-            }
         }
 
         #endregion

@@ -32,27 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             button.IsSelected = isSelected;
 
             // Use BreadcrumbThemeHelpers for colors
-            var useTheme = Theme != null && Owner != null && Owner.UseThemeColors;
-            var (textColor, hoverBackColor, selectedBackColor, separatorColor, borderColor) = 
-                BreadcrumbThemeHelpers.GetThemeColors(Theme, useTheme, isLast, isHovered, isSelected);
-            
-            // Adjust colors for high contrast mode if enabled
-            if (BreadcrumbAccessibilityHelpers.IsHighContrastMode())
-            {
-                var (hcTextColor, hcHoverBackColor, hcSeparatorColor, hcBorderColor) = 
-                    BreadcrumbAccessibilityHelpers.GetHighContrastColors();
-                textColor = hcTextColor;
-                hoverBackColor = hcHoverBackColor;
-                separatorColor = hcSeparatorColor;
-                borderColor = hcBorderColor;
-            }
-            
-            // Ensure text color meets WCAG contrast requirements
-            if (Owner is BeepBreadcrump breadcrumb)
-            {
-                Color backColor = breadcrumb.BackColor != Color.Empty ? breadcrumb.BackColor : Color.White;
-                textColor = BreadcrumbAccessibilityHelpers.AdjustForContrast(textColor, backColor, 4.5);
-            }
+            var (textColor, hoverBackColor, selectedBackColor, separatorColor, borderColor) =
+                BreadcrumbThemeHelpers.GetThemeColors(Theme, isLast, isHovered, isSelected);
 
             // Chevron container background when hovered/selected
             if (isHovered || isSelected)

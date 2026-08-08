@@ -13,9 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.SwitchBackColor = PanelGradiantMiddleColor;
             this.SwitchBorderColor = InactiveBorderColor;
             this.SwitchForeColor = ForeColor;
-            this.SwitchSelectedBackColor = PanelGradiantMiddleColor;
-            this.SwitchSelectedBorderColor = InactiveBorderColor;
-            this.SwitchSelectedForeColor = ForeColor;
+            this.SwitchSelectedBackColor = PrimaryColor;
+            this.SwitchSelectedBorderColor = PrimaryColor;
+            this.SwitchSelectedForeColor = OnPrimaryColor;
             this.SwitchHoverBackColor = PanelGradiantMiddleColor;
             this.SwitchHoverBorderColor = InactiveBorderColor;
             this.SwitchHoverForeColor = ForeColor;

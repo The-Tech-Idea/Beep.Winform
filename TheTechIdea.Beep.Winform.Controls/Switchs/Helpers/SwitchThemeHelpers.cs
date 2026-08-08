@@ -51,12 +51,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             return t.SwitchBorderColor;
         }
 
-        /// <summary>Thumb/knob fill: the on-track ink slot; disabled thumbs go flat.</summary>
+        /// <summary>
+        /// Thumb/knob fill: OnPrimaryColor, the ink-on-accent slot; disabled thumbs go flat.
+        /// NOT SwitchSelectedForeColor - themes run a contrast autofix that owns the
+        /// Switch*Fore slots as CAPTION ink and rewrites them against the track fill,
+        /// which turned white thumbs into 70,70,70 text-gray.
+        /// </summary>
         public static Color GetThumbColor(IBeepTheme theme, bool isOn, bool isHovered, bool isDisabled)
         {
             var t = T(theme);
             if (isDisabled) return t.DisabledBackColor;
-            return t.SwitchSelectedForeColor;
+            return t.OnPrimaryColor;
         }
 
         /// <summary>

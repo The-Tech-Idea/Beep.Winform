@@ -70,4 +70,36 @@ falling through / not drawing.
 
 F4: census clean — zero flags, zero literal colours.
 
-Not verified yet: renders (batch 3's probe).
+## Batch 3 — probe + eyeball (SwitchProbe 12/12)
+
+Probe: 4 painters render ON/OFF distinctly, cross-painter distinctness, theme
+responsiveness, click via the real hit-area pipeline (cursor parked) flips `Checked` +
+raises `CheckedChanged`, Space toggles back. All renders eyeballed.
+
+Three findings the probe surfaced, none of them in the painters:
+
+1. **`ControlStyle` pins the style's bundled theme** (`BaseControl.Properties`:
+   `Theme = BeepStyling.GetThemeStyle(_controlstyle)`; iOS15 → iOSTheme). A control created
+   AFTER `SetCurrentTheme` renders the bundled theme, not the manager's — a later global
+   theme change wins (`OnGlobalThemeChanged` re-applies). The probe's theme check originally
+   set the theme before creation and read identical renders; rewritten as a LIVE change
+   after creation, which is both the scenario the check exists for and the sequence that
+   can fail. Framework behaviour, left as-is, documented here.
+2. **11 bundled themes shipped ON == OFF switch tracks** (stamp: all Switch* slots =
+   surface/panel colour). Fixed in the themes: iOSTheme got the real UISwitch palette
+   (systemGray5 off / SuccessColor green on / OnPrimaryColor thumb); ArcLinux, Brutalist,
+   ChatBubble, GNOME, GruvBox, KDE, Metro, Neon, Nord, Tokyo got the selected trio →
+   `PrimaryColor`/`PrimaryColor`/`OnPrimaryColor` (FluentTheme's healthy recipe), each
+   verified to assign both slots. Off-track/hover character kept per theme.
+3. **Thumb slot corrected to the planned `OnPrimaryColor`** — the implemented
+   `SwitchSelectedForeColor` collided with `ThemeContrastHelper.ValidateTheme(autofix:true)`
+   (runs at the end of every bundled theme ctor), which owns the `Switch*Fore` slots as
+   caption ink and rewrote the white thumb to 70,70,70 against the green track.
+
+Also confirmed not-a-bug: "renders Off while Checked=true" — `PaintLabels` always draws
+both captions (Off left, On right); the thumb position and caption accent carry the state.
+
+Observation (not fixed): at 120px control width Fluent2's 2:1 track ratio pushes the On
+caption past the right edge — `CalculateLayout` does not auto-size the control to fit
+labels. Remaining unaudited: the other ~15 bundled themes' Switch parts are healthy by
+census (sel != back), but their hover slots were not reviewed.

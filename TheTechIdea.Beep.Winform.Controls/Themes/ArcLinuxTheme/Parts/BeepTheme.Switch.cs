@@ -13,9 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.SwitchBackColor = SurfaceColor;
             this.SwitchBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
             this.SwitchForeColor = ForeColor;
-            this.SwitchSelectedBackColor = SurfaceColor;
-            this.SwitchSelectedBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
-            this.SwitchSelectedForeColor = ForeColor;
+            this.SwitchSelectedBackColor = PrimaryColor;
+            this.SwitchSelectedBorderColor = PrimaryColor;
+            this.SwitchSelectedForeColor = OnPrimaryColor;
             this.SwitchHoverBackColor = SurfaceColor;
             this.SwitchHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
             this.SwitchHoverForeColor = ForeColor;

@@ -59,8 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
 
                 // Star label on left
                 var labelRect = new RectangleF(bounds.Left, y, LabelWidth, BarHeight);
-                using (var b = new SolidBrush(ctx.LabelColor != default ? ctx.LabelColor
-                                              : Color.FromArgb(80, 80, 80)))
+                using (var b = new SolidBrush(ctx.LabelColor))
                     g.DrawString(starVal.ToString(), labelFont, b, labelRect, sf);
 
                 // Background track
@@ -82,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
 
                 // Count on right
                 var countRect = new RectangleF(barRight + 4, y, CountWidth, BarHeight);
-                using (var b = new SolidBrush(Color.FromArgb(100, 100, 100)))
+                using (var b = new SolidBrush(ctx.SecondaryTextColor))
                     g.DrawString(count.ToString(), labelFont, b, countRect, sfL);
             }
 
@@ -90,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
             if (ctx.ShowAverage || ctx.ShowRatingCount)
             {
                 float avgY  = startY + totalH + 6;
-                Color grey  = Color.FromArgb(90, 90, 90);
+                Color grey  = ctx.SecondaryTextColor;
                 using var smallFont = new Font(FontFamily.GenericSansSerif,
                     Math.Max(6f, BarHeight * 0.9f), GraphicsUnit.Pixel);
                 using var b = new SolidBrush(grey);

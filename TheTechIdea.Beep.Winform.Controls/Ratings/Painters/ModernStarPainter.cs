@@ -132,11 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                 glowPath.AddPolygon(starPoints);
                 using (PathGradientBrush glowBrush = new PathGradientBrush(glowPath))
                 {
-                    Color glowColor = Color.FromArgb(
-                        (int)(100 * glowIntensity),
-                        Math.Min(255, fillColor.R + 40),
-                        Math.Min(255, fillColor.G + 40),
-                        Math.Min(255, fillColor.B + 40));
+                    // Alpha veil of the resolved fill - no derived shades.
+                    Color glowColor = Color.FromArgb((int)(100 * glowIntensity), fillColor);
                     glowBrush.CenterColor = glowColor;
                     glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, fillColor) };
                     graphics.FillPath(glowBrush, glowPath);

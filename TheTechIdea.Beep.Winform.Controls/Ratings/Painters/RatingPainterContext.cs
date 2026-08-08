@@ -33,6 +33,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
         public Color EmptyStarColor { get; set; }
         public Color HoverStarColor { get; set; }
         public Color StarBorderColor { get; set; }
+        /// <summary>Ink on a filled/hovered chip (StarRatingSelectedForeColor).</summary>
+        public Color SelectedForeColor { get; set; }
+        /// <summary>Secondary text - histogram counts, averages (SecondaryTextColor).</summary>
+        public Color SecondaryTextColor { get; set; }
         public float StarBorderThickness { get; set; }
 
         // Animation
@@ -84,10 +88,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
         public bool UseColorGrade { get; set; }
 
         /// <summary>Color representing the lowest rating in the color grade.</summary>
-        public Color ColorGradeStart { get; set; } = Color.FromArgb(244, 67, 54);   // Material Red
+        public Color ColorGradeStart { get; set; } = Color.Empty; // resolved by the control (ErrorColor)
 
         /// <summary>Color representing the highest rating in the color grade.</summary>
-        public Color ColorGradeEnd { get; set; } = Color.FromArgb(76, 175, 80);     // Material Green
+        public Color ColorGradeEnd { get; set; } = Color.Empty; // resolved by the control (SuccessColor)
 
         /// <summary>
         /// Multi-category ratings (e.g. Speed, Quality).

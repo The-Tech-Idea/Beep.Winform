@@ -53,17 +53,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                 if (hovered)
                 {
                     fill = ctx.HoverStarColor;
-                    fore = Color.White;
+                    fore = ctx.SelectedForeColor;
                 }
                 else if (selected)
                 {
                     fill = ctx.GetGradedColor(val);
-                    fore = Color.White;
+                    fore = ctx.SelectedForeColor;
                 }
                 else
                 {
                     fill = ctx.EmptyStarColor;
-                    fore = Color.FromArgb(100, 100, 100);
+                    fore = ctx.LabelColor;
                 }
 
                 // Draw rounded-rect button
@@ -73,10 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
 
                 if (ctx.StarBorderThickness > 0 || !selected)
                 {
-                    Color borderCol = selected || hovered
-                        ? fill
-                        : ctx.StarBorderColor != Color.Empty ? ctx.StarBorderColor
-                          : Color.FromArgb(180, 180, 180);
+                    Color borderCol = selected || hovered ? fill : ctx.StarBorderColor;
                     float borderW = ctx.StarBorderThickness > 0 ? ctx.StarBorderThickness : 1f;
                     using var pen = new Pen(borderCol, borderW);
                     g.DrawPath(pen, path);

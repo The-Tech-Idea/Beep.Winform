@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Ratings.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Ratings.Models;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
@@ -90,8 +91,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private RatingLayoutMode  _layoutMode    = RatingLayoutMode.Horizontal;
         private bool  _useColorGrade  = false;
         private bool  _isRightToLeft  = false;
-        private Color _colorGradeStart = Color.FromArgb(244, 67,  54);  // Material Red
-        private Color _colorGradeEnd   = Color.FromArgb(76,  175, 80);  // Material Green
+        private Color _colorGradeStart = Color.Empty; // Empty = theme ErrorColor
+        private Color _colorGradeEnd   = Color.Empty; // Empty = theme SuccessColor
         private bool  _showHistogram   = false;
         private RatingHistogramData   _histogramData;
         private List<RatingCategory>  _categories = new List<RatingCategory>();
@@ -1162,6 +1163,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 EmptyStarColor = RatingThemeHelpers.GetEmptyRatingColor(_currentTheme, _ratingStyle, _emptyStarColor),
                 HoverStarColor = RatingThemeHelpers.GetHoverRatingColor(_currentTheme, _ratingStyle, _hoverStarColor),
                 StarBorderColor = RatingThemeHelpers.GetRatingBorderColor(_currentTheme, _ratingStyle, _starBorderColor),
+                SelectedForeColor = (_currentTheme ?? BeepThemesManager.CurrentTheme).StarRatingSelectedForeColor,
+                SecondaryTextColor = (_currentTheme ?? BeepThemesManager.CurrentTheme).SecondaryTextColor,
                 StarBorderThickness = _starBorderThickness,
                 EnableAnimations = _enableAnimations,
                 UseGlowEffect = _useGlowEffect,
@@ -1184,8 +1187,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LayoutMode      = _layoutMode,
                 IsRightToLeft   = _isRightToLeft,
                 UseColorGrade   = _useColorGrade,
-                ColorGradeStart = _colorGradeStart,
-                ColorGradeEnd   = _colorGradeEnd,
                 HistogramData   = _histogramData,
                 Categories      = _categories?.Count > 0 ? _categories.AsReadOnly() : null
             };
@@ -1517,6 +1518,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 EmptyStarColor = RatingThemeHelpers.GetEmptyRatingColor(_currentTheme, _ratingStyle, _emptyStarColor),
                 HoverStarColor = RatingThemeHelpers.GetHoverRatingColor(_currentTheme, _ratingStyle, _hoverStarColor),
                 StarBorderColor = RatingThemeHelpers.GetRatingBorderColor(_currentTheme, _ratingStyle, _starBorderColor),
+                SelectedForeColor = (_currentTheme ?? BeepThemesManager.CurrentTheme).StarRatingSelectedForeColor,
+                SecondaryTextColor = (_currentTheme ?? BeepThemesManager.CurrentTheme).SecondaryTextColor,
                 StarBorderThickness = _starBorderThickness,
                 EnableAnimations = _enableAnimations,
                 UseGlowEffect = _useGlowEffect,
@@ -1539,8 +1542,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LayoutMode      = _layoutMode,
                 IsRightToLeft   = _isRightToLeft,
                 UseColorGrade   = _useColorGrade,
-                ColorGradeStart = _colorGradeStart,
-                ColorGradeEnd   = _colorGradeEnd,
                 HistogramData   = _histogramData,
                 Categories      = _categories?.Count > 0 ? _categories.AsReadOnly() : null
             };

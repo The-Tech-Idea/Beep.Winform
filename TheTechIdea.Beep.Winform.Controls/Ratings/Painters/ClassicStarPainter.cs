@@ -91,11 +91,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     using (PathGradientBrush glowBrush = new PathGradientBrush(glowPath))
                     {
                         // Glow color (soft light based on the fill color)
-                        Color glowColor = Color.FromArgb(
-                            (int)(100 * context.GlowIntensity),
-                            Math.Min(255, fillColor.R + 40),
-                            Math.Min(255, fillColor.G + 40),
-                            Math.Min(255, fillColor.B + 40));
+                        // Alpha veil of the resolved fill - no derived shades.
+                        Color glowColor = Color.FromArgb((int)(100 * context.GlowIntensity), fillColor);
 
                         glowBrush.CenterColor = glowColor;
                         glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, fillColor) };
@@ -123,10 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
                         new Rectangle(x, y, size, size),
                         Color.FromArgb(255, fillColor),
-                        Color.FromArgb(200,
-                            Math.Max(0, fillColor.R - 30),
-                            Math.Max(0, fillColor.G - 30),
-                            Math.Max(0, fillColor.B - 30)),
+                        Color.FromArgb(170, fillColor),
                         LinearGradientMode.ForwardDiagonal))
                     {
                         graphics.FillPath(gradientBrush, path);
@@ -151,10 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
                         new Rectangle(x, y, size, size),
                         Color.FromArgb(255, fillColor),
-                        Color.FromArgb(200,
-                            Math.Max(0, fillColor.R - 30),
-                            Math.Max(0, fillColor.G - 30),
-                            Math.Max(0, fillColor.B - 30)),
+                        Color.FromArgb(170, fillColor),
                         LinearGradientMode.ForwardDiagonal))
                     {
                         graphics.FillPath(gradientBrush, path);

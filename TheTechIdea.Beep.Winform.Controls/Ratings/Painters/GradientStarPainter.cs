@@ -81,13 +81,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                 using (PathGradientBrush gradientBrush = new PathGradientBrush(path))
                 {
                     gradientBrush.CenterColor = fillColor;
+                    // Alpha-only ring of the resolved fill - the radial depth survives,
+                    // the derived +50/-30 shades do not (a bad-looking fill is the theme's bug).
                     gradientBrush.SurroundColors = new Color[]
                     {
-                        Color.FromArgb(255, Math.Min(255, fillColor.R + 50), Math.Min(255, fillColor.G + 50), Math.Min(255, fillColor.B + 50)),
+                        Color.FromArgb(255, fillColor),
                         Color.FromArgb(200, fillColor),
-                        Color.FromArgb(150, Math.Max(0, fillColor.R - 30), Math.Max(0, fillColor.G - 30), Math.Max(0, fillColor.B - 30)),
+                        Color.FromArgb(140, fillColor),
                         Color.FromArgb(200, fillColor),
-                        Color.FromArgb(255, Math.Min(255, fillColor.R + 50), Math.Min(255, fillColor.G + 50), Math.Min(255, fillColor.B + 50))
+                        Color.FromArgb(255, fillColor)
                     };
                     graphics.FillPath(gradientBrush, path);
                 }
@@ -139,11 +141,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                 glowPath.AddPolygon(starPoints);
                 using (PathGradientBrush glowBrush = new PathGradientBrush(glowPath))
                 {
-                    Color glowColor = Color.FromArgb(
-                        (int)(100 * glowIntensity),
-                        Math.Min(255, fillColor.R + 40),
-                        Math.Min(255, fillColor.G + 40),
-                        Math.Min(255, fillColor.B + 40));
+                    // Alpha veil of the resolved fill - no derived shades.
+                    Color glowColor = Color.FromArgb((int)(100 * glowIntensity), fillColor);
                     glowBrush.CenterColor = glowColor;
                     glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, fillColor) };
                     graphics.FillPath(glowBrush, glowPath);

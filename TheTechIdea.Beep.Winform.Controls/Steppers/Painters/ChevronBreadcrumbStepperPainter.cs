@@ -140,11 +140,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (stepIndex == context.HoveredIndex)
             {
-                using var hoverOverlay = new SolidBrush(Color.FromArgb(20, Color.White));
+                using var hoverOverlay = new SolidBrush(Color.FromArgb(20, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 g.FillPolygon(hoverOverlay, pts);
             }
 
-            using (var pen = new Pen((context.Theme ?? _theme)?.ShadowColor ?? Color.Gray, StepperAccessibilityHelpers.GetAccessibleBorderWidth(1)))
+            using (var pen = new Pen((context.Theme ?? _theme).ShadowColor, StepperAccessibilityHelpers.GetAccessibleBorderWidth(1)))
             {
                 g.DrawPolygon(pen, pts);
             }

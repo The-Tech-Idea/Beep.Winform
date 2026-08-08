@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (hovered && !active)
             {
-                using var hover = new SolidBrush(Color.FromArgb(16, Color.White));
+                using var hover = new SolidBrush(Color.FromArgb(16, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 g.FillEllipse(hover, stepRect);
             }
 
@@ -132,14 +132,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (step.State == StepState.Completed)
             {
-                StepperIconHelpers.PaintCheckmarkIcon(g, stepRect, Color.White, 1f);
+                StepperIconHelpers.PaintCheckmarkIcon(g, stepRect,
+                    StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, StepState.Completed), 1f);
             }
             else if (!string.IsNullOrWhiteSpace(step.ImagePath))
             {
                 // Per-step SVG icon (from SimpleItem.ImagePath -> StepModel.ImagePath).
                 // Painted via StepperIconHelpers.PaintIcon so SVG resources / files render.
                 var iconColor = StepperThemeHelpers.GetStepTextColor(
-                    context.Theme ?? _theme, step.State, Color.White);
+                    context.Theme ?? _theme, step.State);
                 Size iconSize = StepperIconHelpers.GetIconSize(stepRect.Size, step.State);
                 Rectangle iconBounds = StepperIconHelpers.CalculateIconBounds(stepRect, iconSize);
                 StepperIconHelpers.PaintIcon(g, iconBounds, step.ImagePath, iconColor, 1f, step.State);
@@ -151,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 var markerSize = g.MeasureString(marker, markerFont);
                 float mx = stepRect.Left + ((stepRect.Width - markerSize.Width) / 2f);
                 float my = stepRect.Top + ((stepRect.Height - markerSize.Height) / 2f);
-                using var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State, Color.White));
+                using var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State));
                 g.DrawString(marker, markerFont, markerBrush, mx, my);
             }
 

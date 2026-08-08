@@ -107,6 +107,40 @@ the only path. `GetThemeColors` tuple had zero callers — deleted.
 Not verified yet: renders (batch 3's probe); `UseThemeColors` still gates high-contrast accessibility
 application in `BeepSteppperBar` — F2 decides.
 
+## Batch 2 done — literal sweep to slots (build 0 errors)
+
+All ~44 literals resolved; census after the sweep finds **zero** (one survivor: the WCAG
+luminance contrast pick Black/White in `StepperAccessibilityHelpers:385` — the accepted
+contrast-ink idiom, same as Calendar's `GetEventInk`).
+
+The worst find: painters passed `Color.White` **as the `customColor` override** to the theme
+helpers (10 sites) — the override always wins, so those calls had been hardcoding White through
+the override channel and the slot never resolved once. All dropped; the slot decides.
+
+- Selected/active ink ternaries (`selected ? Color.White : …`) → `GetStepTextColor(theme,
+  Active)` (3 painters); checkmark on completed fill → CheckedBoxFore ink; gradient chevron
+  text → state ink.
+- Hover veils `FromArgb(α, White)` → `FromArgb(α, StepperItemHoverBackColor)` — same alpha,
+  theme-driven (10 painters).
+- Error badge: ring → `StepperBackColor` (separates badge from node in the control's own
+  background), count ink → `OnPrimaryColor`.
+- `?? Color.Gray` / `?? Color.White` null-theme guards dropped (3 sites) — always a theme.
+- `GetHighContrastColors()` non-HC branch returned the Tailwind palette → now theme slots; the
+  HC branch keeps SystemColors (the OS accessibility palette is correct there).
+- `GetIconColor` rewritten flag-less (was the same anti-pattern + both callers passed the
+  always-winning White override).
+
+**Deleted** (rule 2): `StepperColorConfig` (zero consumers anywhere — dead model);
+`PaintStepIcon` (zero callers); `StepPainterContext.UseThemeColors` (zero readers after the
+sweep); `ApplyHighContrastAdjustments`' never-read theme/flag params; and
+`BeepStepperBreadCrumb`'s **shadow** `UseThemeColors { get; private set; }` — stuck false
+forever, it hid `BaseControl`'s real property and made the breadcrumb's themed path unreachable
+for its whole life.
+
+Known residue for batch 3's probe to watch: high-contrast application writes system colours into
+the custom-override fields, so *leaving* HC mode won't restore themed colours until restart —
+noted, not redesigned here.
+
 ## Standing constraints
 
 There is ALWAYS a theme — assign slots directly, never guard, never blend, never literal (semantic

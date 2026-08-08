@@ -97,9 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                     _ => StepperThemeHelpers.GetStepPendingColor(context.Theme ?? _theme)
                 };
             Color nodeBorder = StepperThemeHelpers.GetStepBorderColor(context.Theme ?? _theme, step.State);
-            Color nodeText = active
-                ? Color.White
-                : StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State);
+            Color nodeText = StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, active ? StepState.Active : step.State);
 
             using (var fill = new SolidBrush(nodeFill))
             using (var border = new Pen(nodeBorder, StepperAccessibilityHelpers.GetAccessibleBorderWidth(active ? 2 : 1)))
@@ -110,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (hovered && !active)
             {
-                using var hover = new SolidBrush(Color.FromArgb(18, Color.White));
+                using var hover = new SolidBrush(Color.FromArgb(18, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 g.FillEllipse(hover, stepRect);
             }
 

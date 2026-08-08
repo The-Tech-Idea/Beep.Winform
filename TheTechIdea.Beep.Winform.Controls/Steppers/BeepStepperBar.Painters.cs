@@ -56,7 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Graphics = graphics,
                 DrawingRect = drawingRect,
                 Theme = _currentTheme,
-                UseThemeColors = UseThemeColors,
                 Steps = steps,
                 StepRects = layout.StepRects,
                 ConnectorRects = layout.ConnectorRects,

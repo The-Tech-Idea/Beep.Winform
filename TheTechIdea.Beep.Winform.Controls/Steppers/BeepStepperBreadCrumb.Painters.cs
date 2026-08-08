@@ -63,7 +63,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Graphics = graphics,
                 DrawingRect = DrawingRect,
                 Theme = _currentTheme,
-                UseThemeColors = UseThemeColors,
                 Steps = steps,
                 StepRects = layout.StepRects,
                 ConnectorRects = layout.ConnectorRects,
@@ -118,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             int borderWidth = StepperAccessibilityHelpers.GetAccessibleBorderWidth(BorderThickness);
-            using (var pen = new Pen(_currentTheme?.ShadowColor ?? Color.Gray, borderWidth))
+            using (var pen = new Pen((_currentTheme ?? BeepThemesManager.CurrentTheme).ShadowColor, borderWidth))
             {
                 graphics.DrawPolygon(pen, points);
             }

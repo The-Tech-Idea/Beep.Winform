@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (selected)
             {
                 fill = StepperThemeHelpers.GetStepActiveColor(context.Theme ?? _theme);
-                text = Color.White;
+                text = StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, StepState.Active);
             }
 
             using (var brush = new SolidBrush(fill))
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (hovered && !selected)
             {
-                using var hover = new SolidBrush(Color.FromArgb(14, Color.White));
+                using var hover = new SolidBrush(Color.FromArgb(14, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 g.FillRectangle(hover, stepRect);
             }
 

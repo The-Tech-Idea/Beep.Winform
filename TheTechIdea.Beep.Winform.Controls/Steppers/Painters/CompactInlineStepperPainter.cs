@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (stepIndex == context.HoveredIndex)
             {
-                using var hover = new SolidBrush(Color.FromArgb(18, Color.White));
+                using var hover = new SolidBrush(Color.FromArgb(18, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 g.FillRectangle(hover, stepRect);
             }
 

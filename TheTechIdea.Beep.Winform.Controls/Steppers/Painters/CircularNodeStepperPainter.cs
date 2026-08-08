@@ -127,13 +127,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (isHovered)
             {
-                using var hoverOverlay = new SolidBrush(Color.FromArgb(24, Color.White));
+                using var hoverOverlay = new SolidBrush(Color.FromArgb(24, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 g.FillEllipse(hoverOverlay, stepRect);
             }
 
             if (stepIndex == context.SelectedIndex)
             {
-                using var borderPen = new Pen(StepperThemeHelpers.GetStepBorderColor(context.Theme, step.State, Color.White),
+                using var borderPen = new Pen(StepperThemeHelpers.GetStepBorderColor(context.Theme, step.State),
                     StepperAccessibilityHelpers.GetAccessibleBorderWidth(2));
                 g.DrawEllipse(borderPen, stepRect);
             }
@@ -157,14 +157,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                         anim.RippleCenter.Y - (diameter / 2),
                         diameter,
                         diameter);
-                    using var rippleBrush = new SolidBrush(Color.FromArgb(anim.RippleAlpha, (context.Theme ?? _theme)?.PrimaryColor ?? Color.White));
+                    using var rippleBrush = new SolidBrush(Color.FromArgb(anim.RippleAlpha, (context.Theme ?? _theme).PrimaryColor));
                     g.FillEllipse(rippleBrush, rippleRect);
                 }
             }
 
             if (step.State == StepState.Completed)
             {
-                Color iconColor = StepperIconHelpers.GetIconColor(context.Theme, context.UseThemeColors, StepState.Completed, Color.White);
+                Color iconColor = StepperIconHelpers.GetIconColor(context.Theme, StepState.Completed);
                 StepperIconHelpers.PaintCheckmarkIcon(g, stepRect, iconColor, 1f);
             }
             else
@@ -174,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 SizeF textSize = g.MeasureString(text, font);
                 float textX = stepRect.Left + (stepRect.Width - textSize.Width) / 2f;
                 float textY = stepRect.Top + (stepRect.Height - textSize.Height) / 2f;
-                using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme, step.State, Color.White));
+                using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme, step.State));
                 g.DrawString(text, font, textBrush, textX, textY);
             }
         }

@@ -10,7 +10,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Models
         public Graphics Graphics { get; init; }
         public Rectangle DrawingRect { get; init; }
         public IBeepTheme Theme { get; init; }
-        public bool UseThemeColors { get; init; }
         public IReadOnlyList<StepModel> Steps { get; init; }
         public IReadOnlyList<Rectangle> StepRects { get; init; }
         public IReadOnlyList<Rectangle> ConnectorRects { get; init; }

@@ -105,14 +105,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (hovered && !selected)
             {
-                using var hover = new SolidBrush(Color.FromArgb(16, Color.White));
+                using var hover = new SolidBrush(Color.FromArgb(16, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 using var h = BuildChevron(stepRect, notch, stepIndex > 0, stepIndex < context.Steps.Count - 1);
                 g.FillPath(hover, h);
             }
 
             string text = step.Text ?? $"Step {stepIndex + 1}";
             Font font = _stepFont ?? context.StepFont ?? SystemFonts.DefaultFont;
-            using var textBrush = new SolidBrush(Color.White);
+            using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State));
             var textSize = g.MeasureString(text, font);
             float tx = stepRect.Left + ((stepRect.Width - textSize.Width) / 2f);
             float ty = stepRect.Top + ((stepRect.Height - textSize.Height) / 2f);

@@ -329,15 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ParentBackColor = Parent.BackColor;
             }
             
-            // Use theme helpers for background color
-            if (_currentTheme != null && UseThemeColors)
-            {
-                BackColor = StepperThemeHelpers.GetStepBackgroundColor(_currentTheme, BackColor);
-            }
-            else
-            {
-                BackColor = _currentTheme?.CardBackColor ?? BackColor;
-            }
+            BackColor = StepperThemeHelpers.GetStepBackgroundColor(_currentTheme);
             
             ForeColor = _currentTheme?.CardTextForeColor ?? ForeColor;
             HoverBackColor = _currentTheme?.ButtonHoverBackColor ?? HoverBackColor;
@@ -376,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (StepperAccessibilityHelpers.IsHighContrastMode())
             {
-                StepperAccessibilityHelpers.ApplyHighContrastAdjustments(this, _currentTheme, UseThemeColors);
+                StepperAccessibilityHelpers.ApplyHighContrastAdjustments(this);
             }
         }
 
@@ -420,8 +412,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-        public bool UseThemeColors { get; private set; }
 
         /// <summary>
         /// Set a custom tooltip for a specific step

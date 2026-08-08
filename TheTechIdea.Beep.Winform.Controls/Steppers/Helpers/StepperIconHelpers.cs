@@ -202,22 +202,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Get icon color based on theme and step state
         /// </summary>
-        public static Color GetIconColor(IBeepTheme theme, bool useThemeColors, StepState state, Color? customColor = null)
-        {
-            if (customColor.HasValue)
-                return customColor.Value;
-
-            if (useThemeColors && theme != null)
-            {
-                // Use text color from theme helpers for consistency
-                return StepperThemeHelpers.GetStepTextColor(theme, state);
-            }
-
-            // Default: white for completed/active, gray for pending
-            return state == StepState.Completed || state == StepState.Active
-                ? Color.White
-                : Color.FromArgb(156, 163, 175); // Gray
-        }
+        public static Color GetIconColor(IBeepTheme theme, StepState state, Color? customColor = null)
+            => customColor is { } c && c != Color.Empty ? c
+               : StepperThemeHelpers.GetStepTextColor(theme, state);
 
         #endregion
 
@@ -354,38 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             PaintIcon(g, bounds, checkPath, tint, opacity, StepState.Completed);
         }
 
-        /// <summary>
-        /// Paint step-specific icon based on item and state
-        /// </summary>
-        public static void PaintStepIcon(
-            Graphics g,
-            Rectangle bounds,
-            SimpleItem item,
-            StepState state,
-            StepDisplayMode displayMode,
-            IBeepTheme theme,
-            bool useThemeColors)
-        {
-            if (bounds.IsEmpty)
-                return;
-
-            // Get icon path
-            string iconPath = GetStepIconPath(item, state, displayMode);
-            if (string.IsNullOrEmpty(iconPath))
-                return;
-
-            // Get icon color
-            Color iconColor = GetIconColor(theme, useThemeColors, state);
-
-            // Get icon size
-            Size iconSize = GetIconSize(new Size(bounds.Width, bounds.Height), state);
-            Rectangle iconBounds = CalculateIconBounds(bounds, iconSize);
-
-            // Paint icon
-            PaintIcon(g, iconBounds, iconPath, iconColor, 1f, state);
-        }
-
-        #endregion
+#endregion
     }
 }
 

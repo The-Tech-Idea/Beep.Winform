@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             if (hovered && !active)
             {
-                using var hover = new SolidBrush(Color.FromArgb(16, Color.White));
+                using var hover = new SolidBrush(Color.FromArgb(16, (context.Theme ?? _theme).StepperItemHoverBackColor));
                 g.FillEllipse(hover, stepRect);
             }
 
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 
             string marker = step.State == StepState.Completed ? "✓" : (stepIndex + 1).ToString();
             Font font = _numberFont ?? context.NumberFont ?? SystemFonts.DefaultFont;
-            using (var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State, Color.White)))
+            using (var markerBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State)))
             {
                 var markerSize = g.MeasureString(marker, font);
                 float mx = stepRect.Left + ((stepRect.Width - markerSize.Width) / 2f);
@@ -184,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             Color badgeColor = StepperThemeHelpers.GetStepErrorColor(context.Theme ?? _theme);
 
             using (var fill = new SolidBrush(badgeColor))
-            using (var border = new Pen(Color.White, 1f))
+            using (var border = new Pen((context.Theme ?? _theme).StepperBackColor, 1f))
             {
                 g.FillEllipse(fill, badgeRect);
                 g.DrawEllipse(border, badgeRect);
@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             var size = g.MeasureString(text, label);
             float x = badgeRect.Left + ((badgeRect.Width - size.Width) / 2f);
             float y = badgeRect.Top + ((badgeRect.Height - size.Height) / 2f);
-            using var brush = new SolidBrush(Color.White);
+            using var brush = new SolidBrush((context.Theme ?? _theme).OnPrimaryColor);
             g.DrawString(text, label, brush, x, y);
         }
 

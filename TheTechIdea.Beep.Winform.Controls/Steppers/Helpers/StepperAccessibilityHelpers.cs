@@ -219,15 +219,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         {
             if (!IsHighContrastMode())
             {
-                // Return default colors if not in high contrast
+                // Not in high contrast: the theme's own slots
                 return (
-                    Color.FromArgb(34, 197, 94),   // Green for completed
-                    Color.FromArgb(59, 130, 246),  // Blue for active
-                    Color.FromArgb(156, 163, 175), // Gray for pending
-                    Color.FromArgb(239, 68, 68),   // Red for error
-                    Color.FromArgb(245, 158, 11), // Orange for warning
-                    ColorUtils.MapSystemColor(SystemColors.WindowText),      // System text color
-                    ColorUtils.MapSystemColor(SystemColors.WindowFrame)      // System border color
+                    StepperThemeHelpers.GetStepCompletedColor(null),
+                    StepperThemeHelpers.GetStepActiveColor(null),
+                    StepperThemeHelpers.GetStepPendingColor(null),
+                    StepperThemeHelpers.GetStepErrorColor(null),
+                    StepperThemeHelpers.GetStepWarningColor(null),
+                    StepperThemeHelpers.GetStepTextColor(null, StepState.Pending),
+                    StepperThemeHelpers.GetStepBorderColor(null, StepState.Pending)
                 );
             }
 
@@ -269,10 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Apply high contrast adjustments to stepper colors
         /// </summary>
-        public static void ApplyHighContrastAdjustments(
-            dynamic stepper,
-            IBeepTheme theme = null,
-            bool useThemeColors = false)
+        public static void ApplyHighContrastAdjustments(dynamic stepper)
         {
             if (stepper == null || !IsHighContrastMode())
                 return;

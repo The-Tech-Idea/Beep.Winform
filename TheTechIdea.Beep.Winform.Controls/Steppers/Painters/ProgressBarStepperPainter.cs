@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             var markerSize = g.MeasureString(marker, markerFont);
             float markerX = stepRect.Left + (stepRect.Width - markerSize.Width) / 2f;
             float markerY = stepRect.Top + (stepRect.Height - markerSize.Height) / 2f;
-            using (var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State, Color.White)))
+            using (var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State)))
             {
                 g.DrawString(marker, markerFont, textBrush, markerX, markerY);
             }

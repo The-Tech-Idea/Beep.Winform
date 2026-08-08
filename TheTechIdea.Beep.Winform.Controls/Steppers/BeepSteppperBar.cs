@@ -903,7 +903,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw border for active step using theme helpers
             if (stepIndex == currentStep)
             {
-                Color borderColor = StepperThemeHelpers.GetStepBorderColor(_currentTheme, state, Color.White);
+                Color borderColor = StepperThemeHelpers.GetStepBorderColor(_currentTheme, state);
                 int borderWidth = StepperAccessibilityHelpers.GetAccessibleBorderWidth(2);
                 using (var borderPen = new Pen(borderColor, borderWidth))
                 {
@@ -984,7 +984,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Use theme helpers for step number text color
             StepState state = GetStepState(stepIndex);
-            Color textColor = StepperThemeHelpers.GetStepTextColor(_currentTheme, state, Color.White);
+            Color textColor = StepperThemeHelpers.GetStepTextColor(_currentTheme, state);
             
             // Get step fill color for contrast calculation
             Color stepFillColor = state switch
@@ -1018,7 +1018,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Use icon helpers for checkmark (fallback if icon path fails)
             // This method is kept for backward compatibility but delegates to icon helpers
             StepState state = StepState.Completed;
-            Color iconColor = StepperIconHelpers.GetIconColor(_currentTheme, UseThemeColors, state, Color.White);
+            Color iconColor = StepperIconHelpers.GetIconColor(_currentTheme, state);
             StepperIconHelpers.PaintCheckmarkIcon(graphics, rect, iconColor, 1f);
         }
 
@@ -1154,7 +1154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (StepperAccessibilityHelpers.IsHighContrastMode())
             {
-                StepperAccessibilityHelpers.ApplyHighContrastAdjustments(this, _currentTheme, UseThemeColors);
+                StepperAccessibilityHelpers.ApplyHighContrastAdjustments(this);
             }
         }
 

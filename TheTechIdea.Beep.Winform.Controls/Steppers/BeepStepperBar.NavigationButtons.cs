@@ -56,7 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             var button = new BeepButton
             {
                 IsChild = true,
-                UseThemeColors = UseThemeColors,
                 Text = text,
                 Visible = false,
                 TabStop = false

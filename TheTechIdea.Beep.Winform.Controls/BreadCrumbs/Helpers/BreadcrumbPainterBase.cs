@@ -82,6 +82,31 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             }
         }
 
+        /// <summary>
+        /// Width reserved at the left of an item for its icon: lead pad + real icon width + gap.
+        /// CalculateItemRect and DrawItem MUST both use this - reserving a flat 20px while the
+        /// icon paints at 65% of item height (24px at h=37) drew the folder over the "D" of
+        /// "Documents", and centring the button text across the FULL rect pushed text into the
+        /// icon zone on every crumb.
+        /// </summary>
+        protected int IconZone(SimpleItem item, int height)
+        {
+            if (!ShowIcons || string.IsNullOrEmpty(item?.ImagePath) || Owner is not BeepBreadcrump bc)
+                return 0;
+            int lead = DpiScalingHelper.ScaleValue(4, Owner);
+            int gap = DpiScalingHelper.ScaleValue(4, Owner);
+            return lead + BreadcrumbIconHelpers.GetIconSize(bc, height).Width + gap;
+        }
+
+        /// <summary>The part of the item rect the text may occupy (right of the icon zone).</summary>
+        protected Rectangle TextRect(Rectangle rect, SimpleItem item)
+        {
+            int zone = IconZone(item, rect.Height);
+            return zone > 0
+                ? new Rectangle(rect.X + zone, rect.Y, Math.Max(0, rect.Width - zone), rect.Height)
+                : rect;
+        }
+
         protected Size MeasureText(Graphics g, string text)
         {
             text ??= string.Empty;

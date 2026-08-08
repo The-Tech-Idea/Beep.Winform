@@ -93,6 +93,42 @@ nothing) — collapsed; Paint no longer assigns BackColor mid-paint; tooltips al
 Not verified yet: renders (batch 3's probe). HC branch verified by build + review only (system
 HC not toggleable from a probe).
 
+## Batch 3 done — probe 16/16, icon/text geometry fixed (the user's complaint), capture bug
+
+User report mid-batch: "still breadcrums aligmnents and sizing has problme with icons and text
+for each crumb" — confirmed by render: the folder icon painted OVER the "D" of "Documents",
+"Home" started inside its icon. Root causes, all five painters:
+
+- `CalculateItemRect` reserved a flat 20px for the icon while `GetIconSize` paints at 65% of
+  item height (24px at h=37) — the reservation understated the real icon.
+- `DrawItem` centred the button text across the FULL rect (icon zone included), so text pushed
+  left into the icon on every crumb.
+- Classic drew with a hardcoded 10pt font while the rect was measured with the painter's
+  TextFont — measured width ≠ drawn width.
+
+Fix: one authority in the painter base — `IconZone(item, height)` = scaled lead + real icon
+width + scaled gap; `CalculateItemRect` reserves it, `DrawItem` draws the button in
+`TextRect(rect, item)` (right of the zone); every painter draws with the same font MeasureText
+sized the rect with; paddings DPI-scaled.
+
+**Mouse clicks reported the wrong index for every crumb**: the hit-area callback captured the
+shared `for` variable — `() => OnItemClicked(item, i)` gave each crumb the post-loop index
+(idx=4 with 4 items, out of range). Only the probe's click round-trip exposed it; the keyboard
+path passed the index correctly. Fixed with a per-iteration copy.
+
+**Classic == Modern pixel-identical at rest** (distinctness check): Classic's old "distinct
+look" was the accidental 10pt font; once removed, nothing separated them. Modern's rounded chip
+(its hover identity) now also marks the last/selected crumb at rest.
+
+Probe (CrumbProbe, scratchpad): 5 styles × wide+narrow render + blank-guard, cross-style
+distinctness, theme responsiveness, hit-area click round-trip (real hit-list rects — the
+size-only `_itemRectCache` X=0 fooled the first probe run), keyboard Right+Enter, SelectedIndex
+round-trip. All renders eyeballed including a pixel zoom of the icon/text seam.
+
+Open (not defects, recorded): narrow widths clip trailing crumbs at the control edge — no
+middle-collapse/ellipsis behaviour exists; `BeepBreadcrump` class-name typo ("Breadcrump")
+would be a public-API rename — user's call.
+
 ## Standing constraints
 
 There is ALWAYS a theme — assign slots directly, never guard, never blend palettes, never literal

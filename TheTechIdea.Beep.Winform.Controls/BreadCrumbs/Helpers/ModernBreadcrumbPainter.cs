@@ -13,9 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             string displayText = item?.Text ?? item?.Name ?? string.Empty;
             var textSize = MeasureText(g, displayText);
 
-            int iconWidth = (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath)) ? 20 : 0;
-            int padding = 8;
-            int width = textSize.Width + padding * 2 + iconWidth + (iconWidth > 0 ? 4 : 0);
+            int iconZone = IconZone(item, height);
+            int padding = DpiScalingHelper.ScaleValue(8, Owner);
+            int width = iconZone + textSize.Width + padding * 2;
 
             if (isHovered)
             {
@@ -34,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             
             button.IsHovered = isHovered;
             button.IsSelected = isSelected;
+            button.TextFont = TextFont; // same font MeasureText sized the rect with
             
             // Use BreadcrumbThemeHelpers for colors
             var (textColor, hoverBackColor, selectedBackColor, separatorColor, borderColor) =
@@ -45,8 +46,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 var brush = PaintersFactory.GetSolidBrush(hoverBackColor);
                 g.FillPath(brush, path);
             }
-            
-            if (isSelected)
+
+            // The current (last/selected) crumb carries a rounded chip at rest - this is the
+            // style's identity. Without it, Modern rendered pixel-identical to Classic idle
+            // (Classic's old "distinct look" was an accidental hardcoded 10pt font).
+            if (isSelected || isLast)
             {
                 using var path = Base.Helpers.ControlPaintHelper.GetRoundedRectPath(rect, 4);
                 var brush = PaintersFactory.GetSolidBrush(selectedBackColor);
@@ -57,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             button.ForeColor = textColor;
             button.IsRounded = true;
             button.BorderRadius = 4;
-            button.Draw(g, rect);
+            button.Draw(g, TextRect(rect, item));
             
             // Paint icon using StyledImagePainter (if ShowIcons is true)
             // This ensures icons are painted with proper theme colors and tinting

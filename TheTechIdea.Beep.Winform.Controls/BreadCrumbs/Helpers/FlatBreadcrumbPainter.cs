@@ -12,9 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         {
             string displayText = item?.Text ?? item?.Name ?? string.Empty;
             var textSize = MeasureText(g, displayText);
-            int iconWidth = (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath)) ? 20 : 0;
-            int padding = 6;
-            int width = textSize.Width + padding * 2 + iconWidth + (iconWidth > 0 ? 4 : 0);
+            int iconZone = IconZone(item, height);
+            int padding = DpiScalingHelper.ScaleValue(6, Owner);
+            int width = iconZone + textSize.Width + padding * 2;
             return new Rectangle(x, y, width, height);
         }
 
@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             
             button.IsHovered = isHovered;
             button.IsSelected = isSelected;
+            button.TextFont = TextFont; // same font MeasureText sized the rect with
             
             // Use BreadcrumbThemeHelpers for colors
             var (textColor, hoverBackColor, selectedBackColor, separatorColor, borderColor) =
@@ -41,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             }
             button.BackColor = Color.Transparent;
             button.ForeColor = textColor;
-            button.Draw(g, rect);
+            button.Draw(g, TextRect(rect, item));
             
             // Paint icon using StyledImagePainter
             if (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath))

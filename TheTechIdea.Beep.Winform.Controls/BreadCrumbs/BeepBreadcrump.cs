@@ -493,12 +493,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     DrawFocusIndicator(g, itemRect);
                 }
 
-                // Add hit area
+                // Add hit area. Capture a per-iteration copy: the for-variable is SHARED
+                // across iterations, so `() => OnItemClicked(item, i)` gave every crumb the
+                // post-loop index - every mouse click reported index Count regardless of
+                // which crumb was hit (the keyboard path was unaffected).
+                int clickIndex = i;
                 AddHitArea(
                     $"Breadcrumb_{i}",
                     itemRect,
                     button,
-                    () => OnItemClicked(item, i)
+                    () => OnItemClicked(item, clickIndex)
                 );
 
                 // Apply accessibility settings to hit area control

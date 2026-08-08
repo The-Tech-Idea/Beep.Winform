@@ -332,35 +332,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public async Task HideAllTooltipsAsync()
         {
-            var tasks = new List<Task>();
-            var keys = new List<string>();
-
-            // Collect all instances
+            // Await each hide BEFORE disposing its instance - the previous version
+            // started every HideAsync, then disposed all instances, then awaited:
+            // disposing kills the fade timer mid-flight, its completion never fires,
+            // and Task.WhenAll waits forever. Same order as HideTooltipAsync.
+            var pending = new List<KeyValuePair<string, ToolTipInstance>>();
             foreach (var kvp in _activeTooltips)
             {
-                tasks.Add(kvp.Value.HideAsync());
-                keys.Add(kvp.Key);
-            }
-
-            // Clear dictionary
-            foreach (var key in keys)
-            {
-                if (_activeTooltips.TryRemove(key, out var instance))
+                if (_activeTooltips.TryRemove(kvp.Key, out var instance))
                 {
-                    instance.Dispose();
+                    pending.Add(new KeyValuePair<string, ToolTipInstance>(kvp.Key, instance));
                 }
             }
 
-            // Wait for all hide operations to complete
-            if (tasks.Count > 0)
+            foreach (var kvp in pending)
             {
                 try
                 {
-                    await Task.WhenAll(tasks);
+                    await kvp.Value.HideAsync();
                 }
                 catch (Exception ex)
                 {
-                    BeepLog.Failure(this, "Error hiding all tooltips", ex);
+                    BeepLog.Failure(this, $"hide tooltip '{kvp.Key}'", ex);
+                }
+                finally
+                {
+                    kvp.Value.Dispose();
                 }
             }
         }

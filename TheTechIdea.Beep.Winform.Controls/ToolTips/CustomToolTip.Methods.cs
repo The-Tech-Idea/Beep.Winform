@@ -37,9 +37,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Use _currentTheme if set (from ApplyTheme()), otherwise the manager's current.
             _theme = _currentTheme ?? BeepThemesManager.CurrentTheme;
 
-            // Apply accessibility enhancements (high contrast, contrast ratios)
-            ApplyAccessibilityEnhancements();
-
             // Update accessibility properties with tooltip content
             UpdateAccessibilityProperties();
 
@@ -387,44 +384,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
         }
 
-        /// <summary>
-        /// Apply accessibility enhancements (high contrast, contrast ratios, etc.)
-        /// </summary>
-        private void ApplyAccessibilityEnhancements()
-        {
-            if (_config == null) return;
-
-            // Check high contrast mode
-            if (ToolTipAccessibilityHelpers.IsHighContrastMode())
-            {
-                var (backColor, foreColor, borderColor) = ToolTipAccessibilityHelpers.GetHighContrastColors();
-                
-                // Override colors with high contrast system colors
-                if (!_config.BackColor.HasValue)
-                    _config.BackColor = backColor;
-                if (!_config.ForeColor.HasValue)
-                    _config.ForeColor = foreColor;
-                if (!_config.BorderColor.HasValue)
-                    _config.BorderColor = borderColor;
-            }
-            else
-            {
-                // Ensure contrast ratios meet WCAG AA standards
-                var backColor = _config.BackColor ?? BackColor;
-                var foreColor = _config.ForeColor ?? ForeColor;
-                var borderColor = Helpers.ToolTipThemeHelpers.GetToolTipBorderColor(_theme, _config.Type, _config.BorderColor);
-
-                var accessibleColors = ToolTipAccessibilityHelpers.GetAccessibleColors(
-                    backColor, foreColor, borderColor);
-
-                if (!_config.BackColor.HasValue)
-                    _config.BackColor = accessibleColors.backColor;
-                if (!_config.ForeColor.HasValue)
-                    _config.ForeColor = accessibleColors.foreColor;
-                if (!_config.BorderColor.HasValue)
-                    _config.BorderColor = accessibleColors.borderColor;
-            }
-        }
 
         #endregion
 

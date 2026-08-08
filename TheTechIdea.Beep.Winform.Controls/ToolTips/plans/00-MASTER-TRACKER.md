@@ -74,6 +74,39 @@ Eyeball everything.
 3. F6 Rustic fix — commit
 4. F7 probe + eyeball — commit per fix batch
 
+## Batches 1–3 landed (commits 89fb7165, 850481bf, a1b20bec)
+
+As planned: stamping + flags + literals + dead code; BeepLog routing; Rustic ToolTip part.
+
+## Batch 4 — probe + eyeball (TipProbe 11/11)
+
+Probe: manager Show renders each semantic type distinctly (100% surface painted), a LIVE
+theme change repaints an OPEN tooltip (guarded by asserting the themes' slots differ),
+placement lands near the anchor, HideAll leaves nothing active. Renders eyeballed.
+
+Two more real bugs the probe forced out:
+
+1. **HideAllTooltipsAsync disposed before awaiting** — it started every HideAsync, then
+   disposed all instances, then awaited: disposing kills the fade timer mid-flight, its
+   completion never fires, and `Task.WhenAll` hangs forever (the probe's watchdog caught
+   it). Reordered to await-then-dispose per instance, same as HideTooltipAsync.
+2. **ApplyAccessibilityEnhancements stamped magenta into configs** — it seeded "current"
+   colours from the FORM's BackColor, which is the magenta transparency key, ran WCAG
+   "correction" on that, and stamped the result into the config's null slots. Every
+   default-coloured tooltip body rendered as the transparency key = see-through on
+   screen. Deleted: HC lives per-paint in the helpers, semantic ink is the WCAG pick,
+   and Default-type contrast is theme-authored.
+
+Instrument notes: `DrawToBitmap` on a TransparencyKey form captures the raw magenta
+back-buffer — the first probe "passed" by comparing window SIZES; caught on the eyeball
+(renders must be eyeballed). The capture now drives OnPaint directly over a
+magenta-prefilled bitmap and asserts >80% painted, non-magenta. Stale-binary trap: after
+a library rebuild the probe exe must be rebuilt too, or it runs its own old DLL copy.
+
+Observations (not fixed): two-line tooltips clip the last line's descenders slightly
+(pre-existing height math); BeepPopover buttons, tour flow, arrow rendering, markup
+parser, auto-update and delay groups are probe-unverified (recorded, review only).
+
 ## Standing constraints
 
 There is ALWAYS a theme — slot per role from the control's OWN slot family, no flag, no

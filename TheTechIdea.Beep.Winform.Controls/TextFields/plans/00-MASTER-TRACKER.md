@@ -177,7 +177,8 @@ The three recorded gaps, closed:
 The two remaining pre-existing gaps, closed with ONE layout authority
 (`TextBoxDrawingHelper.GetVisualLines`, cached per text/width/font/wrap):
 
-- Raw lines split by scanning newline offsets (indices preserved through 
+- Raw lines split by scanning newline offsets (indices preserved through 
+
 ); WordWrap
   segments each raw line greedily at word boundaries (binary-search char fitting for long
   words). Every consumer draws from this layout: per-line text painting, the caret, the
@@ -196,6 +197,30 @@ The two remaining pre-existing gaps, closed with ONE layout authority
 - Gutter numbers only a raw line's FIRST segment (wrapped continuations are unnumbered) and
   positions rows off the text font's line height (it previously used the gutter font's).
 
-Still open (recorded): per-visual-line click-to-caret mapping (mouse click positioning in
-wrapped text still uses the pre-existing hit logic); IME composition rendering with the new
-layout untested.
+(Resolved in batch 9 — see below.)
+
+## Batch 9 done — icons themed the NORMAL way, PaintWithTint itself fixed, click-to-caret and IME on the layout (probe 33/33)
+
+User direction: do not tint at the textbox layer — paint the SVG normally and fix PaintWithTint.
+
+- **Textbox icons**: DrawImage draws through BeepImage again (no tint override). `IconKind`
+  turns `ApplyThemeOnImage` on, so the BeepImage themes its own SVG — the Beep-normal path.
+  Probe holds 0 pure-black pixels in the icon zone (the glyph follows theme ink). Custom
+  `ImagePath` SVGs stay un-themed unless the consumer opts in (a coloured logo must not be
+  silhouetted). The unscaled MaxImageSize re-clamp in DrawImage stays deleted (it shrank the
+  icon below its DPI-scaled layout slot).
+- **StyledImagePainter.PaintWithTint fixed at the source** (repo-wide painter):
+  (1) SVGs now rasterize AT THE REQUESTED SIZE — `svg.Draw()` rendered at the document's
+  native size and one cached bitmap was scaled into every caller's bounds, blurring small
+  icons and washing out thin strokes; (2) the ImagePainter fallback set `ApplyThemeOnImage =
+  true` BEFORE `FillColor = tint` — the false→true transition applies the fill, so the
+  requested tint never landed (the CLAUDE.md FillColor trap, found live); (3) `LoadImage`'s
+  silent catch reports once.
+- **Click-to-caret consults the layout**: clicks in wrapped text used single-line prefix math
+  and landed on the wrong line. `GetCaretIndexFromPoint` maps the click row to its visual
+  line (scroll-aware) and the nearest character within it; the coordinator routes clicks
+  through it. Probe: a click on wrapped row 2 lands the caret on visual line 2.
+- **IME composition underline anchors at the caret's real pixel position**
+  (`GetCaretPixelPosition` from the layout) — the old math measured the whole prefix as one
+  line and pinned the underline to the control's bottom edge. Probe simulates composition and
+  the render shows the dashed underline exactly under "second"'s line.

@@ -967,7 +967,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             using (Graphics g = _textBox.CreateGraphics())
             {
-                int clickPosition = Caret.GetCaretPositionFromPoint(e.Location, g, textRect);
+                // The drawing layout is the click authority - wrapped text needs the
+                // visual line under the pointer, not single-line prefix math.
+                int clickPosition = Drawing.GetCaretIndexFromPoint(g, textRect, e.Location);
                 
                 // Update both helper and main control
                 Caret.CaretPosition = clickPosition;

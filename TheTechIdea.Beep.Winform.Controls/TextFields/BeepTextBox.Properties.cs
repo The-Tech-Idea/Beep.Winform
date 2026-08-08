@@ -791,7 +791,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_iconKind == value) return;
                 _iconKind = value;
                 _settingImageFromKind = true;
-                try { ImagePath = TextBoxIconRegistry.GetPath(value); }
+                try
+                {
+                    ImagePath = TextBoxIconRegistry.GetPath(value);
+                    // Built-in glyphs are monochrome by design: theme them the NORMAL way
+                    // (BeepImage themes its own SVG) - drawn raw they are black on every theme.
+                    if (value != TextBoxIconKind.None) ApplyThemeOnImage = true;
+                }
                 finally { _settingImageFromKind = false; }
             }
         }

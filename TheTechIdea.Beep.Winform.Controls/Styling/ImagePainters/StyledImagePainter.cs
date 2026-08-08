@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -89,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 return;
             }
 
-            Image baseImage = LoadImage(imagePath);
+            Image baseImage = LoadImageSized(imagePath, bounds.Size) ?? LoadImage(imagePath);
             if (baseImage == null)
             {
                 var painter = GetOrCreatePainter(imagePath);
@@ -100,9 +101,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                     var oldOpacity = painter.Opacity;
                     try
                     {
-                        painter.ApplyThemeOnImage = true;
+                        // FillColor FIRST: ApplyThemeOnImage's false->true transition is
+                        // what applies the fill - the old order applied the STALE fill and
+                        // the requested tint never landed (the CLAUDE.md FillColor trap).
                         painter.FillColor = tint;
                         painter.Opacity = opacity;
+                        painter.ApplyThemeOnImage = true;
                         g.SmoothingMode = SmoothingMode.AntiAlias;
                         g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                         g.SetClip(path);
@@ -704,7 +708,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 return;
             }
 
-            Image baseImage = LoadImage(imagePath);
+            Image baseImage = LoadImageSized(imagePath, bounds.Size) ?? LoadImage(imagePath);
             if (baseImage == null)
             {
                 var painter = GetOrCreatePainter(imagePath);
@@ -715,9 +719,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                     var oldOpacity = painter.Opacity;
                     try
                     {
-                        painter.ApplyThemeOnImage = true;
+                        // FillColor FIRST: ApplyThemeOnImage's false->true transition is
+                        // what applies the fill - the old order applied the STALE fill and
+                        // the requested tint never landed (the CLAUDE.md FillColor trap).
                         painter.FillColor = tint;
                         painter.Opacity = opacity;
+                        painter.ApplyThemeOnImage = true;
                         using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
                         {
                             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -1017,6 +1024,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 new float[] { tint.R / 255f, tint.G / 255f, tint.B / 255f, 0, 1 }
             });
 
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Image> _sizedSvgCache = new();
+
+        /// <summary>
+        /// Rasterizes an embedded SVG at the requested pixel size. svg.Draw() with no size
+        /// renders at the DOCUMENT's native size; scaling that single cached bitmap to every
+        /// caller's bounds blurred small icons and washed out thin strokes.
+        /// </summary>
+        private static Image LoadImageSized(string imagePath, Size size)
+        {
+            if (size.Width <= 0 || size.Height <= 0) return null;
+            string normalizedPath = NormalizeImagePath(imagePath);
+            if (!LooksLikeEmbeddedResourcePath(normalizedPath)) return null;
+            string key = normalizedPath + "|" + size.Width + "x" + size.Height;
+            if (_sizedSvgCache.TryGetValue(key, out var cached)) return cached;
+
+            try
+            {
+                var (isSvg, result) = ImageManagement.ImageLoader.LoadFromEmbeddedResource(normalizedPath);
+                if (isSvg && result is Svg.SvgDocument svg)
+                {
+                    Image rendered = svg.Draw(size.Width, size.Height);
+                    _sizedSvgCache.TryAdd(key, rendered);
+                    return rendered;
+                }
+            }
+            catch (Exception ex)
+            {
+                BeepLog.FailureOnce(key, null, $"rasterize svg '{imagePath}' at {size.Width}x{size.Height}", ex);
+            }
+            return null;
+        }
+
         private static Image LoadImage(string imagePath)
         {
             string normalizedPath = NormalizeImagePath(imagePath);
@@ -1059,7 +1098,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.FailureOnce(imagePath, null, $"load image '{imagePath}'", ex);
+            }
             return null;
         }
 

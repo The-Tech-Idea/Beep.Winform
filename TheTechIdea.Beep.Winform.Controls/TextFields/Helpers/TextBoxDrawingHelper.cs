@@ -226,6 +226,75 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             };
         }
 
+        /// <summary>
+        /// Caret index for a click point, from the SAME layout the text paints with -
+        /// clicks in wrapped text used single-line math and landed on the wrong line.
+        /// </summary>
+        public int GetCaretIndexFromPoint(Graphics g, Rectangle textRect, Point p)
+        {
+            var rect = GetEffectiveTextRect(textRect);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
+            string text = GetActualText() ?? string.Empty;
+
+            if (_textBox.Multiline)
+            {
+                var lines = GetVisualLines(g, rect);
+                int lh = Math.Max(1, GetLineHeight(g, font));
+                int row = (p.Y - rect.Y + ScrollY) / lh;
+                row = Math.Max(0, Math.Min(row, lines.Count - 1));
+                var vl = lines[row];
+                int originX = LineOriginX(g, font, vl.Text, rect);
+                return vl.StartIndex + NearestCharIndex(g, font, vl.Text, p.X - originX);
+            }
+
+            int fullW = MeasureWidth(g, font, text);
+            int origin = GetTextOriginX(rect, fullW);
+            return NearestCharIndex(g, font, text, p.X - origin);
+        }
+
+        private int NearestCharIndex(Graphics g, Font font, string line, int relX)
+        {
+            if (relX <= 0 || line.Length == 0) return 0;
+            int best = 0, bestDelta = int.MaxValue;
+            for (int i = 0; i <= line.Length; i++)
+            {
+                int w = i == 0 ? 0 : MeasureWidth(g, font, line.Substring(0, i));
+                int d = Math.Abs(w - relX);
+                if (d < bestDelta) { bestDelta = d; best = i; }
+                if (w > relX + bestDelta) break;
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// Pixel position (x, line top y) of a character index, from the layout - the IME
+        /// composition underline and any caret-anchored adornment share the text's geometry.
+        /// </summary>
+        public Point GetCaretPixelPosition(Graphics g, Rectangle textRect, int charIndex)
+        {
+            var rect = GetEffectiveTextRect(textRect);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
+            string text = GetActualText() ?? string.Empty;
+            charIndex = Math.Max(0, Math.Min(charIndex, text.Length));
+
+            if (_textBox.Multiline)
+            {
+                var lines = GetVisualLines(g, rect);
+                int lh = GetLineHeight(g, font);
+                int idx = FindVisualLine(lines, charIndex);
+                var vl = lines[idx];
+                int local = Math.Max(0, Math.Min(charIndex - vl.StartIndex, vl.Text.Length));
+                int x = LineOriginX(g, font, vl.Text, rect)
+                      + (local == 0 ? 0 : MeasureWidth(g, font, vl.Text.Substring(0, local)));
+                return new Point(x, rect.Y + idx * lh - ScrollY);
+            }
+
+            int fullW = MeasureWidth(g, font, text);
+            int originX = GetTextOriginX(rect, fullW);
+            int cx = originX + (charIndex == 0 ? 0 : MeasureWidth(g, font, text.Substring(0, charIndex)));
+            return new Point(cx, rect.Y);
+        }
+
         /// <summary>Visual line count for the scroll range - the coordinator pushes this to the scrolling helper.</summary>
         public int GetVisualLineCount(Graphics g, Rectangle textRect) => GetVisualLines(g, textRect).Count;
 
@@ -535,24 +604,12 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         private void DrawImage(Graphics g, Rectangle imageRect)
         {
             if (_textBox.BeepImage == null || !HasImage()) return;
-            _textBox.BeepImage.BackColor= _textBox.BackColor;
-            // Constrain to MaxImageSize
-            Size maxSize = _textBox.MaxImageSize;
-            if (imageRect.Width > maxSize.Width || imageRect.Height > maxSize.Height)
-            {
-                float scaleFactor = Math.Min(
-                    (float)maxSize.Width / imageRect.Width,
-                    (float)maxSize.Height / imageRect.Height);
-                
-                int newWidth = (int)(imageRect.Width * scaleFactor);
-                int newHeight = (int)(imageRect.Height * scaleFactor);
-                
-                imageRect = new Rectangle(
-                    imageRect.X + (imageRect.Width - newWidth) / 2,
-                    imageRect.Y + (imageRect.Height - newHeight) / 2,
-                    newWidth, newHeight);
-            }
-            
+            _textBox.BeepImage.BackColor = _textBox.BackColor;
+            // No re-clamp here: GetImageSize already produced the DPI-scaled layout rect;
+            // re-clamping with the UNSCALED MaxImageSize shrank the icon back below the
+            // space the layout reserved for it at >100% DPI.
+            // Theming happens the NORMAL way: IconKind turns ApplyThemeOnImage on and the
+            // BeepImage themes its own SVG - no tint override at this layer.
             _textBox.BeepImage.Size = imageRect.Size;
             _textBox.BeepImage.DrawImage(g, imageRect);
         }

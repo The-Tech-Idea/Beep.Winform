@@ -297,13 +297,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_textRect.Width <= 0 || _textRect.Height <= 0) return;
 
             Font font = TextFont ?? Font ?? SystemFonts.MessageBoxFont;
-            int caretPos = _compositionStart;
-            string textBefore = _text?.Substring(0, Math.Min(caretPos, _text?.Length ?? 0)) ?? string.Empty;
-            var beforeSize = TextRenderer.MeasureText(g, textBefore, font);
+            // Anchor to the caret's REAL pixel position from the layout - the old math
+            // measured the whole prefix as one line and pinned the underline to the
+            // control's bottom edge regardless of which line composition happens on.
+            var caretPx = _helper?.Drawing?.GetCaretPixelPosition(g, _textRect, _compositionStart)
+                          ?? new Point(_textRect.Left, _textRect.Top);
             var compSize = TextRenderer.MeasureText(g, _compositionText, font);
+            int lineH = TextRenderer.MeasureText(g, "Ag", font).Height;
 
-            int x = _textRect.Left + beforeSize.Width;
-            int y = _textRect.Bottom - 3;
+            int x = caretPx.X;
+            int y = caretPx.Y + lineH - 2;
             int width = Math.Min(compSize.Width, Math.Max(0, _textRect.Right - x));
 
             using (var pen = new Pen(ForeColor, 2))

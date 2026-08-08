@@ -1,4 +1,5 @@
-﻿using System;
+﻿using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -82,8 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _headerPanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
-                Height = DpiScalingHelper.ScaleValue(100, this),
-                UseThemeColors = true
+                Height = DpiScalingHelper.ScaleValue(100, this)
             };
 
             // Title â€” BeepLabel + theme typography via BeepFontManager
@@ -91,8 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 Text = "Notification History",
                 Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(12, this)),
-                AutoSize = true,
-                UseThemeColors = true
+                AutoSize = true
             };
 
             // Search â€” BeepTextBox supplies placeholder text + theming
@@ -101,8 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 PlaceholderText = "Search notifications...",
                 Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(40, this)),
                 Width = DpiScalingHelper.ScaleValue(200, this),
-                Height = DpiScalingHelper.ScaleValue(24, this),
-                UseThemeColors = true
+                Height = DpiScalingHelper.ScaleValue(24, this)
             };
             _searchBox.TextChanged += SearchBox_TextChanged;
 
@@ -143,8 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 Text = "Clear",
                 Location = new Point(DpiScalingHelper.ScaleValue(120, this), DpiScalingHelper.ScaleValue(70, this)),
                 Width = DpiScalingHelper.ScaleValue(80, this),
-                Height = DpiScalingHelper.ScaleValue(24, this),
-                UseThemeColors = true
+                Height = DpiScalingHelper.ScaleValue(24, this)
             };
             _clearButton.Click += ClearButton_Click;
 
@@ -153,8 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 Text = "Mark All Read",
                 Location = new Point(DpiScalingHelper.ScaleValue(210, this), DpiScalingHelper.ScaleValue(70, this)),
                 Width = DpiScalingHelper.ScaleValue(100, this),
-                Height = DpiScalingHelper.ScaleValue(24, this),
-                UseThemeColors = true
+                Height = DpiScalingHelper.ScaleValue(24, this)
             };
             _markAllReadButton.Click += MarkAllReadButton_Click;
 
@@ -269,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[BeepNotificationHistory] ClearHistory file delete failed: {ex.Message}");
+                BeepLog.Failure(this, "ClearHistory file delete failed", ex);
             }
 
             // Cancel any pending debounced save (history is empty now).
@@ -393,7 +389,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 TextAlign = ContentAlignment.TopRight,
                 AutoSize = false,
                 AutoEllipsis = true,
-                UseThemeColors = true,
                 ForeColor = Color.FromArgb(120, this.ForeColor),
                 TabStop = false,
                 Tag = "_time"
@@ -404,7 +399,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 Dock = DockStyle.Top,
                 Height = DpiScalingHelper.ScaleValue(18, this),
                 AutoEllipsis = true,
-                UseThemeColors = true,
                 TabStop = false,
                 Tag = "_title"
             });
@@ -413,7 +407,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 Dock = DockStyle.Fill,
                 AutoEllipsis = true,
-                UseThemeColors = true,
                 ForeColor = Color.FromArgb(180, this.ForeColor),
                 TabStop = false,
                 Tag = "_msg"
@@ -471,7 +464,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 Text = "No notifications in history",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
-                UseThemeColors = true,
                 ForeColor = Color.FromArgb(120, this.ForeColor)
             };
 
@@ -621,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[BeepNotificationHistory] Save failed: {ex.Message}");
+                BeepLog.Failure(this, "Save failed", ex);
             }
         }
 
@@ -661,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[BeepNotificationHistory] Load failed: {ex.Message}");
+                BeepLog.Failure(this, "Load failed", ex);
             }
         }
 

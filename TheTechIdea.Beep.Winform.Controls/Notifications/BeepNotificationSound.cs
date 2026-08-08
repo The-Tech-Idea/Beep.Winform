@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -91,14 +92,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                             PlayCustomSound(customSoundPath);
                             return;
                         }
-                        Debug.WriteLine($"[BeepNotificationSound] Custom sound path invalid (need .wav): {customSoundPath}; falling through to type-based default.");
+                        BeepLog.Warn(typeof(BeepNotificationSound), "invalid custom sound", $"Custom sound path invalid (need .wav): {customSoundPath}; falling through to type-based default.");
                     }
 
                     PlaySystemSound(type);
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[BeepNotificationSound] PlayAsync failed: {ex.Message}");
+                    BeepLog.Failure(typeof(BeepNotificationSound), "PlayAsync failed", ex);
                 }
             });
         }
@@ -147,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[BeepNotificationSound] PlayCustomSound failed: {ex.Message}");
+                BeepLog.Failure(typeof(BeepNotificationSound), "PlayCustomSound failed", ex);
             }
         }
 
@@ -162,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[BeepNotificationSound] Stop failed: {ex.Message}");
+                BeepLog.Failure(typeof(BeepNotificationSound), "Stop failed", ex);
             }
         }
 
@@ -178,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[BeepNotificationSound] Dispose failed: {ex.Message}");
+                BeepLog.Failure(typeof(BeepNotificationSound), "Dispose failed", ex);
             }
         }
     }

@@ -97,19 +97,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // â”€â”€ Header panel (Dock=Top) with title + count + chevron
             _headerPanel = new BeepPanel
             {
-                Dock = DockStyle.Top, Height = HeaderHeight, UseThemeColors = true,
+                Dock = DockStyle.Top, Height = HeaderHeight,
                 Padding = new Padding(DpiScalingHelper.ScaleValue(12,this), DpiScalingHelper.ScaleValue(8,this), DpiScalingHelper.ScaleValue(12,this), DpiScalingHelper.ScaleValue(8,this))
             };
-            _titleLabel        = new BeepLabel { Dock = DockStyle.Fill,  AutoEllipsis = true, UseThemeColors = true, Text = "Notifications" };
-            _expandHintLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(16,this), TextAlign = ContentAlignment.MiddleCenter, Text = "\u25BE", UseThemeColors = true };
-            _countBadgeLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(28,this), TextAlign = ContentAlignment.MiddleCenter, UseThemeColors = true };
+            _titleLabel        = new BeepLabel { Dock = DockStyle.Fill,  AutoEllipsis = true, Text = "Notifications" };
+            _expandHintLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(16,this), TextAlign = ContentAlignment.MiddleCenter, Text = "\u25BE" };
+            _countBadgeLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(28,this), TextAlign = ContentAlignment.MiddleCenter };
             _headerPanel.Controls.Add(_titleLabel);
             _headerPanel.Controls.Add(_countBadgeLabel);
             _headerPanel.Controls.Add(_expandHintLabel);
             this.Controls.Add(_headerPanel);
 
             // â”€â”€ Items host (Dock=Fill below header)
-            _itemsHost = new BeepPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent, UseThemeColors = true, Visible = false };
+            _itemsHost = new BeepPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent, Visible = false };
             this.Controls.Add(_itemsHost);
         }
 
@@ -467,7 +467,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 TextAlign = ContentAlignment.TopRight,
                 AutoSize = false,
                 AutoEllipsis = true,
-                UseThemeColors = true,
                 ForeColor = Color.FromArgb(100, this.ForeColor),
                 TabStop = false,
                 Tag = "_time"
@@ -478,7 +477,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 Dock = DockStyle.Top,
                 Height = DpiScalingHelper.ScaleValue(18, this),
                 AutoEllipsis = true,
-                UseThemeColors = true,
                 TabStop = false,
                 Tag = "_title"
             });
@@ -487,7 +485,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 Dock = DockStyle.Fill,
                 AutoEllipsis = true,
-                UseThemeColors = true,
                 ForeColor = Color.FromArgb(160, this.ForeColor),
                 TabStop = false,
                 Tag = "_msg"
@@ -533,13 +530,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         private Color ResolveTypeTint(NotificationType type, IBeepTheme theme)
         {
-            var colors = NotificationThemeHelpers.GetColorsForType(
-                type, theme, null, null, null, null);
-
-            int a = (int)(colors.IconColor.A * 0.12f);
-            return Color.FromArgb(
-                Math.Max(8, Math.Min(64, a)),
-                colors.IconColor);
+            return NotificationThemeHelpers.GetTypeVeil(type, theme);
         }
 
         private string GetTimeAgo(DateTime time)

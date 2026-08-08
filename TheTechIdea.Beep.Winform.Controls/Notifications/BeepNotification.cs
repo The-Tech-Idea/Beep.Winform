@@ -112,28 +112,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             // ── Child controls + theme fonts
             // ── Child controls (layered via docking)
-            _bodyPanel = new BeepPanel { Dock = DockStyle.Fill, UseThemeColors = true };
-            _iconContainer = new BeepPanel { Dock = DockStyle.Left, UseThemeColors = true };
+            _bodyPanel = new BeepPanel { Dock = DockStyle.Fill };
+            _iconContainer = new BeepPanel { Dock = DockStyle.Left };
             _iconPicture = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.Transparent };
             _iconPicture.Paint += IconPicture_Paint;
             _iconContainer.Controls.Add(_iconPicture);
 
-            _actionsPanel = new BeepPanel { Dock = DockStyle.Bottom, Height = 0, Visible = false, UseThemeColors = true };
+            _actionsPanel = new BeepPanel { Dock = DockStyle.Bottom, Height = 0, Visible = false };
             _actionsLayout = new FlowLayoutPanel { Dock = DockStyle.Top, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = Color.Transparent };
             _actionsPanel.Controls.Add(_actionsLayout);
 
-            _textPanel = new BeepPanel { Dock = DockStyle.Fill, UseThemeColors = true };
+            _textPanel = new BeepPanel { Dock = DockStyle.Fill };
 
-            _titleLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = true, AutoEllipsis = true, UseThemeColors = true, TabIndex = 1 };
-            _messageLabel = new BeepLabel { Dock = DockStyle.Fill, AutoEllipsis = true, UseThemeColors = true, TabIndex = 2 };
+            _titleLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = true, AutoEllipsis = true, TabIndex = 1 };
+            _messageLabel = new BeepLabel { Dock = DockStyle.Fill, AutoEllipsis = true, TabIndex = 2 };
 
             _textPanel.Controls.Add(_messageLabel);
             _textPanel.Controls.Add(_titleLabel);
 
-            _closeButton = new BeepButton { Dock = DockStyle.Right, Text = "\u2715", UseThemeColors = true, TabIndex = 0, TabStop = true };
+            _closeButton = new BeepButton { Dock = DockStyle.Right, Text = "\u2715", TabIndex = 0, TabStop = true };
             _closeButton.Click += (s, e) => Dismiss();
 
-            _progressBar = new BeepProgressBar { Dock = DockStyle.Bottom, UseThemeColors = true, Visible = false };
+            _progressBar = new BeepProgressBar { Dock = DockStyle.Bottom, Visible = false };
 
             // Z-order for docking (last-added = fills leftover space)
             _bodyPanel.Controls.Add(_progressBar);
@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // Theme colors for type (drives form chrome + icon container)
             var colors = NotificationThemeHelpers.GetColorsForType(
                 _notificationData.Type,
-                null,
+                ThemeManagement.BeepThemesManager.CurrentTheme,
                 _notificationData.CustomBackColor,
                 _notificationData.CustomForeColor,
                 null,
@@ -396,7 +396,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                     {
                         Text = action.Text,
                         AutoSize = true,
-                        UseThemeColors = true,
                         TabIndex = tabStart + i,
                         TabStop = true,
                         Margin = new Padding(DpiScalingHelper.ScaleValue(4, this),

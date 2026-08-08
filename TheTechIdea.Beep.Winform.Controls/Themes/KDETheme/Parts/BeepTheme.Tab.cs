@@ -13,11 +13,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.TabBackColor = PanelBackColor;
             this.TabForeColor = ForeColor;
             this.TabBorderColor = BorderColor;
-            this.TabHoverBackColor = PanelBackColor;
+            this.TabHoverBackColor = PanelGradiantMiddleColor;
             this.TabHoverForeColor = ForeColor;
-            this.TabSelectedBackColor = PanelBackColor;
-            this.TabSelectedForeColor = ForeColor;
-            this.TabSelectedBorderColor = BorderColor;
+            this.TabSelectedBackColor = PrimaryColor;
+            this.TabSelectedForeColor = OnPrimaryColor;
+            this.TabSelectedBorderColor = PrimaryColor;
             this.TabHoverBorderColor = BorderColor;
         }
     }

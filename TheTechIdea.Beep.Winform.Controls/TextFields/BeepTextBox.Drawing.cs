@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -108,9 +109,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var charCountHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, "00", font).Height);
                     textRect.Height = Math.Max(1, textRect.Height - charCountHeight);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore
+                    // The text rect keeps its full height - the counter may overlap text.
+                    BeepLog.WarnOnce("TextBox.countMeasure", this, "measure character counter", ex.Message);
                 }
             }
 

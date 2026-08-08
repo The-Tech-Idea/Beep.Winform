@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -334,9 +335,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Clipboard.SetText(SelectedText);
                 }
-                catch (ExternalException)
+                catch (ExternalException ex)
                 {
-                    // Clipboard access failed
+                    // Another process holds the clipboard - the user's copy did NOT happen.
+                    BeepLog.Failure(this, "copy selection to clipboard", ex);
                 }
             }
         }
@@ -384,9 +386,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ScrollToCaret();
                     Invalidate();
                 }
-                catch (ExternalException)
+                catch (ExternalException ex)
                 {
-                    // Clipboard access failed
+                    BeepLog.Failure(this, "paste from clipboard", ex);
                 }
             }
         }

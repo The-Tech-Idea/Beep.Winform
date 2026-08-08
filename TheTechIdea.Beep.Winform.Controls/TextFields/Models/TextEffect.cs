@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
@@ -351,8 +352,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Models
             {
                 return BeepFontManager.GetFont(FontFamily, FontSize, FontStyle.Regular);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce(FontFamily, null, $"create effect font '{FontFamily}'", ex);
                 return BeepFontManager.GetFont("Consolas", FontSize, FontStyle.Regular);
             }
         }

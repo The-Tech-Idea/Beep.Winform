@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -551,9 +552,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Ignore filesystem errors
+                BeepLog.WarnOnce("TextBox.fsComplete", null, "enumerate path suggestions", ex.Message);
             }
 
             return suggestions;

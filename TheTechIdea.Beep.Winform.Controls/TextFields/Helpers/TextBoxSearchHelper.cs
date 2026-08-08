@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -184,9 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
             catch (Exception ex)
             {
-#if DEBUG
-                System.Diagnostics.Debug.WriteLine($"Search error: {ex.Message}");
-#endif
+                BeepLog.Failure(null, "run textbox search", ex);
             }
 
             stopwatch.Stop();
@@ -304,9 +303,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
             catch (ArgumentException ex)
             {
-#if DEBUG
-                System.Diagnostics.Debug.WriteLine($"Invalid regex: {ex.Message}");
-#endif
+                // The pattern the user typed is not valid regex - zero matches by design,
+                // but say so instead of silently returning nothing.
+                BeepLog.WarnOnce("TextBox.regex", null, "compile search regex", ex.Message);
             }
 
             return matches;
@@ -620,9 +619,10 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                         highlights.Add((rect, isCurrent));
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Skip if measurement fails
+                    // Skip this highlight - it will be missing from the overlay.
+                    BeepLog.WarnOnce("TextBox.matchMeasure", null, "measure search match", ex.Message);
                 }
             }
 

@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -17,9 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 (AccessibilityObject as BeepTextBoxAccessibleObject)?.NotifyTextChanged();
             }
-            catch
+            catch (Exception ex)
             {
-                // Accessibility notification failure is non-critical
+                // Non-critical, but a screen reader just missed a text change.
+                BeepLog.WarnOnce("TextBox.uiaNotify", this, "notify UIA of text change", ex.Message);
             }
         }
 

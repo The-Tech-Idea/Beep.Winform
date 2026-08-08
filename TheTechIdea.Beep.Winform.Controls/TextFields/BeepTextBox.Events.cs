@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -176,9 +177,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         MinimumSize = new Size(MinimumSize.Width, _cachedMinHeightPx);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // ignore
+                    BeepLog.WarnOnce("TextBox.minHeight", this, "apply computed minimum height", ex.Message);
                 }
             }
         }

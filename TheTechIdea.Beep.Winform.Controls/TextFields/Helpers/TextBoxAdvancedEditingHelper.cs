@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -528,9 +529,10 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 // Would use JSON parser for proper formatting
                 _textBox.Text = text;
             }
-            catch
+            catch (Exception ex)
             {
                 // Invalid JSON, leave as is
+                BeepLog.WarnOnce("TextBox.jsonFormat", null, "format JSON content", ex.Message);
             }
         }
         

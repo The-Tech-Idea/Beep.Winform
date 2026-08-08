@@ -1096,7 +1096,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
                 try
                 {
-                    tip.ApplyTheme(theme, useThemeColors: true);
+                    tip.ApplyTheme(theme);
                 }
                 catch
                 {
@@ -1238,33 +1238,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// Apply theme to all active tooltips
         /// Called when theme changes to update existing tooltips
         /// </summary>
-        public void ApplyThemeToAll(IBeepTheme theme, bool useThemeColors = true)
+        public void ApplyThemeToAll(IBeepTheme theme)
         {
             if (theme == null) return;
 
             foreach (var kvp in _activeTooltips)
             {
+                var tip = kvp.Value?.ToolTip;
+                if (tip == null || tip.IsDisposed) continue;
+
                 try
                 {
-                    var instance = kvp.Value;
-                    if (instance != null && instance.IsVisible)
-                    {
-                        // Update the tooltip's config with new theme colors
-                        var config = instance.Config;
-                        if (config != null && config.UseBeepThemeColors)
-                        {
-                            // Apply theme colors using ToolTipThemeHelpers
-                            ToolTipThemeHelpers.ApplyThemeColors(config, theme, useThemeColors);
-                            
-                            // Reapply config to update the tooltip
-                            // Note: This requires exposing a method in ToolTipInstance to reapply theme
-                            // For now, tooltips will use new theme on next show
-                        }
-                    }
+                    tip.ApplyTheme(theme);
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error applying theme to tooltip {kvp.Key}: {ex.Message}");
+                    Diagnostics.BeepLog.FailureOnce($"ToolTip.retheme:{kvp.Key}", this,
+                        $"apply theme to tooltip '{kvp.Key}'", ex);
                 }
             }
         }

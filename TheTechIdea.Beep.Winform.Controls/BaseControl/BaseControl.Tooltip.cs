@@ -374,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 var config = GetTooltipConfig();
 
                 // Optional style-recommended max width when no max-size was set
-                if (config.UseBeepThemeColors && (config.MaxSize == null || config.MaxSize.Value.Width == 0))
+                if (config.MaxSize == null || config.MaxSize.Value.Width == 0)
                 {
                     config.MaxSize = new Size(
                         TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers.ToolTipStyleHelpers.GetRecommendedMaxWidth(config.Style),
@@ -441,7 +441,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     Text = message,
                     Type = type,
                     Style = TooltipUseControlStyle ? ControlStyle : BeepControlStyle.Material3,
-                    UseBeepThemeColors = useTheme,
                     Duration = duration,
                     Placement = ToolTipPlacement.Top,
                     Animation = ToolTipAnimation.Slide,
@@ -449,12 +448,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     ShowShadow = true,
                     EnableShadow = true
                 };
-
-                // Apply theme colors
-                if (useTheme && theme != null)
-                {
-                    ToolTipThemeHelpers.ApplyThemeColors(config, theme, useTheme);
-                }
 
                 // Calculate position at top-center of control
                 var screenPos = PointToScreen(new Point(Width / 2, 0));
@@ -539,7 +532,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Title = _tooltipTitle,
                 Type = _tooltipType,
                 Style = TooltipUseControlStyle ? ControlStyle : BeepControlStyle.Material3,
-                UseBeepThemeColors = useTheme,
                 IconPath = _tooltipIconPath,
                 Duration = _tooltipDuration,
                 Placement = _tooltipPlacement,
@@ -554,12 +546,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Font = _tooltipFont,
                 ApplyThemeOnImage = true
             };
-
-            // Apply theme colors
-            if (useTheme && theme != null)
-            {
-                ToolTipThemeHelpers.ApplyThemeColors(config, theme, useTheme);
-            }
 
             return config;
         }

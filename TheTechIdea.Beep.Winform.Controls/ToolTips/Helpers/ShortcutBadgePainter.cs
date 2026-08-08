@@ -192,19 +192,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         private static Color DeriveKeyCapBackground(IBeepTheme theme)
-        {
-            if (theme == null) return Color.FromArgb(50, 50, 50);
-            // Use panel/card surface color from theme; fall back to a mid-gray
-            try { return ChangeAlpha(theme.PanelBackColor, 230); }
-            catch { return Color.FromArgb(60, 60, 60); }
-        }
+            => ChangeAlpha((theme ?? ThemeManagement.BeepThemesManager.CurrentTheme).PanelBackColor, 230);
 
         private static Color DeriveKeyCapForeground(IBeepTheme theme)
-        {
-            if (theme == null) return Color.FromArgb(200, 200, 200);
-            try { return theme.LabelForeColor; }
-            catch { return Color.FromArgb(200, 200, 200); }
-        }
+            => (theme ?? ThemeManagement.BeepThemesManager.CurrentTheme).LabelForeColor;
 
         private static Color ChangeAlpha(Color c, int alpha)
             => Color.FromArgb(alpha, c.R, c.G, c.B);

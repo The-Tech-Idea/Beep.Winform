@@ -34,21 +34,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // shadows the ToolTips.Painters namespace here.
             _painter ??= TheTechIdea.Beep.Winform.Controls.ToolTips.Painters.ToolTipPainterFactory.GetPainter(config);
 
-            // Apply theme - use _currentTheme if set (from ApplyTheme()), otherwise use BeepThemesManager
-            if (_currentTheme != null)
-            {
-                _theme = _currentTheme;
-            }
-            else if (_config.UseBeepThemeColors && BeepThemesManager.CurrentTheme != null)
-            {
-                _theme = BeepThemesManager.CurrentTheme;
-            }
-
-            // Apply theme colors to config
-            if (_config.UseBeepThemeColors && _theme != null)
-            {
-                ToolTipThemeHelpers.ApplyThemeColors(_config, _theme, true);
-            }
+            // Use _currentTheme if set (from ApplyTheme()), otherwise the manager's current.
+            _theme = _currentTheme ?? BeepThemesManager.CurrentTheme;
 
             // Apply accessibility enhancements (high contrast, contrast ratios)
             ApplyAccessibilityEnhancements();
@@ -425,7 +412,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 // Ensure contrast ratios meet WCAG AA standards
                 var backColor = _config.BackColor ?? BackColor;
                 var foreColor = _config.ForeColor ?? ForeColor;
-                var borderColor = _config.BorderColor ?? Color.Gray;
+                var borderColor = Helpers.ToolTipThemeHelpers.GetToolTipBorderColor(_theme, _config.Type, _config.BorderColor);
 
                 var accessibleColors = ToolTipAccessibilityHelpers.GetAccessibleColors(
                     backColor, foreColor, borderColor);

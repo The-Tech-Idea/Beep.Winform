@@ -1089,7 +1089,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Type = TooltipType,
                 Style = ControlStyle,
-                UseBeepThemeColors = true,
                 Placement = TooltipPlacement,
                 Animation = TooltipAnimation,
                 ShowArrow = TooltipShowArrow,

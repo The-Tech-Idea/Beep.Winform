@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             if (r.Width <= 0 || r.Height <= 0) return;
 
             // Background base
-            using (var brush = new SolidBrush(Color.FromArgb(50, 50, 55)))
+            using (var brush = new SolidBrush(Color.FromArgb(24, ToolTipThemeHelpers.GetToolTipForeColor(null, ToolTipType.Default))))
                 g.FillRectangle(brush, r);
 
             // Animated shimmer bar
@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             Graphics g, Rectangle r, ToolTipConfig config, IBeepTheme theme)
         {
             var colors = ToolTipThemeHelpers.GetThemeColors(theme, config.Type,
-                config.UseBeepThemeColors, config.BackColor, config.ForeColor, config.BorderColor);
+                config.BackColor, config.ForeColor, config.BorderColor);
 
             int y = r.Top;
 

@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var colors = ToolTipThemeHelpers.GetThemeColors(theme, config.Type,
-                config.UseBeepThemeColors, config.BackColor, config.ForeColor, config.BorderColor);
+                config.BackColor, config.ForeColor, config.BorderColor);
 
             PaintBackground(g, bounds, config, theme);
             PaintBorder(g, bounds, config, theme);
@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
                 TextRenderer.DrawText(g, nextTxt, fnt,
                     new Point(btnRect.Left + 8, btnRect.Top + (BtnH - sz.Height) / 2),
-                    Color.White);
+                    colors.borderColor.GetBrightness() > 0.55f ? Color.Black : Color.White);
 
                 // "← Back" if not first step
                 if (config.CurrentStep > 1)

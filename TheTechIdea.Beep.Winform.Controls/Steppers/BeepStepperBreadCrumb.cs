@@ -524,7 +524,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = tooltipText,
                 Title = $"Step {stepIndex + 1}",
                 Type = tooltipType,
-                UseBeepThemeColors = UseThemeColors,
                 ControlStyle = ControlStyle,
                 ShowArrow = true,
                 ShowShadow = true,

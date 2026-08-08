@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips
@@ -210,7 +211,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 FlatStyle   = FlatStyle.Flat,
                 Cursor      = Cursors.Hand,
                 Font        = new Font("Segoe UI", 9f),
-                ForeColor   = isSecondary ? Color.FromArgb(180, 180, 180) : Color.White,
+                ForeColor   = isSecondary
+                              ? Color.FromArgb(200, Helpers.ToolTipThemeHelpers.GetToolTipForeColor(BeepThemesManager.CurrentTheme, ToolTipType.Default))
+                              : GetPrimaryButtonForeColor(),
                 BackColor   = isSecondary
                               ? Color.Transparent
                               : GetPrimaryButtonColor()
@@ -221,12 +224,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         private Color GetPrimaryButtonColor()
         {
+            var t = BeepThemesManager.CurrentTheme;
             return _popoverConfig?.PrimaryButtonType switch
             {
-                ToolTipType.Error   or ToolTipType.Warning => Color.FromArgb(196, 43, 28),
-                ToolTipType.Success                         => Color.FromArgb(16, 124, 16),
-                _                                           => Color.FromArgb(0, 120, 212)
+                ToolTipType.Error   => t.ErrorColor,
+                ToolTipType.Warning => t.WarningColor,
+                ToolTipType.Success => t.SuccessColor,
+                _                   => t.PrimaryColor
             };
+        }
+
+        private Color GetPrimaryButtonForeColor()
+        {
+            Color fill = GetPrimaryButtonColor();
+            return fill.GetBrightness() > 0.55f ? Color.Black : Color.White;
         }
 
         // ──────────────────────────────────────────────────────────────────────

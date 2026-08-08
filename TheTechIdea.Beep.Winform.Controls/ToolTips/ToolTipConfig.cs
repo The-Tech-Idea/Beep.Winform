@@ -163,10 +163,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public BeepControlStyle Style { get; set; } = BeepControlStyle.Material3;
 
-        /// <summary>
-        /// Use BeepStyling theme colors instead of tooltip-specific colors
-        /// </summary>
-        public bool UseBeepThemeColors { get; set; } = true;
 
         #endregion
 

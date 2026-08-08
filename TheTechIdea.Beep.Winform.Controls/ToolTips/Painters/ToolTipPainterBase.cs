@@ -294,26 +294,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
         #region Helper Methods - Colors
 
-        /// <summary>
-        /// Get semantic color based on ToolTipType
-        /// </summary>
-        protected Color GetSemanticColor(ToolTipType type, IBeepTheme theme)
-        {
-            if (theme == null)
-                return Color.Gray;
-
-            return type switch
-            {
-                ToolTipType.Success => theme.SuccessColor,
-                ToolTipType.Warning => theme.WarningColor,
-                ToolTipType.Error => theme.ErrorColor,
-                ToolTipType.Info => theme.AccentColor,
-                ToolTipType.Primary => theme.PrimaryColor,
-                ToolTipType.Secondary => theme.SecondaryColor,
-                ToolTipType.Accent => theme.AccentColor,
-                _ => theme.SurfaceColor
-            };
-        }
 
         /// <summary>
         /// Adjust color brightness

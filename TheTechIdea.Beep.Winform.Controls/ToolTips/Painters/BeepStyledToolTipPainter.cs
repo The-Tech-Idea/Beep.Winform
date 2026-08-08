@@ -67,67 +67,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// Paint background using BeepStyling system with GraphicsPath support
         /// Fully integrated with all 20+ BeepControlStyle designs
         /// </summary>
-        public override void PaintBackground(Graphics g, Rectangle bounds, 
+        public override void PaintBackground(Graphics g, Rectangle bounds,
             ToolTipConfig config, IBeepTheme theme)
         {
             var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
-            
-            // Use ToolTipThemeHelpers for consistent theme color management
-            var useThemeColors = config.UseBeepThemeColors && theme != null;
-            var colors = ToolTipThemeHelpers.GetThemeColors(
-                theme, 
-                config.Type, 
-                useThemeColors,
-                config.BackColor,
-                config.ForeColor,
-                config.BorderColor);
 
-            // Get corner radius from Style
+            // The tooltip owns its fill: the generic style background painter cannot know
+            // the semantic Type, so Success/Warning/Error tooltips all painted the style
+            // surface. Slot-per-type resolution, config colour as the custom override.
+            Color fill = ToolTipThemeHelpers.GetToolTipBackColor(theme, config.Type, config.BackColor);
             int radius = StyleBorders.GetRadius(beepStyle);
 
             using (var path = CreateRoundedRectangle(bounds, radius))
+            using (var brush = new SolidBrush(fill))
             {
-                // Priority 1: Custom background color (from config)
-                if (config.BackColor.HasValue)
-                {
-                    using (var brush = new SolidBrush(config.BackColor.Value))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                    return;
-                }
-
-                // Priority 2: Use BeepStyling with theme colors from ToolTipThemeHelpers
-                if (useThemeColors && theme != null)
-                {
-                    var savedTheme = BeepStyling.CurrentTheme;
-                    var savedUseTheme = BeepStyling.UseThemeColors;
-                    var savedStyle = BeepStyling.CurrentControlStyle;
-                    
-                    try
-                    {
-                        BeepStyling.CurrentTheme = theme;
-                        BeepStyling.UseThemeColors = true;
-                        BeepStyling.SetControlStyle(beepStyle);
-                        
-                        // Use BeepStyling.PaintStyleBackground for GraphicsPath-based rendering
-                        BeepStyling.PaintStyleBackground(g, path, beepStyle, true);
-                    }
-                    finally
-                    {
-                        BeepStyling.CurrentTheme = savedTheme;
-                        BeepStyling.UseThemeColors = savedUseTheme;
-                        BeepStyling.SetControlStyle(savedStyle);
-                    }
-                }
-                else
-                {
-                    // Priority 3: Use theme colors from ToolTipThemeHelpers (even without BeepStyling)
-                    using (var brush = new SolidBrush(colors.backColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                }
+                g.FillPath(brush, path);
             }
         }
 
@@ -139,52 +93,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// Paint border using BeepStyling BorderPainters system
         /// Supports all BeepControlStyle border designs
         /// </summary>
-        public override void PaintBorder(Graphics g, Rectangle bounds, 
+        public override void PaintBorder(Graphics g, Rectangle bounds,
             ToolTipConfig config, IBeepTheme theme)
         {
             var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
-            var colors = ToolTipStyleAdapter.GetColors(config, theme);
-
+            Color border = ToolTipThemeHelpers.GetToolTipBorderColor(theme, config.Type, config.BorderColor);
             int radius = StyleBorders.GetRadius(beepStyle);
+            int borderWidth = Math.Max(1, (int)StyleBorders.GetBorderWidth(beepStyle));
 
             using (var path = CreateRoundedRectangle(bounds, radius))
+            using (var pen = new Pen(border, borderWidth))
             {
-                if (config.BorderColor.HasValue)
-                {
-                    // Custom border color specified
-                    int borderWidth = (int)StyleBorders.GetBorderWidth(beepStyle);
-                    using (var pen = new Pen(config.BorderColor.Value, borderWidth))
-                    {
-                        g.DrawPath(pen, path);
-                    }
-                }
-                else
-                {
-                    // Use BeepStyling.PaintStyleBorder for consistent border rendering
-                    var savedStyle = BeepStyling.CurrentControlStyle;
-                    var savedTheme = BeepStyling.CurrentTheme;
-                    var savedUseTheme = BeepStyling.UseThemeColors;
-                    
-                    try
-                    {
-                        BeepStyling.SetControlStyle(beepStyle);
-                        
-                        if (config.UseBeepThemeColors && theme != null)
-                        {
-                            BeepStyling.CurrentTheme = theme;
-                            BeepStyling.UseThemeColors = true;
-                        }
-                        
-                        // Paint border using BeepStyling
-                        BeepStyling.PaintStyleBorder(g, path, false, beepStyle);
-                    }
-                    finally
-                    {
-                        BeepStyling.SetControlStyle(savedStyle);
-                        BeepStyling.CurrentTheme = savedTheme;
-                        BeepStyling.UseThemeColors = savedUseTheme;
-                    }
-                }
+                g.DrawPath(pen, path);
             }
         }
 
@@ -538,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                                 else if (item.IsLink)
                                 {
                                     using var linkFont = new Font(bodyFont.FontFamily, bodyFont.Size, FontStyle.Underline);
-                                    Color linkColor = theme?.AccentColor ?? Color.DodgerBlue;
+                                    Color linkColor = ToolTipThemeHelpers.GetToolTipLinkColor(theme);
                                     using (var brush = new SolidBrush(linkColor))
                                     g.DrawString(item.Text ?? "", linkFont, brush, bodyRect);
                                 y += (int)(linkFont.GetHeight(g) * 1.2f) + spacing;
@@ -684,7 +604,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                     : new Font(baseFont.FontFamily, baseFont.Size, fs);
 
                 Color spanColor = span.Kind == SpanKind.Link
-                    ? (theme?.AccentColor ?? Color.DodgerBlue)
+                    ? ToolTipThemeHelpers.GetToolTipLinkColor(theme)
                     : foreColor;
 
                 var measured = g.MeasureString(span.Text, spanFont);

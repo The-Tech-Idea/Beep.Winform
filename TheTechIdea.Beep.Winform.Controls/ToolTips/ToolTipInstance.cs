@@ -54,15 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 _tooltip = new CustomToolTip();
                 _tooltip.ApplyConfig(_config);
                 
-                // Apply theme colors if available (from BeepThemesManager or BaseControl)
-                if (_config.UseBeepThemeColors)
-                {
-                    var theme = BeepThemesManager.CurrentTheme ?? BeepThemesManager.DefaultTheme;
-                    if (theme != null)
-                    {
-                        _tooltip.ApplyTheme(theme, _config.UseBeepThemeColors);
-                    }
-                }
+                _tooltip.ApplyTheme(BeepThemesManager.CurrentTheme);
                 
                 // Invoke show callback
                 try

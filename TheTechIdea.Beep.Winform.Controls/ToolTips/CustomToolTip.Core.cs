@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             BackColor = Color.Magenta;
 
             // Additional tooltip-specific properties
-            ForeColor = Color.White;
+            ForeColor = ToolTipThemeHelpers.GetToolTipForeColor(BeepThemesManager.CurrentTheme, ToolTipType.Default);
 
             DoubleBuffered = true;
 
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// Apply theme colors from ApplyTheme() pattern
         /// This is the preferred method for theme integration
         /// </summary>
-        public void ApplyTheme(IBeepTheme theme, bool useThemeColors = true)
+        public void ApplyTheme(IBeepTheme theme)
         {
             if (_isApplyingTheme) return;
 
@@ -120,21 +120,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             {
                 _currentTheme = theme;
 
-                // Apply theme colors to config if available
-                if (_config != null && theme != null)
+                // Resolve EVERY time (config colours pass through as custom overrides).
+                // Nothing is written back into the config: stamping resolved colours there
+                // made them look custom, so the next theme change re-applied nothing.
+                if (_config != null)
                 {
-                    ToolTipThemeHelpers.ApplyThemeColors(_config, theme, useThemeColors);
-
-                    // Update form colors
-                    if (!_config.BackColor.HasValue)
-                    {
-                        BackColor = ToolTipThemeHelpers.GetToolTipBackColor(theme, _config.Type, useThemeColors);
-                    }
-
-                    if (!_config.ForeColor.HasValue)
-                    {
-                        ForeColor = ToolTipThemeHelpers.GetToolTipForeColor(theme, _config.Type, useThemeColors);
-                    }
+                    BackColor = ToolTipThemeHelpers.GetToolTipBackColor(theme, _config.Type, _config.BackColor);
+                    ForeColor = ToolTipThemeHelpers.GetToolTipForeColor(theme, _config.Type, _config.ForeColor);
                 }
 
                 // B5: Theme change invalidates painter caches (shadow paths, etc.)

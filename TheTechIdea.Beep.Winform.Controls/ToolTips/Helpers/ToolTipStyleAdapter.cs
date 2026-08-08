@@ -30,12 +30,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             ToolTipConfig config, 
             IBeepTheme theme)
         {
-            // Use ToolTipThemeHelpers for centralized theme color management
-            var useThemeColors = config.UseBeepThemeColors && theme != null;
             return ToolTipThemeHelpers.GetThemeColors(
                 theme,
                 config.Type,
-                useThemeColors,
                 config.BackColor,
                 config.ForeColor,
                 config.BorderColor);
@@ -90,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             try
             {
                 BeepStyling.CurrentControlStyle = beepStyle;
-                BeepStyling.UseThemeColors = config.UseBeepThemeColors;
+                BeepStyling.UseThemeColors = true;
 
                 // Use BeepStyling to paint background
                 BeepStyling.PaintStyleBackground(g, bounds, beepStyle);

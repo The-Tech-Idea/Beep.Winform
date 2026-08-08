@@ -35,6 +35,46 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         /// <summary>
         /// Main drawing method that handles all rendering
         /// </summary>
+        private Control OwnerControl => _textBox as Control;
+        private int S(int v) => OwnerControl == null ? v : DpiScalingHelper.ScaleValue(v, OwnerControl);
+        private int ContentInset => S(2);
+        private int ImageTextGap => S(4);
+        private int ImageTextGapV => S(2);
+        private int ScrollX => (_textBox as BeepTextBox)?.HorizontalScrollOffset ?? 0;
+
+        /// <summary>
+        /// THE text rectangle: content rect inset, then adjusted for the image zone.
+        /// Text, placeholder, selection, caret and search highlights must all use this one
+        /// method - previously the text drew in an inset rect while caret/placeholder/selection
+        /// used the un-inset one, so the caret sat 2px left of the first character.
+        /// </summary>
+        public Rectangle GetEffectiveTextRect(Rectangle textRect)
+        {
+            var r = textRect;
+            r.Inflate(-ContentInset, -ContentInset);
+            if (!HasImage()) return r;
+
+            Size imageSize = GetImageSize();
+            switch (_textBox.TextImageRelation)
+            {
+                case TextImageRelation.ImageBeforeText:
+                    r.X += imageSize.Width + ImageTextGap;
+                    r.Width = Math.Max(0, r.Width - imageSize.Width - ImageTextGap);
+                    break;
+                case TextImageRelation.TextBeforeImage:
+                    r.Width = Math.Max(0, r.Width - imageSize.Width - ImageTextGap);
+                    break;
+                case TextImageRelation.ImageAboveText:
+                    r.Y += imageSize.Height + ImageTextGapV;
+                    r.Height = Math.Max(0, r.Height - imageSize.Height - ImageTextGapV);
+                    break;
+                case TextImageRelation.TextAboveImage:
+                    r.Height = Math.Max(0, r.Height - imageSize.Height - ImageTextGapV);
+                    break;
+            }
+            return r;
+        }
+
         public void DrawAll(Graphics g, Rectangle clientRect, Rectangle textRect)
         {
             if (g == null) return;
@@ -73,107 +113,36 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             // Always allow image to draw even when placeholder is showing
             bool showingPlaceholder = ShouldDrawPlaceholder();
-            
-            // Calculate layout similar to BeepButton
+
             Size imageSize = GetImageSize();
-            Size textSize = GetTextSize(g);
-            
-            Rectangle imageRect = Rectangle.Empty;
-            Rectangle textRect = Rectangle.Empty;
-            
-            // If only placeholder (no actual text), we still want image visible
+
             if (HasImage() && (!string.IsNullOrEmpty(GetActualText()) || showingPlaceholder))
             {
-                // Compute image rect based on relation
                 Rectangle working = contentRect;
-                working.Inflate(-2, -2);
-                
-                switch (_textBox.TextImageRelation)
+                working.Inflate(-ContentInset, -ContentInset);
+
+                Rectangle imageRect = _textBox.TextImageRelation switch
                 {
-                    case TextImageRelation.Overlay:
-                        imageRect = AlignRectangle(working, imageSize, _textBox.ImageAlign);
-                        break;
-                    case TextImageRelation.ImageBeforeText:
-                        imageRect = AlignRectangle(
-                            new Rectangle(working.Left, working.Top, imageSize.Width, working.Height),
-                            imageSize, _textBox.ImageAlign);
-                        break;
-                    case TextImageRelation.TextBeforeImage:
-                        imageRect = AlignRectangle(
-                            new Rectangle(working.Right - imageSize.Width, working.Top, imageSize.Width, working.Height),
-                            imageSize, _textBox.ImageAlign);
-                        break;
-                    case TextImageRelation.ImageAboveText:
-                        imageRect = AlignRectangle(
-                            new Rectangle(working.Left, working.Top, working.Width, imageSize.Height),
-                            imageSize, _textBox.ImageAlign);
-                        break;
-                    case TextImageRelation.TextAboveImage:
-                        imageRect = AlignRectangle(
-                            new Rectangle(working.Left, working.Bottom - imageSize.Height, working.Width, imageSize.Height),
-                            imageSize, _textBox.ImageAlign);
-                        break;
-                }
-                
+                    TextImageRelation.ImageBeforeText => AlignRectangle(
+                        new Rectangle(working.Left, working.Top, imageSize.Width, working.Height),
+                        imageSize, _textBox.ImageAlign),
+                    TextImageRelation.TextBeforeImage => AlignRectangle(
+                        new Rectangle(working.Right - imageSize.Width, working.Top, imageSize.Width, working.Height),
+                        imageSize, _textBox.ImageAlign),
+                    TextImageRelation.ImageAboveText => AlignRectangle(
+                        new Rectangle(working.Left, working.Top, working.Width, imageSize.Height),
+                        imageSize, _textBox.ImageAlign),
+                    TextImageRelation.TextAboveImage => AlignRectangle(
+                        new Rectangle(working.Left, working.Bottom - imageSize.Height, working.Width, imageSize.Height),
+                        imageSize, _textBox.ImageAlign),
+                    _ => AlignRectangle(working, imageSize, _textBox.ImageAlign),
+                };
                 DrawImage(g, imageRect);
             }
-            
-            // Draw text only when not placeholder and actual text exists
-            if (!showingPlaceholder)
+
+            if (!showingPlaceholder && !string.IsNullOrEmpty(GetActualText()))
             {
-                string actual = GetActualText();
-                if (!string.IsNullOrEmpty(actual))
-                {
-                    // When we draw text, use the layout area computed once here
-                    // Compute text rect similarly to CalculateLayout but without double image adjustment
-                    Rectangle working = contentRect;
-                    working.Inflate(-2, -2);
-                    
-                    if (HasImage() && imageSize != Size.Empty)
-                    {
-                        switch (_textBox.TextImageRelation)
-                        {
-                            case TextImageRelation.ImageBeforeText:
-                                textRect = new Rectangle(
-                                    working.Left + imageSize.Width + 4,
-                                    working.Top,
-                                    Math.Max(0, working.Width - imageSize.Width - 4),
-                                    working.Height);
-                                break;
-                            case TextImageRelation.TextBeforeImage:
-                                textRect = new Rectangle(
-                                    working.Left,
-                                    working.Top,
-                                    Math.Max(0, working.Width - imageSize.Width - 4),
-                                    working.Height);
-                                break;
-                            case TextImageRelation.ImageAboveText:
-                                textRect = new Rectangle(
-                                    working.Left,
-                                    working.Top + imageSize.Height + 2,
-                                    working.Width,
-                                    Math.Max(0, working.Height - imageSize.Height - 2));
-                                break;
-                            case TextImageRelation.TextAboveImage:
-                                textRect = new Rectangle(
-                                    working.Left,
-                                    working.Top,
-                                    working.Width,
-                                    Math.Max(0, working.Height - imageSize.Height - 2));
-                                break;
-                            case TextImageRelation.Overlay:
-                            default:
-                                textRect = working;
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        textRect = working;
-                    }
-                    
-                    DrawText(g, textRect); // DrawText must use rect as-is (no further image adjustment)
-                }
+                DrawText(g, GetEffectiveTextRect(contentRect));
             }
         }
 
@@ -191,8 +160,22 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             // Apply text formatting flags
             TextFormatFlags flags = GetTextFormatFlags();
             
-            // Use high-quality text rendering within the provided rect (already adjusted for image)
-            TextRenderer.DrawText(g, displayText, font, textRect, textColor, flags);
+            // Single-line text longer than the box scrolls left so the caret stays visible;
+            // draw shifted inside a clip so nothing bleeds past the text zone.
+            int scrollX = !_textBox.Multiline ? ScrollX : 0;
+            if (scrollX > 0)
+            {
+                var state = g.Save();
+                g.SetClip(textRect);
+                var shifted = new Rectangle(textRect.X - scrollX, textRect.Y,
+                                            textRect.Width + scrollX, textRect.Height);
+                TextRenderer.DrawText(g, displayText, font, shifted, textColor, flags);
+                g.Restore(state);
+            }
+            else
+            {
+                TextRenderer.DrawText(g, displayText, font, textRect, textColor, flags);
+            }
         }
         
         /// <summary>
@@ -362,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Color placeholderColor = _textBox.PlaceholderTextColor;
             
             // Use actual text rectangle (account for image space and alignment area)
-            Rectangle actualTextRect = GetActualTextRect(g, textRect);
+            Rectangle actualTextRect = GetEffectiveTextRect(textRect);
             
             TextFormatFlags flags = GetTextFormatFlags();
             
@@ -388,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             
             // Get the actual text rectangle considering image layout
-            Rectangle actualTextRect = GetActualTextRect(g, textRect);
+            Rectangle actualTextRect = GetEffectiveTextRect(textRect);
             
             // Use the same TextFormatFlags as drawing to ensure consistent measurement
             TextFormatFlags measureFlags = GetTextFormatFlags();
@@ -410,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Size selectedSize = TextRenderer.MeasureText(g, selectedText, font, actualTextRect.Size, measureFlags);
             
             Rectangle selectionRect = new Rectangle(
-                actualTextRect.X + beforeSize.Width,
+                actualTextRect.X + beforeSize.Width - (!_textBox.Multiline ? ScrollX : 0),
                 actualTextRect.Y,
                 selectedSize.Width,
                 Math.Max(selectedSize.Height, actualTextRect.Height));
@@ -449,12 +432,14 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             if (_textBox.SelectionLength > 0) return;
             
             string text = GetActualText();
-            int caretPosition = _textBox.SelectionStart;
+            // Paint at the CARET, not the selection anchor - the anchor stays where a
+            // selection began and made the caret render at the wrong position after End/click.
+            int caretPosition = (_textBox as BeepTextBox)?.VisibleCaretPosition ?? _textBox.SelectionStart;
             
             Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             
             // Get the actual text rectangle considering image layout
-            Rectangle actualTextRect = GetActualTextRect(g, textRect);
+            Rectangle actualTextRect = GetEffectiveTextRect(textRect);
             
             // Use the same TextFormatFlags as drawing to ensure consistent measurement
             TextFormatFlags measureFlags = GetTextFormatFlags();
@@ -483,6 +468,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 Size textSize = TextRenderer.MeasureText(g, textBeforeCaret, font, actualTextRect.Size, measureFlags);
                 caretX = baseX + textSize.Width;
             }
+            if (!_textBox.Multiline) caretX -= ScrollX;
             
             // Clamp caret within actualTextRect
             if (caretX < actualTextRect.X) caretX = actualTextRect.X;
@@ -494,49 +480,6 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
         }
         
-        /// <summary>
-        /// Gets the actual text rectangle considering image layout (same logic as caret helper)
-        /// </summary>
-        private Rectangle GetActualTextRect(Graphics g, Rectangle textRect)
-        {
-            // Check if there's an image that affects layout
-            if (!HasImage())
-                return textRect;
-                
-            // Get image size using same logic as layout calculation
-            Size imageSize = GetImageSize();
-            
-            // Adjust text rectangle based on image relation
-            Rectangle adjustedTextRect = textRect;
-            
-            switch (_textBox.TextImageRelation)
-            {
-                case TextImageRelation.ImageBeforeText:
-                    adjustedTextRect.X += imageSize.Width + 4;
-                    adjustedTextRect.Width -= imageSize.Width + 4;
-                    break;
-                    
-                case TextImageRelation.TextBeforeImage:
-                    adjustedTextRect.Width -= imageSize.Width + 4;
-                    break;
-                    
-                case TextImageRelation.ImageAboveText:
-                    adjustedTextRect.Y += imageSize.Height + 2;
-                    adjustedTextRect.Height -= imageSize.Height + 2;
-                    break;
-                    
-                case TextImageRelation.TextAboveImage:
-                    adjustedTextRect.Height -= imageSize.Height + 2;
-                    break;
-                    
-                case TextImageRelation.Overlay:
-                default:
-                    // No adjustment needed for overlay
-                    break;
-            }
-            
-            return adjustedTextRect;
-        }
         
         /// <summary>
         /// Draw line numbers for multiline textbox
@@ -606,19 +549,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             // Require: ImageVisible flag, control BeepImage.Visible, non-empty path, and actual image loaded
             bool imageVisibleFlags = _textBox.ImageVisible && beepImg.Visible;
             bool hasPath = !string.IsNullOrWhiteSpace(_textBox.ImagePath);
-            bool hasLoadedImage = false;
-            try
-            {
-                // Some BeepImage implementations expose HasImage - use if available via dynamic
-                dynamic dyn = beepImg;
-                hasLoadedImage = dyn != null && dyn.HasImage == true;
-            }
-            catch
-            {
-                hasLoadedImage = hasPath; // fallback: assume path means image
-            }
-            
-            return imageVisibleFlags && hasPath && hasLoadedImage;
+            // BeepImage.HasImage is a typed property - the old dynamic probe with a
+            // swallowing catch was reflection for something statically available.
+            return imageVisibleFlags && hasPath && beepImg.HasImage;
         }
         
         private Size GetImageSize()
@@ -626,7 +559,10 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             if (!HasImage()) return Size.Empty;
             
             Size imageSize = _textBox.BeepImage.GetImageSize();
-            Size maxSize = _textBox.MaxImageSize;
+            // The clamp scales with DPI - a fixed 20px icon shrinks relative to text at 150%.
+            Size maxSize = OwnerControl == null
+                ? _textBox.MaxImageSize
+                : DpiScalingHelper.ScaleSize(_textBox.MaxImageSize, OwnerControl);
             
             if (imageSize.Width > maxSize.Width || imageSize.Height > maxSize.Height)
             {

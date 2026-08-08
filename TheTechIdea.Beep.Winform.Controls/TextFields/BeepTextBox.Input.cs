@@ -192,11 +192,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _helper?.InsertText(e.KeyChar.ToString());
             UpdateLines();
             ValidateCaretPosition();
-            
-            if (_multiline)
-            {
-                ScrollToCaret();
-            }
+
+            // Single-line needs this too - it is the horizontal caret-follow. The old guard
+            // matched the era when single-line ScrollToCaret was an empty stub.
+            ScrollToCaret();
             
             Invalidate();
             e.Handled = true;
@@ -235,6 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 UpdateSelection(newPosition);
             }
+            ScrollToCaret();
         }
         
         private void HandleEndKey(bool control, bool shift)
@@ -266,6 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 UpdateSelection(newPosition);
             }
+            ScrollToCaret();
         }
         
         private void UpdateSelection(int newCaretPosition)
@@ -415,9 +416,47 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         
+        /// <summary>Current horizontal scroll of the single-line text, in pixels.</summary>
+        internal int HorizontalScrollOffset => _helper?.Scrolling?.ScrollOffsetX ?? 0;
+
+        /// <summary>The caret's actual position for painting - SelectionStart is the selection
+        /// ANCHOR and goes stale after ClearSelection (the painted caret froze at it).</summary>
+        internal int VisibleCaretPosition => _helper?.Caret?.CaretPosition ?? 0;
+
         public void ScrollToCaret()
         {
-            _helper?.Scrolling?.ScrollToCaret(_helper.Caret?.CaretPosition ?? 0);
+            var scrolling = _helper?.Scrolling;
+            if (scrolling == null) return;
+
+            if (_multiline)
+            {
+                scrolling.ScrollToCaret(_helper.Caret?.CaretPosition ?? 0);
+                return;
+            }
+
+            // Single-line horizontal follow. This was an empty stub: with text longer than
+            // the box the caret walked off the right edge and typing continued invisibly.
+            // Only left-aligned text scrolls; centre/right alignments re-layout instead.
+            if (TextAlignment != HorizontalAlignment.Left) { scrolling.ScrollOffsetX = 0; return; }
+
+            string text = _text ?? string.Empty;
+            int caret = Math.Max(0, Math.Min(_helper.Caret?.CaretPosition ?? 0, text.Length));
+            Font font = _textFont ?? Font;
+
+            int caretX = caret == 0 ? 0 : (int)Math.Ceiling(TextUtils.MeasureText(text.Substring(0, caret), font).Width);
+            int fullW = (int)Math.Ceiling(TextUtils.MeasureText(text, font).Width);
+            int viewW = Math.Max(1, _textRect.Width - DpiScalingHelper.ScaleValue(6, this));
+
+            int offset = scrolling.ScrollOffsetX;
+            if (caretX - offset > viewW) offset = caretX - viewW;
+            else if (caretX - offset < 0) offset = caretX;
+            offset = Math.Max(0, Math.Min(offset, Math.Max(0, fullW - viewW)));
+
+            if (offset != scrolling.ScrollOffsetX)
+            {
+                scrolling.ScrollOffsetX = offset;
+                Invalidate();
+            }
         }
         
         public void InsertText(string text)

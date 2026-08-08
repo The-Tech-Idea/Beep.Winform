@@ -100,6 +100,36 @@ draws vertically centred — highlights floated above the words; now centred to 
 Probe extended and eyeballed: search highlights paint (yellow + orange current match, aligned),
 typewriter mid-frame shows "The qu", terminal renders green-on-black on its own surface.
 
+## Batch 5 done — geometry pass: alignment, sizing, icons, scroll, caret (probe 17/17)
+
+User directive: "revise alignment of text and sizing and other like images and icons sizing."
+
+- **One authoritative text rect** (`GetEffectiveTextRect`): text drew in an Inflate(-2,-2) rect
+  while placeholder/selection/caret used the un-inset one — the caret sat 2px left of the first
+  character, placeholder 2px off the text position. All five consumers (text, placeholder,
+  selection, caret, search highlights) now share the one method; the old `GetActualTextRect`
+  deleted. Image gaps and insets DPI-scaled; `MaxImageSize` clamp DPI-scaled (a fixed 20px icon
+  shrank relative to text at 150%).
+- **Icons never showed**: `_imageVisible` defaulted false, so `ImagePath = x` silently displayed
+  nothing until `ImageVisible` was also set. A path IS the intent — default flipped; both
+  ImageBeforeText and TextBeforeImage verified by render (icon centred, text offset past it).
+  `HasImage`'s dynamic probe replaced with the typed `BeepImage.HasImage` property.
+- **Horizontal scroll was an empty stub**: with text longer than the box, the caret walked off
+  the right edge and typing continued invisibly. Single-line caret-follow implemented
+  (left-aligned text; offset clamped to overflow); text/selection/caret/highlights all draw
+  scroll-shifted inside a clip. OnKeyPress only called ScrollToCaret when multiline (the stub
+  era); Home/End never called it — all follow the caret now. Render shows "TAIL-END" after
+  typing past the edge; Home returns offset to 0.
+- **Caret painted at the selection ANCHOR**, not the caret: `ClearSelection` zeroes length but
+  not the anchor, so after End/click the painted caret froze at the old spot. DrawCaret reads
+  the real caret position now; probe holds End-vs-Home renders differing.
+- **The bottom-right green dot** (user question): the typing indicator — on by default and
+  surprising. Now opt-in (`EnableTypingIndicator = true` to get it back).
+
+Not verified: multiline vertical scrolling (still stubbed: UpdateContentSize/HandleMouseWheel
+empty — recorded, out of this pass's scope); RTL rendering; Center/Right-aligned overflow
+behaviour (scroll deliberately resets for non-left alignment).
+
 ## Standing constraints
 
 There is ALWAYS a theme — slots direct; feature palettes (effect presets, syntax tokens) are

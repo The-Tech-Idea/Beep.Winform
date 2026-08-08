@@ -427,9 +427,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!_searchHighlightEnabled || !IsSearchActive)
                 return;
 
+            var effectiveRect = _helper?.Drawing?.GetEffectiveTextRect(textRect) ?? textRect;
             var highlights = SearchHelper.GetMatchHighlightRects(
-                g, 
-                textRect, 
+                g,
+                effectiveRect,
                 _textFont,
                 _helper?.Scrolling?.ScrollOffsetX ?? 0);
 

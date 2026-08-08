@@ -128,7 +128,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => _enableFocusAnimation = value;
         }
         
-        private bool _enableTypingIndicator = true;
+        // Opt-in: a green dot appearing in the corner while typing surprised more than it
+        // informed (it is the little circle at bottom-right). Consumers who want the
+        // indicator set EnableTypingIndicator = true.
+        private bool _enableTypingIndicator = false;
         [Browsable(true)]
         [Category("Behavior")]
         [DefaultValue(true)]
@@ -857,7 +860,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepImage BeepImage => _beepImage;
         
-        private bool _imageVisible = false;
+        // A non-empty ImagePath is the intent to display - defaulting this to false made
+        // "ImagePath = x" silently show nothing until ImageVisible was also set.
+        private bool _imageVisible = true;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Controls the visibility of the image in the textbox.")]

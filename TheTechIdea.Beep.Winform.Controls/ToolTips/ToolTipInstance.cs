@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Threading;
@@ -63,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error in OnShow callback: {ex.Message}");
+                    BeepLog.Failure(this, "Error in OnShow callback", ex);
                 }
                 
                 // Display tooltip with cancellation support
@@ -124,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error showing tooltip: {ex.Message}");
+                BeepLog.Failure(this, "Error showing tooltip", ex);
                 
                 // Cleanup on error
                 CleanupTooltip();
@@ -164,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Preview load failed: {ex.Message}");
+                BeepLog.Failure(this, "Preview load failed", ex);
                 return;
             }
 
@@ -246,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error in OnClose callback: {ex.Message}");
+                    BeepLog.Failure(this, "Error in OnClose callback", ex);
                 }
             }
             catch (ObjectDisposedException)
@@ -255,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error hiding tooltip: {ex.Message}");
+                BeepLog.Failure(this, "Error hiding tooltip", ex);
             }
             finally
             {
@@ -296,7 +297,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error updating content: {ex.Message}");
+                BeepLog.Failure(this, "Error updating content", ex);
             }
         }
 
@@ -324,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error updating position: {ex.Message}");
+                BeepLog.Failure(this, "Error updating position", ex);
             }
         }
 
@@ -398,16 +399,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Unsubscribe from the anchor first. These handlers are attached to controls that
             // outlive the tooltip, so leaving them attached would keep the anchor's whole parent
             // chain wired to a dead tooltip.
-            try { _autoUpdate?.Dispose(); } catch { }
+            try { _autoUpdate?.Dispose(); } catch (Exception ex) { BeepLog.Failure(this, "dispose auto-update", ex); }
             _autoUpdate = null;
 
             // Message filters are process-wide; leaving one installed outlives the tooltip and
             // keeps its closure alive.
-            try { _escapeFilter?.Dispose(); } catch { }
+            try { _escapeFilter?.Dispose(); } catch (Exception ex) { BeepLog.Failure(this, "dispose escape filter", ex); }
             _escapeFilter = null;
 
             // We resolved this image, so we own it.
-            try { _config.ResolvedPreviewImage?.Dispose(); } catch { }
+            try { _config.ResolvedPreviewImage?.Dispose(); } catch (Exception ex) { BeepLog.Failure(this, "dispose preview image", ex); }
             _config.ResolvedPreviewImage = null;
 
             if (_tooltip != null)
@@ -425,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error disposing tooltip: {ex.Message}");
+                    BeepLog.Failure(this, "Error disposing tooltip", ex);
                 }
                 finally
                 {
@@ -468,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error disposing cancellation token: {ex.Message}");
+                BeepLog.Failure(this, "Error disposing cancellation token", ex);
             }
 
             // Cleanup tooltip

@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -46,15 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // re-paint to match the new palette instead of waiting for the
             // next show. The previous placeholder try/catch silently swallowed
             // this — we now actually wire the handler.
-            try
-            {
-                BeepThemesManager.ThemeChanged += OnThemeChanged;
-            }
-            catch
-            {
-                // BeepThemesManager.ThemeChanged missing at build time — fall back
-                // to polling the CurrentTheme on next show. Not a hard failure.
-            }
+            BeepThemesManager.ThemeChanged += OnThemeChanged;
         }
 
         #endregion
@@ -249,7 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error showing tooltip: {ex.Message}");
+                BeepLog.Failure(this, "Error showing tooltip", ex);
                 _activeTooltips.TryRemove(config.Key, out _);
                 throw;
             }
@@ -328,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error hiding tooltip: {ex.Message}");
+                    BeepLog.Failure(this, "Error hiding tooltip", ex);
                 }
             }
         }
@@ -367,7 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error hiding all tooltips: {ex.Message}");
+                    BeepLog.Failure(this, "Error hiding all tooltips", ex);
                 }
             }
         }
@@ -397,7 +390,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error updating tooltip: {ex.Message}");
+                    BeepLog.Failure(this, "Error updating tooltip", ex);
                 }
             }
         }
@@ -422,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error updating tooltip position: {ex.Message}");
+                    BeepLog.Failure(this, "Error updating tooltip position", ex);
                 }
             }
         }
@@ -819,7 +812,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error in OnControlMouseEnter: {ex.Message}");
+                BeepLog.FailureOnce("ToolTip.mouseEnter", this, "Error in OnControlMouseEnter", ex);
             }
         }
 
@@ -876,7 +869,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error in OnControlMouseLeave: {ex.Message}");
+                BeepLog.FailureOnce("ToolTip.mouseLeave", this, "Error in OnControlMouseLeave", ex);
             }
         }
 
@@ -948,7 +941,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error in OnControlMouseMove: {ex.Message}");
+                BeepLog.FailureOnce("ToolTip.mouseMove", this, "Error in OnControlMouseMove", ex);
             }
         }
 
@@ -1015,7 +1008,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error calculating tooltip position: {ex.Message}");
+                BeepLog.Failure(this, "Error calculating tooltip position", ex);
                 return Cursor.Position;
             }
         }
@@ -1055,7 +1048,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error during cleanup: {ex.Message}");
+                            BeepLog.FailureOnce("ToolTip.cleanup", this, "Error during cleanup", ex);
                         }
                     });
                 }
@@ -1063,12 +1056,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 // Log cleanup activity if any tooltips were removed
                 if (expiredKeys.Count > 0)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Cleaned up {expiredKeys.Count} expired tooltips");
+                    BeepLog.Info(this, "cleanup", $"cleaned up {expiredKeys.Count} expired tooltips");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error in cleanup timer: {ex.Message}");
+                BeepLog.FailureOnce("ToolTip.cleanupTimer", this, "Error in cleanup timer", ex);
             }
         }
 

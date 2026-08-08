@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -689,7 +690,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[BeepStyledToolTipPainter] Error painting icon: {ex.Message}");
+                BeepLog.FailureOnce($"ToolTip.icon:{config.IconPath}", this, $"paint tooltip icon '{config.IconPath}'", ex);
                 
                 // Fallback: draw placeholder icon
                 var colors = ToolTipStyleAdapter.GetColors(config, theme);

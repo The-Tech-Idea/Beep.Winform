@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -40,8 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[CustomToolTip] {_painter.GetType().Name}.Paint failed: {ex}");
+                BeepLog.FallbackOnce($"ToolTip.paint:{_painter.GetType().Name}", this,
+                    $"paint with {_painter.GetType().Name}; falling back to BeepStyledToolTipPainter", ex);
 
                 if (_painter is not BeepStyledToolTipPainter)
                 {
@@ -49,8 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                     try { _painter.Paint(g, bounds, _config, _actualPlacement, activeTheme); }
                     catch (Exception fallbackEx)
                     {
-                        System.Diagnostics.Debug.WriteLine(
-                            $"[CustomToolTip] fallback painter also failed: {fallbackEx.Message}");
+                        BeepLog.FailureOnce("ToolTip.paint.fallback", this,
+                            "paint with the fallback painter", fallbackEx);
                     }
                 }
             }

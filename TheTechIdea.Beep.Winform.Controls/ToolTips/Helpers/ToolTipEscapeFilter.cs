@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Windows.Forms;
 
@@ -43,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             try { _onEscape(); }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ToolTipEscapeFilter] {ex.Message}");
+                BeepLog.FailureOnce("ToolTip.escapeFilter", this, "handle Escape in message filter", ex);
             }
 
             // Not consumed: Escape may also mean something to the focused control (closing a

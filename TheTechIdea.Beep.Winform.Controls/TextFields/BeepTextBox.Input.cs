@@ -433,7 +433,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_multiline)
             {
-                scrolling.ScrollToCaret(_helper.Caret?.CaretPosition ?? 0);
+                int caretPos = _helper.Caret?.CaretPosition ?? 0;
+                // Wrap-aware: the caret's VISUAL line from the cached layout; raw-line
+                // fallback until the first paint builds one.
+                int vline = _helper.Drawing?.GetCaretVisualLineFromCache(caretPos) ?? -1;
+                if (vline >= 0) scrolling.ScrollLineIntoView(vline);
+                else scrolling.ScrollToCaret(caretPos);
                 return;
             }
 

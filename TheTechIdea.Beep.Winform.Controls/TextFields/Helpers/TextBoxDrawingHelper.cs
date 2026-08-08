@@ -97,6 +97,153 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         /// method - previously the text drew in an inset rect while caret/placeholder/selection
         /// used the un-inset one, so the caret sat 2px left of the first character.
         /// </summary>
+        /// <summary>
+        /// One visual line of the multiline layout: its text, where it starts in the full
+        /// string, which raw (newline-delimited) line it belongs to, and whether it is that
+        /// raw line's first segment (the gutter numbers those).
+        /// </summary>
+        public struct VisualLine
+        {
+            public string Text;
+            public int StartIndex;
+            public int RawLine;
+            public bool IsRawStart;
+        }
+
+        private List<VisualLine> _layout;
+        private string _layoutText;
+        private int _layoutWidth = -1;
+        private string _layoutFontKey;
+        private bool _layoutWrap;
+
+        private static readonly Size Unbounded = new Size(int.MaxValue, int.MaxValue);
+        private const TextFormatFlags MeasureFlags = TextFormatFlags.NoPadding;
+
+        private int MeasureWidth(Graphics g, Font font, string text) =>
+            string.IsNullOrEmpty(text) ? 0 : TextRenderer.MeasureText(g, text, font, Unbounded, MeasureFlags).Width;
+
+        /// <summary>
+        /// The wrapped layout the multiline pipeline draws from. Text, caret, selection,
+        /// line numbers and the scroll range all consume THIS - one wrap authority, so
+        /// what is measured is exactly what is painted. Cached per (text, width, font, wrap).
+        /// </summary>
+        public IReadOnlyList<VisualLine> GetVisualLines(Graphics g, Rectangle textRect)
+        {
+            string text = GetActualText() ?? string.Empty;
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
+            string fontKey = font.Name + "|" + font.Size + "|" + (int)font.Style;
+            bool wrap = _textBox.WordWrap;
+            if (_layout != null && _layoutText == text && _layoutWidth == textRect.Width
+                && _layoutFontKey == fontKey && _layoutWrap == wrap)
+                return _layout;
+
+            var lines = new List<VisualLine>();
+            int pos = 0, raw = 0;
+            while (pos <= text.Length)
+            {
+                int nl = text.IndexOfAny(new[] { '\r', '\n' }, pos);
+                string rawLine = nl < 0 ? text.Substring(pos) : text.Substring(pos, nl - pos);
+                AppendWrapped(g, font, rawLine, pos, raw, wrap ? Math.Max(8, textRect.Width) : int.MaxValue, lines);
+                if (nl < 0) break;
+                pos = nl + (text[nl] == '\r' && nl + 1 < text.Length && text[nl + 1] == '\n' ? 2 : 1);
+                raw++;
+                if (pos == text.Length)
+                {
+                    // Trailing newline: the empty final line is real (the caret can sit on it).
+                    lines.Add(new VisualLine { Text = string.Empty, StartIndex = pos, RawLine = raw, IsRawStart = true });
+                    break;
+                }
+            }
+            if (lines.Count == 0)
+                lines.Add(new VisualLine { Text = string.Empty, StartIndex = 0, RawLine = 0, IsRawStart = true });
+
+            _layout = lines; _layoutText = text; _layoutWidth = textRect.Width;
+            _layoutFontKey = fontKey; _layoutWrap = wrap;
+            return _layout;
+        }
+
+        private void AppendWrapped(Graphics g, Font font, string rawLine, int startIndex, int rawIdx, int maxWidth, List<VisualLine> into)
+        {
+            if (rawLine.Length == 0 || maxWidth == int.MaxValue || MeasureWidth(g, font, rawLine) <= maxWidth)
+            {
+                into.Add(new VisualLine { Text = rawLine, StartIndex = startIndex, RawLine = rawIdx, IsRawStart = true });
+                return;
+            }
+
+            int lineStart = 0;
+            bool first = true;
+            while (lineStart < rawLine.Length)
+            {
+                int fit = FitChars(g, font, rawLine, lineStart, maxWidth);
+                int cut = lineStart + Math.Max(1, fit);
+                if (cut < rawLine.Length)
+                {
+                    // Prefer breaking after the last space that still fits.
+                    int space = rawLine.LastIndexOf(' ', cut - 1, cut - lineStart);
+                    if (space > lineStart) cut = space + 1;
+                }
+                into.Add(new VisualLine
+                {
+                    Text = rawLine.Substring(lineStart, cut - lineStart),
+                    StartIndex = startIndex + lineStart,
+                    RawLine = rawIdx,
+                    IsRawStart = first,
+                });
+                first = false;
+                lineStart = cut;
+            }
+        }
+
+        private int FitChars(Graphics g, Font font, string text, int start, int maxWidth)
+        {
+            int lo = 1, hi = text.Length - start, best = 1;
+            while (lo <= hi)
+            {
+                int mid = lo + (hi - lo) / 2;
+                if (MeasureWidth(g, font, text.Substring(start, mid)) <= maxWidth) { best = mid; lo = mid + 1; }
+                else hi = mid - 1;
+            }
+            return best;
+        }
+
+        private static int FindVisualLine(IReadOnlyList<VisualLine> lines, int charIndex)
+        {
+            int idx = 0;
+            for (int i = 0; i < lines.Count; i++)
+                if (lines[i].StartIndex <= charIndex) idx = i;
+                else break;
+            return idx;
+        }
+
+        /// <summary>Left origin of one visual line under the multiline alignment.</summary>
+        private int LineOriginX(Graphics g, Font font, string lineText, Rectangle rect)
+        {
+            return EffectiveAlignment switch
+            {
+                HorizontalAlignment.Center => rect.X + Math.Max(0, (rect.Width - MeasureWidth(g, font, lineText)) / 2),
+                HorizontalAlignment.Right => Math.Max(rect.X, rect.Right - MeasureWidth(g, font, lineText)),
+                _ => rect.X,
+            };
+        }
+
+        /// <summary>Visual line count for the scroll range - the coordinator pushes this to the scrolling helper.</summary>
+        public int GetVisualLineCount(Graphics g, Rectangle textRect) => GetVisualLines(g, textRect).Count;
+
+        /// <summary>Line height in pixels for scroll metrics.</summary>
+        public int GetLineHeightPx(Graphics g) =>
+            GetLineHeight(g, _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f));
+
+        /// <summary>
+        /// Caret's visual line from the CACHED layout (no Graphics at caret-move time).
+        /// Returns -1 when no layout has been built yet - callers fall back to raw lines.
+        /// </summary>
+        public int GetCaretVisualLineFromCache(int caretPosition)
+        {
+            var layout = _layout;
+            if (layout == null || layout.Count == 0) return -1;
+            return FindVisualLine(layout, Math.Max(0, caretPosition));
+        }
+
         public Rectangle GetEffectiveTextRect(Rectangle textRect)
         {
             var r = textRect;
@@ -211,21 +358,24 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             
             if (_textBox.Multiline)
             {
-                // Vertical scroll: draw the whole block shifted up inside a clip.
+                // Per-visual-line drawing from the ONE layout authority - what the caret,
+                // selection, gutter and scroll range measure is exactly what paints.
+                var lines = GetVisualLines(g, textRect);
+                int lh = GetLineHeight(g, font);
                 int scrollY = ScrollY;
-                if (scrollY > 0)
+                var lineFlags = MeasureFlags | TextFormatFlags.PreserveGraphicsClipping;
+                var state = g.Save();
+                g.SetClip(textRect);
+                for (int i = 0; i < lines.Count; i++)
                 {
-                    var state = g.Save();
-                    g.SetClip(textRect);
-                    var shifted = new Rectangle(textRect.X, textRect.Y - scrollY,
-                                                textRect.Width, textRect.Height + scrollY);
-                    TextRenderer.DrawText(g, displayText, font, shifted, textColor, flags);
-                    g.Restore(state);
+                    if (lines[i].Text.Length == 0) continue;
+                    int y = textRect.Y + i * lh - scrollY;
+                    if (y + lh < textRect.Top || y > textRect.Bottom) continue;
+                    int x = LineOriginX(g, font, lines[i].Text, textRect);
+                    TextRenderer.DrawText(g, lines[i].Text, font,
+                        new Rectangle(x, y, textRect.Width, lh), textColor, lineFlags);
                 }
-                else
-                {
-                    TextRenderer.DrawText(g, displayText, font, textRect, textColor, flags);
-                }
+                g.Restore(state);
                 return;
             }
 
@@ -445,6 +595,12 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             
             // Get the actual text rectangle considering image layout
             Rectangle actualTextRect = GetEffectiveTextRect(textRect);
+
+            if (_textBox.Multiline)
+            {
+                DrawMultilineSelection(g, actualTextRect, font, text, selStart, selLength);
+                return;
+            }
             
             // Use the same TextFormatFlags as drawing to ensure consistent measurement
             TextFormatFlags measureFlags = GetTextFormatFlags();
@@ -497,6 +653,50 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         }
         
         /// <summary>
+        /// Multiline selection: one fill + ink per visual line the range touches. The old
+        /// code measured the whole prefix as a single line, so multi-row selections drew
+        /// as one misplaced band.
+        /// </summary>
+        private void DrawMultilineSelection(Graphics g, Rectangle rect, Font font, string text, int selStart, int selLength)
+        {
+            int selEnd = Math.Min(selStart + selLength, text.Length);
+            var lines = GetVisualLines(g, rect);
+            int lh = GetLineHeight(g, font);
+            Color selInk = ThemeManagement.BeepThemesManager.CurrentTheme.TextBoxSelectedForeColor;
+            var lineFlags = MeasureFlags | TextFormatFlags.PreserveGraphicsClipping;
+
+            var state = g.Save();
+            g.SetClip(rect);
+            using var back = new SolidBrush(_textBox.SelectionBackColor);
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var vl = lines[i];
+                int lineEnd = vl.StartIndex + vl.Text.Length;
+                int s0 = Math.Max(selStart, vl.StartIndex);
+                int e0 = Math.Min(selEnd, lineEnd);
+                bool coversNewline = selEnd > lineEnd && selStart <= lineEnd;
+                if (s0 >= e0 && !coversNewline) continue;
+
+                int y = rect.Y + i * lh - ScrollY;
+                if (y + lh < rect.Top || y > rect.Bottom) continue;
+
+                int originX = LineOriginX(g, font, vl.Text, rect);
+                int x1 = originX + (s0 > vl.StartIndex ? MeasureWidth(g, font, vl.Text.Substring(0, s0 - vl.StartIndex)) : 0);
+                int x2 = originX + (e0 > vl.StartIndex ? MeasureWidth(g, font, vl.Text.Substring(0, e0 - vl.StartIndex)) : 0);
+                if (coversNewline) x2 += 4; // show that the line break is inside the selection
+                if (x2 <= x1) x2 = x1 + 4;
+
+                g.FillRectangle(back, new Rectangle(x1, y, x2 - x1, lh));
+                if (e0 > s0)
+                {
+                    string part = vl.Text.Substring(s0 - vl.StartIndex, e0 - s0);
+                    TextRenderer.DrawText(g, part, font, new Rectangle(x1, y, x2 - x1, lh), selInk, lineFlags);
+                }
+            }
+            g.Restore(state);
+        }
+
+        /// <summary>
         /// Draw the text cursor/caret
         /// </summary>
         private void DrawCaret(Graphics g, Rectangle textRect)
@@ -516,6 +716,27 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             
             // Get the actual text rectangle considering image layout
             Rectangle actualTextRect = GetEffectiveTextRect(textRect);
+
+            if (_textBox.Multiline)
+            {
+                // Real (line, column) placement from the layout - the old math measured the
+                // whole prefix as ONE line, so the caret drifted right instead of down.
+                var mlLines = GetVisualLines(g, actualTextRect);
+                int mlLh = GetLineHeight(g, font);
+                int mlIdx = FindVisualLine(mlLines, caretPosition);
+                var mlLine = mlLines[mlIdx];
+                int mlLocal = Math.Max(0, Math.Min(caretPosition - mlLine.StartIndex, mlLine.Text.Length));
+                int mlX = LineOriginX(g, font, mlLine.Text, actualTextRect)
+                        + (mlLocal == 0 ? 0 : MeasureWidth(g, font, mlLine.Text.Substring(0, mlLocal)));
+                int mlY = actualTextRect.Y + mlIdx * mlLh - ScrollY;
+                if (mlY + mlLh < actualTextRect.Top || mlY > actualTextRect.Bottom) return; // off-view
+                mlX = Math.Max(actualTextRect.X, Math.Min(mlX, actualTextRect.Right - 1));
+                using (var mlPen = new Pen(control.ForeColor, 1))
+                {
+                    g.DrawLine(mlPen, mlX, mlY + 1, mlX, mlY + mlLh - 1);
+                }
+                return;
+            }
             
             // Use the same TextFormatFlags as drawing to ensure consistent measurement
             TextFormatFlags measureFlags = GetTextFormatFlags();
@@ -555,36 +776,34 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         private void DrawLineNumbers(Graphics g, Rectangle clientRect, Rectangle textRect)
         {
             if (!_textBox.ShowLineNumbers || !_textBox.Multiline) return;
-            
-            // Get line number area
+
             Rectangle lineNumberRect = new Rectangle(
                 clientRect.X, clientRect.Y,
                 _textBox.LineNumberMarginWidth, clientRect.Height);
-            
-            // Fill line number background
+
             using (var brush = new SolidBrush(_textBox.LineNumberBackColor))
             {
                 g.FillRectangle(brush, lineNumberRect);
             }
-            
-            // Draw line numbers
-            var lines = _textBox.GetLines();
-            Font lineFont = _textBox.LineNumberFont ?? _textBox.TextFont ?? BeepFontManager.GetFont("Consolas", 8f);
-            
+
+            // Rows come from the SAME visual layout the text draws from, so numbers stay
+            // beside their lines when wrapping and scrolling. Wrapped continuation rows
+            // carry no number - only a raw line's first segment does.
+            Font textFont = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
+            Font lineFont = _textBox.LineNumberFont ?? textFont;
+            var lines = GetVisualLines(g, GetEffectiveTextRect(textRect));
+            int lh = GetLineHeight(g, textFont);
+
             for (int i = 0; i < lines.Count; i++)
             {
-                string lineNumber = (i + 1).ToString();
-                int lh = GetLineHeight(g, lineFont);
-                int y = lineNumberRect.Y + i * lh - ScrollY; // gutter scrolls with the text
+                if (!lines[i].IsRawStart) continue;
+                int y = lineNumberRect.Y + i * lh - ScrollY;
                 if (y + lh < lineNumberRect.Top || y > lineNumberRect.Bottom) continue;
-                Rectangle lineRect = new Rectangle(
-                    lineNumberRect.X + 2, y, lineNumberRect.Width - 4, lh);
-
-                TextRenderer.DrawText(g, lineNumber, lineFont, lineRect,
+                Rectangle lineRect = new Rectangle(lineNumberRect.X + 2, y, lineNumberRect.Width - 4, lh);
+                TextRenderer.DrawText(g, (lines[i].RawLine + 1).ToString(), lineFont, lineRect,
                     _textBox.LineNumberForeColor, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
             }
-            
-            // Draw separator line
+
             using (var pen = new Pen(Color.FromArgb(100, _textBox.LineNumberForeColor)))
             {
                 g.DrawLine(pen, lineNumberRect.Right - 1, lineNumberRect.Top,

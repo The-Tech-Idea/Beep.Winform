@@ -170,6 +170,32 @@ The three recorded gaps, closed:
   probe's check failed honestly). `EffectiveAlignment` now flips Left/Right under
   RightToLeft.Yes, matching native textbox behaviour; flags and origin model share it.
 
-Still open: word-wrapped multiline (WordWrap re-wrapping happens at paint; content height uses
-raw line count, so wrapped lines under-measure the scroll range); per-line multiline caret/
-selection drawing (pre-existing single-line math, unchanged by this pass).
+(Both resolved in batch 8 — see below.)
+
+## Batch 8 done — one visual-line layout: wrap-aware scrolling, real multiline caret/selection (probe 30/30)
+
+The two remaining pre-existing gaps, closed with ONE layout authority
+(`TextBoxDrawingHelper.GetVisualLines`, cached per text/width/font/wrap):
+
+- Raw lines split by scanning newline offsets (indices preserved through 
+); WordWrap
+  segments each raw line greedily at word boundaries (binary-search char fitting for long
+  words). Every consumer draws from this layout: per-line text painting, the caret, the
+  selection, the gutter, and the scroll metrics — what is measured is exactly what paints.
+- **Wrap-aware scroll range**: the coordinator pushes visual-line count × line height to the
+  scrolling helper before each paint (`SetContentMetrics`). A single 60-word paragraph now
+  wheels through its wrapped rows (offsetY=156 where the raw count gave 0) and Ctrl+End
+  follows the caret through them (`ScrollLineIntoView` + cached caret→visual-line lookup, raw
+  fallback before first paint).
+- **Multiline caret**: real (line, column) placement — the old math measured the whole prefix
+  as one line, so the caret drifted right instead of down. Verified: two Down presses move the
+  painted caret onto "charlie".
+- **Multiline selection**: per-visual-line fills + selected ink, with a small tail marker when
+  the line break is inside the range. Verified by zoomed render: "al|pha" boundary exact,
+  middle line fully filled, line after the range untouched.
+- Gutter numbers only a raw line's FIRST segment (wrapped continuations are unnumbered) and
+  positions rows off the text font's line height (it previously used the gutter font's).
+
+Still open (recorded): per-visual-line click-to-caret mapping (mouse click positioning in
+wrapped text still uses the pre-existing hit logic); IME composition rendering with the new
+layout untested.

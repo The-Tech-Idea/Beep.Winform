@@ -608,6 +608,31 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             ClampY();
         }
 
+        /// <summary>
+        /// Layout-driven content metrics from the drawing helper's visual lines - with
+        /// WordWrap the raw line count under-measured the scroll range (a single long
+        /// paragraph wrapped to 20 rows scrolled as if it were one).
+        /// </summary>
+        public void SetContentMetrics(int visualLineCount, int lineHeight)
+        {
+            LineHeight = Math.Max(1, lineHeight);
+            ContentHeight = Math.Max(1, visualLineCount) * LineHeight;
+            ClampY();
+        }
+
+        /// <summary>Scroll a specific visual line into view (wrap-aware caret follow).</summary>
+        public void ScrollLineIntoView(int lineIndex)
+        {
+            int caretY = Math.Max(0, lineIndex) * LineHeight;
+            int before = ScrollOffsetY;
+            if (caretY < ScrollOffsetY)
+                ScrollOffsetY = caretY;
+            else if (caretY + LineHeight > ScrollOffsetY + ViewportHeight)
+                ScrollOffsetY = caretY + LineHeight - ViewportHeight;
+            ClampY();
+            if (ScrollOffsetY != before) InvalidateViewport();
+        }
+
         public void InvalidateViewport() => (_textBox as Control)?.Invalidate();
 
         public void HandleResize() => ClampY();
@@ -922,6 +947,15 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         /// </summary>
         public void DrawAll(Graphics graphics, Rectangle clientRect, Rectangle textRect)
         {
+            // Scroll metrics come from the SAME visual layout the text will draw from.
+            if (_textBox.Multiline)
+            {
+                var eff = Drawing.GetEffectiveTextRect(textRect);
+                Scrolling.SetContentMetrics(
+                    Drawing.GetVisualLineCount(graphics, eff),
+                    Drawing.GetLineHeightPx(graphics));
+            }
+
             // Use the enhanced drawing helper that handles image/text alignment like BeepButton
             Drawing.DrawAll(graphics, clientRect, textRect);
         }

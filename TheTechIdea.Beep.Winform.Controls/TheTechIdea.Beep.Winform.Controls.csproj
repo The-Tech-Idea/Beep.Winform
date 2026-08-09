@@ -4672,8 +4672,9 @@
   <ItemGroup>
     <Folder Include="BaseImage\Helpers\" />
     <Folder Include="Buttons\BeepAdvancedButton\Samples\" />
+    <Folder Include="Calendar\plans\" />
     <Folder Include="ComboBoxes\Helpers\" />
-    <Folder Include="ComboBoxes\.plans\" />
+    <Folder Include="ComboBoxes\plans\" />
     <Folder Include="ContextMenus\Helpers\" />
     <Folder Include="Dates\Internal\DaysPainters\" />
     <Folder Include="DialogsManagers\Helpers\" />

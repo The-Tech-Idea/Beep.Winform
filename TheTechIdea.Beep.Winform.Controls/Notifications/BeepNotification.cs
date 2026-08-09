@@ -82,8 +82,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             // AutoSize + MaximumSize lets the form grow to fit content; the cap
             // bounds it so unusually long messages don't blow up the screen.
-            AutoSize = true;
-            AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            // AutoSize is deliberately OFF: with Fill-docked content it reported the
+            // MinimumSize forever, so long messages were clipped. RecomputeSize measures
+            // the real text instead.
+            AutoSize = false;
             MinimumSize = DpiScalingHelper.ScaleSize(new Size(280, 60), this);
             MaximumSize = DpiScalingHelper.ScaleSize(new Size(420, 300), this);
 
@@ -112,28 +114,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             // ── Child controls + theme fonts
             // ── Child controls (layered via docking)
-            _bodyPanel = new BeepPanel { Dock = DockStyle.Fill };
-            _iconContainer = new BeepPanel { Dock = DockStyle.Left };
+            // Only the toast CARD carries a frame: every inner panel/label is frameless
+            // and IsChild (parent's colour), so the card stops reading as a stack of
+            // nested rounded boxes. IsFrameless is honoured by BOTH painter branches
+            // (ClassicBaseControlPainter passes it into BeepStyling.PaintControl).
+            _bodyPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+            _iconContainer = new BeepPanel { Dock = DockStyle.Left, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
             _iconPicture = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.Transparent };
             _iconPicture.Paint += IconPicture_Paint;
             _iconContainer.Controls.Add(_iconPicture);
 
-            _actionsPanel = new BeepPanel { Dock = DockStyle.Bottom, Height = 0, Visible = false };
+            _actionsPanel = new BeepPanel { Dock = DockStyle.Bottom, Height = 0, Visible = false, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
             _actionsLayout = new FlowLayoutPanel { Dock = DockStyle.Top, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = Color.Transparent };
             _actionsPanel.Controls.Add(_actionsLayout);
 
-            _textPanel = new BeepPanel { Dock = DockStyle.Fill };
+            _textPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
 
-            _titleLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = true, AutoEllipsis = true, TabIndex = 1 };
-            _messageLabel = new BeepLabel { Dock = DockStyle.Fill, AutoEllipsis = true, TabIndex = 2 };
+            // Both labels dock TOP with explicit measured heights (RecomputeSize).
+            // The message used to be Dock=Fill: inside an AutoSize form that contributes
+            // no preferred height, so the form stayed at MinimumSize and the title's
+            // AutoSize height ate the whole text panel - the message was laid out BELOW
+            // the panel and never drawn at all.
+            _titleLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, TabIndex = 1,
+                                          TextAlign = ContentAlignment.MiddleLeft, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+            _messageLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = false, TabIndex = 2,
+                                            Multiline = true, WordWrap = true,
+                                            TextAlign = ContentAlignment.TopLeft, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
 
             _textPanel.Controls.Add(_messageLabel);
             _textPanel.Controls.Add(_titleLabel);
 
-            _closeButton = new BeepButton { Dock = DockStyle.Right, Text = "\u2715", TabIndex = 0, TabStop = true };
+            _closeButton = new BeepButton { Dock = DockStyle.Right, Text = "\u2715", TabIndex = 0, TabStop = true,
+                                            IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
             _closeButton.Click += (s, e) => Dismiss();
 
-            _progressBar = new BeepProgressBar { Dock = DockStyle.Bottom, Visible = false };
+            _progressBar = new BeepProgressBar { Dock = DockStyle.Bottom, Visible = false, IsFrameless = true, ShowAllBorders = false };
 
             // Z-order for docking (last-added = fills leftover space)
             _bodyPanel.Controls.Add(_progressBar);
@@ -435,38 +450,76 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _actionsPanel.PerformLayout();
         }
 
+        /// <summary>
+        /// Sizes the card from its CONTENT: measured title + wrapped message inside the
+        /// available text width, plus icon/close/actions/progress. WinForms AutoSize was
+        /// useless here (Fill-docked labels report no preferred height), which is why the
+        /// toast sat at MinimumSize with the message clipped away entirely.
+        /// </summary>
         private void RecomputeSize()
         {
-            // The form has AutoSize=true / AutoSizeMode=GrowAndShrink, but that
-            // pair only resizes the form *after* one of its dimensions has been
-            // changed (it intercepts ClientSize changes). We need to actively
-            // ask WinForms for the preferred size at the current content
-            // configuration and apply it inside the [Minimum, Maximum] band.
-            SuspendLayout();
-            try
+            if (_bodyPanel == null || _textPanel == null) return;
+
+            int minW = MinimumSize.Width  > 0 ? MinimumSize.Width  : 280;
+            int minH = MinimumSize.Height > 0 ? MinimumSize.Height : 60;
+            int maxW = MaximumSize.Width  > 0 ? MaximumSize.Width  : 420;
+            int maxH = MaximumSize.Height > 0 ? MaximumSize.Height : 300;
+
+            // Horizontal budget the text actually gets: card minus body padding,
+            // icon column and close button.
+            int chrome = _bodyPanel.Padding.Horizontal
+                       + (_iconContainer != null && _iconContainer.Visible ? _iconContainer.Width : 0)
+                       + (_closeButton != null && _closeButton.Visible ? _closeButton.Width : 0)
+                       + _textPanel.Padding.Horizontal;
+
+            string title = _titleLabel?.Text ?? string.Empty;
+            string message = _messageLabel?.Text ?? string.Empty;
+
+            int textW = Math.Max(80, maxW - chrome);
+
+            Size titleSize = Size.Empty;
+            Size messageSize = Size.Empty;
+            using (var g = CreateGraphics())
             {
-                PerformLayout();
-                var size = GetPreferredSize(MaximumSize);
-                if (size.IsEmpty) return;
-
-                int minW = MinimumSize.Width  > 0 ? MinimumSize.Width  : 0;
-                int minH = MinimumSize.Height > 0 ? MinimumSize.Height : 0;
-                int maxW = MaximumSize.Width  > 0 ? MaximumSize.Width  : int.MaxValue;
-                int maxH = MaximumSize.Height > 0 ? MaximumSize.Height : int.MaxValue;
-
-                int newW = Math.Min(Math.Max(size.Width,  minW), maxW);
-                int newH = Math.Min(Math.Max(size.Height, minH), maxH);
-
-                // Setting Width + Height together triggers AutoSize to
-                // re-evaluate against the new minimum.
-                if (Width != newW) Width  = newW;
-                if (Height != newH) Height = newH;
+                if (title.Length > 0 && _titleLabel?.Font != null)
+                {
+                    titleSize = TextRenderer.MeasureText(g, title, _titleLabel.Font,
+                        new Size(textW, int.MaxValue), TextFormatFlags.SingleLine);
+                }
+                if (message.Length > 0 && _messageLabel?.Font != null)
+                {
+                    messageSize = TextRenderer.MeasureText(g, message, _messageLabel.Font,
+                        new Size(textW, int.MaxValue), TextFormatFlags.WordBreak);
+                }
             }
-            finally
+
+            // Give each label the height its own text needs.
+            if (_titleLabel != null)
+                _titleLabel.Height = title.Length > 0 ? titleSize.Height + DpiScalingHelper.ScaleValue(2, this) : 0;
+            if (_messageLabel != null)
+                _messageLabel.Height = message.Length > 0
+                    ? messageSize.Height + _messageLabel.Padding.Vertical + DpiScalingHelper.ScaleValue(2, this)
+                    : 0;
+
+            int contentH = (_titleLabel?.Height ?? 0) + (_messageLabel?.Height ?? 0) + _textPanel.Padding.Vertical;
+            int iconH = _iconContainer != null && _iconContainer.Visible ? _iconContainer.Width : 0;
+
+            int newH = _bodyPanel.Padding.Vertical
+                     + Math.Max(contentH, iconH)
+                     + (_actionsPanel != null && _actionsPanel.Visible ? _actionsPanel.Height : 0)
+                     + (_progressBar != null && _progressBar.Visible ? _progressBar.Height : 0);
+
+            int widest = Math.Max(titleSize.Width, messageSize.Width);
+            int newW = widest > 0 ? widest + chrome : minW;
+
+            newW = Math.Min(Math.Max(newW, minW), maxW);
+            newH = Math.Min(Math.Max(newH, minH), maxH);
+
+            if (Width != newW || Height != newH)
             {
-                ResumeLayout(false);
+                Size = new Size(newW, newH);
             }
-            Invalidate();
+            PerformLayout();
         }
 
         /// <summary>True when the form is hosted in a designer (Visual Studio).</summary>

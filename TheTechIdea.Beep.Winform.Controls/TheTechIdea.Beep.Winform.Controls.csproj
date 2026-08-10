@@ -63,6 +63,13 @@
 
   <!-- Embed all font files from Fonts folder -->
   <ItemGroup>
+	  <!-- Curated static faces (Regular+Bold) for the families the shipped themes actually
+	       request, ~2.8MB. Deliberately NOT a reference to TheTechIdea.Beep.Fonts: that project
+	       is 163MB (all weights + variable + otf/woff2 + a 24MB colour-emoji font). Families not
+	       embedded here fall to FontSubstitutionMap, which preserves their character and reports
+	       the substitution once. OFL licences travel with the fonts, as OFL 1.1 requires. -->
+	  <EmbeddedResource Include="Fonts\**\*.ttf" />
+	  <EmbeddedResource Include="Fonts\**\OFL.txt" />
 
 	  <EmbeddedResource Include="GFX\Icons\Datasources\*.*" />
 	  <EmbeddedResource Include="GFX\Icons\tablerfilled\*.*" />

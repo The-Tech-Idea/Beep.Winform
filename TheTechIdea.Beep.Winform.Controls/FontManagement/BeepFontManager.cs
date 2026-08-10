@@ -453,8 +453,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         {
             if (string.IsNullOrWhiteSpace(fontName)) return false;
             var resolved = FontListHelper.ResolveFamily(fontName);
-            return resolved != null &&
-                   string.Equals(resolved.Name, fontName.Trim(), StringComparison.OrdinalIgnoreCase);
+            return resolved != null && FontListHelper.IsSameFamily(fontName, resolved.Name);
         }
 
         /// <summary>

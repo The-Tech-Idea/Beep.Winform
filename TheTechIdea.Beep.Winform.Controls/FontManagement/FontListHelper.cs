@@ -1003,6 +1003,30 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 .ToLowerInvariant();
         }
 
+        /// <summary>
+        /// True when <paramref name="resolvedFamilyName"/> IS the family that was requested,
+        /// tolerating optical-size naming: static faces of families like Inter register as
+        /// "Inter 18pt", so an exact string comparison would report the real font as a substitute.
+        /// </summary>
+        public static bool IsSameFamily(string requestedFamily, string resolvedFamilyName)
+        {
+            if (string.IsNullOrWhiteSpace(requestedFamily) || string.IsNullOrWhiteSpace(resolvedFamilyName))
+                return false;
+
+            string target = NormalizeFontName(requestedFamily);
+            string resolved = NormalizeFontName(resolvedFamilyName);
+            if (resolved == target) return true;
+
+            var opticalSuffix = new System.Text.RegularExpressions.Regex(@"\d+pt$");
+            while (true)
+            {
+                var m = opticalSuffix.Match(resolved);
+                if (!m.Success) break;
+                resolved = resolved.Substring(0, m.Index);
+            }
+            return resolved == target;
+        }
+
         private static FontFamily FindPrivateFamilyByName(string name)
         {
             var target = NormalizeFontName(name);
@@ -1011,7 +1035,37 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 if (NormalizeFontName(fam.Name) == target)
                     return fam;
             }
-            return null;
+
+            // Optical-size fallback. Families like Inter ship their static faces ONLY as
+            // optical-size variants: Inter_18pt-Regular.ttf registers as "Inter 18pt" (and here,
+            // via the file-name suffix, actually as "Inter 18pt 18pt"). A theme asking for "Inter"
+            // then matches nothing and gets substituted even though the font IS embedded and
+            // loaded. Strip every trailing "<n>pt" group and compare; prefer the smallest optical
+            // size, which is the one designed for UI/body text.
+            var opticalSuffix = new System.Text.RegularExpressions.Regex(@"(\d+)pt$");
+            FontFamily best = null;
+            int bestSize = int.MaxValue;
+
+            foreach (var fam in privateFontCollection.Families)
+            {
+                string stripped = NormalizeFontName(fam.Name);
+                int firstSize = int.MaxValue;
+
+                while (true)
+                {
+                    var m = opticalSuffix.Match(stripped);
+                    if (!m.Success) break;
+                    if (int.TryParse(m.Groups[1].Value, out int pt)) firstSize = Math.Min(firstSize, pt);
+                    stripped = stripped.Substring(0, m.Index);
+                }
+
+                if (stripped == target && firstSize < bestSize)
+                {
+                    bestSize = firstSize;
+                    best = fam;
+                }
+            }
+            return best;
         }
 
         /// <summary>
@@ -1085,6 +1139,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
         }
 
+        /// <summary>
+        /// Registers a font with GDI (not GDI+) so TextRenderer/GDI text APIs can use it.
+        /// The memory block must stay alive for the lifetime of the process, exactly as for
+        /// PrivateFontCollection.AddMemoryFont - privateFontMemoryHandles owns it.
+        /// </summary>
+        [System.Runtime.InteropServices.DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
+        private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, out uint pcFonts);
+
         private static FontFamily AddMemoryFontFromStream(Stream fontStream, out int privateFontIndex)
         {
             privateFontIndex = -1;
@@ -1105,9 +1167,26 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
                 lock (_initLock)
                 {
+                    // GDI+ side: makes the family visible to Graphics.DrawString and FontFamily.
                     privateFontCollection.AddMemoryFont(dataPointer, fontData.Length);
 
+                    // GDI side: TextRenderer.DrawText/MeasureText go through GDI, which CANNOT see
+                    // a PrivateFontCollection. Without this the font loads, reports the right family
+                    // name, and then silently renders as a substituted proportional face in the ~569
+                    // TextRenderer call sites in this library - which is how an embedded monospace
+                    // font ends up measuring 'i' and 'M' at different widths.
+                    try
+                    {
+                        AddFontMemResourceEx(dataPointer, (uint)fontData.Length, IntPtr.Zero, out _);
+                    }
+                    catch (Exception ex)
+                    {
+                        BeepLog.FallbackOnce("font.gdiRegister", typeof(FontListHelper),
+                            "register embedded font with GDI; TextRenderer will substitute for it", ex);
+                    }
+
                     // Keep this pointer alive until the private font collection is reset/disposed.
+                    // Both registrations reference this same block, so it must outlive them.
                     privateFontMemoryHandles.Add(dataPointer);
                     dataPointer = IntPtr.Zero;
 

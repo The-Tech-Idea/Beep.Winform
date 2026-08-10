@@ -108,7 +108,41 @@ the same instance sees the damage — which is exactly why the crash appeared fa
   callers must re-fetch on `ThemeChanged`/`DpiChanged` rather than hold across a reload.
 - No visual/PNG pass over the ~8 themes whose typography rests on absent families.
 
-## Embedding (Phase 4, pending font files)
+## Embedding — DONE (curated, 2.8 MB)
+
+`TheTechIdea.Beep.Fonts` (Beep.Shared) already holds 575 font files, but it is **163 MB**
+(Cascadia 43, Noto Color Emoji 24, Inter 20, Open Sans 18 — all weights + variable + otf/woff2),
+so referencing it was rejected. `Controls\Fonts\` now carries a curated **2.8 MB** set: Regular +
+Bold static TTFs for the six families the themes request that the library actually has usable
+statics for — **Roboto, Inter, Montserrat, JetBrains Mono, Fira Code, Source Sans 3** — with their
+OFL licences alongside, embedded by `<EmbeddedResource Include="Fonts\**\*.ttf" />`.
+
+Deliberately excluded:
+- **`consolas.ttf` and `Whitney/`** — Consolas is Microsoft-proprietary (and already on every
+  Windows box) and Whitney is a commercial Hoefler&Co face. Neither is redistributable.
+- **Nunito** (ships variable-only: GDI+ renders just the default instance, so Bold would not work)
+  and **Rajdhani** (ships `.otf` only: `PrivateFontCollection` is unreliable with CFF outlines).
+- Noto Sans, SF Pro, Ubuntu, Source Code Pro, Sora, Poppins, Cantarell, Nunito Sans, Roboto Mono —
+  not in the library at all. All of these keep using `FontSubstitutionMap`, correctly and logged.
+
+Two defects had to be fixed before embedding worked at all — the probe caught both:
+
+1. **Embedded fonts were invisible to `TextRenderer`.** Registration used only
+   `PrivateFontCollection.AddMemoryFont` (GDI+). `TextRenderer.DrawText/MeasureText` go through
+   **GDI**, which cannot see a private collection — and this library calls TextRenderer in **569
+   places**. The embedded JetBrains Mono loaded, reported the right family name, and then measured
+   `i`=28 / `M`=73: silently substituted by GDI. Fixed by also registering the same memory block
+   with `AddFontMemResourceEx` (gdi32). Now `i`=60 / `M`=60 — the real font.
+2. **Optical-size families never matched.** Inter ships statics only as `Inter_18pt-*`, which
+   register as `"Inter 18pt 18pt"`, so a theme asking for `"Inter"` matched nothing and was
+   substituted despite being embedded. `FindPrivateFamilyByName` now strips trailing `<n>pt`
+   groups and prefers the smallest optical size (the UI/body face), and the new public
+   `FontListHelper.IsSameFamily` gives `IsFontAvailable` and the probe one tolerant comparison.
+
+Verified by FontProbe C11 (all six resolve to themselves) with blindness guard G5 (a
+non-embedded family — Poppins — must still report as substituted, so C11 cannot pass vacuously).
+
+## Superseded: original embedding plan
 
 Add `Fonts\<Family>\<Family>-{Regular,Bold}.ttf` plus `Fonts\LICENSES\<Family>-OFL.txt`, and the
 glob under the existing csproj comment at line 64:

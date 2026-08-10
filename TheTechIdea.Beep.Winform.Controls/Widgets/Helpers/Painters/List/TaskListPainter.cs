@@ -58,9 +58,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         protected override void RebuildFonts()
         {
-            _titleFont?.Dispose();
-            _taskFont?.Dispose();
-            _taskDoneFont?.Dispose();
             var titleStyle    = Theme?.TaskCardTitleFont    ?? new TypographyStyle { FontSize = 11f, FontWeight = FontWeight.Bold };
             var taskStyle     = Theme?.LabelSmall           ?? new TypographyStyle { FontSize = 9f };
             var taskDoneStyle = Theme?.LabelSmall           ?? new TypographyStyle { FontSize = 9f };

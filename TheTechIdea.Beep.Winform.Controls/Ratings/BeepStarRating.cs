@@ -1654,7 +1654,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _animationTimer?.Dispose();
                 _labelFont?.Dispose();
-                _textFont?.Dispose();
                 _painter?.Dispose();
             }
 

@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -482,39 +483,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             if (style.IsStrikeout)
                 fontStyle |= FontStyle.Strikeout;
 
-            // Cascade of fallback families: requested → Arial → Segoe UI → system default.
-            // Each candidate is tried both via BeepFontManager (cached) and a direct GDI+ new Font()
-            // so the method never throws even when IsFontAvailable gives a false positive.
-            string requestedFamily = string.IsNullOrWhiteSpace(style.FontFamily) ? string.Empty : style.FontFamily.Trim();
-            string[] candidates = { requestedFamily, "Arial", "Segoe UI" };
+            // Family resolution - including substitution for families that are not installed - is
+            // FontListHelper's job and ONLY FontListHelper's. The cascade that used to live here
+            // (requested → Arial → Segoe UI) sent every monospace theme family to a proportional
+            // Arial, destroying column alignment, and its IsFontAvailable gate was a false positive
+            // for any family merely DECLARED in BeepFontPaths, so it accepted families that were
+            // never shipped and let the request collapse to the ultimate fallback.
+            string requestedFamily = string.IsNullOrWhiteSpace(style.FontFamily)
+                ? BeepFontManager.DefaultFontName
+                : style.FontFamily.Trim();
 
-            foreach (string candidate in candidates)
-            {
-                if (string.IsNullOrWhiteSpace(candidate))
-                    continue;
-
-                if (!BeepFontManager.IsFontAvailable(candidate))
-                    continue;
-
-                try
-                {
-                    Font? f = BeepFontManager.GetFont(candidate, fontSize, fontStyle);
-                    if (f != null)
-                        return f;
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[BeepThemesManager.ToFont] '{candidate}' failed: {ex.Message}");
-                }
-            }
-
-            // Last-resort: let the system pick a default font — this never throws.
             try
             {
-                return new Font(SystemFonts.DefaultFont.FontFamily, fontSize, fontStyle, GraphicsUnit.Point);
+                // Cache-owned: callers must not dispose. Never null.
+                return BeepFontManager.GetFont(requestedFamily, fontSize, fontStyle);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce($"theme.tofont:{requestedFamily}", typeof(BeepThemesManager),
+                    $"build theme font '{requestedFamily}' {fontSize:0.##}pt {fontStyle}", ex);
                 return SystemFonts.DefaultFont;
             }
         }
@@ -532,12 +519,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             float fontSize = style.FontSize > 0 ? style.FontSize * dpiScale : 9.0f;
             fontSize = Math.Max(fontSize, 6.0f);
 
-            string fontFamily = style.FontFamily;
-            if (string.IsNullOrWhiteSpace(fontFamily))
-                fontFamily = "Segoe UI";
-
-            if (!BeepFontManager.IsFontAvailable(fontFamily))
-                fontFamily = "Segoe UI";
+            // Do NOT pre-empt a missing family to "Segoe UI" here: that would bypass the
+            // character-preserving substitution in FontListHelper and send a monospace theme
+            // family to a proportional face.
+            string fontFamily = string.IsNullOrWhiteSpace(style.FontFamily)
+                ? BeepFontManager.DefaultFontName
+                : style.FontFamily;
 
             FontStyle fontStyle = style.FontStyle;
             if (style.FontWeight >= FontWeight.Bold)
@@ -578,10 +565,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             if (fontSize <= 0) fontSize = 9.0f;
 
             if (string.IsNullOrWhiteSpace(fontFamily))
-                fontFamily = "Segoe UI";
+                fontFamily = BeepFontManager.DefaultFontName;
 
-            if (!BeepFontManager.IsFontAvailable(fontFamily))
-                fontFamily = "Segoe UI";
+            // fontWeight was accepted and silently discarded, so a Bold request rendered regular.
+            if (fontWeight >= FontWeight.Bold)
+                fontStyle |= FontStyle.Bold;
 
             // DPI multiplication intentionally removed (see ToFont(TypographyStyle, bool) notes).
             // WinForms handles point font scaling automatically via ScaleControl.

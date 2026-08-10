@@ -200,20 +200,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_textFont != value)
                 {
-                    // Don't dispose system/cached fonts
-                    if (_textFont != null && !IsSystemOrCachedFont(_textFont))
-                    {
-                        _textFont?.Dispose();
-                    }
+                    // The outgoing font is never ours: the default comes from the font cache and
+                    // an assigned one belongs to the caller. Drop the reference only.
                     _textFont = value ?? BeepFontManager.GetFont("Segoe UI", 10f);
                     UseThemeFont = false;
                     _helper?.InvalidateAllCaches();
                     InvalidateFontCache(); // From BaseControl - invalidates font height cache
                     
                     // Invalidate derived fonts
-                    _characterCountFont?.Dispose();
                     _characterCountFont = null;
-                    _lineNumberFont?.Dispose();
                     _lineNumberFont = null;
                     
                     // Recompute cached metrics (no Graphics)
@@ -1007,11 +1002,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_lineNumberFont != value)
                 {
-                    // Don't dispose system/cached fonts
-                    if (_lineNumberFont != null && !IsSystemOrCachedFont(_lineNumberFont))
-                    {
-                        _lineNumberFont?.Dispose();
-                    }
+                    // Cache-owned or caller-owned: not ours to dispose.
                     _lineNumberFont = value;
                     if (_showLineNumbers)
                         Invalidate();

@@ -197,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         protected static Font GetDerivedTextFont(Font? baseFont, float sizeScale = 1f, FontStyle? styleOverride = null, float sizeDelta = 0f)
         {
             // Use BeepFontManager.DefaultFont as the safe fallback
-            using var defaultFont = BeepFontManager.ToFont(BeepThemesManager.CurrentTheme.ButtonFont);
+            var defaultFont = BeepFontManager.ToFont(BeepThemesManager.CurrentTheme.ButtonFont);
 
             // Safely extract properties from baseFont, fallback to defaults
             string fontFamily;

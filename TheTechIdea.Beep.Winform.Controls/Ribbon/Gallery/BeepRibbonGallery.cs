@@ -539,7 +539,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Gallery
 
         private void ShowLargePreviewDialog()
         {
-            using var dialog = new Form
+            var dialog = new Form
             {
                 Text = "Gallery Preview",
                 StartPosition = FormStartPosition.CenterParent,

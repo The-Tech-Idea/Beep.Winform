@@ -50,11 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _subtextColor = Color.FromArgb(128, ColorUtils.MapSystemColor(SystemColors.GrayText));
             }
 
-            _cardTitleFont?.Dispose();
             _cardTitleFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 10f, FontStyle.Bold);
-            _cardDescFont?.Dispose();
             _cardDescFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 8.5f, FontStyle.Regular);
-            _cardNumberFont?.Dispose();
             _cardNumberFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 12f, FontStyle.Bold);
         }
 
@@ -167,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             {
                 int badgeTop = circleY + DpiScalingHelper.ScaleValue(36, _host);
                 int badgeH = DpiScalingHelper.ScaleValue(14, _host);
-                using var optFont = WizardHelpers.GetFont(_theme, _theme?.CaptionStyle, 7f, FontStyle.Italic);
+                var optFont = WizardHelpers.GetFont(_theme, _theme?.CaptionStyle, 7f, FontStyle.Italic);
                 TextUtils.DrawText(g, "Optional", optFont,
                     new Rectangle(textX, badgeTop, textWidth, badgeH), Color.FromArgb(60, _pendingColor));
             }

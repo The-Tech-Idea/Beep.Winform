@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             EnsureCustomizationDefaultsCaptured();
             var initialState = BuildCustomizationDialogState();
-            using var dialog = new RibbonCustomizationDialog(initialState)
+            var dialog = new RibbonCustomizationDialog(initialState)
             {
                 Font = BeepThemesManager.ToFont(_theme.CommandTypography)
             };

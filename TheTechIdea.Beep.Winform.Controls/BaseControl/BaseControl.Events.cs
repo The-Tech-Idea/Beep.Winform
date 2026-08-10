@@ -626,7 +626,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (hasLabel && !parentSupportsExternal)
             {
                 float labelSize = Math.Max(8f, TextFont.Size - 1f);
-                using var lf = BeepFontManager.GetFont(TextFont.FontFamily.Name, labelSize, FontStyle.Regular);
+                var lf = BeepFontManager.GetFont(TextFont.FontFamily.Name, labelSize, FontStyle.Regular);
                 int labelHeight = TextRenderer.MeasureText(g, "Ag", lf,
                     new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
 
@@ -650,7 +650,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 string supportingText = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
                 Color supportingColor = !string.IsNullOrEmpty(ErrorText) ? ErrorColor : ForeColor;
                 float supportingSize = Math.Max(7f, TextFont.Size - 2f);
-                using var sf = BeepFontManager.GetFont(TextFont.FontFamily.Name, supportingSize, FontStyle.Regular);
+                var sf = BeepFontManager.GetFont(TextFont.FontFamily.Name, supportingSize, FontStyle.Regular);
                 int supportingHeight = TextRenderer.MeasureText(g, "Ag", sf,
                     new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                 var supportingRect = new Rectangle(

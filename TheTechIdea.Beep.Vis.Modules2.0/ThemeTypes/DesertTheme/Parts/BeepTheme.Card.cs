@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public TypographyStyle CardSubTitleStyle { get; set; } = new TypographyStyle
         {
-            FontFamily = "Segoe UI Italic",
+            FontFamily = "Segoe UI",
             FontSize = 12,
             FontWeight = FontWeight.Medium,
             FontStyle = FontStyle.Italic,

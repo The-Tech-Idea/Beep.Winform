@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public TypographyStyle Blockquote { get; set; } = new TypographyStyle
         {
-            FontFamily = "Segoe UI Italic",
+            FontFamily = "Segoe UI",
             FontSize = 10f,
             FontWeight = FontWeight.Light,
             FontStyle = System.Drawing.FontStyle.Italic,
@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public TypographyStyle EmphasisText { get; set; } = new TypographyStyle
         {
-            FontFamily = "Segoe UI Italic",
+            FontFamily = "Segoe UI",
             FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Italic,

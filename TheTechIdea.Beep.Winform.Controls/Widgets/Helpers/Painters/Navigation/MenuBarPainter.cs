@@ -21,7 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         protected override void RebuildFonts()
         {
-            _menuFont?.Dispose();
             _menuFont = BeepThemesManager.ToFont(Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f }, true);
         }
 
@@ -126,7 +125,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public void Dispose()
         {
-            _menuFont?.Dispose();
         }
     }
 }

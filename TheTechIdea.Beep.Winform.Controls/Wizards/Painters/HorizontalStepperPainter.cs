@@ -108,9 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _subtextColor = Color.FromArgb(128, ColorUtils.MapSystemColor(SystemColors.GrayText));
             }
 
-            _titleFont?.Dispose();
             _titleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 10f, FontStyle.Bold);
-            _labelFont?.Dispose();
             _labelFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 9f, FontStyle.Regular);
         }
 

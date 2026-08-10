@@ -49,8 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private int _elementPadding = 12;
         private int _tabSpacing = 15;
         private int _indicatorThickness = 3;
-        private Font _tabFont = new Font("Segoe UI", 12);
-        private Font _buttonFont = new Font("Segoe UI", 11);
+        // Cache-owned (BeepFontManager): shared with every other control that asks for the same
+        // family/size, so these are never disposed - see the theme apply below.
+        private Font _tabFont = BeepFontManager.GetFont("Segoe UI", 12f);
+        private Font _buttonFont = BeepFontManager.GetFont("Segoe UI", 11f);
 
         // Interaction state (index-based)
         private int _hoveredTabIndex = -1;
@@ -1222,12 +1224,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             {
                 if (_currentTheme.LabelFont != null)
                 {
-                    _tabFont?.Dispose();
                     _tabFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
                 }
                 if (_currentTheme.ButtonFont != null)
                 {
-                    _buttonFont?.Dispose();
                     _buttonFont = FontListHelper.CreateFontFromTypography(_currentTheme.ButtonFont);
                 }
             }
@@ -1243,8 +1243,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             {
                 _tabs.ListChanged -= Tabs_ListChanged;
                 _buttons.ListChanged -= Buttons_ListChanged;
-                _tabFont?.Dispose();
-                _buttonFont?.Dispose();
                 if (_underlineTimer != null)
                 {
                     _underlineTimer.Stop();

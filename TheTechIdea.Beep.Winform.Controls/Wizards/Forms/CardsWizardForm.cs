@@ -126,11 +126,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _cardBgColor = ColorUtils.ShiftLuminance(ColorUtils.MapSystemColor(SystemColors.Window), -0.03f);
             }
 
-            _cardTitleFont?.Dispose();
             _cardTitleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 10f, FontStyle.Bold);
-            _cardDescFont?.Dispose();
             _cardDescFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 8.5f, FontStyle.Regular);
-            _cardNumberFont?.Dispose();
             _cardNumberFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 12f, FontStyle.Bold);
         }
 
@@ -445,7 +442,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
             if (step.IsOptional && !isCompleted)
             {
-                using var optFont = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.CaptionStyle, 7f, FontStyle.Italic);
+                var optFont = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.CaptionStyle, 7f, FontStyle.Italic);
                 TextUtils.DrawText(g, "Optional", optFont,
                     new Rectangle(textX, badgeTop, textWidth, badgeHeight), Color.FromArgb(60, _pendingColor));
             }
@@ -860,9 +857,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             }
 
             // Dispose card fonts
-            _cardTitleFont?.Dispose();
-            _cardDescFont?.Dispose();
-            _cardNumberFont?.Dispose();
 
             _cachedPages.Clear();
 

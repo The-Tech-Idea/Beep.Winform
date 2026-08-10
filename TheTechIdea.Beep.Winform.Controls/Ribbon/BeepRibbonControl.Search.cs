@@ -486,7 +486,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ShowSearchHistoryManager()
         {
-            using var dialog = new Form
+            var dialog = new Form
             {
                 Text = "Search History",
                 StartPosition = FormStartPosition.CenterParent,

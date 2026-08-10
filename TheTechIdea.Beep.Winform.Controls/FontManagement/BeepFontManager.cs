@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -154,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"BeepFontManager.Initialize failed: {ex.Message}");
+                BeepLog.Failure(typeof(BeepFontManager), "initialize font manager", ex);
                 // Consumers still fall back to generic fonts through FontListHelper.
             }
             finally
@@ -187,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"BeepFontManager registry update failed: {ex.Message}");
+                BeepLog.Failure(typeof(BeepFontManager), "apply font registry update", ex);
             }
         }
 
@@ -349,12 +350,22 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (control == null || !control.IsHandleCreated)
                 return GetFont(fontName, sizeInPoints, style);
 
-            string resolvedName = string.IsNullOrWhiteSpace(fontName) ? _appFontName : fontName.Trim();
+            string requested = string.IsNullOrWhiteSpace(fontName) ? _appFontName : fontName.Trim();
+
+            // Resolve the family through the ONE authority before building a pixel font.
+            // new Font(string, ...) does not throw for a missing family - it silently substitutes
+            // Microsoft Sans Serif and still reports the requested name - so this path used to cache
+            // a wrong font under the right key with nothing ever reporting it.
+            FontFamily family = FontListHelper.ResolveFamily(requested); // cache-owned; do not dispose
 
             // pixels = points × (DPI ÷ 72)
             float pixelSize = Math.Max(sizeInPoints * (control.DeviceDpi / 72.0f), 6.0f);
-            string key = BuildPixelFontKey(resolvedName, pixelSize, style);
 
+            // Keyed by the RESOLVED name: two themes whose families both substitute to Segoe UI now
+            // share one cached pixel font instead of two identical ones under lying keys.
+            string key = BuildPixelFontKey(family.Name, pixelSize, style);
+
+            Exception pixelFailure;
             lock (_pixelFontCacheLock)
             {
                 if (_pixelFontCache.TryGetValue(key, out var cached))
@@ -372,17 +383,20 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
                 try
                 {
-                    var font = new Font(resolvedName, pixelSize, style, GraphicsUnit.Pixel);
+                    var font = new Font(family, pixelSize, style, GraphicsUnit.Pixel);
                     var _ = font.Height;
                     _pixelFontCache[key] = font;
                     return font;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Fallback to the shared point-based font cache.
-                    return GetFont(resolvedName, sizeInPoints, style);
+                    pixelFailure = ex; // reported outside the lock
                 }
             }
+
+            BeepLog.FallbackOnce($"font.painter:{family.Name}|{(int)style}", typeof(BeepFontManager),
+                $"create pixel font '{family.Name}' {pixelSize:0.##}px {style}", pixelFailure);
+            return GetFont(requested, sizeInPoints, style);
         }
 
         public static Font GetFontForElement(UIElementType elementType)
@@ -424,11 +438,23 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             ResetFonts();
         }
 
+        /// <summary>
+        /// True only when a request for <paramref name="fontName"/> is actually served by that
+        /// family - installed, or embedded and loaded.
+        /// </summary>
+        /// <remarks>
+        /// This used to OR in <c>EmbeddedFontFamilies</c>, which lists the families DECLARED in
+        /// BeepFontPaths whether or not a .ttf was ever embedded. On a machine without the font that
+        /// was a false positive: BeepThemesManager.ToFont accepted the family, never tried its
+        /// Arial/Segoe UI candidates, and the request fell through to the ultimate fallback - which
+        /// is why every heading and body collapsed to one size.
+        /// </remarks>
         public static bool IsFontAvailable(string fontName)
         {
             if (string.IsNullOrWhiteSpace(fontName)) return false;
-            return FontListHelper.GetFontIndex(fontName) != -1 ||
-                   EmbeddedFontFamilies.Contains(fontName, StringComparer.OrdinalIgnoreCase);
+            var resolved = FontListHelper.ResolveFamily(fontName);
+            return resolved != null &&
+                   string.Equals(resolved.Name, fontName.Trim(), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -730,14 +756,15 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             _monospaceFont = null;
         }
 
+        /// <summary>
+        /// Drops cached pixel fonts WITHOUT disposing them: painters hold these instances, and
+        /// disposing a shared font turns their next DrawText into an exception inside OnPaint,
+        /// which then repeats on every WM_PAINT. Font's finalizer releases dropped instances.
+        /// </summary>
         private static void ClearPixelFontCache()
         {
             lock (_pixelFontCacheLock)
             {
-                foreach (var font in _pixelFontCache.Values.Distinct())
-                {
-                    try { font?.Dispose(); } catch { }
-                }
                 _pixelFontCache.Clear();
             }
         }

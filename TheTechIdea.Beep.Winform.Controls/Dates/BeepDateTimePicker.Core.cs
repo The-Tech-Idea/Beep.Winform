@@ -345,7 +345,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         {
             if (disposing)
             {
-                _textFont?.Dispose();
             }
             base.Dispose(disposing);
         }

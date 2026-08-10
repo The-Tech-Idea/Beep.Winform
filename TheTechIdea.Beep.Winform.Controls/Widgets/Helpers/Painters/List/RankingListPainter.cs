@@ -36,7 +36,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         protected override void RebuildFonts()
         {
-            _titleFont?.Dispose(); _nameFont?.Dispose(); _rankFont?.Dispose(); _valueFont?.Dispose();
             _titleFont = BeepThemesManager.ToFont(Theme?.LabelMedium  ?? new TypographyStyle { FontSize = 11f, FontWeight = FontWeight.Bold }, true);
             _nameFont  = BeepThemesManager.ToFont(Theme?.LabelSmall   ?? new TypographyStyle { FontSize = 9f }, true);
             _rankFont  = BeepThemesManager.ToFont(Theme?.LabelSmall   ?? new TypographyStyle { FontSize = 10f, FontWeight = FontWeight.Bold }, true);

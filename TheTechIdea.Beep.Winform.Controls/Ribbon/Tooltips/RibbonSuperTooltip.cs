@@ -68,10 +68,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tooltips
             }
 
             using var g = e.AssociatedControl.CreateGraphics();
-            using var baseTitle = BeepThemesManager.ToFont(_theme.CommandTypography);
+            var baseTitle = BeepThemesManager.ToFont(_theme.CommandTypography);
             using var titleFont = new Font(baseTitle, FontStyle.Bold);
-            using var bodyFont = BeepThemesManager.ToFont(_theme.CommandTypography);
-            using var footFont = BeepThemesManager.ToFont(_theme.GroupTypography);
+            var bodyFont = BeepThemesManager.ToFont(_theme.CommandTypography);
+            var footFont = BeepThemesManager.ToFont(_theme.GroupTypography);
 
             bool hasPreview = !string.IsNullOrWhiteSpace(model.ThumbnailPath);
             int maxWidth = hasPreview ? RichMaxWidth : DefaultMaxWidth;
@@ -133,10 +133,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tooltips
                 return;
             }
 
-            using var baseTitle = BeepThemesManager.ToFont(_theme.CommandTypography);
+            var baseTitle = BeepThemesManager.ToFont(_theme.CommandTypography);
             using var titleFont = new Font(baseTitle, FontStyle.Bold);
-            using var bodyFont = BeepThemesManager.ToFont(_theme.CommandTypography);
-            using var footFont = BeepThemesManager.ToFont(_theme.GroupTypography);
+            var bodyFont = BeepThemesManager.ToFont(_theme.CommandTypography);
+            var footFont = BeepThemesManager.ToFont(_theme.GroupTypography);
 
             using var backBrush = new SolidBrush(_theme.TabActiveBack);
             using var borderPen = new Pen(_theme.GroupBorder);

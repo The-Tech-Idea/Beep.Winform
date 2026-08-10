@@ -129,7 +129,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             if (terminalFont != owner.Font)
             {
-                terminalFont.Dispose();
             }
         }
 

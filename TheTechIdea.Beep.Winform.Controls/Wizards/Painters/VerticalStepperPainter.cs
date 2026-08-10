@@ -86,11 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _sidePanelColor = ColorUtils.ShiftLuminance(ColorUtils.MapSystemColor(SystemColors.Window), -0.03f);
             }
 
-            _titleFont?.Dispose();
             _titleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 11f, FontStyle.Bold);
-            _descFont?.Dispose();
             _descFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 9f, FontStyle.Regular);
-            _numberFont?.Dispose();
             _numberFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 10f, FontStyle.Bold);
         }
 

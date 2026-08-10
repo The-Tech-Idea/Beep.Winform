@@ -16,29 +16,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
     public static class WizardHelpers
     {
         /// <summary>
-        /// Resolve a font from theme typography, with theme-consistent fallback.
-        /// Uses BeepThemesManager.ToFont exclusively — no direct BeepFontManager usage.
+        /// Resolves the font FAMILY from the supplied theme typography and returns that family at
+        /// the caller's requested <paramref name="size"/> and <paramref name="fontStyle"/>.
         /// </summary>
-        public static Font GetFont(IBeepTheme? theme, TypographyStyle? style, float fallbackSize, FontStyle fallbackStyle)
+        /// <remarks>
+        /// The typography contributes its FAMILY only. Its own size, weight, underline and strikeout
+        /// are deliberately ignored, because callers ask one typography slot (e.g. BodyStyle) for
+        /// several distinct sizes and weights — a card title at 10pt bold, its description at 8.5pt
+        /// regular, its number at 12pt bold.
+        /// <para>
+        /// The last two parameters used to be named <c>fallbackSize</c>/<c>fallbackStyle</c> and were
+        /// ignored entirely, so those three calls all returned THE SAME cached instance; callers then
+        /// disposed it once per field and kept drawing with it, which threw inside OnPaint.
+        /// </para>
+        /// <para>
+        /// The returned Font is owned by the font cache. Callers MUST NOT dispose it and MUST NOT
+        /// wrap it in <c>using</c>; re-call this on theme or DPI change instead of holding it forever.
+        /// </para>
+        /// </remarks>
+        public static Font GetFont(IBeepTheme? theme, TypographyStyle? style, float size, FontStyle fontStyle)
         {
-            if (style != null)
-            {
-                var font = BeepThemesManager.ToFont(style);
-                if (font != null) return font;
-            }
-
-            if (theme?.BodyStyle != null && fallbackStyle == FontStyle.Regular)
-            {
-                var font = BeepThemesManager.ToFont(theme.BodyStyle);
-                if (font != null) return font;
-            }
-
-            // Theme-consistent fallback using BodyMedium as the base typography
-            var fallbackTypo = theme?.BodyStyle
+            TypographyStyle? source = style
+                ?? theme?.BodyStyle
                 ?? theme?.BodyMedium
-                ?? BeepThemesManager.CurrentTheme?.BodyMedium;
-            return BeepThemesManager.ToFont(fallbackTypo)
-                ?? SystemFonts.DefaultFont;
+                ?? BeepThemesManager.CurrentTheme?.BodyStyle;
+
+            float resolvedSize = size > 0f
+                ? size
+                : (source != null && source.FontSize > 0f ? source.FontSize : 9f);
+
+            // Family from the theme; size and style from the caller. FontWeight/IsUnderlined/
+            // IsStrikeout are neutralised because ToFont ORs them into the FontStyle — leaving the
+            // source values in would re-add Bold to a caller that explicitly asked for Regular.
+            var request = new TypographyStyle
+            {
+                FontFamily = source?.FontFamily,
+                FontSize = resolvedSize,
+                FontStyle = fontStyle,
+                FontWeight = FontWeight.Normal,
+                IsUnderlined = false,
+                IsStrikeout = false
+            };
+
+            // ToFont never returns null (it terminates at SystemFonts.DefaultFont), so a null guard
+            // here would be a check that cannot fail.
+            return BeepThemesManager.ToFont(request);
         }
 
         /// <summary>

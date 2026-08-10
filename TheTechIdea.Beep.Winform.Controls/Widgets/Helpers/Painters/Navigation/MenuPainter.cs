@@ -29,7 +29,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         protected override void RebuildFonts()
         {
-            _itemFont?.Dispose();
             _itemFont = BeepThemesManager.ToFont(Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f }, true);
         }
 
@@ -213,7 +212,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 catch { }
             }
             if (_wheelHooked && Owner != null) { Owner.MouseWheel -= OnMouseWheel; _wheelHooked = false; }
-            _itemFont?.Dispose();
         }
     }
 }

@@ -34,9 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 
         protected override void RebuildFonts()
         {
-            _titleFont?.Dispose(); _bodyFont?.Dispose(); _smallFont?.Dispose();
-            _tinyFont?.Dispose(); _boldSmallFont?.Dispose();
-            _titleFont     = BeepThemesManager.ToFont(Theme?.LabelMedium  ?? new TypographyStyle { FontSize = 11f, FontWeight = FontWeight.Bold }, true);
+            _titleFont?.Dispose(); _bodyFont?.Dispose();            _tinyFont?.Dispose();            _titleFont     = BeepThemesManager.ToFont(Theme?.LabelMedium  ?? new TypographyStyle { FontSize = 11f, FontWeight = FontWeight.Bold }, true);
             _bodyFont      = BeepThemesManager.ToFont(Theme?.LabelSmall   ?? new TypographyStyle { FontSize = 9f }, true);
             _smallFont     = BeepThemesManager.ToFont(Theme?.CaptionStyle ?? new TypographyStyle { FontSize = 8f }, true);
             _tinyFont      = BeepThemesManager.ToFont(Theme?.CaptionStyle ?? new TypographyStyle { FontSize = 7f }, true);
@@ -535,11 +533,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 Owner.MouseWheel -= OnMouseWheel;
                 _wheelHooked = false;
             }
-            _titleFont?.Dispose();
-            _bodyFont?.Dispose();
-            _smallFont?.Dispose();
-            _tinyFont?.Dispose();
-            _boldSmallFont?.Dispose();
         }
     }
 

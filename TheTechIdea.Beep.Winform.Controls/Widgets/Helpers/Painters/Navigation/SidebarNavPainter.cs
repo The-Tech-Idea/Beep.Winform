@@ -60,8 +60,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         protected override void RebuildFonts()
         {
-            _itemFont?.Dispose();
-            _itemSelectedFont?.Dispose();
 
             var unselStyle = Theme?.NavigationUnSelectedFont
                           ?? Theme?.LabelSmall
@@ -257,8 +255,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 try { Owner.MouseWheel -= OnMouseWheel; } catch { }
                 _wheelHooked = false;
             }
-            _itemFont?.Dispose();
-            _itemSelectedFont?.Dispose();
         }
     }
 }

@@ -33,10 +33,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         protected override void RebuildFonts()
         {
-            _headerFont?.Dispose();
-            _cellFont?.Dispose();
-            _emptyFont?.Dispose();
-            _pagerFont?.Dispose();
             var hStyle = Theme?.GridHeaderFont   ?? new TypographyStyle { FontSize = 9f, FontWeight = FontWeight.Bold };
             var cStyle = Theme?.GridCellFont     ?? new TypographyStyle { FontSize = 8f };
             var eStyle = Theme?.LabelSmall       ?? new TypographyStyle { FontSize = 9f };

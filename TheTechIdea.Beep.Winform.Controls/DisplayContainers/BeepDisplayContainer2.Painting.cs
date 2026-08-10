@@ -484,7 +484,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         {
                             if (emptyStateFont != null && !ReferenceEquals(emptyStateFont, TextFont))
                             {
-                                emptyStateFont.Dispose();
                             }
                         }
                     }

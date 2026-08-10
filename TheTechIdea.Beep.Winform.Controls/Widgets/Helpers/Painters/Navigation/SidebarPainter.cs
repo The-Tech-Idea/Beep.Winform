@@ -56,8 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         protected override void RebuildFonts()
         {
-            _headFont?.Dispose();
-            _itemFont?.Dispose();
             var hStyle = Theme?.SideMenuSubTitleFont ?? Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f, FontWeight = FontWeight.Bold };
             var iStyle = Theme?.SideMenuTextFont    ?? Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f };
             _headFont = BeepThemesManager.ToFont(hStyle, applyDpiScaling: true);
@@ -330,8 +328,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 try { Owner.MouseWheel -= OnMouseWheel; _wheelHooked = false; }
                 catch { }
             }
-            _headFont?.Dispose();
-            _itemFont?.Dispose();
         }
     }
 }

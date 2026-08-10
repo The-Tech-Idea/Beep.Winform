@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -564,31 +565,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (!_useThemeFonts) return;
             try
             {
-                var theme = _currentTheme;
-                if (theme != null && theme.LabelFont != null && theme.LabelFont.FontFamily != null)
+                var theme = _currentTheme ?? BeepThemesManager.CurrentTheme;
+
+                // One source for these fields: the shared font cache. They used to mix a
+                // cache-owned initial value with `new Font(...)` replacements and then dispose,
+                // so the first theme apply destroyed a font other controls were still using.
+                // Cache-owned fonts are never disposed here.
+                _textFont = BeepThemesManager.ToFont(theme.LabelFont);
+                _shortcutFont = BeepThemesManager.ToFont(new TypographyStyle
                 {
-                    try {
-                        _textFont?.Dispose();
-                        _textFont = new Font(theme.LabelFont.FontFamily, theme.LabelFont.FontSize, theme.LabelFont.FontStyle);
-                    } catch {
-                        _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
-                    }
-                } else {
-                    _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
-                }
-                // Shortcut font: slightly smaller than text font
-                if (_textFont != null && _textFont.FontFamily != null)
-                {
-                    float size = Math.Max(6f, _textFont.Size - 1f);
-                    try {
-                        _shortcutFont?.Dispose();
-                        _shortcutFont = new Font(_textFont.FontFamily, size, _textFont.Style);
-                    } catch {
-                        _shortcutFont = new Font("Segoe UI", 8f, FontStyle.Regular);
-                    }
-                }
+                    FontFamily = theme.LabelFont?.FontFamily,
+                    FontSize = Math.Max(6f, (theme.LabelFont?.FontSize ?? 9f) - 1f),
+                    FontStyle = theme.LabelFont?.FontStyle ?? FontStyle.Regular
+                });
             }
-            catch { /* keep existing fonts on any error */ }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("ctxmenu.themefonts", this,
+                    "apply theme fonts to the context menu; keeping the existing fonts", ex);
+            }
 
             // Keep row metrics aligned with theme-managed font changes.
             InvalidateLayoutCache();

@@ -275,17 +275,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ScaleFontForDpi(oldDpi, newDpi);
             }
             
-            // Invalidate cached fonts (will be recreated on next paint)
-            if (_characterCountFont != null && !IsSystemOrCachedFont(_characterCountFont))
-            {
-                _characterCountFont?.Dispose();
-            }
+            // Drop the cached fonts so the next paint re-resolves them at the new DPI.
+            // They are cache-owned (BeepThemesManager/BeepFontManager) - never disposed here.
             _characterCountFont = null;
-            
-            if (_lineNumberFont != null && !IsSystemOrCachedFont(_lineNumberFont))
-            {
-                _lineNumberFont?.Dispose();
-            }
             _lineNumberFont = null;
             
             // Invalidate cached metrics (font heights change with DPI)
@@ -297,16 +289,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
         }
         
-        /// <summary>
-        /// Checks if font is a system font or cached font that shouldn't be disposed.
-        /// </summary>
-        private bool IsSystemOrCachedFont(Font font)
-        {
-            if (font == null) return false;
-            return font == Control.DefaultFont || 
-                   font == System.Drawing.SystemFonts.DefaultFont ||
-                   font == System.Drawing.SystemFonts.MessageBoxFont;
-        }
         
         #endregion
         
@@ -330,19 +312,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _helper?.Dispose();
                 _helper = null;
                 
-                // Dispose fonts safely (don't dispose system/cached fonts)
-                if (_textFont != null && !IsSystemOrCachedFont(_textFont))
-                {
-                    _textFont?.Dispose();
-                }
-                if (_characterCountFont != null && !IsSystemOrCachedFont(_characterCountFont))
-                {
-                    _characterCountFont?.Dispose();
-                }
-                if (_lineNumberFont != null && !IsSystemOrCachedFont(_lineNumberFont))
-                {
-                    _lineNumberFont?.Dispose();
-                }
+                // These fonts come from BeepThemesManager/BeepFontManager and are owned by the
+                // font cache: other controls hold the same instances, so disposing them here would
+                // break those. Dropping the references is all this control may do.
+                _textFont = null;
+                _characterCountFont = null;
+                _lineNumberFont = null;
             }
             base.Dispose(disposing);
         }

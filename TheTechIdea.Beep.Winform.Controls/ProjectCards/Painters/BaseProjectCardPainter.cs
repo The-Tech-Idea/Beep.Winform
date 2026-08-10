@@ -37,14 +37,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
         protected static void DrawTitle(Graphics g, Rectangle bounds, IBeepTheme theme, string title)
         {
             if (string.IsNullOrEmpty(title)) return;
-            using var f = BeepThemesManager.ToFont(theme.CardHeaderStyle);
+            var f = BeepThemesManager.ToFont(theme.CardHeaderStyle);
             TextRenderer.DrawText(g, title, f, bounds, theme.CardTextForeColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
         }
 
         protected static void DrawSubtitle(Graphics g, Rectangle bounds, IBeepTheme theme, string subtitle)
         {
             if (string.IsNullOrEmpty(subtitle)) return;
-            using var fr = BeepThemesManager.ToFont(theme.CardparagraphStyle);
+            var fr = BeepThemesManager.ToFont(theme.CardparagraphStyle);
             using var f = new Font(fr.FontFamily, Math.Max(8, fr.Size), FontStyle.Regular);
             TextRenderer.DrawText(g, subtitle, f, bounds, theme.CardTextForeColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
         }

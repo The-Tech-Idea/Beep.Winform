@@ -59,7 +59,27 @@ Three qualifications that come from real bugs in this repo:
   caught anything, and removing it changed nothing. Check whether the failure you are handling is
   actually raised — `ImagePainter.HasImage` was the real question.
 
-### 2. No stubs, no legacy paths, no shims
+### 2. A cached `Font` is never yours to dispose
+
+A `Font` returned by `WizardHelpers.GetFont`, `BeepThemesManager.ToFont`,
+`BeepFontManager.GetFont/GetCachedFont/GetFontForPainter` or `FontListHelper` is **owned by the
+font cache and shared with every other control that asked for the same family/size/style**.
+
+- **Never `Dispose` it, never wrap it in `using`.** Re-fetch on `ThemeChanged`/`DpiChanged`
+  instead of holding it forever.
+- Only a font you built yourself with `new Font(...)` is yours to dispose — and a field must have
+  exactly **one** of those two sources. Mixed ownership is the defect; the `Dispose` is just where
+  it surfaces.
+- The caches (`ClearFontCache`, `ClearPixelFontCache`) drop references without disposing, for the
+  same reason: callers legitimately hold them.
+
+This cost a production crash. `WizardHelpers.GetFont` ignored its size/style arguments, so three
+wizard fields held the *same* cached instance; disposing it and continuing to draw threw inside
+`OnPaint`, which then repeats on every `WM_PAINT`. It only reproduced on a machine missing the
+theme's font, because that collapsed the whole app onto a handful of shared cache keys. A guard
+named `IsSystemOrCachedFont` that never checked the cache had been papering over it.
+
+### 3. No stubs, no legacy paths, no shims
 
 There is no back-compatibility burden on this library's internals. Delete the old thing rather than
 keeping it beside the new one. A stub that returns a default is worse than a missing method: it
@@ -68,7 +88,7 @@ compiles, runs, and lies.
 If a public member must go, remove it and record the decision in the area's `plans/` folder — do not
 deprecate-and-keep.
 
-### 3. Nothing assigns colours
+### 4. Nothing assigns colours
 
 Every control resolves its own colours from `BeepThemesManager`. Controls deriving from `BaseControl`
 get this automatically: `BaseControl` subscribes to `ThemeChanged` and re-applies itself.
@@ -86,7 +106,7 @@ get this automatically: `BaseControl` subscribes to `ThemeChanged` and re-applie
 - **A colour the caller set explicitly must survive a theme change.** Track "explicit" separately from
   "themed" or `ApplyTheme` will stomp a deliberate choice.
 
-### 4. Compose from Beep controls; do not hand-paint
+### 5. Compose from Beep controls; do not hand-paint
 
 A container is a `TableLayoutPanel`, one control per cell — not dock stacks, not flow panels, not
 computed coordinates. Text is a `BeepLabel`, an action is a `BeepButton`, an icon is a `BeepImage`.
@@ -115,7 +135,7 @@ that render but cannot be clicked or focused.
   surface. The exception is a count that depends on data.
 - **No control flow in `InitializeComponent`** — loops and conditionals there break the VS designer.
 
-### 5. Use the frameworks that exist
+### 6. Use the frameworks that exist
 
 - **Wizards**: embed the Wizards framework host. No hand-rolled stage machines.
 - **Dialogs**: `DialogsManagers`. **Grids**: `GridX` — see `GridX/Claude.md`.

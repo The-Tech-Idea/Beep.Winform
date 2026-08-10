@@ -1,4 +1,5 @@
-﻿using System;
+﻿using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
@@ -161,26 +162,32 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Clears the font cache (use sparingly - only on theme changes, DPI changes or cleanup).
-        /// Disposes cached Font instances because the cache owns them.
+        /// Drops every cached font reference so the next request rebuilds against the current font
+        /// stores and DPI scale.
         /// </summary>
+        /// <remarks>
+        /// Cached fonts are deliberately NOT disposed. Callers hold them legitimately - a painter
+        /// field, a Control.Font - and disposing here turns their live reference into an
+        /// ArgumentException on the next .Height or DrawText call, inside OnPaint, where it then
+        /// repeats on every WM_PAINT. System.Drawing.Font has a finalizer, so a dropped instance is
+        /// released once nothing references it. The validation cache is cleared too: a host that
+        /// registers fonts after first paint would otherwise stay stuck on a memoized "missing".
+        /// </remarks>
         public static void ClearFontCache()
         {
+            int dropped;
             lock (fontCacheLock)
             {
-                foreach (var font in fontCache.Values.Distinct())
-                {
-                    try
-                    {
-                        font?.Dispose();
-                    }
-                    catch
-                    {
-                        // Ignore dispose failures.
-                    }
-                }
-
+                dropped = fontCache.Count;
                 fontCache.Clear();
+                systemFontValidationCache.Clear();
+                resolvedFamilyCache.Clear();
+            }
+
+            if (dropped > 0)
+            {
+                BeepLog.Info(typeof(FontListHelper), "clear font cache",
+                    $"dropped {dropped} cached font reference(s) without disposing (callers may still hold them)");
             }
         }
 
@@ -911,7 +918,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
             string cacheKey = BuildFontCacheKey(fontName, size, style);
 
-            return GetOrCreateFont(cacheKey, () =>
+            return GetOrCreateFont(cacheKey, fontName, size, style, () =>
             {
                 // Normalize known aliases (e.g., "segoeui" -> "Segoe UI")
                 var normalized = NormalizeFontName(fontName);
@@ -978,8 +985,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 if (directFont != null)
                     return directFont;
 
-                // Ultimate fallback
-                return null; // GetOrCreateFont will call GetUltimateFallbackFont
+                // The family is genuinely absent. Substitute one of the SAME CHARACTER so
+                // alignment and tone survive - a monospace theme font must not become Arial.
+                // Returns null only if no substitute in the chain exists either, in which case
+                // GetOrCreateFont falls to GetUltimateFallbackFont (still at the requested size).
+                return CreateSubstituteFont(fontName, size, style);
             });
         }
 
@@ -1209,6 +1219,122 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             privateFontMemoryHandles.Clear();
+        }
+
+        // Families resolved for callers that must build their own Font (pixel-unit painters).
+        // The cache owns these handles; see the dangling-GpFontFamily note on TryResolveSystemFamily.
+        private static readonly Dictionary<string, FontFamily> resolvedFamilyCache =
+            new Dictionary<string, FontFamily>(StringComparer.Ordinal);
+
+        /// <summary>
+        /// Returns the <see cref="FontFamily"/> that a request for <paramref name="requestedFamily"/>
+        /// will actually be served by: the installed family, a privately loaded embedded family, or a
+        /// character-preserving substitute. Never null.
+        /// </summary>
+        /// <remarks>
+        /// The returned family is owned and kept alive by this cache - callers must NOT dispose it.
+        /// Never return a family out of a <c>using (InstalledFontCollection)</c> block: Dispose runs
+        /// before the return and frees the handle (see TryResolveSystemFamily).
+        /// </remarks>
+        public static FontFamily ResolveFamily(string requestedFamily)
+        {
+            EnsureInitialized();
+
+            string normalized = NormalizeFontName(requestedFamily);
+            lock (fontCacheLock)
+            {
+                if (resolvedFamilyCache.TryGetValue(normalized, out var cached))
+                {
+                    try
+                    {
+                        var _ = cached.Name; // live GDI+ call: throws if the handle died
+                        return cached;
+                    }
+                    catch
+                    {
+                        resolvedFamilyCache.Remove(normalized);
+                    }
+                }
+            }
+
+            FontFamily resolved = null;
+
+            // 1. Privately loaded (embedded) families win: they are what the theme asked for.
+            var privateFamily = FindPrivateFamilyByName(requestedFamily);
+            if (privateFamily != null)
+            {
+                resolved = privateFamily;
+            }
+
+            // 2. Installed system family.
+            if (resolved == null && IsSystemFontFamilyValid(requestedFamily))
+            {
+                try { resolved = new FontFamily(requestedFamily); }
+                catch (ArgumentException) { resolved = null; }
+            }
+
+            // 3. Character-preserving substitute, reported once per family under the same key the
+            //    point-size path uses, so painter and non-painter paths share one report.
+            if (resolved == null)
+            {
+                foreach (string substitute in FontSubstitutionMap.GetSubstituteChain(normalized))
+                {
+                    if (!IsSystemFontFamilyValid(substitute)) continue;
+                    try { resolved = new FontFamily(substitute); }
+                    catch (ArgumentException) { continue; }
+
+                    BeepLog.WarnOnce(
+                        $"font.substitute:{normalized}",
+                        typeof(FontListHelper),
+                        "resolve font family",
+                        $"'{requestedFamily}' is not installed - using '{resolved.Name}' " +
+                        $"({FontSubstitutionMap.DescribeCharacter(normalized)} character preserved).");
+                    break;
+                }
+            }
+
+            // 4. GDI+ generic, which always exists.
+            resolved ??= FontFamily.GenericSansSerif;
+
+            lock (fontCacheLock)
+            {
+                resolvedFamilyCache[normalized] = resolved;
+            }
+            return resolved;
+        }
+
+        /// <summary>
+        /// Resolves a family that is not installed to one of the same character (monospace stays
+        /// monospace, serif stays serif), preserving the requested size and style. Reports once per
+        /// requested family so a support engineer sees "Poppins not installed -> using Segoe UI"
+        /// instead of silence.
+        /// </summary>
+        /// <returns>A substitute font, or null when no family in the chain exists either.</returns>
+        private static Font CreateSubstituteFont(string requestedFamily, float size, FontStyle style)
+        {
+            string normalized = NormalizeFontName(requestedFamily);
+
+            foreach (string substitute in FontSubstitutionMap.GetSubstituteChain(normalized))
+            {
+                // A family can exist without the requested face (no italic, no bold). Keeping the
+                // family is worth more than keeping the synthetic style.
+                Font font = CreateValidFont(substitute, size, style)
+                            ?? CreateValidFont(substitute, size, FontStyle.Regular);
+                if (font == null) continue;
+
+                // Keyed on the FAMILY alone: a theme has ~167 typography entries on one family, and
+                // the engineer needs one line per missing font, not one per size/style combination.
+                BeepLog.WarnOnce(
+                    $"font.substitute:{normalized}",
+                    typeof(FontListHelper),
+                    "resolve font family",
+                    $"'{requestedFamily}' is not installed - using '{font.FontFamily.Name}' " +
+                    $"({FontSubstitutionMap.DescribeCharacter(normalized)} character preserved; " +
+                    $"requested size {size:0.##}pt and style {style} preserved).");
+                return font;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1455,8 +1581,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// <summary>
         /// Safely gets a font from cache or creates a new one. Never returns null or disposed fonts.
         /// </summary>
-        private static Font GetOrCreateFont(string cacheKey, Func<Font> fontFactory)
+        private static Font GetOrCreateFont(string cacheKey, string requestedFamily,
+                                            float size, FontStyle style, Func<Font> fontFactory)
         {
+            Exception creationFailure = null;
+            Font fallback = null;
+
             lock (fontCacheLock)
             {
                 // Try to get from cache
@@ -1470,7 +1600,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     {
                         var _ = cachedFont.Size;
                         var __ = cachedFont.Name;
-                        var ___ = cachedFont.Height; // ← GDI+ live call; throws for broken fonts
+                        var ___ = cachedFont.Height; // GDI+ live call; throws for broken fonts
                         return cachedFont;
                     }
                     catch
@@ -1486,13 +1616,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     Font newFont = fontFactory();
                     if (newFont != null)
                     {
-                        // Validate new font before caching.
-                        // Include .Height for the same reason as above.
+                        // Validate new font before caching. Include .Height for the same reason.
                         try
                         {
                             var _ = newFont.Size;
                             var __ = newFont.Name;
-                            var ___ = newFont.Height; // ← must not throw before caching
+                            var ___ = newFont.Height; // must not throw before caching
                             fontCache[cacheKey] = newFont;
                             return newFont;
                         }
@@ -1505,28 +1634,53 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Font creation failed: {ex.Message}");
+                    creationFailure = ex;
                 }
 
-                // Ultimate fallback - always return a valid font and cache it under the requested key.
-                // This avoids repeatedly walking the failure path for missing fonts.
-                Font fallback = GetUltimateFallbackFont();
+                // Ultimate fallback, cached under the requested key so the failure path is walked
+                // once. Caching is legitimate now only because the fallback carries the REQUESTED
+                // size and style: the previous version cached one hardcoded 9pt Regular instance
+                // under every key, so a 20pt Bold request rendered 9pt Regular forever.
+                fallback = GetUltimateFallbackFont(size, style);
                 fontCache[cacheKey] = fallback;
-                return fallback;
             }
+
+            // Reported outside the lock: BeepLog raises Reported to host code, which must never be
+            // able to re-enter font resolution while fontCacheLock is held.
+            if (creationFailure != null)
+            {
+                BeepLog.FailureOnce($"font.create:{NormalizeFontName(requestedFamily)}",
+                    typeof(FontListHelper),
+                    $"create font '{requestedFamily}' {size:0.##}pt {style}", creationFailure);
+            }
+
+            BeepLog.WarnOnce($"font.ultimate:{NormalizeFontName(requestedFamily)}",
+                typeof(FontListHelper), "resolve font family",
+                $"'{requestedFamily}' could not be resolved and no substitute was available - " +
+                $"using '{fallback.FontFamily.Name}' at {size:0.##}pt {style}.");
+
+            return fallback;
         }
 
         /// <summary>
         /// Returns a guaranteed valid font as last resort
         /// </summary>
-        private static Font GetUltimateFallbackFont()
+        /// <summary>
+        /// Last resort, at the REQUESTED size and style. Each rung can fail for its own reason: the
+        /// family may be absent (rungs 1-4), present but without a face for the requested style
+        /// (rung 5), or GDI+ may reject the request outright (rung 6).
+        /// </summary>
+        /// <remarks>
+        /// CloneDefaultFontSafely may return the SystemFonts.DefaultFont singleton itself. That is
+        /// only acceptable because ClearFontCache no longer disposes cache entries.
+        /// </remarks>
+        private static Font GetUltimateFallbackFont(float size, FontStyle style)
         {
-            // Try standard fallback fonts using CreateValidFont directly to avoid recursion.
-            // Return an owned Font instance where possible because cached fonts are disposed by ClearFontCache.
-            return CreateValidFont("Segoe UI", 9f, FontStyle.Regular) ??
-                   CreateValidFont("Arial", 9f, FontStyle.Regular) ??
-                   CreateValidFont(FontFamily.GenericSansSerif, 9f, FontStyle.Regular) ??
-                   CreateValidFont("Microsoft Sans Serif", 9f, FontStyle.Regular) ??
+            return CreateValidFont("Segoe UI", size, style) ??
+                   CreateValidFont("Arial", size, style) ??
+                   CreateValidFont(FontFamily.GenericSansSerif, size, style) ??
+                   CreateValidFont("Microsoft Sans Serif", size, style) ??
+                   CreateValidFont(FontFamily.GenericSansSerif, size, FontStyle.Regular) ??
                    CloneDefaultFontSafely();
         }
 

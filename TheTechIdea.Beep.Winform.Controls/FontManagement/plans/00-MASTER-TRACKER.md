@@ -70,7 +70,7 @@ logged: bare `catch {}` / `Debug.WriteLine`.
   intent only in the broken name** and had `FontStyle = FontStyle.Italic` added so the italic is
   not silently lost.
 
-## Verification — FontProbe 18/18
+## Verification — FontProbe 20/20
 
 `scratchpad/FontProbe` reproduces "a PC without the theme's font" on any machine by requesting
 `"Zz-Probe-Absent-<guid>"`. Blindness guards run first and fail (never skip): `IsFontAvailable`
@@ -99,10 +99,9 @@ the same instance sees the damage — which is exactly why the crash appeared fa
 
 ## Not done / not verified
 
-- **Fonts are still not embedded** (Phase 4 of the plan). The loader, `BeepFontPaths` declarations
-  and the csproj comment are all in place, but the `.ttf` files must be supplied — they cannot be
-  fetched from here. Until then every non-Windows family is substituted (correctly, and now
-  logged). See "Embedding" below.
+- Nine requested families (Noto Sans, SF Pro, Ubuntu, Source Code Pro, Sora, Poppins, Cantarell,
+  Nunito Sans, Roboto Mono) are absent from the font library and stay substituted — correctly, and
+  now logged once each. See "Embedding" below for what was embedded and why the rest was not.
 - `ResetFontStoresForReload` still disposes the `PrivateFontCollection`; fonts built from embedded
   families break across a reload regardless of owner. The cache self-heals via the `.Height` probe;
   callers must re-fetch on `ThemeChanged`/`DpiChanged` rather than hold across a reload.

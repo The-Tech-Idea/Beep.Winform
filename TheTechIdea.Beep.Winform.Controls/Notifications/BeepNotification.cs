@@ -118,17 +118,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // and IsChild (parent's colour), so the card stops reading as a stack of
             // nested rounded boxes. IsFrameless is honoured by BOTH painter branches
             // (ClassicBaseControlPainter passes it into BeepStyling.PaintControl).
-            _bodyPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
-            _iconContainer = new BeepPanel { Dock = DockStyle.Left, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+            _bodyPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
+            _iconContainer = new BeepPanel { Dock = DockStyle.Left, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
             _iconPicture = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.Transparent };
             _iconPicture.Paint += IconPicture_Paint;
             _iconContainer.Controls.Add(_iconPicture);
 
-            _actionsPanel = new BeepPanel { Dock = DockStyle.Bottom, Height = 0, Visible = false, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+            _actionsPanel = new BeepPanel { Dock = DockStyle.Bottom, Height = 0, Visible = false, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
             _actionsLayout = new FlowLayoutPanel { Dock = DockStyle.Top, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = Color.Transparent };
             _actionsPanel.Controls.Add(_actionsLayout);
 
-            _textPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+            _textPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
 
             // Both labels dock TOP with explicit measured heights (RecomputeSize).
             // The message used to be Dock=Fill: inside an AutoSize form that contributes
@@ -136,16 +136,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // AutoSize height ate the whole text panel - the message was laid out BELOW
             // the panel and never drawn at all.
             _titleLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, TabIndex = 1,
-                                          TextAlign = ContentAlignment.MiddleLeft, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+                                          TextAlign = ContentAlignment.MiddleLeft, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
             _messageLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = false, TabIndex = 2,
                                             Multiline = true, WordWrap = true,
-                                            TextAlign = ContentAlignment.TopLeft, IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+                                            TextAlign = ContentAlignment.TopLeft, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
 
             _textPanel.Controls.Add(_messageLabel);
             _textPanel.Controls.Add(_titleLabel);
 
             _closeButton = new BeepButton { Dock = DockStyle.Right, Text = "\u2715", TabIndex = 0, TabStop = true,
-                                            IsFrameless = true, IsChild = true, ShowAllBorders = false, ShowShadow = false };
+                                            IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
             _closeButton.Click += (s, e) => Dismiss();
 
             _progressBar = new BeepProgressBar { Dock = DockStyle.Bottom, Visible = false, IsFrameless = true, ShowAllBorders = false };
@@ -340,6 +340,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             BackColor   = _notificationData.CustomBackColor ?? colors.BackColor;
             ForeColor   = _notificationData.CustomForeColor ?? colors.ForeColor;
             BorderColor = colors.BorderColor;
+
+            // Inner children are frameless AND transparent, so the card is one surface. Only the
+            // INK has to be handed down: each child's own ApplyTheme resolves a label/panel colour
+            // that has nothing to do with this toast's semantic type.
+            foreach (var child in new Control[] { _titleLabel, _messageLabel, _closeButton })
+            {
+                if (child != null) child.ForeColor = ForeColor;
+            }
 
             // Pre-compute the resolved icon tint so IconPicture_Paint
             // (called every paint tick) reads it without re-entering

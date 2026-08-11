@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 return Theme.ListItemHoverBackColor;
             }
-            return _theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor;
+            return Theme.ListBackColor;
         }
         
         private Color GetItemStateColor(SimpleItem item, bool isSelected)
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawColoredCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, Color stateColor)
         {
             // Draw checkbox background
-            Color bgColor = isChecked ? stateColor : (_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor);
+            Color bgColor = isChecked ? stateColor : (Theme.ListBackColor);
             g.FillRectangle(GetBrush(bgColor), checkboxRect);
 
             // Draw checkbox border

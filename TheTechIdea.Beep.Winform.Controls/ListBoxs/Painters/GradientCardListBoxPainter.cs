@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default: subtle background
-                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor), path);
+                    g.FillPath(GetBrush(Theme.ListBackColor), path);
 
                     // Subtle border
                     g.DrawPath(GetPen(Color.FromArgb(40, 0, 0, 0), 0.5f), path);

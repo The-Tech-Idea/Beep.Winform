@@ -255,9 +255,23 @@ Read individually, not sampled. `no unselected row fill` was confirmed by readin
 `Simple`, `CardList`, `Checkbox` and `Filled` as well, and reading them showed all seven **do**
 fill in an `else` branch. The instrument was wrong; the list below is what the code says.
 
-**`AvatarListBoxPainter`** (189 loc)
-- **no unselected row fill** — the control surface shows through
-- own two-line layout (not `DrawTitleAndSubtitle`)
+**`AvatarListBoxPainter`** (189 loc) — *read in full*
+- **Its second line is dead for ordinary items.** It reads `item.SubText`, never
+  `item.Description`. `SubText` is assigned in **two** places in the entire repo, so a list built
+  the normal way (`SimpleItem` + `Description`) renders one line and silently drops the other.
+- **Avatar and text disagree about vertical alignment.** The avatar is centred
+  (`(itemRect.Height - avatar) / 2`) while the two text lines are pinned to fixed offsets
+  `Y + Scale(10)` and `Y + Scale(30)`. `GetPreferredItemHeight` is
+  `max(TextFont.Height + 28, 56)`, so on any theme whose font pushes the row past 56 the avatar
+  slides down and the text does not — they only line up at the minimum height.
+- **The status dot needs `BadgeText` to appear but never draws it.** `DrawStatusIndicator` is
+  gated on `!string.IsNullOrEmpty(item.BadgeText)` yet paints only a coloured dot from
+  `BadgeBackColor`. Setting badge *text* is the only way to get a status dot, and the text itself
+  is discarded.
+- `DrawItemBackground` is overridden **empty**; the fill lives in `DrawAvatarItemBackground`,
+  which paints only when selected or hovered — unselected rows are transparent.
+- Fixed: `_theme?.BackgroundColor ?? _owner?.BackColor ?? OnPrimaryColor` behind the status dot →
+  `ListBackColor`. `OnPrimaryColor` as a *background* fallback was semantically backwards.
 
 **`BaseListBoxPainter`** (900 loc)
 - **18 unscaled px** — ignores DPI
@@ -282,9 +296,19 @@ fill in an `else` branch. The instrument was wrong; the list below is what the c
 - selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
 - own two-line layout (not `DrawTitleAndSubtitle`)
 
-**`ChipStyleListBoxPainter`** (180 loc)
-- **no unselected row fill** — the control surface shows through
-- own two-line layout (not `DrawTitleAndSubtitle`)
+**`ChipStyleListBoxPainter`** (180 loc) — *read in full*
+- **The close button is drawn but is not clickable.** `DrawCloseButton` paints an × on every
+  selected chip in multi-select, and nothing registers a hit area for it — `RegisterHitAreas`
+  knows only `row_`, `check_`, `icon_` and `text_`. It is an affordance that cannot be used.
+- **Literal white**, in the 4-argument form the earlier colour sweep never matched:
+  `Color.FromArgb(alpha, 255, 255, 255)` and `Color.FromArgb(0, 255, 255, 255)` for the selected
+  chip's highlight gradient. On a dark theme that is a white sheen over an accent chip. Fixed →
+  `OnPrimaryColor` veils.
+- Fixed: the unselected chip filled from `_theme?.BackgroundColor ?? _owner?.BackColor ??
+  OnPrimaryColor` → `ListBackColor`.
+- `DrawItemBackground` is overridden **empty** — the chip is drawn in `DrawItem`, so the row
+  behind it is transparent and shows the control surface.
+- Height is self-consistent: `_chipHeight 32 + 4` matches `GetPreferredItemHeight`.
 - **8 unscaled px** — ignores DPI
 
 **`ColoredSelectionPainter`** (116 loc)

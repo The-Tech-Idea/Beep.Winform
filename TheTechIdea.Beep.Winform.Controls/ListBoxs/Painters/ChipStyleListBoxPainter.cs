@@ -97,8 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var highlightRect = new Rectangle(chipRect.X, chipRect.Y, chipRect.Width, chipRect.Height / 2);
                     using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, new CornerRadius(Scale(_chipCornerRadius))))
                     using (var highlightBrush = new LinearGradientBrush(highlightRect,
-                        Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, 255, 255, 255),
-                        Color.FromArgb(0, 255, 255, 255),
+                        Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, Theme.OnPrimaryColor),
+                        Color.FromArgb(0, Theme.OnPrimaryColor),
                         LinearGradientMode.Vertical))
                     {
                         g.FillPath(highlightBrush, highlightPath);
@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default: outlined chip
-                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor), path);
+                    g.FillPath(GetBrush(Theme.ListBackColor), path);
                     g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }
             }

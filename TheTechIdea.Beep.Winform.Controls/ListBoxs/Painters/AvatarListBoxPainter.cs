@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 dotSize, dotSize);
 
             // White border
-            g.FillEllipse(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor),
+            g.FillEllipse(GetBrush(Theme.ListBackColor),
                 Rectangle.Inflate(dotRect, 2, 2));
 
             // Status color

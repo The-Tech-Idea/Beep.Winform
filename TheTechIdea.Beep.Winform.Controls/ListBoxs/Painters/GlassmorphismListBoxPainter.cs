@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, new CornerRadius(Scale(_itemCornerRadius))))
                     using (var highlightBrush = new LinearGradientBrush(highlightRect,
                         Color.FromArgb(80, 255, 255, 255),
-                        Color.FromArgb(0, 255, 255, 255),
+                        Color.FromArgb(0, Theme.OnPrimaryColor),
                         LinearGradientMode.Vertical))
                     {
                         g.FillPath(highlightBrush, highlightPath);

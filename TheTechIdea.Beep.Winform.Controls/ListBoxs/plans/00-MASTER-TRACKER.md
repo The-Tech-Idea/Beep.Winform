@@ -248,265 +248,230 @@ to find; it was not chased further here rather than guess at it.
 **Do not read the light rows in the contact sheet as "the sweep failed"** — the sweep is visible in
 the 16 styles above and in the avatar discs, which change colour with the theme in every style.
 
-## Painter-by-painter — every painter, its issues
+## Painter-by-painter - all 44, read individually
 
-Read individually, not sampled. `no unselected row fill` was confirmed by reading each
-`DrawItemBackground` body — an earlier regex flagged `Outlined`, `Standard`, `Rounded`,
-`Simple`, `CardList`, `Checkbox` and `Filled` as well, and reading them showed all seven **do**
-fill in an `else` branch. The instrument was wrong; the list below is what the code says.
+Every painter below was read line by line. *fixed* marks something changed in this pass;
+everything else is recorded and left, either because it is a behaviour decision or because it
+needs a rendered check first.
 
-**`AvatarListBoxPainter`** (189 loc) — *read in full*
-- **Its second line is dead for ordinary items.** It reads `item.SubText`, never
-  `item.Description`. `SubText` is assigned in **two** places in the entire repo, so a list built
-  the normal way (`SimpleItem` + `Description`) renders one line and silently drops the other.
-- **Avatar and text disagree about vertical alignment.** The avatar is centred
-  (`(itemRect.Height - avatar) / 2`) while the two text lines are pinned to fixed offsets
-  `Y + Scale(10)` and `Y + Scale(30)`. `GetPreferredItemHeight` is
-  `max(TextFont.Height + 28, 56)`, so on any theme whose font pushes the row past 56 the avatar
-  slides down and the text does not — they only line up at the minimum height.
-- **The status dot needs `BadgeText` to appear but never draws it.** `DrawStatusIndicator` is
-  gated on `!string.IsNullOrEmpty(item.BadgeText)` yet paints only a coloured dot from
-  `BadgeBackColor`. Setting badge *text* is the only way to get a status dot, and the text itself
-  is discarded.
-- `DrawItemBackground` is overridden **empty**; the fill lives in `DrawAvatarItemBackground`,
-  which paints only when selected or hovered — unselected rows are transparent.
-- Fixed: `_theme?.BackgroundColor ?? _owner?.BackColor ?? OnPrimaryColor` behind the status dot →
-  `ListBackColor`. `OnPrimaryColor` as a *background* fallback was semantically backwards.
+### AvatarListBoxPainter
+- **Second line dead for ordinary items** - reads item.SubText, never Description; SubText is assigned in 2 places repo-wide.
+- **Avatar centred, text not** - avatar (H-av)/2, text pinned at Y+10 / Y+30; height is max(font+28,56), so they align only at the minimum.
+- **Status dot requires BadgeText but never draws it** - gated on the text, paints only a dot from BadgeBackColor.
+- DrawItemBackground overridden **empty**; fill happens only when selected/hovered, so unselected rows are transparent.
+- *fixed*: the OnPrimaryColor-as-background fallback behind the dot is now ListBackColor.
 
-**`BaseListBoxPainter`** (900 loc)
-- **18 unscaled px** — ignores DPI
-- had 1 `?? Color.Empty` fallbacks — fixed
+### BaseListBoxPainter
+- *fixed*: the PgUp/PgDn overlay painted across the last row in ~20 styles - removed.
+- *fixed*: GetItemHeight keyed on SubText while 9 painters draw Description - one HasSecondLine authority now.
+- *fixed*: avatar palette was 7 Material hues commented 'theme-independent' - now theme slots.
+- *added*: DrawTitleAndSubtitle, a Theme accessor, ListItemSelected* for selection.
+- **18 unscaled pixel literals** remain.
 
-**`BorderlessListBoxPainter`** (51 loc)
-- **no unselected row fill** — the control surface shows through
+### BorderlessListBoxPainter
+- **Draws no background at all** except a selected underline - every row transparent.
+- SupportsSearch and SupportsCheckboxes are both false, so ShowCheckBox silently does nothing in this style.
 
-**`CardListPainter`** (125 loc) — *read in full*
-- **Square shadows behind a rounded card.** All three shadow passes do
-  `FillRectangle(shadowBrush, shadowRect)` while the card itself is a rounded path — the shadow's
-  corners stick out past the card's radius on every row, selected, hovered and normal.
-- **No second line at all.** It draws `item.Text` into the whole content rect and never looks at
-  `Description` or `SubText`, so a two-line item silently loses its subtitle in this style.
-- The image is a fixed `Scale(44)` square in a `Scale(60)` row with `Scale(8)` vertical padding —
-  exactly 44 of usable height, so it fits only at the default font and has no room to grow.
-- Selection fills a gradient of `PrimaryColor` (alpha 140→100), not `ListItemSelectedBackColor`.
+### CardListPainter
+- **Square shadows behind a rounded card** - all three passes use FillRectangle while the card itself is a rounded path.
+- **No second line at all** - draws item.Text only; Description and SubText are both dropped.
+- Image is a fixed Scale(44) in a Scale(60) row with Scale(8) padding - it fits exactly, with no room to grow.
+- Selection is a PrimaryColor gradient, not ListItemSelectedBackColor.
 
-**`CategoryChipsPainter`** (110 loc) — *read in full*
-- **It reads the live mouse position inside the paint path**:
-  `xRect.Contains(_owner.PointToClient(Control.MousePosition))` decides whether to draw the close
-  button's hover disc. Painting therefore depends on where the cursor happens to be at paint time
-  — it renders differently under `DrawToBitmap`, off-screen or during a print, and it ignores the
-  hover state the control already tracks.
-- **Measure and draw disagree by 4px a side.** The chip's width is `text + Scale(16) * 2` but the
-  text is then drawn into a rect inset by `Scale(12)` a side, so the label sits off-centre inside
-  the width it was measured for.
-- **Silently caps at five chips** (`selectedItems.Take(5)`) with nothing to say more are selected.
-- The divider is placed at `chipY + Scale(32)` while the chips are `Scale(24)` tall — an unrelated
-  constant, so the gap under the strip changes when the chips wrap.
-- No `GetPreferredItemHeight` override — inherits Outlined's.
+### CategoryChipsPainter
+- **Reads the live mouse inside paint** - PointToClient(Control.MousePosition) decides the close-button hover, so it renders differently under DrawToBitmap and ignores the hover state the control already tracks.
+- **Measure and draw disagree by 4px a side** - width is text + Scale(16)*2 but the text is inset Scale(12).
+- **Silently caps at 5 chips**, with nothing to say more are selected.
+- Divider sits at chipY + Scale(32) while chips are Scale(24) tall - an unrelated constant.
+- No GetPreferredItemHeight override.
 
-**`ChakraUIListBoxPainter`** (205 loc)
-- paints via `BeepStyling` ×3
+### ChakraUIListBoxPainter
+- *fixed*: overlapping two-line layout now uses DrawTitleAndSubtitle.
+- Paints through BeepStyling x3.
 
-**`ChatListBoxPainter`** (108 loc) — *read in full*
-- **The message line reads `item.SubText`**, never `Description` — the same dead property as
-  `Avatar`. A chat list built from `SimpleItem` shows names and no messages.
-- **The avatar is centred, the text is not.** Avatar is `(Height - avSz) / 2`; the name is pinned
-  at `Y + Scale(14)` and the message under it. They align only at the token row height.
-- **Badge colour comes from a different property than every other painter.** Here it is
-  `(item as BeepListItem)?.BadgeColor`; `Avatar` uses `item.BadgeBackColor`. Two properties for
-  one concept, so a badge coloured for one style is uncoloured in the other.
-- The unread pill falls back to `PrimaryColor` — an unread count is a semantic mark and has
-  `ErrorColor`/`AccentColor` available.
+### ChatListBoxPainter
+- **Message line reads SubText** - a chat list built from SimpleItem shows names and no messages.
+- **Avatar centred, text pinned** at Y+14 - they align only at the token row height.
+- **Badge colour comes from a different property than Avatar's** - BeepListItem.BadgeColor here, item.BadgeBackColor there.
+- Unread pill falls back to PrimaryColor where a semantic slot exists.
 
-**`CheckboxListPainter`** (157 loc) — *read in full*
-- **Its "checked" source of truth differs from `Standard`'s.** This painter reads
-  `item.IsChecked`; `StandardListBoxPainter` reads `_owner.SelectedItems?.Contains(item)`. The two
-  can disagree, and which one you get depends on the style you picked.
-- **Two spellings of DPI scaling in one method** — `Scale(...)` and
-  `DpiScalingHelper.ScaleValue(..., _owner)` interleaved. Same result, but it hides which numbers
-  were considered.
-- `titleH = Math.Max(12, ...)` — the floor is an **unscaled** 12, so at 200% DPI the minimum title
-  band is half what it should be.
-- Two-line path reads `rich.SubText` only; `Description` is ignored.
-- Selection fills a `PrimaryColor` gradient rather than `ListItemSelectedBackColor`.
+### CheckboxListPainter
+- **Its 'checked' source differs from Standard's** - item.IsChecked here, _owner.SelectedItems.Contains there.
+- Two spellings of DPI scaling interleaved in one method.
+- Math.Max(12, ...) floor is **unscaled**.
+- Two-line path reads SubText only; selection is a PrimaryColor gradient.
 
-**`ChipStyleListBoxPainter`** (180 loc) — *read in full*
-- **The close button is drawn but is not clickable.** `DrawCloseButton` paints an × on every
-  selected chip in multi-select, and nothing registers a hit area for it — `RegisterHitAreas`
-  knows only `row_`, `check_`, `icon_` and `text_`. It is an affordance that cannot be used.
-- **Literal white**, in the 4-argument form the earlier colour sweep never matched:
-  `Color.FromArgb(alpha, 255, 255, 255)` and `Color.FromArgb(0, 255, 255, 255)` for the selected
-  chip's highlight gradient. On a dark theme that is a white sheen over an accent chip. Fixed →
-  `OnPrimaryColor` veils.
-- Fixed: the unselected chip filled from `_theme?.BackgroundColor ?? _owner?.BackColor ??
-  OnPrimaryColor` → `ListBackColor`.
-- `DrawItemBackground` is overridden **empty** — the chip is drawn in `DrawItem`, so the row
-  behind it is transparent and shows the control surface.
-- Height is self-consistent: `_chipHeight 32 + 4` matches `GetPreferredItemHeight`.
-- **8 unscaled px** — ignores DPI
+### ChipStyleListBoxPainter
+- **The close button is painted but not clickable** - no hit area is registered for it.
+- *fixed*: literal white in the 4-argument FromArgb(alpha,255,255,255) form - a white sheen over an accent chip on any dark theme.
+- *fixed*: the unselected chip's OnPrimaryColor-as-background fallback is now ListBackColor.
+- DrawItemBackground overridden **empty** - the row behind the chip is transparent.
 
-**`ColoredSelectionPainter`** (116 loc) — *read in full*
-- **The checkbox colour is chosen by sniffing the item's text.** `GetSelectionColor` returns one
-  colour if `item.Text.ToLower().Contains("custom")` and another otherwise — styling driven by a
-  substring of user data, so renaming an item changes its checkbox colour. (The comment says
-  `// Green`; the code returns `PrimaryColor`.)
-- **Two width bugs, fixed.** Both text rects were `itemRect.Width - currentX - pad`, mixing a
-  width with an absolute X — correct only while `itemRect.X == 0`, and short by exactly `Left`
-  otherwise, so text clipped early in any indented list.
-- **A third form of literal white**, `FromArgb((int)(alpha * 1.3f), 255, 255, 255)`, which neither
-  earlier sweep matched. Fixed → `OnPrimaryColor`.
-- Two-line layout is the split-in-half pattern (`Height / 2` each) — the same one that sliced
-  subtitles in the four already converted.
-- Paints through `BeepStyling` ×3.
+### ColoredSelectionPainter
+- **Checkbox colour chosen by sniffing text** - item.Text.Contains('custom'). Renaming an item changes its colour.
+- *fixed*: two rects sized Width - currentX, mixing a width with an absolute X - text clipped early in any indented list.
+- *fixed*: a third literal-white form, FromArgb((int)(alpha*1.3f),255,255,255).
+- Two-line layout is the split-in-half pattern.
 
-**`CommandListBoxPainter`** (102 loc) — *read in full*
-- **The shortcut chip was scaled twice, fixed.** `ScaleValue(MeasureText(...).Width + gap)` scaled
-  a measurement already in device pixels, so at 150–200% DPI the chip grew past its own text.
-- The shortcut reads `(item as BeepListItem)?.SubText` — assigned in two places repo-wide, so
-  shortcuts are invisible for ordinary items.
-- Carries a private `RoundedRect` duplicating `GraphicsExtensions`.
-- `Paint` overrides the base only to call `base.Paint` — a no-op override.
+### CommandListBoxPainter
+- *fixed*: **the shortcut chip was scaled twice** - ScaleValue applied to MeasureText(...).Width, already device pixels.
+- Shortcut reads SubText - invisible for ordinary items.
+- Private RoundedRect duplicating GraphicsExtensions; Paint overrides only to call base.Paint.
 
-**`CompactListPainter`** (54 loc) — *read in full*
-- Inherits `Minimal` but **does** fill unselected rows (`ListBackColor`), so it does not share its
-  parent's transparent-row problem — worth stating, since the two are otherwise near-identical.
-- Selection uses `PrimaryColor` for the overlay and the left bar, not `ListItemSelectedBackColor`.
-- Padding is `ItemPaddingH / 2` **before** scaling — integer division on the token loses a pixel
-  before DPI is applied.
+### CompactListPainter
+- Inherits Minimal but **does** fill unselected rows - unlike its parent.
+- Selection uses PrimaryColor.
+- Padding is ItemPaddingH / 2 **before** scaling - integer division loses a pixel first.
 
-**`ContactListBoxPainter`** (77 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
+### ContactListBoxPainter
+- **The one painter that gets vertical centring right** - it counts its lines, computes totalTextH and centres the block. This is the pattern the others should copy.
+- Reads SubText and SubText2, so both extra lines are dead for ordinary items.
 
-**`CustomListPainter`** (121 loc)
-- paints via `BeepStyling` ×3
+### CustomListPainter
+- **A custom renderer bypasses the background entirely** - DrawItem calls CustomItemRenderer instead of DrawItemBackgroundEx, so a host-supplied renderer gets no hover, selection or focus unless it draws all three itself. Undocumented.
+- Paints through BeepStyling x3.
 
-**`ErrorStatesPainter`** (165 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- paints via `BeepStyling` ×3
+### ErrorStatesPainter
+- **Error state decided by sniffing text** - Text.Contains('part-time') or Description.Contains('prohibited'). Demo strings deciding a semantic state.
+- **Hardcoded English drawn to screen** - 'Error state!' and 'Option now prohibited'.
+- Same Width - currentX rect bug as ColoredSelection, at two sites.
+- *fixed*: 4 hard-coded ambers now WarningColor veils.
 
-**`FilledListBoxPainter`** (97 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+### FilledListBoxPainter
+- *fixed*: hover, surface and border greys now ListItemHoverBackColor / PanelBackColor / BorderColor; white ink now OnPrimaryColor.
+- Selection uses PrimaryColor.
 
-**`FilledStylePainter`** (106 loc)
-- paints via `BeepStyling` ×3
+### FilledStylePainter
+- *fixed*: white ink now OnPrimaryColor; the (74,144,226) tick now AccentColor.
+- Paints through BeepStyling x3.
 
-**`FilterStatusPainter`** (155 loc)
-- paints via `BeepStyling` ×3
+### FilterStatusPainter
+- **State decided by sniffing text** - Contains('error'), ('delivery'), ('payment'), ('alert') choose the colour.
+- *fixed*: 5 status literals now WarningColor / SecondaryTextColor / ErrorColor, and the OnPrimaryColor-as-background fallback now ListBackColor.
 
-**`GlassmorphismListBoxPainter`** (172 loc)
-- **no unselected row fill** — the control surface shows through
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- **32 unscaled px** — ignores DPI
+### GlassmorphismListBoxPainter
+- **32 unscaled pixel literals** - the most in the folder.
+- **More literal white** - FromArgb(80,255,255,255) for the sheen.
+- Sub-line reads SubText and uses the split-in-half rect.
+- DrawItemBackground overridden empty - the glass panel is drawn in DrawItem.
 
-**`GradientCardListBoxPainter`** (240 loc)
-- **no unselected row fill** — the control surface shows through
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- own two-line layout (not `DrawTitleAndSubtitle`)
+### GradientCardListBoxPainter
+- **O(n squared) painting** - GetVisibleItems().IndexOf(item) runs a linear search per item, per paint, only to pick a gradient.
+- *fixed*: 6 static readonly web gradients - every theme drew the same purple-blue cards; built from theme pairs now.
+- Sub-line reads SubText, split-in-half rect; DrawItemBackground overridden empty.
 
-**`GroupedListPainter`** (99 loc)
-- paints via `BeepStyling` ×5
+### GroupedListPainter
+- Leftover _theme?.SecondaryTextColor fallback chain.
+- **Two different group-header paths** - one for BeepListItem.IsGroupHeader, another for item.Children.Count > 0, drawn by different methods with different colours.
+- Paints through BeepStyling x5.
 
-**`HeroUIListBoxPainter`** (135 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- paints via `BeepStyling` ×3
+### HeroUIListBoxPainter
+- **Description is used as a right-hand badge**, not a subtitle - the opposite meaning to every other painter.
+- Leftover _theme?.LabelForeColor fallback chain.
+- Paints through BeepStyling x3.
 
-**`InfiniteScrollListBoxPainter`** (63 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
+### InfiniteScrollListBoxPainter
+- **Reads the live mouse inside Paint** - PointToClient(Control.MousePosition) for the sentinel hover.
+- **The sentinel is drawn over the last row** - placed at drawingRect.Bottom - rowH with nothing reserved: the same defect as the PgUp/PgDn overlay that was removed.
+- **Hardcoded English** - 'Load more...'.
 
-**`LanguageSelectorPainter`** (26 loc)
-- paints via `BeepStyling` ×3
-- no `GetPreferredItemHeight` override
+### LanguageSelectorPainter
+- 26 loc; inherits WithIcons and only overrides the background to paint through BeepStyling.
+- No GetPreferredItemHeight override.
 
-**`MaterialOutlinedListBoxPainter`** (46 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- paints via `BeepStyling` ×3
+### MaterialOutlinedListBoxPainter
+- Paints through BeepStyling x3; the selected left bar uses PrimaryColor.
+- Height is a bare Scale(48) rather than a token.
 
-**`MinimalListBoxPainter`** (39 loc)
-- **no unselected row fill** — the control surface shows through
-- had 2 `?? Color.Empty` fallbacks — fixed
+### MinimalListBoxPainter
+- **Fills nothing when a row is neither selected nor hovered** - transparent rows.
+- *fixed*: 2 Color.Empty fallbacks.
 
-**`MultiSelectionTealPainter`** (101 loc)
-- paints via `BeepStyling` ×3
+### MultiSelectionTealPainter
+- *fixed*: overlapping two-line layout now uses DrawTitleAndSubtitle; Color.Teal and a hard-coded teal now AccentColor.
 
-**`NavigationRailListBoxPainter`** (111 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- **16 unscaled px** — ignores DPI
+### NavigationRailListBoxPainter
+- **A hard-coded 14f font size** for the initials - ignores the theme's typography and DPI.
+- **16 unscaled pixel literals**; RailItemHeight is a private const rather than a token.
+- Paint overrides only to call base.Paint.
 
-**`NeumorphicListBoxPainter`** (235 loc)
-- **no unselected row fill** — the control surface shows through
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- **10 unscaled px** — ignores DPI
+### NeumorphicListBoxPainter
+- **It deliberately forces a light surface** - if luminance is below 0.5 it lightens the base by 0.55. On any dark theme the whole style is lightened on purpose, which is why it stays pale in DarkTheme.
+- Built on LightenColor / DarkenColor luminance shifts (10 uses).
+- Sub-line reads SubText, split-in-half rect; DrawItemBackground overridden empty.
 
-**`NotificationListBoxPainter`** (112 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
+### NotificationListBoxPainter
+- **A third meaning for SubText** - here it is the timestamp, while Description is the body. Chat uses SubText as the message; Command uses it as the shortcut.
+- Title and body are pinned at Y+10 and +2 with a fixed Scale(34) body band - nothing is measured.
 
-**`OutlinedCheckboxesPainter`** (88 loc)
-- paints via `BeepStyling` ×3
+### OutlinedCheckboxesPainter
+- **Disabled state decided by sniffing text** - item.Text.Contains('disabled'), ignoring IsEnabled / IsDisabled.
+- *fixed*: hard-coded red (220,53,69) now ErrorColor.
 
-**`OutlinedListBoxPainter`** (57 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- no `GetPreferredItemHeight` override
+### OutlinedListBoxPainter
+- Fills unselected rows with ListBackColor - correct.
+- Selection and hover use PrimaryColor / AccentColor rather than the ListItemSelected* slots.
+- No GetPreferredItemHeight override.
 
-**`ProfileCardListBoxPainter`** (79 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
+### ProfileCardListBoxPainter
+- Stacks with a running curY - correct - but the avatar is pinned at Y + Scale(8) and the bio band is a fixed Scale(28), so a long bio clips rather than growing the row.
+- Reads SubText **and** Description - the only painter using both.
 
-**`RadioSelectionPainter`** (127 loc)
-- paints via `BeepStyling` ×3
-- had 3 `?? Color.Empty` fallbacks — fixed
+### RadioSelectionPainter
+- *fixed*: split-in-half two-line arithmetic now uses DrawTitleAndSubtitle; 3 Color.Empty fallbacks.
+- Paints through BeepStyling x3.
 
-**`RaisedCheckboxesPainter`** (105 loc)
-- paints via `BeepStyling` ×3
+### RaisedCheckboxesPainter
+- **Disabled state sniffed from text**, twice - in GetItemTextColor and DrawRaisedCheckbox.
+- The 'raised' accent is ErrorColor for every item, so the checkboxes are red regardless of meaning.
 
-**`RekaUIListBoxPainter`** (199 loc)
-- paints via `BeepStyling` ×3
+### RekaUIListBoxPainter
+- *fixed*: the title was VerticalCenter across the full row while the subtitle took the bottom half - they overlapped and the subtitle was sliced. Now measured and stacked, with a GetItemHeight override.
+- Paints through BeepStyling x3.
 
-**`RoundedListBoxPainter`** (110 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+### RoundedListBoxPainter
+- Fills unselected rows; selection uses PrimaryColor.
+- Shadow is a gradient over a **rectangle** behind a rounded path - the same square-shadow issue as CardList.
 
-**`SearchableListPainter`** (10 loc)
-- no `GetPreferredItemHeight` override
+### SearchableListPainter
+- **10 lines - it overrides nothing.** SupportsSearch returns true and it paints nothing of its own, so ListBoxType.SearchableList renders exactly as Standard.
+- No GetPreferredItemHeight override.
 
-**`SimpleListPainter`** (75 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- no `GetPreferredItemHeight` override
+### SimpleListPainter
+- Selection uses PrimaryColor; no GetPreferredItemHeight override.
+- *fixed*: white selected ink now OnPrimaryColor.
 
-**`StandardListBoxPainter`** (156 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- no `GetPreferredItemHeight` override
+### StandardListBoxPainter
+- The base style everything else inherits; fills unselected rows via DrawItemBackgroundEx.
+- badgePad is a bare Scale(72) subtracted from the text width whether or not the badge is that wide.
+- Selected ink is OnPrimaryColor while the fill is a PrimaryColor overlay - not the ListItemSelected* pair.
+- No GetPreferredItemHeight override.
 
-**`TeamMembersPainter`** (96 loc)
-- paints via `BeepStyling` ×3
+### TeamMembersPainter
+- **Mixes scaled and unscaled units** - ImageSize is used raw if set, else Scale(28), then clamped between Scale(20) and Scale(40): a raw value compared against scaled bounds.
+- Avatar is drawn on the **right**, unlike every other avatar style.
 
-**`ThreeLineListBoxPainter`** (115 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
+### ThreeLineListBoxPainter
+- Own two/three-line layout rather than the shared helper.
+- Reads SubText and SubText2 - dead for ordinary items.
 
-**`TimelineListBoxPainter`** (246 loc)
-- **no unselected row fill** — the control surface shows through
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- **11 unscaled px** — ignores DPI
+### TimelineListBoxPainter
+- **11 unscaled pixel literals**; DrawItemBackground overridden empty, so rows are transparent.
+- Selection uses PrimaryColor; own two-line layout.
+- The connector line and dots are positioned from constants independent of the row height, so they drift when the row grows.
 
-**`WithIconsListBoxPainter`** (25 loc)
-- no outstanding issues found
+### WithIconsListBoxPainter
+- 25 lines; inherits everything else - no issues found.
 
-### The counts
+### Patterns that repeat across painters
 
-| issue | painters |
-|---|---:|
-| no unselected row fill | 8 |
-| selection via `PrimaryColor` instead of `ListItemSelectedBackColor` | 12 |
-| own two-line layout instead of the shared helper | 19 |
-| paints through `BeepStyling` | 16 |
-| 8+ unscaled pixel literals | 7 |
-| no `GetPreferredItemHeight` override | 6 |
-
-### What this changes about stage 07
-
-The ~25 styles still showing a light surface under DarkTheme are **not** one problem. Eight of
-them (`Minimal`, `Borderless`, `Avatar`, `ChipStyle`, `Glassmorphism`, `GradientCard`,
-`Neumorphic`, `Timeline`) paint **no** unselected row background at all — by design, so the
-control surface shows through — which means their appearance depends entirely on the control's
-own background, and that is the thing still not following the theme. The rest do fill, and need
-checking individually against the slot they fill with.
+| pattern | painters |
+|---|---|
+| **state decided by sniffing item.Text** | ColoredSelection, ErrorStates, FilterStatus, OutlinedCheckboxes, RaisedCheckboxes |
+| **SubText means three different things** | Chat = message, Command = shortcut, Notification = timestamp - and it is set in 2 places repo-wide, so all three are dead for ordinary items |
+| **live mouse read inside paint** | CategoryChips, InfiniteScroll |
+| **hardcoded English drawn to screen** | ErrorStates, InfiniteScroll |
+| **square shadow behind a rounded card** | CardList, Rounded |
+| **no unselected row fill** | Avatar, Borderless, ChipStyle, Glassmorphism, GradientCard, Minimal, Neumorphic, Timeline |
+| **selection via PrimaryColor** | Card, Checkbox, Compact, Filled, GradientCard, MaterialOutlined, NavigationRail, Outlined, Rounded, Simple, Standard, Timeline |
+| **own two-line layout** | 19 painters, marked individually above |

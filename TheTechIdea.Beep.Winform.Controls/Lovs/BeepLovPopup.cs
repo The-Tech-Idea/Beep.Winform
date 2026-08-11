@@ -14,6 +14,8 @@ using TheTechIdea.Beep.Winform.Controls.GridX;
 using TheTechIdea.Beep.Winform.Controls.Lovs;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Lovs.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -60,12 +62,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Theming Properties
-        /// <summary>Theme name string forwarded to all BeepControl children.</summary>
-        public string  LovTheme        { get; set; } = string.Empty;
-        /// <summary>Whether to let theme colors override appearance.</summary>
-        public bool    UseThemeColors  { get; set; }
-        /// <summary>The resolved theme instance for direct color access.</summary>
-        public IBeepTheme? CurrentTheme { get; set; }
+        private IBeepTheme? _currentTheme;
+
+        /// <summary>
+        /// The theme this popup paints its own plain-WinForms parts from.
+        /// </summary>
+        /// <remarks>
+        /// Falls back to <see cref="BeepThemesManager.CurrentTheme"/>, so the popup is themed
+        /// whether or not a host pushed one in. The Beep children are NOT themed from here - they
+        /// resolve their own colours, and walking them re-enters theming (CLAUDE.md rule 4).
+        /// <para>
+        /// This replaced a <c>LovTheme</c> name string and a <c>UseThemeColors</c> flag that were
+        /// forwarded into every child alongside an explicit <c>ApplyTheme()</c> call on each.
+        /// </para>
+        /// </remarks>
+        public IBeepTheme CurrentTheme
+        {
+            get => _currentTheme ?? BeepThemesManager.CurrentTheme;
+            set { _currentTheme = value; if (IsHandleCreated) ApplyLovTheme(); }
+        }
         #endregion
 
         #region Configuration Properties
@@ -186,6 +201,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             KeyPreview      = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             InitializeComponents();
+
+            // This is a plain Form, not a BaseControl, so nothing re-themes it on a theme change.
+            // The event is static: unsubscribed in Dispose, or it holds every popup ever opened.
+            BeepThemesManager.ThemeChanged += OnGlobalThemeChanged;
         }
         #endregion
 
@@ -359,7 +378,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 AutoSize  = false,
                 Dock      = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Font      = new Font("Segoe UI", 11f, FontStyle.Regular),
                 Text      = SpinnerFrames[0] + "  Loading…"
             };
             _loadingOverlay = new Panel { Visible = false };
@@ -522,53 +540,42 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Applies the current theme to every child control.
         /// Safe to call multiple times (e.g. after the parent control's theme changes).
         /// </summary>
+        private void OnGlobalThemeChanged(object sender, ThemeChangeEventArgs e)
+        {
+            if (IsDisposed) return;
+            _currentTheme = e?.NewTheme ?? BeepThemesManager.CurrentTheme;
+            ApplyLovTheme();
+        }
+
+        /// <summary>
+        /// Themes the parts of this popup that are plain WinForms containers, and nothing else.
+        /// </summary>
+        /// <remarks>
+        /// The Beep children - search box, buttons, count label, chips and the grid - are omitted
+        /// deliberately. Every one of them derives from <c>BaseControl</c>, subscribes to
+        /// <c>ThemeChanged</c> and re-applies itself; pushing a theme name and a flag into them and
+        /// then calling <c>ApplyTheme()</c> re-enters theming from the outside, which CLAUDE.md
+        /// rule 4 forbids and which has hung construction elsewhere in this repo.
+        /// </remarks>
         public void ApplyLovTheme()
         {
-            if (CurrentTheme == null) return;
+            var theme = CurrentTheme;
 
-            BackColor = CurrentTheme.PanelBackColor;
-            ForeColor = CurrentTheme.ForeColor;
+            BackColor = theme.PanelBackColor;
+            ForeColor = theme.ForeColor;
 
-            _headerPanel.BackColor = CurrentTheme.GridHeaderBackColor != Color.Empty
-                ? CurrentTheme.GridHeaderBackColor
-                : CurrentTheme.PanelBackColor;
+            // One slot, one return. The `!= Color.Empty ? slot : PanelBackColor` guard said a
+            // theme might not fill GridHeaderBackColor; every bundled theme does, and an unfilled
+            // slot is the theme's bug to fix in its part file, not something to paper over here.
+            _headerPanel.BackColor = theme.GridHeaderBackColor;
+            _footerPanel.BackColor = theme.PanelBackColor;
+            _recentPanel.BackColor = theme.PanelBackColor;
 
-            _footerPanel.BackColor    = CurrentTheme.PanelBackColor;
-            ApplyChild(_countLabel);
-
-            // Theme the recent panel chips
-            _recentPanel.BackColor = CurrentTheme.PanelBackColor;
-            foreach (Control c in _recentPanel.Controls)
-            {
-                if (c is BeepButton chip)
-                {
-                    chip.Theme          = LovTheme;
-                    chip.UseThemeColors = UseThemeColors;
-                    chip.ApplyTheme();
-                }
-            }
-
-            // Theme loading overlay
-            Color accentFg = CurrentTheme.ForeColor;
-            _loadingOverlay.BackColor = Color.FromArgb(220, CurrentTheme.PanelBackColor);
-            _loadingLabel  .ForeColor = accentFg;
-            _loadingLabel  .BackColor = Color.Transparent;
-
-            void ApplyChild(BaseControl c)
-            {
-                c.Theme         = LovTheme;
-                c.UseThemeColors = UseThemeColors;
-                c.ApplyTheme();
-            }
-
-            ApplyChild(_searchBox);
-            ApplyChild(_closeButton);
-            ApplyChild(_okButton);
-            ApplyChild(_cancelButton);
-
-            _grid.Theme         = LovTheme;
-            _grid.UseThemeColors = UseThemeColors;
-            _grid.ApplyTheme();
+            // An alpha veil over a resolved slot, so the grid reads as dimmed rather than hidden.
+            _loadingOverlay.BackColor = Color.FromArgb(220, theme.PanelBackColor);
+            _loadingLabel.ForeColor   = theme.ForeColor;
+            _loadingLabel.BackColor   = Color.Transparent;
+            _loadingLabel.Font        = LovFontHelpers.GetLovFontFromTheme(theme);
 
             Invalidate();
         }
@@ -721,13 +728,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 };
 
-                if (CurrentTheme != null)
-                {
-                    chip.Theme          = LovTheme;
-                    chip.UseThemeColors = UseThemeColors;
-                    chip.ApplyTheme();
-                }
-
+                // No theming here: a BeepButton subscribes to ThemeChanged in its constructor and
+                // resolves its own colours the moment it is parented.
                 _recentPanel.Controls.Add(chip);
             }
 
@@ -1239,14 +1241,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Dispose
 
+        private bool _disposedOnce;
+
+        /// <summary>
+        /// Idempotent teardown.
+        /// </summary>
+        /// <remarks>
+        /// Dispose must tolerate being called twice - WinForms calls it when the form is closed
+        /// and a caller may call it as well - but this body called <c>Cancel()</c> on a
+        /// <see cref="CancellationTokenSource"/> it had already disposed, which throws
+        /// <see cref="ObjectDisposedException"/>. Thrown from <c>Dispose</c> it is unhandled, and
+        /// it took the whole process down: a host that closes a LOV popup and then disposes it
+        /// crashes, and the crash leaves every other window behind.
+        /// </remarks>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && !_disposedOnce)
             {
+                _disposedOnce = true;
+
                 _loadCts?       .Cancel();
                 _loadCts?       .Dispose();
+                _loadCts = null;
                 _searchCts?     .Cancel();
                 _searchCts?     .Dispose();
+                _searchCts = null;
                 _searchDebounce?.Stop();
                 _searchDebounce?.Dispose();
                 _spinnerTimer?  .Stop();
@@ -1260,6 +1279,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _footerPanel?   .Dispose();
                 _recentPanel?   .Dispose();
                 _loadingOverlay?.Dispose();
+                BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
             }
             base.Dispose(disposing);
         }

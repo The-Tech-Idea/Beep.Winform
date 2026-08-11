@@ -286,8 +286,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _lovPopup.SearchDebounceMs = SearchDebounceMs;
             _lovPopup.LovColumns     = LovColumns;
             _lovPopup.MaxPopupHeight = MaxPopupHeight;
-            _lovPopup.LovTheme       = _currentTheme?.ThemeName ?? Theme;
-            _lovPopup.UseThemeColors = UseThemeColors;
             _lovPopup.CurrentTheme   = _currentTheme;
 
             // Phase 13: restore recent-selection history into the popup
@@ -757,20 +755,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_keyTextBox == null)
                 return;
 
-            // Apply theme to key textbox
-            _keyTextBox.Theme         = _currentTheme?.ThemeName ?? Theme;
-            _keyTextBox.UseThemeColors = UseThemeColors;
+            // The key box themes ITSELF - it is a BaseControl subscribed to ThemeChanged. Pushing
+            // a theme name and a flag in and then calling ApplyTheme() on it re-enters theming
+            // from the outside, which CLAUDE.md rule 4 forbids. Only the font is ours to set,
+            // because it is this control's typography decision, not the child's.
             if (_fieldFont != null) _keyTextBox.Font = _fieldFont;
-            _keyTextBox.ApplyTheme();
 
-            // Forward theme to popup if it already exists
-            if (_lovPopup != null && !_lovPopup.IsDisposed)
-            {
-                _lovPopup.LovTheme       = _currentTheme?.ThemeName ?? Theme;
-                _lovPopup.UseThemeColors = UseThemeColors;
-                _lovPopup.CurrentTheme   = _currentTheme;
-                _lovPopup.ApplyLovTheme();
-            }
+            // The popup is a plain Form and follows ThemeChanged on its own; handing it the
+            // resolved instance keeps it in step when the host pushed a theme rather than
+            // switching the global one.
+            if (_lovPopup != null && !_lovPopup.IsDisposed && _currentTheme != null)
+                _lovPopup.CurrentTheme = _currentTheme;
 
             Invalidate();
         }

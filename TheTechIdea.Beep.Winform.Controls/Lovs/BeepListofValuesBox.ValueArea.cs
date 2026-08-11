@@ -2,6 +2,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -98,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!hasKey && !hasValue)
             {
                 TextRenderer.DrawText(g, "Select a value…", _fieldFont ?? Font, area,
-                    _currentTheme?.SecondaryTextColor ?? SystemColors.GrayText,
+                    T().SecondaryTextColor,
                     TextFormatFlags.Left | TextFormatFlags.VerticalCenter
                     | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 return;
@@ -114,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             var textArea = new Rectangle(x, area.Top, area.Right - x, area.Height);
             TextRenderer.DrawText(g, _selectedDisplayValue, _fieldFont ?? Font, textArea,
-                _currentTheme?.ForeColor ?? ForeColor,
+                T().ForeColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter
                 | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
@@ -125,21 +128,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             var font = _badgeFont ?? _fieldFont ?? Font;
             Size text = TextRenderer.MeasureText(key, font);
 
-            int badgeW = text.Width + 12;
-            int badgeH = Math.Min(text.Height + 4, area.Height - 2);
+            int badgeW = text.Width + DpiScalingHelper.ScaleValue(12, this);
+            int badgeH = Math.Min(text.Height + DpiScalingHelper.ScaleValue(4, this), area.Height - 2);
             if (badgeH <= 0 || badgeW > area.Width) return 0;
 
             var rect = new Rectangle(area.Left, area.Top + (area.Height - badgeH) / 2, badgeW, badgeH);
-            Color fill = _currentTheme?.AccentColor ?? SystemColors.Highlight;
+            var theme  = T();
+            Color fill = theme.AccentColor;
 
             var saved = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            using (var path = RoundedRect(rect, Math.Min(6, badgeH / 2)))
+            using (var path = RoundedRect(rect, Math.Min(DpiScalingHelper.ScaleValue(6, this), badgeH / 2)))
             using (var brush = new SolidBrush(fill))
                 g.FillPath(brush, path);
             g.SmoothingMode = saved;
 
-            TextRenderer.DrawText(g, key, font, rect, ContrastForeColor(fill),
+            TextRenderer.DrawText(g, key, font, rect, BadgeInk(theme, fill),
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
             return badgeW;
@@ -158,12 +162,54 @@ namespace TheTechIdea.Beep.Winform.Controls
             return path;
         }
 
-        /// <summary>Black or white, whichever reads better on <paramref name="bg"/>.</summary>
-        private static Color ContrastForeColor(Color bg)
+        /// <summary>The theme in force: the pushed one, else the manager's current.</summary>
+        /// <remarks>
+        /// There is always a theme. The `_currentTheme?.Slot ?? SystemColors.X` fallbacks this
+        /// replaced meant a null theme silently produced Windows' own palette in the middle of a
+        /// themed control - a mismatch that reads as a rendering bug rather than as a missing theme.
+        /// </remarks>
+        private IBeepTheme T() => _currentTheme ?? BeepThemesManager.CurrentTheme;
+
+        /// <summary>
+        /// Whichever theme slot reads better on the badge fill.
+        /// </summary>
+        /// <remarks>
+        /// Both candidates are theme slots, so this is a contrast decision rather than a palette.
+        /// It used to return literal <c>(30,30,30)</c> or <c>White</c>, which ignored the theme
+        /// outright: on a dark theme the key sat in near-black on the accent colour.
+        /// <para>
+        /// The candidates are <c>ForeColor</c> and <c>PanelBackColor</c> because those are the two
+        /// ends of the theme's own contrast range - a theme's text has to be readable on its own
+        /// panel, so one of the pair is always far from any fill. Deliberately NOT a <c>*Fore</c>
+        /// slot (the theme contrast validator owns and rewrites those), and deliberately not
+        /// <c>OnPrimaryColor</c>: that slot means "ink on <c>PrimaryColor</c>", and the badge is
+        /// filled with <c>AccentColor</c>. Using it here scored white-on-cyan at ratio 1.25 in
+        /// DarkTheme and made it look like the theme was wrong, when the theme was self-consistent
+        /// and the candidate was simply the wrong slot for this fill.
+        /// </para>
+        /// </remarks>
+        private static Color BadgeInk(IBeepTheme theme, Color fill)
         {
-            // Perceived luminance (ITU-R BT.601)
-            double lum = (0.299 * bg.R + 0.587 * bg.G + 0.114 * bg.B) / 255.0;
-            return lum > 0.55 ? Color.FromArgb(30, 30, 30) : Color.White;
+            Color preferred = theme.ForeColor;
+            Color alternate = theme.PanelBackColor;
+            return ContrastRatio(fill, preferred) >= ContrastRatio(fill, alternate)
+                ? preferred : alternate;
+        }
+
+        private static double ContrastRatio(Color a, Color b)
+        {
+            double la = RelativeLuminance(a), lb = RelativeLuminance(b);
+            return (Math.Max(la, lb) + 0.05) / (Math.Min(la, lb) + 0.05);
+        }
+
+        private static double RelativeLuminance(Color c)
+        {
+            static double Channel(int v)
+            {
+                double s = v / 255.0;
+                return s <= 0.03928 ? s / 12.92 : Math.Pow((s + 0.055) / 1.055, 2.4);
+            }
+            return 0.2126 * Channel(c.R) + 0.7152 * Channel(c.G) + 0.0722 * Channel(c.B);
         }
     }
 }

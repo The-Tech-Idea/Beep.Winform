@@ -48,7 +48,7 @@ the loader is the real one, and it is the one that does not work.
 | [03](03-popup-selection.md) | The popup accepts a row nobody chose | **bug** | ☑ done |
 | [04](04-async-lifecycle.md) | The spinner outlives the popup | **bug** | ☑ done |
 | [05](05-binding-and-return.md) | Data binding and multi-column return | enhancement | ☑ done |
-| [06](06-composition.md) | The field paints itself; the popup hand-positions | refactor | ☑ done |
+| [06](06-composition.md) | The field paints itself; the popup hand-positions | refactor | ◐ popup done, field NOT composed |
 | [07](07-scale.md) | Filtering and paging for real LOV sizes | enhancement | ◐ partial |
 | [08](08-verification.md) | The harness | verification | ◐ partial |
 
@@ -121,3 +121,101 @@ the one a data-binding caller hits. See [02](02-validation-semantics.md).
 
 Per `CLAUDE.md`: report every catch through `BeepLog`; no stubs or legacy paths; nothing assigns
 colours; compose from Beep controls; a check must be able to fail for the reason it was written.
+
+---
+
+## Batch: the theming layer
+
+The behaviour stages (01–06) left the theming layer untouched. A census found the whole disease
+set: 32 `useThemeColors` sites, 18 `Color.Empty` guards, 19 literal palettes (Windows blue,
+Bootstrap danger red, assorted greys), a literal `new Font("Segoe UI", 11f)`, two luminance
+shifts, and no DPI scaling anywhere.
+
+### Most of it was dead
+
+`LovThemeHelpers`, `LovIconHelpers`, `LovStyleHelpers`, `LovColorConfig` and `LovStyleConfig` —
+**577 lines, five files — had no consumer anywhere in the repo.** Deleting them all compiled with
+zero errors, which is the proof. They accounted for nearly every literal and every `Color.Empty`
+guard in the census. `LovFontHelpers` is the only one that was live.
+
+The `GetErrorColor` / `GetButtonIconColor` hits a naive grep reports are the identically-named
+methods in the Numeric and Wizard helpers, not these.
+
+### Public members removed
+
+| member | why |
+|---|---|
+| `LovThemeHelpers` (whole class) | no consumer |
+| `LovIconHelpers` (whole class) | no consumer |
+| `LovStyleHelpers` (whole class) | no consumer |
+| `LovColorConfig`, `LovStyleConfig` (models) | no consumer |
+| `BeepLovPopup.LovTheme` (string), `BeepLovPopup.UseThemeColors` (bool) | forwarded into children alongside an `ApplyTheme()` call on each — see below |
+
+### The live defects
+
+- **`ApplyLovTheme` themed its children from the outside.** It pushed a theme *name* and a
+  `UseThemeColors` flag into the search box, three buttons, the count label, the chips and the
+  grid, then called `ApplyTheme()` on each. Every one of those is a `BaseControl` that subscribes
+  to `ThemeChanged` and re-applies itself; walking children re-enters theming, which CLAUDE.md
+  rule 4 forbids. It now themes only the plain WinForms containers it actually owns.
+- **`BeepLovPopup` is a plain `Form` and nothing re-themed it on a theme change.** It only
+  followed if the field happened to push a theme in. It now subscribes to `ThemeChanged` itself
+  and unsubscribes on dispose (the event is static and would otherwise hold every popup opened).
+- **`BeepListofValuesBox` pushed theme + flag into `_keyTextBox` and called `ApplyTheme()` on it.**
+  Same rule, same fix. Only the font is still set from the parent, because typography is this
+  control's decision rather than the child's.
+- **The header used an `Empty`-guard detour** (`GridHeaderBackColor != Color.Empty ? … :
+  PanelBackColor`). One slot, one return; an unfilled slot is the theme's bug to fix in its part
+  file.
+- **The value area fell back to `SystemColors`** via `_currentTheme?.Slot ?? SystemColors.X`, so a
+  null theme silently produced Windows' palette inside a themed control. There is always a theme.
+- **The key badge picked literal `(30,30,30)` / `White`** by BT.601 luminance, ignoring the theme.
+- **Badge padding and corner radius were raw pixels**; they scale through `DpiScalingHelper` now.
+
+### A wrong fix, caught by making the check stricter
+
+The badge ink first used `OnPrimaryColor` as the "ink on a fill" slot. The check asserted only
+that the chosen slot beat the alternative — which **passed on DarkTheme at 1.25 vs 1.25**, both
+candidates being equally illegible. Adding the WCAG AA floor turned it red and named the numbers:
+white ink on a cyan accent.
+
+That looked like a theme bug and was not. `OnPrimaryColor` means *ink on `PrimaryColor`*, and
+DarkTheme's `PrimaryColor` is (18,18,18) — white on it is correct. The badge is filled with
+`AccentColor`, so the slot was simply the wrong candidate. The candidates are now `ForeColor` and
+`PanelBackColor`, the two ends of the theme's own contrast range. DarkTheme went **1.25 → 13.30**;
+LightTheme stayed at 9.88.
+
+Had the check kept its weaker form, a near-invisible badge would have shipped with a green tick.
+
+### Verified — 56 pass, 5 fail
+
+New checks: the two themes differ (blindness guard), the popup follows a *live* theme change, it
+resolves the manager's current theme, the header uses the grid-header slot, and badge ink clears
+WCAG AA on both themes while remaining a theme slot.
+
+**The probe was hanging, and it mattered.** An orphaned `LovProbe` from an earlier run held its
+own `.exe` open, so **four consecutive builds failed to copy it and every run was the stale
+binary** — checks that existed in source appeared not to run. The probe now flushes and hard-exits.
+`Hide()` on the last visible form was ending the message loop; a minimal Show/Hide repro proved
+`Hide()` itself is fine, so this is a probe-shape issue, not a library defect.
+
+### Still failing — stage 06 is not what this tracker claims
+
+Five checks fail, all pre-existing, and they contradict the stage-06 row above:
+
+```
+FAIL  compose: the field holds a TableLayoutPanel: 1 child controls: BeepTextBox
+FAIL  compose: the display value is carried by a control: still painted
+FAIL  compose: the key badge is its own label: 0 visible label(s)
+FAIL  compose: ShowKeyBadge=true brings it back: 0 visible label(s)
+FAIL  compose: an empty field shows a placeholder, not a value
+```
+
+`BeepListofValuesBox.ValueArea.cs` paints the value and the badge with `TextRenderer.DrawText` and
+`FillPath`. **The field is not composed.** Stage 06 is marked done and says "value and badge are
+`BeepLabel`s"; the code says otherwise, and per CLAUDE.md the code is authoritative. The row is
+wrong and the work is outstanding — the popup half of stage 06 (header/footer `TableLayoutPanel`s)
+did land and passes.
+
+This batch deliberately fixed the painted path rather than replacing it, so the theming is correct
+either way; composing the field remains open.

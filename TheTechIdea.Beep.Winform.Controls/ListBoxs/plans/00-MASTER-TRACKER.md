@@ -280,21 +280,55 @@ fill in an `else` branch. The instrument was wrong; the list below is what the c
 **`BorderlessListBoxPainter`** (51 loc)
 - **no unselected row fill** — the control surface shows through
 
-**`CardListPainter`** (125 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+**`CardListPainter`** (125 loc) — *read in full*
+- **Square shadows behind a rounded card.** All three shadow passes do
+  `FillRectangle(shadowBrush, shadowRect)` while the card itself is a rounded path — the shadow's
+  corners stick out past the card's radius on every row, selected, hovered and normal.
+- **No second line at all.** It draws `item.Text` into the whole content rect and never looks at
+  `Description` or `SubText`, so a two-line item silently loses its subtitle in this style.
+- The image is a fixed `Scale(44)` square in a `Scale(60)` row with `Scale(8)` vertical padding —
+  exactly 44 of usable height, so it fits only at the default font and has no room to grow.
+- Selection fills a gradient of `PrimaryColor` (alpha 140→100), not `ListItemSelectedBackColor`.
 
-**`CategoryChipsPainter`** (110 loc)
-- no `GetPreferredItemHeight` override
+**`CategoryChipsPainter`** (110 loc) — *read in full*
+- **It reads the live mouse position inside the paint path**:
+  `xRect.Contains(_owner.PointToClient(Control.MousePosition))` decides whether to draw the close
+  button's hover disc. Painting therefore depends on where the cursor happens to be at paint time
+  — it renders differently under `DrawToBitmap`, off-screen or during a print, and it ignores the
+  hover state the control already tracks.
+- **Measure and draw disagree by 4px a side.** The chip's width is `text + Scale(16) * 2` but the
+  text is then drawn into a rect inset by `Scale(12)` a side, so the label sits off-centre inside
+  the width it was measured for.
+- **Silently caps at five chips** (`selectedItems.Take(5)`) with nothing to say more are selected.
+- The divider is placed at `chipY + Scale(32)` while the chips are `Scale(24)` tall — an unrelated
+  constant, so the gap under the strip changes when the chips wrap.
+- No `GetPreferredItemHeight` override — inherits Outlined's.
 
 **`ChakraUIListBoxPainter`** (205 loc)
 - paints via `BeepStyling` ×3
 
-**`ChatListBoxPainter`** (108 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
+**`ChatListBoxPainter`** (108 loc) — *read in full*
+- **The message line reads `item.SubText`**, never `Description` — the same dead property as
+  `Avatar`. A chat list built from `SimpleItem` shows names and no messages.
+- **The avatar is centred, the text is not.** Avatar is `(Height - avSz) / 2`; the name is pinned
+  at `Y + Scale(14)` and the message under it. They align only at the token row height.
+- **Badge colour comes from a different property than every other painter.** Here it is
+  `(item as BeepListItem)?.BadgeColor`; `Avatar` uses `item.BadgeBackColor`. Two properties for
+  one concept, so a badge coloured for one style is uncoloured in the other.
+- The unread pill falls back to `PrimaryColor` — an unread count is a semantic mark and has
+  `ErrorColor`/`AccentColor` available.
 
-**`CheckboxListPainter`** (157 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
-- own two-line layout (not `DrawTitleAndSubtitle`)
+**`CheckboxListPainter`** (157 loc) — *read in full*
+- **Its "checked" source of truth differs from `Standard`'s.** This painter reads
+  `item.IsChecked`; `StandardListBoxPainter` reads `_owner.SelectedItems?.Contains(item)`. The two
+  can disagree, and which one you get depends on the style you picked.
+- **Two spellings of DPI scaling in one method** — `Scale(...)` and
+  `DpiScalingHelper.ScaleValue(..., _owner)` interleaved. Same result, but it hides which numbers
+  were considered.
+- `titleH = Math.Max(12, ...)` — the floor is an **unscaled** 12, so at 200% DPI the minimum title
+  band is half what it should be.
+- Two-line path reads `rich.SubText` only; `Description` is ignored.
+- Selection fills a `PrimaryColor` gradient rather than `ListItemSelectedBackColor`.
 
 **`ChipStyleListBoxPainter`** (180 loc) — *read in full*
 - **The close button is drawn but is not clickable.** `DrawCloseButton` paints an × on every

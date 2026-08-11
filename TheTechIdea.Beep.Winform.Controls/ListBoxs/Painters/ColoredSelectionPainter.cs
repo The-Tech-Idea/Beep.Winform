@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Draw main text
             int textPad = Scale(16);
-            Rectangle textRect = new Rectangle(currentX, itemRect.Y + Scale(8), itemRect.Width - currentX - textPad, itemRect.Height / 2);
+            Rectangle textRect = new Rectangle(currentX, itemRect.Y + Scale(8), itemRect.Right - currentX - textPad, itemRect.Height / 2);
             Color textColor = _owner.IsItemSelected(item)
                 ? Theme.OnPrimaryColor
                 : (Theme.ListItemForeColor);
@@ -44,9 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(item.Description))
             {
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 1);
-                Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - textPad, itemRect.Height / 2 - Scale(8));
+                Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Right - currentX - textPad, itemRect.Height / 2 - Scale(8));
                 Color descColor = _owner.IsItemSelected(item)
-                    ? Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 1.3f), 255, 255, 255)
+                    ? Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 1.3f), Theme.OnPrimaryColor)
                     : Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.ListItemForeColor);
 
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,

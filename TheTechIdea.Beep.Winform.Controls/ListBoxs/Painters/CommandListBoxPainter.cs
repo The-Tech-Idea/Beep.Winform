@@ -59,8 +59,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(shortcut))
             {
                 kbdFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 1.5f));
-                shortcutWidth = DpiScalingHelper.ScaleValue(
-                    TextRenderer.MeasureText(shortcut, kbdFont).Width + ListBoxTokens.IconTextGap, _owner);
+                // MeasureText already returns device pixels; only the gap constant needs scaling.
+                // Scaling the whole sum scaled the measured text a second time, so the shortcut
+                // chip grew with DPI while the text inside it did not.
+                shortcutWidth = TextRenderer.MeasureText(shortcut, kbdFont).Width
+                                + DpiScalingHelper.ScaleValue(ListBoxTokens.IconTextGap, _owner);
             }
 
             int nameWidth = itemRect.Right - textX - shortcutWidth - pad;

@@ -37,6 +37,8 @@ because the instrument, not the code, was at fault.
 | 04 | The `?? Color.X` fallback layer (329 sites) | **rule 4** | ☐ open |
 | 05 | Selection colours stamped into properties | **bug** | ☐ open |
 | 06 | Neumorphic's luminance shifts | refactor | ☐ open |
+| 07 | Row backgrounds come from ControlStyle, not the theme | **bug** | ☐ open |
+| — | [Painter-by-painter audit](02-painter-audit.md) | reference | ☑ current |
 
 ## Stage 01 — done
 
@@ -102,9 +104,13 @@ because that cache is built during **painting** and `Invalidate()` alone does no
 
 ### Still open
 
-- The remaining five painters that draw `item.Description` have not been converted to
-  `DrawTitleAndSubtitle`; they were not visibly clipping in the sheet, but they hold their own
-  copies of the layout.
+- **18** painters draw `item.Description` with their own layout rather than
+  `DrawTitleAndSubtitle` — not five, as previously written. They are listed individually in
+  [02-painter-audit.md](02-painter-audit.md). None was visibly clipping in the contact sheet, but
+  each holds its own copy of the arithmetic that broke the four that were fixed.
+- **16** painters call `BeepStyling`, which is why dark themes still draw light rows — see stage 07.
+- Unscaled numeric literals are concentrated in a few painters: `Glassmorphism` 32, `BaseListBox`
+  18, `NavigationRail` 16, `Timeline` 11, `Neumorphic` 10. Those sizes do not follow DPI.
 - Tall styles (`ProfileCard` 120px, `ThreeLineList` 88px, `NotificationList` 80px) clip their last
   row against the viewport rather than the row — not yet investigated.
 
@@ -173,9 +179,15 @@ Two decorative palettes were labelled as deliberate and were not:
 - `GradientCardListBoxPainter` held six `static readonly` web gradients, so every theme drew the
   same purple-blue and pink-peach cards. Built from theme pairs per call now.
 
-**Verified:** `grep` finds zero colour literals left in `Painters/`; 50 checks pass under both
-LightTheme and DarkTheme; contact sheets rendered for both and eyeballed. The avatar discs visibly
-change colour between themes now, which they could not before.
+**Verified:** 50 checks pass under both LightTheme and DarkTheme; contact sheets rendered for both
+and eyeballed. The avatar discs visibly change colour between themes now, which they could not
+before.
+
+**Correction.** "Zero colour literals" was claimed one commit too early — a per-file re-count found
+`Color.FromArgb(30, Color.Teal)` still in `MultiSelectionTealPainter`'s hover brush, which the
+first grep's exclusion list had hidden. Fixed; the count is genuinely zero now, and
+[02-painter-audit.md](02-painter-audit.md) carries the per-painter numbers the summary should have
+had in the first place.
 
 ### Found while verifying — not fixed
 

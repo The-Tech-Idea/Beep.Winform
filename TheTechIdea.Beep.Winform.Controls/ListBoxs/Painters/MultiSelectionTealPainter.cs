@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with gradient
                 if (isHovered && !isSelected)
                 {
-                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Color.Teal), Color.Transparent, LinearGradientMode.Vertical))
+                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Theme.AccentColor), Color.Transparent, LinearGradientMode.Vertical))
                     {
                         g.FillPath(hoverBrush, path);
                     }

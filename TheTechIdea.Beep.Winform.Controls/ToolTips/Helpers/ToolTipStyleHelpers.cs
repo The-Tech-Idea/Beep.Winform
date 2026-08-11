@@ -62,11 +62,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         /// </summary>
         public static int GetRecommendedMinWidth(BeepControlStyle controlStyle)
         {
+            // A readability FLOOR, not a slab. These used to be 100/120/150, applied as a hard
+            // minimum on the final size, so a one-word tooltip like "Save" - which measures about
+            // 58px including padding - was inflated to 150px and looked nothing like its content.
+            // A tooltip should hug its text; what controls a long tooltip's shape is the MAX
+            // width (wrapping), not the min. These values only stop a degenerate sliver.
             return controlStyle switch
             {
-                BeepControlStyle.NotionMinimal => 100,
-                BeepControlStyle.Minimal => 120,
-                _ => 150 // Standard
+                BeepControlStyle.NotionMinimal => 56,
+                BeepControlStyle.Minimal => 60,
+                _ => 64 // Standard
             };
         }
 

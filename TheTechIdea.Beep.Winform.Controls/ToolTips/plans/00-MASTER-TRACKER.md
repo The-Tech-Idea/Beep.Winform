@@ -173,3 +173,36 @@ so the original design intent survives when it is asked for by name. Titled tool
 3. **`ShowArrow = true` produced no visible arrow** in the client capture. It may be drawn outside
    the client rect (the capture is client-only), so this is unconfirmed rather than proven broken.
 4. `BeepPopover` and the tour tooltip painters were not rendered in this pass.
+
+## Batch 7 — tooltip sizing now matches its text
+
+User: "sizing of tooltips is not correct compared to text" (width AND height). Four separate
+inflators, each measured on a rendered gallery:
+
+| | "Save" | titled | long |
+|---|---|---|---|
+| before | 150x61 | 242x86 | 360x103 |
+| after  | **74x43** | 238x68 | 360x85 |
+
+1. **A shadow allowance for a shadow nobody paints.** `CalculateSize` added the style's
+   `shadowBlur + offset` to the tooltip's SIZE. But the card is painted edge to edge across the
+   whole bounds, and `PaintBackground` was rewritten in batch 1 to a plain fill - so no shadow is
+   drawn at all. The reservation simply inflated the card by ~20px in both directions. Removed,
+   with a note that the allowance and the painting must return together if a drop shadow is ever
+   reintroduced.
+2. **`GetRecommendedMinWidth` was a slab, not a floor** - 150 for every standard style, applied as
+   a hard minimum. A one-word tooltip measuring ~58px was padded to 150. Now 56/60/64, which only
+   guards against a degenerate sliver; a tooltip's shape is governed by its MAX width (wrapping).
+3. **Measurement and painting used different padding.** `CalculateSize` padded with the constant
+   `DefaultPadding = 12`; `GetContentRectangle` padded with the style's own `StyleSpacing`
+   value. For any style whose padding is not 12, the box reserved and the box drawn into were
+   different sizes - the frame could not match its text. Both now call one authority,
+   `GetPaddingX`/`GetPaddingY`.
+4. **Equal padding on all four sides.** A tooltip is one band of text; `GetPaddingY` is now
+   `padX - 5` (min 5), so one-line hints stop looking like dialogs. `DefaultMinWidth` 100 -> 56
+   and the form's hardcoded 40px height floor -> 24.
+
+TipProbe 13/13, NoteProbe 7/7, renders eyeballed under Default/Zen/ArcLinux.
+
+Still open from batch 6: the arrow was not visible in a client-only capture (unconfirmed), and
+`BeepPopover` plus the tour painters remain unrendered.

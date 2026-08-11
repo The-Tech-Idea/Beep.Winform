@@ -17,6 +17,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// Apply tooltip configuration and prepare for display
         /// Enhanced with ToolTipStyleHelpers and ToolTipLayoutHelpers
         /// </summary>
+        // Enough for one line of text plus its padding - not a design target. At 40 a
+        // single-line tooltip was padded out regardless of what it actually measured.
+        private const int MinimumReadableHeight = 24;
+
         public void ApplyConfig(ToolTipConfig config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -53,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 
                 // Apply responsive sizing based on screen size
                 var screenBounds = ToolTipPositioningHelpers.GetScreenBounds(_config.Position);
-                var minSize = new Size(minWidth, 40); // Minimum readable size
+                var minSize = new Size(minWidth, MinimumReadableHeight); // Minimum readable size
                 var maxSize = new Size(maxWidth, 0); // 0 means use default
                 
                 var responsiveSize = ToolTipPositioningHelpers.CalculateResponsiveSize(
@@ -175,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
                 var screenBounds = ToolTipPositioningHelpers.GetScreenBounds(_config.Position);
                 var responsiveSize = ToolTipPositioningHelpers.CalculateResponsiveSize(
-                    contentSize, new Size(maxWidth, 0), new Size(minWidth, 40), screenBounds);
+                    contentSize, new Size(maxWidth, 0), new Size(minWidth, MinimumReadableHeight), screenBounds);
 
                 if (responsiveSize != Size) Size = responsiveSize;
             }

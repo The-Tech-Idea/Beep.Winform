@@ -24,7 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         protected const int DefaultIconMargin = 8;
         protected const int DefaultTitleSpacing = 6;
         protected const int DefaultArrowSize = 8;
-        protected const int DefaultMinWidth = 100;
+        // A degenerate-sliver guard, not a target width. At 100 it padded every short hint
+        // ("Save" measures ~58) out to a fixed slab that bore no relation to its text.
+        protected const int DefaultMinWidth = 56;
         protected const int DefaultMaxWidth = 400;
 
         #endregion
@@ -61,14 +63,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// </summary>
         public virtual Size CalculateSize(Graphics g, ToolTipConfig config)
         {
-            int width = DefaultPadding * 2;
-            int height = DefaultPadding * 2;
+            int padX = GetPaddingX(config);
+            int padY = GetPaddingY(config);
+            int width = padX * 2;
+            int height = padY * 2;
 
             // Account for icon
             if (HasIcon(config))
             {
                 width += DefaultIconSize + DefaultIconMargin;
-                height = Math.Max(height, DefaultIconSize + DefaultPadding * 2);
+                height = Math.Max(height, DefaultIconSize + padY * 2);
             }
 
             // Measure exactly the sections the variant will actually draw. Measuring a title that
@@ -108,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                     {
                         // Same row as the label: widen, do not grow taller.
                         contentWidth += badge.Width + DefaultIconMargin;
-                        height = Math.Max(height, badge.Height + DefaultPadding * 2);
+                        height = Math.Max(height, badge.Height + padY * 2);
                     }
                     else
                     {
@@ -126,17 +130,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             width += borderWidth * 2;  // Left + Right
             height += borderWidth * 2; // Top + Bottom
 
-            // Account for BeepControlStyle Shadow size
-            if (config.ShowShadow && StyleShadows.HasShadow(beepStyle))
-            {
-                int shadowBlur = StyleShadows.GetShadowBlur(beepStyle);
-                int shadowOffsetX = Math.Abs(StyleShadows.GetShadowOffsetX(beepStyle));
-                int shadowOffsetY = Math.Abs(StyleShadows.GetShadowOffsetY(beepStyle));
-                
-                // Add shadow space
-                width += shadowBlur + shadowOffsetX;
-                height += shadowBlur + shadowOffsetY;
-            }
+            // NO shadow allowance. The card is painted edge to edge across the whole bounds
+            // (PaintBackground fills the full rectangle), so reserving blur+offset here does not
+            // create room OUTSIDE the card - it just inflates the card. It cost ~20px in both
+            // directions on every tooltip, which is why a one-word hint like "Save" came out
+            // 150x61 against a native tooltip's ~22px height. If a real drop shadow is
+            // reintroduced, the allowance and the painting have to come back together.
 
             // Apply constraints
             width = Math.Max(DefaultMinWidth, Math.Min(width, DefaultMaxWidth));
@@ -276,18 +275,39 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// </summary>
         protected Rectangle GetContentRectangle(Rectangle bounds, ToolTipConfig config)
         {
-            int padding = DefaultPadding;
-            if (config != null)
-            {
-                var style = ToolTipStyleAdapter.GetBeepControlStyle(config);
-                padding = Math.Max(8, StyleSpacing.GetPadding(style));
-            }
+            int padX = GetPaddingX(config);
+            int padY = GetPaddingY(config);
             return new Rectangle(
-                bounds.X + padding,
-                bounds.Y + padding,
-                bounds.Width - padding * 2,
-                bounds.Height - padding * 2
+                bounds.X + padX,
+                bounds.Y + padY,
+                bounds.Width - padX * 2,
+                bounds.Height - padY * 2
             );
+        }
+
+        /// <summary>
+        /// Horizontal padding. THE single source for both measurement and painting.
+        /// </summary>
+        /// <remarks>
+        /// CalculateSize used the constant <see cref="DefaultPadding"/> while this rectangle used
+        /// the style's own spacing, so the size reserved and the space actually used disagreed for
+        /// every style whose padding is not 12 - the tooltip was measured against one box and drawn
+        /// into another, which is why the frame never matched its text.
+        /// </remarks>
+        protected int GetPaddingX(ToolTipConfig config)
+        {
+            if (config == null) return DefaultPadding;
+            var style = ToolTipStyleAdapter.GetBeepControlStyle(config);
+            return Math.Max(8, StyleSpacing.GetPadding(style));
+        }
+
+        /// <summary>
+        /// Vertical padding: deliberately tighter than horizontal. A tooltip is a single band of
+        /// text, and equal padding on all four sides made one-line hints look like dialogs.
+        /// </summary>
+        protected int GetPaddingY(ToolTipConfig config)
+        {
+            return Math.Max(5, GetPaddingX(config) - 5);
         }
 
         #endregion

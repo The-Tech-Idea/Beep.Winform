@@ -217,27 +217,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         public bool ShowArrow { get; set; } = true;
 
         /// <summary>
-        /// Show drop shadow.
-        /// </summary>
-        public bool ShowShadow { get; set; } = true;
-
-        /// <summary>
-        /// Duplicate of <see cref="ShowShadow"/>, kept so existing callers keep compiling.
-        /// <para>
-        /// Two independent booleans meant the same thing, both defaulted to <c>true</c>, and every
-        /// painter had to test <c>ShowShadow || EnableShadow</c> — so setting either one to false
-        /// did nothing unless you knew to set both. This now forwards to <see cref="ShowShadow"/>,
-        /// which is the single source of truth.
-        /// </para>
-        /// </summary>
-        [Obsolete("Use ShowShadow. This forwards to it and will be removed.")]
-        public bool EnableShadow
-        {
-            get => ShowShadow;
-            set => ShowShadow = value;
-        }
-
-        /// <summary>
         /// Show close button
         /// </summary>
         public bool Closable { get; set; } = false;

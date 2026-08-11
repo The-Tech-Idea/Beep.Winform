@@ -43,14 +43,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         void PaintBorder(Graphics g, Rectangle bounds, ToolTipConfig config, IBeepTheme theme);
 
         /// <summary>
-        /// Paint shadow using BeepStyling ShadowPainters
-        /// </summary>
-        /// <param name="g">Graphics context</param>
-        /// <param name="bounds">Shadow bounds</param>
-        /// <param name="config">Tooltip configuration</param>
-        void PaintShadow(Graphics g, Rectangle bounds, ToolTipConfig config);
-
-        /// <summary>
         /// Paint arrow/pointer towards target element
         /// </summary>
         /// <param name="g">Graphics context</param>

@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -28,7 +29,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private ToolTipPlacement _tooltipPlacement = ToolTipPlacement.Auto;
         private ToolTipAnimation _tooltipAnimation = ToolTipAnimation.Fade;
         private bool _tooltipShowArrow = true;
-        private bool _tooltipShowShadow = true;
         private bool _tooltipFollowCursor = false;
         private int _tooltipShowDelay = 500;
         private bool _tooltipClosable = false;
@@ -222,23 +222,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
 
         /// <summary>
-        /// Gets or sets whether to show shadow effect
-        /// </summary>
-        [Browsable(true)]
-        [Category("Tooltip")]
-        [Description("Enable shadow effect for tooltip.")]
-        [DefaultValue(true)]
-        public bool TooltipShowShadow
-        {
-            get => _tooltipShowShadow;
-            set
-            {
-                if (_tooltipShowShadow == value) return;
-                _tooltipShowShadow = value;
-                UpdateTooltip();
-            }
-        }
-
         /// <summary>
         /// Gets or sets whether tooltip follows cursor
         /// </summary>
@@ -386,7 +369,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[BaseControl.Tooltip] Error updating tooltip: {ex.Message}");
+                BeepLog.Failure(this, "register this control's tooltip with ToolTipManager", ex);
             }
             finally
             {
@@ -444,9 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     Duration = duration,
                     Placement = ToolTipPlacement.Top,
                     Animation = ToolTipAnimation.Slide,
-                    ShowArrow = false,
-                    ShowShadow = true,
-                    EnableShadow = true
+                    ShowArrow = false
                 };
 
                 // Calculate position at top-center of control
@@ -537,8 +518,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Placement = _tooltipPlacement,
                 Animation = _tooltipAnimation,
                 ShowArrow = _tooltipShowArrow,
-                ShowShadow = _tooltipShowShadow,
-                EnableShadow = _tooltipShowShadow,
                 FollowCursor = _tooltipFollowCursor,
                 ShowDelay = _tooltipShowDelay,
                 Closable = _tooltipClosable,

@@ -115,68 +115,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         #region Shadow Painting
 
         /// <summary>
-        /// Paint shadow using BeepStyling ShadowPainters
-        /// </summary>
-        public override void PaintShadow(Graphics g, Rectangle bounds, ToolTipConfig config)
-        {
-            if (!config.ShowShadow)
-                return;
-
-            var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
-
-            if (!StyleShadows.HasShadow(beepStyle))
-                return;
-
-            // Use BeepStyling shadow painters
-            var savedStyle = BeepStyling.CurrentControlStyle;
-            
-            try
-            {
-                BeepStyling.SetControlStyle(beepStyle);
-                
-                // BeepStyling.PaintStyleBackground already handles shadows internally
-                // But for tooltips, we may want explicit control
-                int blur = StyleShadows.GetShadowBlur(beepStyle);
-                int offsetY = StyleShadows.GetShadowOffsetY(beepStyle);
-                int offsetX = StyleShadows.GetShadowOffsetX(beepStyle);
-                Color shadowColor = StyleShadows.GetShadowColor(beepStyle);
-
-                // Create shadow bounds
-                Rectangle shadowBounds = new Rectangle(
-                    bounds.X + offsetX,
-                    bounds.Y + offsetY,
-                    bounds.Width,
-                    bounds.Height
-                );
-
-                int radius = StyleBorders.GetRadius(beepStyle);
-
-                // Simple shadow with blur simulation
-                for (int i = blur; i > 0; i--)
-                {
-                    int alpha = (int)(shadowColor.A * (i / (float)blur) * 0.3f);
-                    Color blurColor = Color.FromArgb(alpha, shadowColor);
-
-                    using (var shadowBrush = new SolidBrush(blurColor))
-                    using (var path = CreateRoundedRectangle(shadowBounds, radius))
-                    {
-                        g.FillPath(shadowBrush, path);
-                    }
-
-                    shadowBounds.Inflate(1, 1);
-                }
-            }
-            finally
-            {
-                BeepStyling.SetControlStyle(savedStyle);
-            }
-        }
-
-        #endregion
-
-        #region Arrow Painting
-
-        /// <summary>
         /// Paint arrow/pointer towards target element.
         /// Delegates to <see cref="ToolTipArrowPainter"/> for DPI-aware, style-aware rendering.
         /// </summary>

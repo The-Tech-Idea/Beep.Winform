@@ -31,8 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         public override void PaintBorder(Graphics g, Rectangle bounds, ToolTipConfig config, IBeepTheme theme)
             => _shared.PaintBorder(g, bounds, config, theme);
 
-        public override void PaintShadow(Graphics g, Rectangle bounds, ToolTipConfig config)
-            => _shared.PaintShadow(g, bounds, config);
 
         public override void PaintArrow(Graphics g, Point position, ToolTipPlacement placement, ToolTipConfig config, IBeepTheme theme)
             => _shared.PaintArrow(g, position, placement, config, theme);
@@ -72,19 +70,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             PaintBackground(g, bounds, config, theme);
             PaintBorder(g, bounds, config, theme);
 
-            int y = bounds.Y + PaddingV;
+            // The CARD, not the window: the remainder is the caret strip, and anything laid out
+            // into it is clipped off by the window region.
+            var card = GetCardRectangle(bounds, config);
+            int y = card.Y + PaddingV;
 
-            y = PaintStepBadge(g, bounds, config, colors, y);
-            y = PaintSeparator(g, bounds, colors, y);
-            y = PaintTourContent(g, bounds, config, colors, y);
-            y = PaintProgressDots(g, bounds, config, colors, y);
-            PaintNavButtons(g, bounds, config, colors, theme);
+            y = PaintStepBadge(g, card, config, colors, y);
+            y = PaintSeparator(g, card, colors, y);
+            y = PaintTourContent(g, card, config, colors, y);
+            y = PaintProgressDots(g, card, config, colors, y);
+            PaintNavButtons(g, card, config, colors, theme);
 
-            // Arrow
-            if (config.ShowArrow)
-                ToolTipArrowPainter.DrawArrow(g, bounds, placement,
-                    config.ArrowStyle, config.ArrowSize, config.ArrowOffset,
-                    colors.backColor, colors.borderColor);
+            // No arrow pass: the caret is part of the silhouette PaintBackground already
+            // fills. Drawing it again here aimed at the FULL window bounds, which put the tip
+            // outside the window where it was clipped away, and double-stroked its border.
         }
 
         public override Size CalculateSize(Graphics g, ToolTipConfig config)

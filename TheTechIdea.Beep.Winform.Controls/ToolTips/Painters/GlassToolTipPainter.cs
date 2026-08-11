@@ -45,30 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             g.SmoothingMode     = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            PaintShadow(g, bounds, config);
+            // No shadow pass and no separate arrow pass: the glow inflated OUTSIDE bounds, so
+            // every layer of it fell outside the window and was clipped away - it had never been
+            // visible. The caret is part of the silhouette the background already fills, so
+            // drawing it again would double-stroke its border.
             PaintBackground(g, bounds, config, theme);
             PaintBorder(g, bounds, config, theme);
-            if (config.ShowArrow)
-                PaintArrow(g, Point.Empty, placement, config, theme);
             PaintContent(g, bounds, config, theme);
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // Shadow — soft multi-layer glow instead of drop shadow
-        // ──────────────────────────────────────────────────────────────
-
-        public override void PaintShadow(Graphics g, Rectangle bounds, ToolTipConfig config)
-        {
-            for (int i = GlowLayers; i >= 1; i--)
-            {
-                int   inflate = i * GlowSpread;
-                var   r       = Rectangle.Inflate(bounds, inflate, inflate);
-                float alpha   = (float)(GlowLayers - i + 1) / (GlowLayers * 2) * 0.55f;
-                int   a       = (int)(alpha * 255);
-                using var pen = new Pen(Color.FromArgb(a, 0, 0, 0));
-                using var path = CreateRoundedRect(r, CornerRadius + inflate / 2);
-                g.DrawPath(pen, path);
-            }
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -93,12 +76,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             // frosted *look* is achieved here by compositing the same colour against a light base
             // and filling opaquely. Layers drawn on top of this fill may use alpha freely, because
             // they now blend against an opaque surface rather than the key colour.
-            using var path = CreateRoundedRect(bounds, CornerRadius);
+            using var path = GetSilhouettePath(bounds, config);
             using var bg   = new SolidBrush(CompositeOverLight(colors.background, GlassBgAlpha));
             g.FillPath(bg, path);
 
             // Sheen — top-quarter highlight gradient
-            var sheenRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height / 2);
+            var card      = GetCardRectangle(bounds, config);
+            var sheenRect = new Rectangle(card.X, card.Y, card.Width, card.Height / 2);
             using var sheenPath = CreateRoundedRect(sheenRect, CornerRadius);
             using var sheen = new LinearGradientBrush(sheenRect,
                 Color.FromArgb((int)(SheenAlpha * 255), Color.White),
@@ -112,6 +96,36 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// returns an opaque result — the frosted appearance without relying on window alpha, which
         /// this form's colour-key transparency cannot support.
         /// </summary>
+        /// <summary>
+        /// Picks whichever of the theme's own tooltip slots is legible on the frosted surface.
+        /// </summary>
+        /// <remarks>
+        /// Both candidates come from the theme - this is a contrast decision, not a palette. The
+        /// frost is a composite of the tooltip background against a near-white base, so the
+        /// foreground slot (chosen for the DARK card) lands near-white on near-white and the text
+        /// all but disappeared. The background slot is the card colour and contrasts by design.
+        /// </remarks>
+        private static Color ReadableOn(Color surface, Color preferred, Color alternate)
+            => ContrastRatio(surface, preferred) >= 4.5
+               || ContrastRatio(surface, preferred) >= ContrastRatio(surface, alternate)
+                   ? preferred : alternate;
+
+        private static double ContrastRatio(Color a, Color b)
+        {
+            double la = RelativeLuminance(a), lb = RelativeLuminance(b);
+            return (Math.Max(la, lb) + 0.05) / (Math.Min(la, lb) + 0.05);
+        }
+
+        private static double RelativeLuminance(Color c)
+        {
+            static double Channel(int v)
+            {
+                double s = v / 255.0;
+                return s <= 0.03928 ? s / 12.92 : Math.Pow((s + 0.055) / 1.055, 2.4);
+            }
+            return 0.2126 * Channel(c.R) + 0.7152 * Channel(c.G) + 0.0722 * Channel(c.B);
+        }
+
         private static Color CompositeOverLight(Color colour, float alpha)
         {
             const int BaseTone = 246;   // near-white frost backing
@@ -132,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             var colors = ToolTipStyleAdapter.GetColors(config, theme);
             int borderA = (int)(BorderAlpha * 255);
 
-            using var path = CreateRoundedRect(bounds, CornerRadius);
+            using var path = GetSilhouettePath(bounds, config);
             using var pen  = new Pen(Color.FromArgb(borderA,
                 colors.border.R, colors.border.G, colors.border.B), 1.5f);
             g.DrawPath(pen, path);
@@ -145,14 +159,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         public override void PaintArrow(Graphics g, Point position, ToolTipPlacement placement,
                                         ToolTipConfig config, IBeepTheme theme)
         {
-            // Re-use the last painted bounds (stored by caller via the bounds parameter in Paint).
-            // For simplicity, we use an empty rect and let ToolTipArrowPainter handle placement.
-            var colors = ToolTipStyleAdapter.GetColors(config, theme);
-            int fillA  = (int)(GlassBgAlpha * 1.5 * 255);
-            ToolTipArrowPainter.DrawArrow(g, _lastBounds, placement,
-                config.ArrowStyle, config.ArrowSize, config.ArrowOffset,
-                Color.FromArgb(Math.Min(fillA, 255), colors.background),
-                Color.FromArgb((int)(BorderAlpha * 255), colors.border));
+            // Nothing to do: the caret is part of the silhouette PaintBackground fills and
+            // PaintBorder strokes, so it is already drawn - in one piece with the card, which is
+            // what stops a seam appearing where two separate fills would meet.
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -230,14 +239,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             var titleFont = BeepThemesManager.ToFont(theme?.TitleStyle) ?? BeepFontManager.DefaultFont;
             var bodyFont = BeepThemesManager.ToFont(theme?.BodyStyle) ?? BeepFontManager.DefaultFont;
 
+            // The surface actually painted, not the theme's nominal tooltip background: the frost
+            // is that colour composited against a near-white base, so it is LIGHT even when the
+            // theme's tooltip card is dark.
+            Color frost = CompositeOverLight(colors.background, GlassBgAlpha);
+            Color ink   = ReadableOn(frost, colors.foreground, colors.background);
+
+            // No text drop-shadow. It was a black offset copy behind every glyph, added to rescue
+            // legibility that the wrong ink colour had destroyed; on a light frost it just muddied
+            // the text. Contrast is now solved where it belongs, in the colour choice.
             if (!string.IsNullOrEmpty(config.Title))
             {
-                // shadow
-                using var shadow = new SolidBrush(Color.FromArgb(80, Color.Black));
-                g.DrawString(config.Title, titleFont, shadow,
-                    new Rectangle(area.X + 1, area.Y + 1, area.Width, area.Height));
-                // text
-                using var fg = new SolidBrush(colors.foreground);
+                using var fg = new SolidBrush(ink);
                 g.DrawString(config.Title, titleFont, fg, area);
 
                 int th = (int)g.MeasureString(config.Title, titleFont, area.Width).Height;
@@ -246,10 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
             if (!string.IsNullOrEmpty(config.Text) && !area.IsEmpty)
             {
-                using var shadow = new SolidBrush(Color.FromArgb(50, Color.Black));
-                g.DrawString(config.Text, bodyFont, shadow,
-                    new Rectangle(area.X + 1, area.Y + 1, area.Width, area.Height));
-                using var fg = new SolidBrush(Color.FromArgb(230, colors.foreground));
+                using var fg = new SolidBrush(ink);
                 g.DrawString(config.Text, bodyFont, fg, area);
             }
         }

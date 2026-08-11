@@ -240,3 +240,74 @@ gallery now composites both, which is the only way the overlap was visible.
 2. **Glass variant has very low text contrast** - the title is barely legible against the acrylic
    fill. It needs the WCAG ink pick the semantic types already use.
 3. The arrow is still unconfirmed (client-only captures cannot show it if it is drawn outside).
+
+---
+
+## Batch: window shape, and the painters that disagreed with it
+
+All three findings above are now **closed**, plus the shape work they sat behind.
+
+### The shape defect, in four parts
+
+1. **`CustomToolTip` derived from `BeepiFormPro`, which owns the window shape in two places** -
+   `UpdateFormRegion` (managed `Region`) and `UpdateWindowRegion` (`SetWindowRgn`) - and rebuilds
+   **both** as a rounded *rectangle* from the active form painter's corner radius on every size and
+   style change. Any silhouette the tooltip set was overwritten before it was shown. It is now a
+   plain `Form`; it used nothing else from that base (the rebase compiled with zero errors).
+2. **The caret was never inside the window.** `CalculateTipPoint` put the tip at
+   `bounds.Bottom + arrowSize`, so every arrow was clipped away and `ShowArrow` did nothing.
+   `CalculateSize` now reserves a caret strip and `GetCardRectangle` insets the card into it.
+3. **Card and caret were filled separately while the region was their union**, so the pixels
+   between the two fills showed through as a hairline. Background, border and region now all come
+   from one `GetSilhouettePath`.
+4. **`TransparencyKey` is gone.** A colour key removes only EXACT matches: the shadow pass turned
+   it from (255,0,255) into (161,0,161) so nothing keyed out, and even without that, every
+   antialiased card edge is a blend toward the key - tracing a halo around the whole outline. The
+   surface under the card is now the card's own colour.
+
+### Closed findings
+
+- **Preview reserved a 160px image band with no image.** `ImageBandHeight` is now one authority
+  used by measure and paint, and returns 0 when the config names no path, no loader and holds no
+  resolved image. A skeleton means "still loading"; there was nothing to wait for. 280x199 -> 280x87.
+- **Preview never rendered `config.Text`** - it read only `PreviewSubtitle`, so a tooltip built the
+  ordinary way showed its title and silently dropped its body. `BodyText` falls back to `Text`.
+- **Preview measured and drew with literal `new Font("Segoe UI", ...)`** rebuilt on every paint,
+  ignoring the theme. Both paths now share `TextFonts()` from theme typography (cache-owned).
+- **Glass text contrast.** The ink was the theme's tooltip *foreground* - chosen for the DARK card -
+  while the frost is that background composited against a near-white base, i.e. light. It is now a
+  WCAG contrast pick between two theme slots (`ReadableOn`), and the black offset text-shadow that
+  had been papering over it is gone.
+- **The arrow is confirmed**, by region hit-test and by eyeballed renders of all four shapes.
+
+### Public members removed
+
+| member | why |
+|---|---|
+| `ToolTipConfig.ShowShadow`, `ToolTipConfig.EnableShadow` | nothing reads them; the shadow pass is gone |
+| `IToolTipPainter.PaintShadow` + `ToolTipPainterBase` abstract + all 4 overrides | dead: the styled painter's scrim covered the whole window (it is what poisoned the colour key), and Glass's glow inflated OUTSIDE the bounds so every layer was clipped - it had never been visible |
+| `ToolTipBuilder.WithShadow(bool)` | a fluent call that set only the above |
+| `BaseControl.TooltipShowShadow` | a designer-visible checkbox on every Beep control that drove only the above |
+| `CustomToolTip : BeepiFormPro` -> `: Form` | see 1 |
+
+A real drop shadow is still possible and is **not** implemented: it must be drawn *outside* the
+silhouette with matching space reserved in `CalculateSize`, not as a scrim over the window.
+
+### Verified
+
+- Region hit-tests: corner and both caret flanks outside; card centre and caret tip inside.
+- **Break-it-first**: forcing `Region = new Region(new Rectangle(0,0,Width,Height))` turns the
+  corner and both flank checks red - exactly the reported "it's just a rectangle" defect. Restored
+  and re-run green.
+- Eyeballed: Rounded / Soft / Pill / Sharp composited over a backdrop through the region, plus
+  Glass, Preview and Tour - the latter three had never been rendered at all.
+
+### Not verified / still open
+
+- **`BaseControl.UseRichToolTip` is never read.** It is assigned 12 times across
+  `BeepPopupListForm.Designer.cs` and `BeepGridFilterFlyout.designer.cs` and has no consumer, so
+  setting it false changes nothing. Left in place this pass - deciding between wiring it and
+  deleting it needs a call on whether it should mean anything distinct from `EnableTooltip`.
+- Placements other than `Top` are unrendered: the caret strip is reserved per placement in
+  `GetCardRectangle`, but only Top has been eyeballed.
+- `BeepPopover` still unrendered.

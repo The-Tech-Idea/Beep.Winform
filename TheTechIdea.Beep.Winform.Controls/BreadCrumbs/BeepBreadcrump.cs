@@ -1092,7 +1092,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Placement = TooltipPlacement,
                 Animation = TooltipAnimation,
                 ShowArrow = TooltipShowArrow,
-                ShowShadow = TooltipShowShadow,
                 FollowCursor = TooltipFollowCursor,
                 ShowDelay = TooltipShowDelay,
                 Duration = TooltipDuration,

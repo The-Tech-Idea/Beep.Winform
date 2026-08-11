@@ -526,7 +526,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Type = tooltipType,
                 ControlStyle = ControlStyle,
                 ShowArrow = true,
-                ShowShadow = true,
                 Duration = 3000,
                 Placement = ToolTipPlacement.Top
             };

@@ -45,9 +45,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         public abstract void PaintBorder(Graphics g, Rectangle bounds, 
             ToolTipConfig config, IBeepTheme theme);
 
-        public abstract void PaintShadow(Graphics g, Rectangle bounds, 
-            ToolTipConfig config);
-
         public abstract void PaintArrow(Graphics g, Point position, 
             ToolTipPlacement placement, ToolTipConfig config, IBeepTheme theme);
 

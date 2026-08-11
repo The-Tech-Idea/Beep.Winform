@@ -28,7 +28,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Very subtle hover background
                 g.FillRectangle(GetBrush(Color.FromArgb(8, Theme.ShadowColor)), itemRect);
             }
-            // No background for normal state - minimal approach
+            else
+            {
+                // Fill the ordinary row too. "No background for normal state" left the row
+                // transparent, so the style's colour came from whatever the control had painted
+                // underneath - which is why it stayed light on a dark theme. Minimal means a flat
+                // surface, not an absent one.
+                g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
+            }
         }
         
         public override int GetPreferredItemHeight()

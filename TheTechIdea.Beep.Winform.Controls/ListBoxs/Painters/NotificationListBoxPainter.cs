@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -44,11 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Theme.ListItemForeColor);
 
             // Time (SubText) — top-right
-            if (!string.IsNullOrEmpty(item.SubText))
+            // SubText is the timestamp here, Description the body, so this one keeps the raw property: SecondLine's
+            // fallback to Description would print the same string on both lines.
+            if (!string.IsNullOrWhiteSpace((item as BeepListItem)?.SubText))
             {
                 var timeFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
                 var timeRect = new Rectangle(trailingX, itemRect.Y + Scale(10), trailingW, Scale(16));
-                TextRenderer.DrawText(g, item.SubText, timeFont, timeRect, secondaryFg,
+                TextRenderer.DrawText(g, ((BeepListItem)item).SubText, timeFont, timeRect, secondaryFg,
                     TextFormatFlags.Right | TextFormatFlags.VerticalCenter |
                     TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             }
@@ -65,8 +68,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int textW = trailingX - textX - Scale(8);
 
             Color primaryFg = isSelected
-                ? Theme.OnPrimaryColor
-                : (Theme.ListItemForeColor);
+                ? Theme.ListItemSelectedForeColor
+                : Theme.ListItemForeColor;
 
             // Title (bold)
             var titleRect = new Rectangle(textX, itemRect.Y + Scale(10), textW, Scale(18));

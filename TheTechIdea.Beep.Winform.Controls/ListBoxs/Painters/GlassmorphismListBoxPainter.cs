@@ -60,13 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
             // Subtext if available
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
                 var subFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
-                DrawItemText(g, subRect, item.SubText, subColor, subFont);
+                DrawItemText(g, subRect, SecondLine(item), subColor, subFont);
             }
         }
 
@@ -165,7 +165,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Background is handled in DrawGlassBackground
+            // The row surface, under the glass panel. This override was empty, so the row was
+            // transparent and the style inherited whatever the control had painted beneath it -
+            // the reason it stayed light under a dark theme.
+            if (g == null || itemRect.IsEmpty) return;
+            g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
         }
     }
 }

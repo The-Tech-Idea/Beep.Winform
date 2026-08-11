@@ -39,6 +39,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || itemRect.IsEmpty) return;
 
+
+            // Borderless means no border, not no surface: without this the row was transparent and
+            // took its colour from whatever was painted underneath.
+            g.FillRectangle(GetBrush(isSelected ? Theme.ListItemSelectedBackColor
+                                                : isHovered ? Theme.ListItemHoverBackColor
+                                                            : Theme.ListBackColor), itemRect);
             // Borderless: no outline, only a bottom accent line on selection
             if (isSelected)
             {

@@ -57,11 +57,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Use visible-list index so gradients remain deterministic under filtering/grouping/hierarchy.
-            int itemIndex = _helper?.GetVisibleItems()?.IndexOf(item) ?? -1;
-            if (itemIndex < 0)
-            {
-                itemIndex = 0;
-            }
+            // A stable index without a linear search. IndexOf ran over the whole visible list for
+            // every item on every paint - O(n squared) purely to choose a gradient. The hash gives
+            // the same card the same gradient without walking anything.
+            int itemIndex = Math.Abs((item.GuidId ?? item.Text ?? string.Empty).GetHashCode());
             
             // Draw gradient card background
             DrawGradientCard(g, itemRect, itemIndex, isHovered, isSelected);
@@ -95,13 +94,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
             // Subtext
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
                 var subFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
-                DrawItemText(g, subRect, item.SubText, subColor, subFont);
+                DrawItemText(g, subRect, SecondLine(item), subColor, subFont);
             }
         }
 
@@ -233,7 +232,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Background is handled in DrawGradientCard
+            // The row surface, under the gradient card. This override was empty, so the row was
+            // transparent and the style inherited whatever the control had painted beneath it -
+            // the reason it stayed light under a dark theme.
+            if (g == null || itemRect.IsEmpty) return;
+            g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
         }
     }
 }

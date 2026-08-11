@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Draw text
             Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - Scale(12), rect.Height);
-            Color textColor = isSelected ? Theme.OnPrimaryColor : _helper.GetTextColor();
+            Color textColor = isSelected ? Theme.ListItemSelectedForeColor : _helper.GetTextColor();
 
             DrawTitleAndSubtitle(g, textRect, item.Text, item.Description,
                 textColor, Theme.SecondaryTextColor,

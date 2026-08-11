@@ -36,8 +36,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int lineH = Scale(18);
 
             Color primaryFg = isSelected
-                ? Theme.OnPrimaryColor
-                : (Theme.ListItemForeColor);
+                ? Theme.ListItemSelectedForeColor
+                : Theme.ListItemForeColor;
             Color secondaryFg = Color.FromArgb(ListBoxTokens.SubTextAlpha,
                 Theme.ListItemForeColor);
             Color tertiaryFg = Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 0.7f),
@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Calculate vertical start to center the text block
             int linesCount = 1
-                + (string.IsNullOrEmpty(item.SubText) ? 0 : 1)
+                + (string.IsNullOrEmpty(SecondLine(item)) ? 0 : 1)
                 + (string.IsNullOrEmpty(item.SubText2) ? 0 : 1);
             int totalTextH = linesCount * lineH;
             int startY = itemRect.Y + (itemRect.Height - totalTextH) / 2;
@@ -56,16 +56,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemText(g, nameRect, item.Text ?? item.DisplayField, primaryFg, boldFont);
 
             // Line 2: Role / Title (SubText, secondary)
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 var roleRect = new Rectangle(textX, nameRect.Bottom, textW, lineH);
-                DrawSubText(g, roleRect, item.SubText, secondaryFg, _owner.TextFont);
+                DrawSubText(g, roleRect, SecondLine(item), secondaryFg, _owner.TextFont);
             }
 
             // Line 3: Email / Phone (SubText2, tertiary, smaller)
             if (!string.IsNullOrEmpty(item.SubText2))
             {
-                int line3Y = nameRect.Bottom + (string.IsNullOrEmpty(item.SubText) ? 0 : lineH);
+                int line3Y = nameRect.Bottom + (string.IsNullOrEmpty(SecondLine(item)) ? 0 : lineH);
                 var emailRect = new Rectangle(textX, line3Y, textW, lineH);
                 var smallFont = GetCachedFont(Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
                 DrawItemText(g, emailRect, item.SubText2, tertiaryFg, smallFont);

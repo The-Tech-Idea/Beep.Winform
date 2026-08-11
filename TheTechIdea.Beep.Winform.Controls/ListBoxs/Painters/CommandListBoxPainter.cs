@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 : (Theme.ListItemForeColor));
 
             // Shortcut (from SubText)
-            string? shortcut = (item as BeepListItem)?.SubText;
+            string? shortcut = SecondLine(item);
             int shortcutWidth = 0;
             Font? kbdFont = null;
 

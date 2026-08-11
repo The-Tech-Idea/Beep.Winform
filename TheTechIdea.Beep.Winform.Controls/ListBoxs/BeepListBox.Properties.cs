@@ -389,6 +389,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #endregion
 
+        /// <summary>
+        /// The wording of the infinite-scroll sentinel row.
+        /// </summary>
+        /// <remarks>
+        /// A property rather than a literal inside the painter: `"Load more…"` was drawn to screen
+        /// from `InfiniteScrollListBoxPainter`, so no caller could translate it or reword it.
+        /// </remarks>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Text shown on the infinite-scroll sentinel row.")]
+        [DefaultValue("Load more...")]
+        public string LoadMoreText { get; set; } = "Load more...";
+
         #region Selection Visuals
 
         [Browsable(true)]

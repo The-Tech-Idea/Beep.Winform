@@ -27,13 +27,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         public override void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
         {
             // Set base color from theme
-            _baseColor = owner?._currentTheme?.BackgroundColor ?? owner?.BackColor ?? SystemColors.ControlLight;
-            
-            // Ensure base color is light enough for neumorphism
-            if (GetLuminance(_baseColor) < 0.5f)
-            {
-                _baseColor = LightenColor(_baseColor, 0.55f);
-            }
+            // The theme's list surface, taken as it comes.
+            //
+            // This used to lighten the base by 0.55 whenever its luminance was below 0.5 - it
+            // deliberately overrode every dark theme and painted a pale style anyway.
+            // Neumorphism is a light and a dark shadow either side of a base; that works on a
+            // dark base too, and the shadows below already derive from whatever this is.
+            _baseColor = Theme.ListBackColor;
 
             base.Paint(g, owner, drawingRect);
         }
@@ -76,13 +76,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
             // Subtext
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
                 var subFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
-                DrawItemText(g, subRect, item.SubText, subColor, subFont);
+                DrawItemText(g, subRect, SecondLine(item), subColor, subFont);
             }
         }
 
@@ -228,7 +228,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Background is handled in DrawNeumorphicBackground
+            // The row surface, under the neumorphic tile. This override was empty, so the row was
+            // transparent and the style inherited whatever the control had painted beneath it -
+            // the reason it stayed light under a dark theme.
+            if (g == null || itemRect.IsEmpty) return;
+            g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
         }
     }
 }

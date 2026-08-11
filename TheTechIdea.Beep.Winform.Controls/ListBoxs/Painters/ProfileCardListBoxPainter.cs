@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -36,8 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int curY  = avRect.Bottom + Scale(6);
 
             Color primaryFg = isSelected
-                ? Theme.OnPrimaryColor
-                : (Theme.ListItemForeColor);
+                ? Theme.ListItemSelectedForeColor
+                : Theme.ListItemForeColor;
             Color secondaryFg = Color.FromArgb(ListBoxTokens.SubTextAlpha,
                 Theme.ListItemForeColor);
             Color tertiaryFg = Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 0.7f),
@@ -52,11 +53,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             curY += Scale(20);
 
             // Title / Role (SubText, centered, secondary)
-            if (!string.IsNullOrEmpty(item.SubText))
+            // SubText is the job title here, Description the bio, so this one keeps the raw property: SecondLine's
+            // fallback to Description would print the same string on both lines.
+            if (!string.IsNullOrWhiteSpace((item as BeepListItem)?.SubText))
             {
                 var regFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
                 var titleRect = new Rectangle(textX, curY, textW, Scale(16));
-                TextRenderer.DrawText(g, item.SubText, regFont, titleRect, secondaryFg,
+                TextRenderer.DrawText(g, ((BeepListItem)item).SubText, regFont, titleRect, secondaryFg,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
                     TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 curY += Scale(16);

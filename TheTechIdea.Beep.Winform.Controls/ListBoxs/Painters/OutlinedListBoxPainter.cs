@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Fill with appropriate color
                 if (isSelected)
                 {
-                    var selColor = Theme.PrimaryColor;
+                    var selColor = Theme.ListItemSelectedBackColor;
                     g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)), path);
 
                     // Thick selection border

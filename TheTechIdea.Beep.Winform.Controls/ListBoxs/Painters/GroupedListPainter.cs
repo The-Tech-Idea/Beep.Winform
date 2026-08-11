@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 // Text (indented)
                 var indentedText = new Rectangle(textRect.X + Scale(16), textRect.Y, Math.Max(0, textRect.Width - Scale(16)), textRect.Height);
-                Color textColor = isSelected ? Theme.OnPrimaryColor : (_helper.GetTextColor());
+                Color textColor = isSelected ? Theme.ListItemSelectedForeColor : (_helper.GetTextColor());
                 DrawItemText(g, indentedText, item.Text, textColor, _owner.TextFont);
             }
         }

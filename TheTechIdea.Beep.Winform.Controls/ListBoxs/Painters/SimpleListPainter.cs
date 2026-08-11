@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var contentRect = Rectangle.Inflate(itemRect, -padding.Left, -padding.Top);
 
             // Draw text
-            Color textColor = isSelected ? Theme.OnPrimaryColor : (Theme.ListItemForeColor);
+            Color textColor = isSelected ? Theme.ListItemSelectedForeColor : (Theme.ListItemForeColor);
             DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
 
             // Draw selection indicator on left
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = Theme.PrimaryColor;
+                    var selColor = Theme.ListItemSelectedBackColor;
 
                     // Subtle background fill
                     g.FillPath(GetBrush(Color.FromArgb(15, selColor.R, selColor.G, selColor.B)), path);

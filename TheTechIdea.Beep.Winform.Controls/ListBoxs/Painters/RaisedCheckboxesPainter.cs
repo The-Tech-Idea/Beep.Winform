@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -13,6 +14,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     internal class RaisedCheckboxesPainter : BaseListBoxPainter
     {
         public override bool SupportsCheckboxes() => true;
+
+        /// <summary>Disabled comes from the item, never from what its text happens to say.</summary>
+        private static bool IsDisabled(SimpleItem item)
+            => item is BeepListItem rich ? rich.IsDisabled : item?.IsEnabled == false;
+
         
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
@@ -55,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         private Color GetItemTextColor(SimpleItem item)
         {
-            bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
+            bool isDisabled = IsDisabled(item);
             return isDisabled
                 ? Color.FromArgb(ListBoxTokens.DisabledAlpha, Theme.ListItemForeColor)
                 : (Theme.ListItemForeColor);
@@ -63,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         private void DrawRaisedCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, SimpleItem item)
         {
-            bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
+            bool isDisabled = IsDisabled(item);
             Color accent = Theme.ErrorColor;
             Color borderColor = isDisabled ? (Theme.BorderColor) : accent;
             Color bgColor = isChecked ? accent : (Theme.ListBackColor);

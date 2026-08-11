@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -13,6 +14,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     internal class OutlinedCheckboxesPainter : BaseListBoxPainter
     {
         public override bool SupportsCheckboxes() => true;
+
+        /// <summary>Disabled comes from the item, never from what its text happens to say.</summary>
+        private static bool IsDisabled(SimpleItem item)
+            => item is BeepListItem rich ? rich.IsDisabled : item?.IsEnabled == false;
+
         
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
@@ -52,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawOutlinedCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isHovered, SimpleItem item)
         {
             // Determine state based on item text
-            bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
+            bool isDisabled = IsDisabled(item);
             Color borderColor = isDisabled ? Theme.BorderColor : Theme.ErrorColor; // Red
             Color bgColor = isChecked ? Color.FromArgb(30, Theme.ErrorColor) : Theme.ListBackColor;
             

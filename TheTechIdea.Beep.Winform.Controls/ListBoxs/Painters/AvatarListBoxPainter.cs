@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, primaryTextRect, item.Text ?? item.DisplayField, primaryColor, boldFont);
             // Secondary text (subtext/email/role)
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 var secondaryTextRect = new Rectangle(contentX, itemRect.Y + Scale(30), textWidth, Scale(18));
                 Color secondaryColor = isSelected 
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     : (Theme.DisabledForeColor);
                 
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
-                DrawItemText(g, secondaryTextRect, item.SubText, secondaryColor, smallFont);
+                DrawItemText(g, secondaryTextRect, SecondLine(item), secondaryColor, smallFont);
             }
 
             // Checkbox (right side)
@@ -182,7 +182,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Background is handled in DrawAvatarItemBackground
+            // The row surface, under the avatar row. This override was empty, so the row was
+            // transparent and the style inherited whatever the control had painted beneath it -
+            // the reason it stayed light under a dark theme.
+            if (g == null || itemRect.IsEmpty) return;
+            g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
         }
     }
 }

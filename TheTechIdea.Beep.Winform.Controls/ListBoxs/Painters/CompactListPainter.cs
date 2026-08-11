@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (isSelected)
             {
-                var selColor = Theme.PrimaryColor;
+                var selColor = Theme.ListItemSelectedBackColor;
 
                 // Filled background for selected
                 g.FillRectangle(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)), itemRect);

@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw text
-            Color textColor = isSelected ? Theme.OnPrimaryColor : Theme.ListItemForeColor;
+            Color textColor = isSelected ? Theme.ListItemSelectedForeColor : Theme.ListItemForeColor;
             DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
         }
 
@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = Theme.PrimaryColor;
+                    var selColor = Theme.ListItemSelectedBackColor;
 
                     // Multiple shadow layers for card elevation
                     var shadowRect1 = itemRect;
@@ -66,7 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         Color.Transparent,
                         90f))
                     {
-                        g.FillRectangle(shadowBrush, shadowRect1);
+                        // Fill the ROUNDED path, not a rectangle: a square shadow behind a rounded
+                        // card leaves its corners sticking out past the card.
+                        using (var shadowPath = GraphicsExtensions.CreateRoundedRectanglePath(shadowRect1, Scale(8)))
+                            g.FillPath(shadowBrush, shadowPath);
                     }
 
                     // Card background with gradient
@@ -91,7 +94,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         Color.Transparent,
                         90f))
                     {
-                        g.FillRectangle(shadowBrush, shadowRect);
+                        // Fill the ROUNDED path, not a rectangle: a square shadow behind a rounded
+                        // card leaves its corners sticking out past the card.
+                        using (var shadowPath = GraphicsExtensions.CreateRoundedRectanglePath(shadowRect, Scale(8)))
+                            g.FillPath(shadowBrush, shadowPath);
                     }
 
                     // Hover background
@@ -110,7 +116,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         Color.Transparent,
                         90f))
                     {
-                        g.FillRectangle(shadowBrush, shadowRect);
+                        // Fill the ROUNDED path, not a rectangle: a square shadow behind a rounded
+                        // card leaves its corners sticking out past the card.
+                        using (var shadowPath = GraphicsExtensions.CreateRoundedRectanglePath(shadowRect, Scale(8)))
+                            g.FillPath(shadowBrush, shadowPath);
                     }
 
                     // Card background

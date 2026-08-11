@@ -42,8 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int contentW = trailingX - contentX - Scale(8);
 
             Color primaryFg = isSelected
-                ? Theme.OnPrimaryColor
-                : (Theme.ListItemForeColor);
+                ? Theme.ListItemSelectedForeColor
+                : Theme.ListItemForeColor;
             Color secondaryFg = Color.FromArgb(ListBoxTokens.SubTextAlpha,
                 Theme.ListItemForeColor);
 
@@ -54,11 +54,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemText(g, nameRect, item.Text ?? item.DisplayField, primaryFg, boldFont);
 
             // Message preview (SubText)
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 var msgRect = new Rectangle(contentX, nameRect.Bottom + Scale(2), contentW, Scale(18));
                 var regFont = GetCachedFont(Math.Max(8f, _owner.TextFont.Size - 1.5f), FontStyle.Regular);
-                DrawItemText(g, msgRect, item.SubText, secondaryFg, regFont);
+                DrawItemText(g, msgRect, SecondLine(item), secondaryFg, regFont);
             }
 
             // ── Trailing: Time (ShortcutText) ───────────────────────────

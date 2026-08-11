@@ -41,15 +41,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             g.DrawLine(GetPen(Color.FromArgb(40, Theme.PrimaryColor), 1f), _sentinelRect.Left, _sentinelRect.Top, _sentinelRect.Right, _sentinelRect.Top);
 
-            var mp = owner.PointToClient(System.Windows.Forms.Control.MousePosition);
-            bool hovered = _sentinelRect.Contains(mp);
+            // Was Control.MousePosition read inside Paint - the sentinel rendered differently
+            // depending on where the cursor was, including off-screen and under DrawToBitmap.
+            bool hovered = false;
             if (hovered)
             {
                 g.FillRectangle(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
                     Theme.PrimaryColor)), _sentinelRect);
             }
 
-            string text = SentinelText;
+            // The caller's wording, not a hardcoded English string baked into the control.
+            string text = owner.LoadMoreText;
+            if (string.IsNullOrWhiteSpace(text)) return;
             var font = GetCachedFont(owner.Font.Size, FontStyle.Regular);
             Color textColor = hovered
                 ? (Theme.PrimaryColor)

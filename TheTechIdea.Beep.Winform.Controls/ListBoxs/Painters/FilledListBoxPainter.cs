@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 DrawItemImage(g, iconRect, item.ImagePath);
             }
 
-            Color textColor = isSelected ? Theme.OnPrimaryColor : _helper.GetTextColor();
+            Color textColor = isSelected ? Theme.ListItemSelectedForeColor : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
         }
         
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = Theme.PrimaryColor;
+                    var selColor = Theme.ListItemSelectedBackColor;
                     
                     // Draw shadow for elevation
                     var shadowRect = itemRect;

@@ -99,10 +99,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.DrawLine(pen, xRect.Right, xRect.Top, xRect.Left, xRect.Bottom);
             }
 
-            if (xRect.Contains(_owner.PointToClient(Control.MousePosition)))
-            {
-                g.FillEllipse(GetBrush(Color.FromArgb(100, Theme.OnPrimaryColor)), xRect);
-            }
+            // No hover disc. It was drawn from Control.MousePosition read INSIDE the paint path,
+            // so the chip rendered differently depending on where the cursor happened to be -
+            // including under DrawToBitmap and printing. The close affordance has no hit area
+            // registered either, so the hover it suggested was never actionable.
 
             return new Size(chipWidth, chipHeight);
         }

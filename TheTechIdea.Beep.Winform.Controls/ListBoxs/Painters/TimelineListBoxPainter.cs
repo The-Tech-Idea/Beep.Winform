@@ -191,14 +191,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Title
             var titleRect = new Rectangle(textX, contentRect.Y + Scale(8), textWidth, Scale(20));
             Color titleColor = isSelected 
-                ? Theme.OnPrimaryColor 
-                : (Theme.ListItemForeColor);
+                ? Theme.ListItemSelectedForeColor
+                : Theme.ListItemForeColor;
             
             var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, titleRect, item.Text ?? item.DisplayField, titleColor, boldFont);
 
             // Description (SubText)
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 var descRect = new Rectangle(textX, contentRect.Y + Scale(28), contentRect.Width - Scale(24), Scale(20));
                 Color descColor = isSelected 
@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     : (Theme.DisabledForeColor);
                 
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
-                DrawItemText(g, descRect, item.SubText, descColor, smallFont);
+                DrawItemText(g, descRect, SecondLine(item), descColor, smallFont);
             }
         }
 
@@ -239,7 +239,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Background is handled in DrawContentCard
+            // The row surface, under the timeline card. This override was empty, so the row was
+            // transparent and the style inherited whatever the control had painted beneath it -
+            // the reason it stayed light under a dark theme.
+            if (g == null || itemRect.IsEmpty) return;
+            g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
         }
     }
 }

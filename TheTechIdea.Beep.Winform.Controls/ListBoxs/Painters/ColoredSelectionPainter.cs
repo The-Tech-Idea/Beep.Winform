@@ -34,8 +34,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int textPad = Scale(16);
             Rectangle textRect = new Rectangle(currentX, itemRect.Y + Scale(8), itemRect.Right - currentX - textPad, itemRect.Height / 2);
             Color textColor = _owner.IsItemSelected(item)
-                ? Theme.OnPrimaryColor
-                : (Theme.ListItemForeColor);
+                ? Theme.ListItemSelectedForeColor
+                : Theme.ListItemForeColor;
 
             var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, textRect, item.Text, textColor, boldFont);
@@ -73,10 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private Color GetSelectionColor(SimpleItem item)
         {
             // Determine checkbox color based on item
-            if (item.Text?.ToLower().Contains("custom") == true)
-                return Theme.PrimaryColor; // Green
-            else
-                return Theme.SecondaryTextColor;
+            // Was: item.Text.ToLower().Contains("custom"). A checkbox that changes colour when
+            // somebody renames a row is not a style, it is a coincidence. The accent belongs to
+            // the selected state.
+            return _owner.IsItemSelected(item) ? Theme.AccentColor : Theme.SecondaryTextColor;
         }
 
         private void DrawColoredCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, Color checkColor, bool isHovered)

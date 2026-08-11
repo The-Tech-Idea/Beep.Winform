@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -39,7 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw description/error text
             if (!string.IsNullOrEmpty(item.Description) || HasError(item))
             {
-                string errorText = HasError(item) ? "Option now prohibited" : item.Description;
+                // No hardcoded UI string: the item supplies its own message.
+                string errorText = item.Description;
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 1);
                 Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - Scale(100), itemRect.Height / 2 - Scale(6));
                 Color descColor = HasError(item)
@@ -52,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw error badge on right
             if (HasError(item))
             {
-                DrawErrorBadge(g, itemRect, isHovered);
+                DrawErrorBadge(g, itemRect, isHovered, item);
             }
         }
 
@@ -74,8 +76,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private bool HasError(SimpleItem item)
         {
-            return item.Text?.ToLower().Contains("part-time") == true ||
-                   item.Description?.ToLower().Contains("prohibited") == true;
+            // Was: Text.Contains("part-time") || Description.Contains("prohibited") - two demo
+            // strings deciding a semantic state. A row is in error when the item says so.
+            return item is BeepListItem rich && rich.IsDisabled;
         }
 
         private Color GetTextColor(SimpleItem item)
@@ -114,9 +117,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
 
-        private void DrawErrorBadge(Graphics g, Rectangle itemRect, bool isHovered)
+        private void DrawErrorBadge(Graphics g, Rectangle itemRect, bool isHovered, SimpleItem item)
         {
-            string badgeText = "Error state!";
+            // Was the literal "Error state!". The badge shows the item's own badge text, and the
+            // caller decides the wording - and the language.
+            string badgeText = (item as BeepListItem)?.BadgeText;
+            if (string.IsNullOrWhiteSpace(badgeText)) return;
             var badgeFont = GetCachedFont(_owner.TextFont.Size - 1);
             SizeF textSizeF = TextUtils.MeasureText(g, badgeText, badgeFont);
             var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);

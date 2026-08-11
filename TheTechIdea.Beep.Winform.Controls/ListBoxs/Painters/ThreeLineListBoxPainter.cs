@@ -63,8 +63,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int lineH = Math.Max(Scale(18), Scale(ListBoxTokens.ItemPaddingV * 2));
 
             Color primaryFg = isSelected
-                ? Theme.OnPrimaryColor
-                : (Theme.ListItemForeColor);
+                ? Theme.ListItemSelectedForeColor
+                : Theme.ListItemForeColor;
             Color secondaryFg = Color.FromArgb(ListBoxTokens.SubTextAlpha,
                 Theme.ListItemForeColor);
             Color tertiaryFg = Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 0.65f),
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Count visible lines for centering
             int linesCount = 1
-                + (string.IsNullOrEmpty(item.SubText) ? 0 : 1)
+                + (string.IsNullOrEmpty(SecondLine(item)) ? 0 : 1)
                 + (string.IsNullOrEmpty(item.SubText2) ? 0 : 1)
                 + (string.IsNullOrEmpty(item.SubText3) ? 0 : 1);
             int totalTextH = linesCount * lineH;
@@ -86,10 +86,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             curY += lineH;
 
             // Line 2: SubText (secondary)
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (!string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 DrawSubText(g, new Rectangle(textX, curY, textW, lineH),
-                    item.SubText, secondaryFg, _owner.TextFont);
+                    SecondLine(item), secondaryFg, _owner.TextFont);
                 curY += lineH;
             }
 

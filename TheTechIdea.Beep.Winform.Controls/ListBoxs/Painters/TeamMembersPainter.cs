@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int avatarSpace = !string.IsNullOrEmpty(item.ImagePath) ? (avatarSize + avatarPadding) : 0;
 
             Rectangle textRect = new Rectangle(leftStart, itemRect.Y, Math.Max(0, itemRect.Right - leftStart - avatarSpace), itemRect.Height);
-            Color textColor = isSelected ? Theme.OnPrimaryColor : _helper.GetTextColor();
+            Color textColor = isSelected ? Theme.ListItemSelectedForeColor : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
             // Draw circular avatar on the right using StyledImagePainter

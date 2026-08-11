@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     : Theme.ListItemForeColor;
 
             // Sub-text 2-line layout
-            if (rich != null && !string.IsNullOrEmpty(rich.SubText))
+            if (rich != null && !string.IsNullOrWhiteSpace(SecondLine(item)))
             {
                 int subH   = DpiScalingHelper.ScaleValue(16, _owner);
                 int titleH = Math.Max(12, textRect.Height - subH - DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner));
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     textRect.Y + titleH + DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner),
                     textRect.Width, subH);
                 DrawItemText(g, titleRect, item.Text, textColor, _owner.TextFont);
-                DrawSubText(g, subRect, rich.SubText,
+                DrawSubText(g, subRect, SecondLine(item),
                     _owner.IsHighContrast ? _owner.HCItemForeground(isSelected) : Theme.ListItemForeColor,
                     _owner.TextFont);
             }
@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = Theme.PrimaryColor;
+                    var selColor = Theme.ListItemSelectedBackColor;
 
                     // Selected background with subtle gradient
                     using (var brush = new LinearGradientBrush(itemRect,

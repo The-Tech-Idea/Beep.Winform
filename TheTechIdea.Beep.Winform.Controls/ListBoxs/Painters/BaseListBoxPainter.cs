@@ -430,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 // Use owner-defined selection color or fallback to theme
-                var selColor = Theme.PrimaryColor;
+                var selColor = Theme.ListItemSelectedBackColor;
                 int alpha = Math.Max(0, Math.Min(255, _owner.SelectionOverlayAlpha > 0 ? _owner.SelectionOverlayAlpha : 90));
                 g.FillRectangle(GetBrush(Color.FromArgb(alpha, selColor.R, selColor.G, selColor.B)), itemRect);
 
@@ -618,6 +618,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         /// rendered light patches. The slots themselves are real; only the fallback was wrong.
         /// </remarks>
         protected IBeepTheme Theme => _theme ?? BeepThemesManager.CurrentTheme;
+
+        /// <summary>
+        /// The item's second line: <see cref="BeepListItem.SubText"/> when set, otherwise
+        /// <see cref="SimpleItem.Description"/>.
+        /// </summary>
+        /// <remarks>
+        /// Nine painters read SubText and nothing else. It is assigned in TWO places in the whole
+        /// repo, so every one of those second lines was dead for a list built the ordinary way -
+        /// chat messages, command shortcuts, notification timestamps and avatar subtitles all
+        /// silently missing. Description is what callers actually set.
+        /// </remarks>
+        protected static string SecondLine(object item)
+        {
+            if (item is BeepListItem rich && !string.IsNullOrWhiteSpace(rich.SubText))
+                return rich.SubText;
+            return (item as SimpleItem)?.Description;
+        }
 
         protected static bool HasSecondLine(object item)
         {

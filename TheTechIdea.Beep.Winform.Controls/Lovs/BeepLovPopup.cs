@@ -484,12 +484,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// because the geometry itself was the moving part.
         /// </para>
         /// </remarks>
+        /// <summary>DPI-scaled pixels. The layout constants below are authored at 96 dpi.</summary>
+        private int Scale(int px) => DpiScalingHelper.ScaleValue(px, this);
+
         private void ApplyFixedSize()
         {
-            int recentH = _recentPanel.Visible ? RecentPanelH : 0;
-            int gridH   = (VisibleRows * _grid.RowHeight) + _grid.ColumnHeaderHeight + GridChromeH;
+            int recentH = _recentPanel.Visible ? Scale(RecentPanelH) : 0;
 
-            int formH  = HeaderH + recentH + gridH + FooterH;
+            // Size to the rows there ARE, capped by VisibleRows - not to VisibleRows regardless.
+            // A four-row result used to open a ten-row window, so more than half of the dropdown
+            // was empty space below the last row.
+            int shownRows = _filteredItems?.Count ?? 0;
+            if (MaxRows > 0 && shownRows > MaxRows) shownRows = MaxRows;
+            shownRows = Math.Max(1, Math.Min(shownRows, VisibleRows));
+
+            // The chrome allowance includes a horizontal scrollbar. BeepGridPro shows one here even
+            // after FitColumns has scaled every visible column to the grid's exact client width, so
+            // the space it takes is real whether or not it should be: without this the last row of
+            // a list that was sized to fit exactly is clipped in half. The cause is inside the
+            // grid's own scrollbar logic, not this popup's arithmetic - see the plans note.
+            int gridH  = (shownRows * _grid.RowHeight) + _grid.ColumnHeaderHeight
+                         + Scale(GridChromeH) + SystemInformation.HorizontalScrollBarHeight;
+            int formH  = Scale(HeaderH) + recentH + gridH + Scale(FooterH);
+
+            // MaxPopupHeight was a public property on this class AND on BeepListofValuesBox, pushed
+            // from one to the other on every open, and read by nothing. Setting it did nothing at
+            // all. It is the cap now; the grid scrolls beyond it.
+            if (MaxPopupHeight > 0)
+                formH = Math.Min(formH, Scale(MaxPopupHeight));
 
             // The dropdown is exactly as wide as the control it drops from. There was a MinPopupW
             // floor of 280px here, so a 150px field opened a 280px popup that overhung it by 130px -
@@ -501,6 +523,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Width  = popupW;
             Height = formH;
+
+            // Re-fit AFTER the resize. FitColumns scales the columns to the grid's current width,
+            // but it runs from RebindGrid - before this method has set the popup's real width. The
+            // columns were therefore sized for whatever width the form happened to have, then
+            // overflowed the narrower one, and the horizontal scrollbar that appeared ate enough
+            // height to clip the last row off a list that was supposed to fit exactly.
+            FitColumns();
 
             PositionLoadingOverlay();
 
@@ -728,6 +757,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _recentPanel.SuspendLayout();
             _recentPanel.Controls.Clear();
 
+            // One font for measuring AND for the chip itself, so they cannot disagree.
+            var chipFont = LovFontHelpers.GetLovFontFromTheme(CurrentTheme);
+
             // Build chips most-recent first
             var ordered = _recentItems.Reverse().ToList();
             foreach (var item in ordered)
@@ -739,14 +771,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Text             = label,
                     Tag              = item,
-                    Height           = 22,
+                    Font             = chipFont,
+                    // Measured with the font it will actually be drawn in, and scaled. Measuring
+                    // with SystemFonts.DefaultFont sized every chip for a font it never used, so
+                    // the labels sat off-centre and clipped under any theme whose UI font is not
+                    // the system default.
+                    Height           = DpiScalingHelper.ScaleValue(24, this),
                     AutoSize         = false,
-                    Width            = TextRenderer.MeasureText(label,
-                                           SystemFonts.DefaultFont).Width + 20,
+                    Width            = TextRenderer.MeasureText(label, chipFont).Width
+                                       + DpiScalingHelper.ScaleValue(20, this),
                     IsChild          = true,
                     ShowAllBorders   = true,
-                    HideText         = false,
-                    ToolTipText      = item.Description ?? item.Text ?? string.Empty
+                    HideText         = false
+                    // No ToolTipText: setting it is what makes BaseControl register a rich
+                    // tooltip with ToolTipManager, and a LOV has no use for one.
                 };
                 chip.Click += (s, _) =>
                 {

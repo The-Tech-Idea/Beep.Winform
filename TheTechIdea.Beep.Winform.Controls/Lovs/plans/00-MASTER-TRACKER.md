@@ -219,3 +219,49 @@ did land and passes.
 
 This batch deliberately fixed the painted path rather than replacing it, so the theming is correct
 either way; composing the field remains open.
+
+---
+
+## Batch: tooltips removed, popup sized to its content
+
+### Tooltips are gone from the LOV
+
+Two sources, both removed:
+
+- `BeepListofValuesBox` called `ShowNotification(...)` on a rejected key, which pops a
+  `CustomToolTip` window over the form. `RejectKey` already sets `ErrorText` and raises
+  `KeyRejected`, so this was a third copy of the same message — and the only one that opened a
+  window.
+- Recent chips set `ToolTipText`, which is precisely what makes `BaseControl` register a rich
+  tooltip with `ToolTipManager`. Nothing else in Lovs sets tooltip text, and `UpdateTooltip`
+  returns early when it is empty, so the LOV now registers no tooltips at all.
+
+### Sizing
+
+- **`MaxPopupHeight` did nothing.** A public property on `BeepListofValuesBox` *and* on
+  `BeepLovPopup`, pushed from one to the other on every open, and read by neither. It is the cap
+  now.
+- **The popup sized to `VisibleRows` (10) regardless of how many rows existed.** A four-row result
+  opened a ten-row window, so over half the dropdown was empty space. It sizes to the rows there
+  are, capped by `VisibleRows` and then by `MaxPopupHeight`. 420x569 -> 420x322 for four rows.
+- **`FitColumns` ran before the popup had its real width.** It scales columns to the grid's current
+  client width but is called from `RebindGrid`, which runs *before* `ApplyFixedSize` sets the
+  width — so the columns were fitted to the wrong number. It is called again after the resize.
+- **Every layout constant was raw pixels** (`HeaderH`, `FooterH`, `RecentPanelH`, `GridChromeH`).
+  They scale through `DpiScalingHelper` now.
+- **Recent chips measured with `SystemFonts.DefaultFont`** and were then drawn in the theme's font,
+  so every chip was sized for a font it never used. One font measures and draws now, and the chip
+  height scales.
+
+### Not fixed — it is in BeepGridPro, not here
+
+**The grid shows a horizontal scrollbar it should not, and clips its last row.** After `FitColumns`
+scales every visible column to the grid's exact client width, and after re-fitting once the popup
+has its final width, the horizontal scrollbar is still there; and giving the popup extra height for
+it does not hand that height to the grid's viewport — the fourth of four rows stays cut in half.
+The popup's arithmetic is right (it asks for `rows x RowHeight + header + chrome`); what the grid
+does with the space is not this folder's code. Left as an explicit allowance plus this note rather
+than papered over with a magic constant.
+
+Verified by rendering the popup populated in both themes and eyeballing, plus 62 passing checks.
+The 5 failures are still the pre-existing composition ones recorded above.

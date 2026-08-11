@@ -398,7 +398,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (!string.IsNullOrEmpty(key))
             {
-                ShowNotification($"'{key}' is not in the list.", ToolTipType.Warning, 2000);
+                // No floating notification. RejectKey already sets ErrorText and raises
+                // KeyRejected, so the refusal is both visible on the field and observable to the
+                // caller; the toast was a third copy of the same message that popped a tooltip
+                // window over the form every time someone mistyped a key.
                 RejectKey(key);
             }
 

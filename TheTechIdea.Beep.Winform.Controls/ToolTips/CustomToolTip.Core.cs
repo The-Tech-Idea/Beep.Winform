@@ -9,11 +9,18 @@ using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 {
     /// <summary>
-    /// Modern tooltip form that inherits from BeepiFormPro for consistent theming
-    /// Enhanced with helper classes and improved architecture
-    /// Matches BeepNotification architecture pattern
+    /// The tooltip window: a plain <see cref="Form"/> clipped to the painter's silhouette.
     /// </summary>
-    public partial class CustomToolTip : BeepiFormPro
+    /// <remarks>
+    /// This deliberately does NOT derive from <c>BeepiFormPro</c>. That base owns the window shape
+    /// in two places - <c>UpdateFormRegion</c> (managed <see cref="Form.Region"/>) and
+    /// <c>UpdateWindowRegion</c> (<c>SetWindowRgn</c>) - and both build a rounded RECTANGLE from the
+    /// active form painter's corner radius, on every size and style change. Any silhouette this
+    /// tooltip set was therefore overwritten before it was ever shown, which is why the caret never
+    /// appeared and the shape stayed rectangular. It also brought a caption bar, hit-testing,
+    /// drag/resize and form painters that a tooltip has no use for.
+    /// </remarks>
+    public partial class CustomToolTip : Form
     {
         #region Constants
 
@@ -56,13 +63,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
             TopMost = true;
-            ShowCaptionBar = false; // BeepiFormPro property
 
-            // C1: Transparency key + back color must match so OnPaintBackground's
-            // fill is actually treated as transparent by the OS compositor.
-            // Picked magenta because it is not in any standard theme palette.
-            TransparencyKey = Color.Magenta;
-            BackColor = Color.Magenta;
+            // NO TransparencyKey. A colour key removes only pixels matching it EXACTLY, and every
+            // antialiased edge of the card is a BLEND between the card colour and whatever is
+            // underneath - so keying magenta left a magenta-to-card halo tracing the whole outline,
+            // which is precisely the "border line" this used to show. The window is clipped to the
+            // painter's silhouette by ApplyShapeRegion instead, and the surface underneath the card
+            // is the CARD'S OWN COLOUR, so an antialiased edge blends card-into-card and disappears.
+            BackColor = ToolTipThemeHelpers.GetToolTipBackColor(
+                BeepThemesManager.CurrentTheme, ToolTipType.Default);
 
             // Additional tooltip-specific properties
             ForeColor = ToolTipThemeHelpers.GetToolTipForeColor(BeepThemesManager.CurrentTheme, ToolTipType.Default);

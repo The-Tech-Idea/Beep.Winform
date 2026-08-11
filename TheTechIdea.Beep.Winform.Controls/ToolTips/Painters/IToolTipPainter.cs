@@ -10,6 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
     public interface IToolTipPainter
     {
         /// <summary>
+        /// Outline of the drawn tooltip (rounded card + caret), used to shape the window region.
+        /// </summary>
+        System.Drawing.Drawing2D.GraphicsPath GetSilhouettePath(System.Drawing.Rectangle bounds, ToolTipConfig config);
+
+        /// <summary>
         /// Paint the complete tooltip including background, border, shadow, arrow, and content
         /// </summary>
         /// <param name="g">Graphics context</param>

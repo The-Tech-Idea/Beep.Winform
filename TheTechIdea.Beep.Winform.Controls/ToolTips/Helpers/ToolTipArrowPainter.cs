@@ -43,10 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             if (arrowStyle == ToolTipArrowStyle.Hidden || arrowSize <= 0)
                 return;
 
-            var tip = CalculateTipPoint(tooltipBounds, placement, arrowSize, arrowOffset);
-            var (left, right) = CalculateBasePoints(tip, placement, arrowSize);
-
-            using (var path = BuildArrowPath(tip, left, right, arrowStyle, arrowSize))
+            using (var path = GetArrowPath(tooltipBounds, placement, arrowStyle, arrowSize, arrowOffset))
             {
                 // Fill
                 using (var brush = new SolidBrush(fillColor))
@@ -201,6 +198,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         /// <summary>
         /// Build a <see cref="GraphicsPath"/> for the arrow in the requested style.
         /// </summary>
+        /// <summary>
+        /// The caret outline for a card rectangle. Public because the tooltip window shapes its
+        /// <see cref="System.Windows.Forms.Form.Region"/> from card + caret: WinForms has no
+        /// per-pixel window alpha here, and colour-key transparency only removes EXACT matches,
+        /// so anything painted over the key (a shadow pass, for instance) leaves the "transparent"
+        /// area visible. Clipping the window to this silhouette does not care what is painted.
+        /// </summary>
+        public static GraphicsPath GetArrowPath(
+            Rectangle tooltipBounds,
+            ToolTipPlacement placement,
+            ToolTipArrowStyle arrowStyle,
+            int arrowSize,
+            int arrowOffset)
+        {
+            var tip = CalculateTipPoint(tooltipBounds, placement, arrowSize, arrowOffset);
+            var (left, right) = CalculateBasePoints(tip, placement, arrowSize);
+            return BuildArrowPath(tip, left, right, arrowStyle, arrowSize);
+        }
+
         private static GraphicsPath BuildArrowPath(
             PointF tip, PointF baseLeft, PointF baseRight,
             ToolTipArrowStyle style, int arrowSize)

@@ -137,6 +137,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             // 150x61 against a native tooltip's ~22px height. If a real drop shadow is
             // reintroduced, the allowance and the painting have to come back together.
 
+            // Reserve the caret strip so the arrow is inside the window and not clipped.
+            int arrowExtent = GetArrowExtent(config);
+            if (arrowExtent > 0)
+            {
+                if (ArrowIsVertical(config.Placement)) height += arrowExtent;
+                else width += arrowExtent;
+            }
+
             // Apply constraints
             width = Math.Max(DefaultMinWidth, Math.Min(width, DefaultMaxWidth));
 
@@ -207,6 +215,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// <summary>
         /// Create rounded rectangle path for tooltip
         /// </summary>
+        /// <summary>
+        /// The outline of everything this tooltip actually draws: the rounded card plus its caret.
+        /// <see cref="CustomToolTip"/> clips its window to this, which is how a rounded, carets-and-all
+        /// tooltip gets a transparent surround on WinForms.
+        /// </summary>
+        public virtual GraphicsPath GetSilhouettePath(Rectangle bounds, ToolTipConfig config)
+        {
+            var card = GetCardRectangle(bounds, config);
+            int radius = GetCornerRadius(card, config);
+
+            // Winding: the caret overlaps the card edge, and Alternate would punch that overlap out.
+            var path = CreateRoundedRectangle(card, radius);
+            path.FillMode = FillMode.Winding;
+
+            int arrow = GetArrowExtent(config);
+            if (arrow > 0)
+            {
+                using var caret = ToolTipArrowPainter.GetArrowPath(
+                    card, config.Placement, config.ArrowStyle, arrow, config.ArrowOffset);
+                if (caret.PointCount > 0) path.AddPath(caret, false);
+            }
+            return path;
+        }
+
         protected GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
         {
             var path = new GraphicsPath();
@@ -273,15 +305,87 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// <summary>
         /// Get content rectangle with style-aware padding.
         /// </summary>
+        /// <summary>
+        /// Corner radius for the card, honouring <see cref="ToolTipConfig.Shape"/>.
+        /// One authority so background, border and any future clip agree.
+        /// </summary>
+        protected int GetCornerRadius(Rectangle card, ToolTipConfig config)
+        {
+            var style = ToolTipStyleAdapter.GetBeepControlStyle(config);
+            switch (config?.Shape ?? ToolTipShape.Rounded)
+            {
+                case ToolTipShape.Sharp: return 0;
+                case ToolTipShape.Soft:  return 6;
+                case ToolTipShape.Pill:  return Math.Max(0, card.Height / 2);
+                default:                 return StyleBorders.GetRadius(style);
+            }
+        }
+
+        /// <summary>
+        /// How many pixels the caret needs outside the card, or 0 when no arrow is drawn.
+        /// </summary>
+        protected int GetArrowExtent(ToolTipConfig config)
+        {
+            if (config == null || !config.ShowArrow || config.ArrowStyle == ToolTipArrowStyle.Hidden)
+                return 0;
+            return config.ArrowSize > 0 ? config.ArrowSize : DefaultArrowSize;
+        }
+
+        /// <summary>True when the caret sits above or below the card rather than beside it.</summary>
+        protected static bool ArrowIsVertical(ToolTipPlacement placement) =>
+            placement is ToolTipPlacement.Top or ToolTipPlacement.TopStart or ToolTipPlacement.TopEnd
+                      or ToolTipPlacement.Bottom or ToolTipPlacement.BottomStart or ToolTipPlacement.BottomEnd
+                      or ToolTipPlacement.Auto;
+
+        /// <summary>
+        /// The card rectangle: the window bounds minus the strip reserved for the caret.
+        /// </summary>
+        /// <remarks>
+        /// The card used to be painted across the FULL bounds while
+        /// <c>ToolTipArrowPainter.CalculateTipPoint</c> put the tip at <c>bounds.Bottom + arrowSize</c>
+        /// - outside the window, so every arrow was clipped away and `ShowArrow` appeared to do
+        /// nothing. Reserving the strip here (and in CalculateSize) is what makes the caret visible,
+        /// which is the detail that makes a tooltip read as a modern web tooltip rather than a box.
+        /// </remarks>
+        protected Rectangle GetCardRectangle(Rectangle bounds, ToolTipConfig config)
+        {
+            int arrow = GetArrowExtent(config);
+            if (arrow <= 0) return bounds;
+
+            switch (config.Placement)
+            {
+                // Tooltip sits ABOVE its target, so the caret hangs off the bottom.
+                case ToolTipPlacement.Top:
+                case ToolTipPlacement.TopStart:
+                case ToolTipPlacement.TopEnd:
+                case ToolTipPlacement.Auto:
+                    return new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height - arrow);
+
+                case ToolTipPlacement.Bottom:
+                case ToolTipPlacement.BottomStart:
+                case ToolTipPlacement.BottomEnd:
+                    return new Rectangle(bounds.X, bounds.Y + arrow, bounds.Width, bounds.Height - arrow);
+
+                case ToolTipPlacement.Left:
+                case ToolTipPlacement.LeftStart:
+                case ToolTipPlacement.LeftEnd:
+                    return new Rectangle(bounds.X, bounds.Y, bounds.Width - arrow, bounds.Height);
+
+                default:
+                    return new Rectangle(bounds.X + arrow, bounds.Y, bounds.Width - arrow, bounds.Height);
+            }
+        }
+
         protected Rectangle GetContentRectangle(Rectangle bounds, ToolTipConfig config)
         {
+            var card = GetCardRectangle(bounds, config);
             int padX = GetPaddingX(config);
             int padY = GetPaddingY(config);
             return new Rectangle(
-                bounds.X + padX,
-                bounds.Y + padY,
-                bounds.Width - padX * 2,
-                bounds.Height - padY * 2
+                card.X + padX,
+                card.Y + padY,
+                card.Width - padX * 2,
+                card.Height - padY * 2
             );
         }
 

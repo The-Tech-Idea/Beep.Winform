@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Threading;
@@ -19,6 +20,44 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         // Enough for one line of text plus its padding - not a design target. At 40 a
         // single-line tooltip was padded out regardless of what it actually measured.
+        /// <summary>
+        /// Clips the window to what the painter actually draws - the rounded card plus its caret.
+        /// </summary>
+        /// <remarks>
+        /// This is how a rounded tooltip gets a transparent surround on WinForms, and it replaced
+        /// a <see cref="System.Windows.Forms.Form.TransparencyKey"/> outright. A colour key removes
+        /// only pixels matching it EXACTLY, which fails here twice over: the shadow pass painted a
+        /// translucent layer across the whole surface, turning the key from (255,0,255) into
+        /// (161,0,161) so nothing keyed out at all; and even without it, every antialiased edge of
+        /// the card is a blend between card and key, leaving a halo tracing the outline.
+        /// A region clips the window itself and is indifferent to what is painted over it.
+        /// <para>
+        /// Region edges are hard (GDI regions have no antialiasing), which is the accepted
+        /// trade-off - a crisp corner beats a haloed one.
+        /// </para>
+        /// </remarks>
+        private void ApplyShapeRegion()
+        {
+            if (_painter == null || _config == null || Width <= 0 || Height <= 0) return;
+
+            try
+            {
+                using var path = _painter.GetSilhouettePath(new Rectangle(0, 0, Width, Height), _config);
+                if (path == null || path.PointCount == 0) return;
+
+                var previous = Region;
+                Region = new Region(path);
+                previous?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                // A malformed silhouette must not stop the tooltip appearing - it just appears
+                // rectangular.
+                BeepLog.FallbackOnce("tooltip.region", this,
+                    "shape the tooltip window to its silhouette; falling back to a rectangle", ex);
+            }
+        }
+
         private const int MinimumReadableHeight = 24;
 
         public void ApplyConfig(ToolTipConfig config)
@@ -64,6 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                     contentSize, maxSize, minSize, screenBounds);
                 
                 Size = responsiveSize;
+                ApplyShapeRegion();
             }
 
             // Apply custom colors if specified
@@ -182,6 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                     contentSize, new Size(maxWidth, 0), new Size(minWidth, MinimumReadableHeight), screenBounds);
 
                 if (responsiveSize != Size) Size = responsiveSize;
+                ApplyShapeRegion();
             }
 
             UpdatePosition(_config.AnchorRect.IsEmpty

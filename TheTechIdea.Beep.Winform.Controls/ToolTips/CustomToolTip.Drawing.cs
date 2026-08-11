@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Painters;
+using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 {
@@ -65,8 +67,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // Fill with transparency key color for rounded corners
-            using (var brush = new SolidBrush(TransparencyKey))
+            // The card colour, NOT a transparency key: the region already removes everything
+            // outside the silhouette, and painting the same colour underneath means the card's
+            // antialiased edge blends into itself rather than into a key colour. Filling a
+            // contrasting colour here is what draws a light outline around the whole tooltip.
+            var theme = _currentTheme ?? _theme ?? BeepThemesManager.CurrentTheme;
+            Color surface = _config != null
+                ? ToolTipThemeHelpers.GetToolTipBackColor(theme, _config.Type, _config.BackColor)
+                : BackColor;
+
+            using (var brush = new SolidBrush(surface))
             {
                 e.Graphics.FillRectangle(brush, ClientRectangle);
             }

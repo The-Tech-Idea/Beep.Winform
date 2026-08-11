@@ -242,6 +242,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
     /// <summary>
     /// Arrow caret visual style
     /// </summary>
+    /// <summary>
+    /// Card silhouette. Modern web tooltips are defined less by colour than by their
+    /// silhouette: a small consistent radius, or a pill, or a hard rectangle.
+    /// </summary>
+    public enum ToolTipShape
+    {
+        /// <summary>Radius from the active BeepControlStyle (the existing behaviour).</summary>
+        Rounded,
+        /// <summary>Small uniform radius, ~6px - Tailwind / shadcn / Radix.</summary>
+        Soft,
+        /// <summary>Fully rounded ends - a capsule, for one-line hints.</summary>
+        Pill,
+        /// <summary>Square corners - Bootstrap / Ant classic.</summary>
+        Sharp
+    }
+
     public enum ToolTipArrowStyle
     {
         /// <summary>Sharp flat triangle (Material Design)</summary>

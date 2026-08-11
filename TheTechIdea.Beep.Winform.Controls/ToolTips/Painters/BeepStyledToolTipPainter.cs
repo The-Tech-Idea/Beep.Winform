@@ -34,7 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             // without tearing on concurrent reads from a layout thread.
             lock (_boundsLock)
             {
-                _lastPaintBounds = bounds;
+                // The CARD rect: ToolTipArrowPainter places the tip just outside whatever rect it
+                // is given, so handing it the window would put the caret outside the window again.
+                _lastPaintBounds = GetCardRectangle(bounds, config);
             }
 
             // Set high quality rendering
@@ -42,20 +44,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Paint in order: Shadow -> Background -> Border -> Arrow -> Content
-            if (config.ShowShadow)
-            {
-                PaintShadow(g, bounds, config);
-            }
-
+            // Background (card + caret as one silhouette) -> Border -> Content.
+            //
+            // No shadow pass: it painted a translucent scrim across the ENTIRE window, which is
+            // what turned the transparency key from (255,0,255) into (161,0,161) so nothing keyed
+            // out. With a shaped Region the scrim would instead darken the card itself. A real
+            // drop shadow needs to be drawn outside the silhouette, with matching space reserved.
+            //
+            // No separate arrow pass either: the caret is part of the silhouette, so drawing it
+            // again would double-stroke its border.
             PaintBackground(g, bounds, config, theme);
             PaintBorder(g, bounds, config, theme);
-
-            if (config.ShowArrow)
-            {
-                var arrowPos = ToolTipHelpers.CalculateArrowPosition(bounds, placement, DefaultArrowSize);
-                PaintArrow(g, arrowPos, placement, config, theme);
-            }
 
             PaintContent(g, bounds, config, theme);
         }
@@ -77,9 +76,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             // the semantic Type, so Success/Warning/Error tooltips all painted the style
             // surface. Slot-per-type resolution, config colour as the custom override.
             Color fill = ToolTipThemeHelpers.GetToolTipBackColor(theme, config.Type, config.BackColor);
-            int radius = StyleBorders.GetRadius(beepStyle);
 
-            using (var path = CreateRoundedRectangle(bounds, radius))
+            // ONE path for card + caret - the same path CustomToolTip clips its window Region to.
+            // Filling the card and the caret separately left the pixels between the two fills
+            // unpainted, and the window region (which is their union) let that seam show as a
+            // hairline of whatever was underneath.
+            using (var path = GetSilhouettePath(bounds, config))
             using (var brush = new SolidBrush(fill))
             {
                 g.FillPath(brush, path);
@@ -99,10 +101,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         {
             var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
             Color border = ToolTipThemeHelpers.GetToolTipBorderColor(theme, config.Type, config.BorderColor);
-            int radius = StyleBorders.GetRadius(beepStyle);
             int borderWidth = Math.Max(1, (int)StyleBorders.GetBorderWidth(beepStyle));
 
-            using (var path = CreateRoundedRectangle(bounds, radius))
+            using (var path = GetSilhouettePath(bounds, config))
             using (var pen = new Pen(border, borderWidth))
             {
                 g.DrawPath(pen, path);

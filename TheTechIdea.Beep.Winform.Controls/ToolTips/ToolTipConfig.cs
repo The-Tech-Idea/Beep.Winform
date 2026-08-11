@@ -395,6 +395,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public bool UseMarkup { get; set; } = false;
 
+        /// <summary>
+        /// Card silhouette. Defaults to <see cref="ToolTipShape.Rounded"/>, which keeps the radius
+        /// the active BeepControlStyle already specifies.
+        /// </summary>
+        public ToolTipShape Shape { get; set; } = ToolTipShape.Rounded;
+
         private ToolTipLayoutVariant _layoutVariant = ToolTipLayoutVariant.Simple;
         private bool _layoutVariantSetExplicitly;
 

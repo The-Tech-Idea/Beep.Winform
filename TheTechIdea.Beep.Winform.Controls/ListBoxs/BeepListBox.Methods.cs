@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -374,7 +375,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (FocusOutlineColor == Color.Empty) FocusOutlineColor = _currentTheme.PrimaryColor;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.FailureOnce("listbox.seedselectioncolours", this,
+                    "seed the selection colours from the theme", ex);
+            }
         }
         
         #endregion
@@ -414,7 +419,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Value = _yOffset;
             }
-            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout and hit areas", ex); }
             Invalidate();
         }
 
@@ -439,7 +445,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Value = _yOffset;
             }
-            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout and hit areas", ex); }
             Invalidate();
         }
         
@@ -455,7 +462,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Value = _yOffset;
             }
-            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout and hit areas", ex); }
             Invalidate();
         }
 
@@ -509,7 +517,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _yOffset = startY + (int)(delta * ease);
                 if (_verticalScrollBar != null && _verticalScrollBar.Visible)
                     _verticalScrollBar.Value = _yOffset;
-                try { _layoutHelper?.CalculateLayout(this); } catch { }
+                try { _layoutHelper?.CalculateLayout(this); }
+                catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout", ex); }
                 Invalidate();
 
                 if (t >= 1f)

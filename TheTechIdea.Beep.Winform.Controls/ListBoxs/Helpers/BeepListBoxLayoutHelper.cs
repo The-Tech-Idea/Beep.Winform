@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -152,7 +153,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             int totalHeight = Math.Max(0, runningVirtualY);
 
             // update owner's virtual size width and height
-            try { _owner.UpdateVirtualSize(new Size(drawingRect.Width, Math.Max(0, totalHeight))); } catch { }
+            try { _owner.UpdateVirtualSize(new Size(drawingRect.Width, Math.Max(0, totalHeight))); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.virtualsize", _owner, "publish the list's virtual size for scrolling", ex); }
         }
     }
 }

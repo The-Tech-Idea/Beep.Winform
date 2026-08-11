@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -310,7 +311,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         TextFormatFlags.Right | TextFormatFlags.Bottom | TextFormatFlags.NoPrefix);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // A paint path: report once per key, not once per WM_PAINT.
+                BeepLog.FailureOnce("listbox.painter.hint", _owner,
+                    "draw the paging hint overlay", ex);
+            }
         }
         
         protected virtual void DrawItemText(Graphics g, Rectangle textRect, string text, Color textColor, Font font)

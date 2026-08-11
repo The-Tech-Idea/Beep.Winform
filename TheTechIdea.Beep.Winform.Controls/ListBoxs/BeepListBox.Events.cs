@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -339,7 +340,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _yOffset = newValue;
                     _verticalScrollBar.Value = newValue;
-                    try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
+                    try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout and hit areas", ex); }
                     Invalidate();
                 }
             }

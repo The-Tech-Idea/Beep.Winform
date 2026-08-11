@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -325,12 +326,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_hoverAnimationDuration != value)
                 {
                     _hoverAnimationDuration = value;
-                    // Make sure the timer step is recalculated in owner
-                    try
-                    {
-                        _hoverAnimationStep = 16f / Math.Max(1f, (float)_hoverAnimationDuration);
-                    }
-                    catch { }
+                    // No try/catch: a float division whose divisor is floored at 1 cannot throw,
+                    // so the catch here had never caught anything and hid nothing.
+                    _hoverAnimationStep = 16f / Math.Max(1f, (float)_hoverAnimationDuration);
                 }
             }
         }

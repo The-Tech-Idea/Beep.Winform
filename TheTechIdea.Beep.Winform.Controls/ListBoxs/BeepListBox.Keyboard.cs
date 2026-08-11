@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
@@ -429,14 +430,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _yOffset = Math.Max(0, rowTop - clientArea.Top);
                 if (_verticalScrollBar != null) _verticalScrollBar.Value = _yOffset;
-                try { _layoutHelper?.CalculateLayout(this); } catch { }
+                try { _layoutHelper?.CalculateLayout(this); }
+                catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout", ex); }
                 Invalidate();
             }
             else if (rowBottom > clientArea.Top + _yOffset + clientArea.Height)
             {
                 _yOffset = rowBottom - clientArea.Top - clientArea.Height;
                 if (_verticalScrollBar != null) _verticalScrollBar.Value = _yOffset;
-                try { _layoutHelper?.CalculateLayout(this); } catch { }
+                try { _layoutHelper?.CalculateLayout(this); }
+                catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout", ex); }
                 Invalidate();
             }
         }
@@ -503,7 +506,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (lines.Length > 0)
             {
-                try { Clipboard.SetText(lines.ToString().TrimEnd()); } catch { }
+                try { Clipboard.SetText(lines.ToString().TrimEnd()); }
+                catch (Exception ex) { BeepLog.Failure(this, "copy the selected items to the clipboard", ex); }
             }
         }
 
@@ -551,7 +555,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             SelectedItem = item;
                             break;
                         case "copy":
-                            try { Clipboard.SetText(item.Text ?? ""); } catch { }
+                            try { Clipboard.SetText(item.Text ?? ""); }
+                            catch (Exception ex) { BeepLog.Failure(this, "copy the item text to the clipboard", ex); }
                             break;
                         case "edit":
                             StartInlineEdit(item);

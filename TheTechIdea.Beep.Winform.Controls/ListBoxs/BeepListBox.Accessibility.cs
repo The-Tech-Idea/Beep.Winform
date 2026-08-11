@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
 using System.Linq;
@@ -22,17 +23,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void NotifyA11ySelectionChanged(int index)
         {
-            try { AccessibilityNotifyClients(AccessibleEvents.Selection, index); } catch { }
+            try { AccessibilityNotifyClients(AccessibleEvents.Selection, index); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.a11y.selection", this, "notify accessibility clients of a selection change", ex); }
         }
 
         private void NotifyA11yOrderChanged()
         {
-            try { AccessibilityNotifyClients(AccessibleEvents.Reorder, -1); } catch { }
+            try { AccessibilityNotifyClients(AccessibleEvents.Reorder, -1); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.a11y.reorder", this, "notify accessibility clients of a reorder change", ex); }
         }
 
         private void NotifyA11yFocused(int index)
         {
-            try { AccessibilityNotifyClients(AccessibleEvents.Focus, index); } catch { }
+            try { AccessibilityNotifyClients(AccessibleEvents.Focus, index); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.a11y.focus", this, "notify accessibility clients of a focus change", ex); }
         }
 
         // ── High-contrast overrides ───────────────────────────────────────────────

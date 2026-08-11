@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -53,7 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls;
         {
             if (_listBoxPainter != null)
             {
-                try { return _listBoxPainter.GetPreferredItemHeight(); } catch { }
+                try { return _listBoxPainter.GetPreferredItemHeight(); }
+                catch (Exception ex) { BeepLog.FallbackOnce($"listbox.itemheight:{_listBoxPainter.GetType().Name}", this, "ask the painter for its preferred item height; using MenuItemHeight", ex); }
             }
             return _menuItemHeight;
         }
@@ -406,7 +408,14 @@ namespace TheTechIdea.Beep.Winform.Controls;
                         FocusOutlineColor = t.PrimaryColor;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Kept narrow deliberately: assigning these Color properties cannot throw, so if
+                // anything ever surfaces here it is the theme lookup above, and that is worth
+                // seeing rather than discarding.
+                BeepLog.FailureOnce("listbox.seedselectioncolours", this,
+                    "seed the selection colours from the theme", ex);
+            }
         }
 
         private void HoverAnimationTimer_Tick(object sender, EventArgs e)
@@ -657,14 +666,16 @@ namespace TheTechIdea.Beep.Winform.Controls;
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
             if (sender is BeepScrollBar sb) _yOffset = sb.Value;
-            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout and hit areas", ex); }
             Invalidate();
         }
 
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
             if (sender is BeepScrollBar sb) _xOffset = sb.Value;
-            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); }
+            catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout and hit areas", ex); }
             Invalidate();
         }
 
@@ -770,7 +781,8 @@ namespace TheTechIdea.Beep.Winform.Controls;
                 clientRect.Bottom - currentY);
 
             // After layout update, refresh layout cache and scrollbars virtual size
-            try { _layoutHelper?.CalculateLayout(this); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); }
+                catch (Exception ex) { BeepLog.FailureOnce("listbox.layout", this, "recalculate the list layout", ex); }
             UpdateScrollBars();
         }
         

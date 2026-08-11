@@ -39,21 +39,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int rowH = DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightCompact, owner);
             _sentinelRect = new Rectangle(drawingRect.Left, drawingRect.Bottom - rowH, drawingRect.Width, rowH);
 
-            g.DrawLine(GetPen(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.Gray), 1f), _sentinelRect.Left, _sentinelRect.Top, _sentinelRect.Right, _sentinelRect.Top);
+            g.DrawLine(GetPen(Color.FromArgb(40, Theme.PrimaryColor), 1f), _sentinelRect.Left, _sentinelRect.Top, _sentinelRect.Right, _sentinelRect.Top);
 
             var mp = owner.PointToClient(System.Windows.Forms.Control.MousePosition);
             bool hovered = _sentinelRect.Contains(mp);
             if (hovered)
             {
                 g.FillRectangle(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
-                    _theme?.PrimaryColor ?? Color.DodgerBlue)), _sentinelRect);
+                    Theme.PrimaryColor)), _sentinelRect);
             }
 
             string text = SentinelText;
             var font = GetCachedFont(owner.Font.Size, FontStyle.Regular);
             Color textColor = hovered
-                ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
-                : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray);
+                ? (Theme.PrimaryColor)
+                : Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.ListForeColor);
             System.Windows.Forms.TextRenderer.DrawText(g, text, font, _sentinelRect, textColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter | System.Windows.Forms.TextFormatFlags.NoPrefix);
         }

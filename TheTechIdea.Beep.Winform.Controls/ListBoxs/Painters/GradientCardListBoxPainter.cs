@@ -19,16 +19,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private readonly int _cornerRadius = 10;
         private readonly int _itemGap = 6;
 
-        // Predefined gradient palettes
-        private static readonly Color[][] GradientPalettes = new Color[][]
+        /// <summary>
+        /// Gradient pairs built from the theme, not from six hard-coded web gradients.
+        /// </summary>
+        /// <remarks>
+        /// These were <c>static readonly</c> literals, so every theme - light, dark or high
+        /// contrast - drew the same purple-blue and pink-peach cards. Built per call now because
+        /// the theme can change at any time; the pairs still differ from one another, so cards
+        /// remain distinguishable.
+        /// </remarks>
+        private Color[][] GradientPalettes
         {
-            new[] { Color.FromArgb(102, 126, 234), Color.FromArgb(118, 75, 162) },  // Purple-Blue
-            new[] { Color.FromArgb(67, 206, 162), Color.FromArgb(24, 90, 157) },    // Teal-Blue
-            new[] { Color.FromArgb(255, 154, 158), Color.FromArgb(250, 208, 196) }, // Pink-Peach
-            new[] { Color.FromArgb(161, 196, 253), Color.FromArgb(194, 233, 251) }, // Light Blue
-            new[] { Color.FromArgb(245, 175, 25), Color.FromArgb(241, 39, 17) },    // Orange-Red
-            new[] { Color.FromArgb(76, 184, 196), Color.FromArgb(60, 211, 173) },   // Cyan-Green
-        };
+            get
+            {
+                var t = Theme;
+                return new Color[][]
+                {
+                    new[] { t.PrimaryColor,   t.AccentColor    },
+                    new[] { t.AccentColor,    t.PrimaryColor   },
+                    new[] { t.SuccessColor,   t.AccentColor    },
+                    new[] { t.WarningColor,   t.ErrorColor     },
+                    new[] { t.SecondaryColor, t.PrimaryColor   },
+                    new[] { t.SurfaceColor, t.AccentColor    },
+                };
+            }
+        }
 
         public override int GetPreferredItemHeight()
         {
@@ -71,10 +86,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Text - always white for contrast on gradient
-            Color textColor = _theme?.OnPrimaryColor ?? Color.White;
+            Color textColor = Theme.OnPrimaryColor;
             if (!isSelected && !isHovered)
             {
-                textColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black;
+                textColor = Theme.ListItemForeColor;
             }
             
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
@@ -99,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     // Use theme primary color gradient for selected
-                    var primaryColor = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.DodgerBlue;
+                    var primaryColor = Theme.PrimaryColor;
                     var secondaryColor = _theme?.AccentColor ?? DarkenColor(primaryColor, 0.3f);
                     
                     using (var brush = new LinearGradientBrush(cardRect,
@@ -129,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default: subtle background
-                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White), path);
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor), path);
 
                     // Subtle border
                     g.DrawPath(GetPen(Color.FromArgb(40, 0, 0, 0), 0.5f), path);
@@ -155,8 +170,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw circular background
             var circleRect = iconRect;
             g.FillEllipse(GetBrush(isSelected
-                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)), circleRect);
+                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, Theme.OnPrimaryColor)
+                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, Theme.ListItemForeColor)), circleRect);
 
             // Draw icon using StyledImagePainter circular rendering
             float cx = circleRect.X + circleRect.Width / 2f;
@@ -179,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Checkmark
-                    using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
+                    using (var pen = new Pen(Theme.OnPrimaryColor, 2f))
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
@@ -196,9 +211,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
-                        _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)), path);
+                        Theme.ListItemForeColor)), path);
                     g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
-                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f), path);
+                        Theme.BorderColor), 1f), path);
                 }
             }
         }

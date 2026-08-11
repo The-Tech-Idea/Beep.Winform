@@ -42,10 +42,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int contentW = trailingX - contentX - Scale(8);
 
             Color primaryFg = isSelected
-                ? Color.White
-                : (_theme?.ListItemForeColor ?? Color.Black);
+                ? Theme.OnPrimaryColor
+                : (Theme.ListItemForeColor);
             Color secondaryFg = Color.FromArgb(ListBoxTokens.SubTextAlpha,
-                _theme?.ListItemForeColor ?? Color.Gray);
+                Theme.ListItemForeColor);
 
             // Name (bold)
             int nameY = itemRect.Y + Scale(14);
@@ -92,13 +92,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var pillRect = new RectangleF(pillX, y, pillW, pillH);
 
             var fill = badgeColor == Color.Empty
-                ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
+                ? (Theme.PrimaryColor)
                 : badgeColor;
             int r = Scale(ListBoxTokens.BadgePillRadius);
             using var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r);
             g.FillPath(GetBrush(fill), path);
 
-            Color textColor = fill.GetBrightness() > 0.55f ? Color.Black : Color.White;
+            Color textColor = fill.GetBrightness() > 0.55f ? Theme.ForeColor : Theme.OnPrimaryColor;
             TextRenderer.DrawText(g, text, font, Rectangle.Round(pillRect), textColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }

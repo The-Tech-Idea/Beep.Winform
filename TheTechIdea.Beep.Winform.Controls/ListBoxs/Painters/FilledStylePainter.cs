@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw text
             int avatarSpace = !string.IsNullOrEmpty(item.ImagePath) ? Scale(40) : 0;
             Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX - avatarSpace - Scale(12), rect.Height);
-            Color textColor = _owner.IsItemSelected(item) ? Color.White : _helper.GetTextColor();
+            Color textColor = _owner.IsItemSelected(item) ? Theme.OnPrimaryColor : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
             
             // Draw avatar circle on right using StyledImagePainter
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Gray)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(50, Theme.ShadowColor)), path);
                 }
             }
         }
@@ -80,10 +80,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawWhiteCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked)
         {
             // Draw white checkbox on blue background
-            g.FillRectangle(GetBrush(Color.White), checkboxRect);
+            g.FillRectangle(GetBrush(Theme.OnPrimaryColor), checkboxRect);
 
             // Draw border
-            g.DrawRectangle(GetPen(Color.White, 1.5f), checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
+            g.DrawRectangle(GetPen(Theme.OnPrimaryColor, 1.5f), checkboxRect.X, checkboxRect.Y, checkboxRect.Width - 1, checkboxRect.Height - 1);
 
             // Draw checkmark if checked
             if (isChecked)
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     new Point(checkboxRect.Left + checkboxRect.Width / 2 - Scale(1), checkboxRect.Bottom - Scale(4)),
                     new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
                 };
-                g.DrawLines(GetPen(Color.FromArgb(74, 144, 226), Scale(2)), checkPoints);
+                g.DrawLines(GetPen(Theme.AccentColor, Scale(2)), checkPoints);
             }
         }
         

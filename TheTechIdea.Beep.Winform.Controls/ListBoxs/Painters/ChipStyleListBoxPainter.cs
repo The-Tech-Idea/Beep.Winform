@@ -69,8 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Text
             var textRect = new Rectangle(contentX, chipRect.Y, chipRect.Right - contentX - Scale(_chipPadding), chipRect.Height);
             Color textColor = isSelected 
-                ? (_theme?.OnPrimaryColor ?? Color.White)
-                : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(60, 60, 60));
+                ? (Theme.OnPrimaryColor)
+                : (Theme.ListItemForeColor);
             
             System.Windows.Forms.TextRenderer.DrawText(g, item.Text ?? item.DisplayField, _owner.TextFont, textRect, textColor,
                 System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter | System.Windows.Forms.TextFormatFlags.NoPrefix);
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     // Selected: solid accent color
-                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    var accentColor = Theme.AccentColor;
                     g.FillPath(GetBrush(accentColor), path);
 
                     // Subtle inner highlight
@@ -107,15 +107,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else if (isHovered)
                 {
                     // Hovered: light background with accent border
-                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    var accentColor = Theme.AccentColor;
                     g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)), path);
                     g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, accentColor), 1.5f), path);
                 }
                 else
                 {
                     // Default: outlined chip
-                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White), path);
-                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f), path);
+                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor), path);
+                    g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }
             }
         }
@@ -123,9 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawChipIcon(Graphics g, Rectangle iconRect, string imagePath, bool isSelected)
         {
             // Draw circular background
-            var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+            var accentColor = Theme.AccentColor;
             g.FillEllipse(GetBrush(isSelected
-                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
+                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, Theme.OnPrimaryColor)
                 : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)), iconRect);
 
             // Draw icon using StyledImagePainter circular rendering
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawChipCheckmark(Graphics g, Rectangle checkRect, bool isSelected)
         {
-            Color checkColor = isSelected ? (_theme?.OnPrimaryColor ?? Color.White) : (_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue);
+            Color checkColor = isSelected ? (Theme.OnPrimaryColor) : (Theme.AccentColor);
             int s2 = Scale(2);
             int s3 = Scale(3);
             
@@ -159,8 +159,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Draw X
             Color xColor = isHovered
-                ? (_theme?.OnPrimaryColor ?? Color.White)
-                : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White);
+                ? (Theme.OnPrimaryColor)
+                : Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.OnPrimaryColor);
             int s3 = Scale(3);
             using (var pen = new Pen(xColor, 1.5f))
             {

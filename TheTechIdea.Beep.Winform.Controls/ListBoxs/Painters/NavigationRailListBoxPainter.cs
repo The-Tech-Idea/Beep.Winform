@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     pillW, pillH);
                 using var path = RoundedRect(pillRect, pillH / 2);
                 g.FillPath(GetBrush(
-                    Color.FromArgb(40, _theme?.PrimaryColor ?? Color.DodgerBlue)), path);
+                    Color.FromArgb(40, Theme.PrimaryColor)), path);
             }
 
             // Icon
@@ -65,18 +65,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 // Fallback: initials circle
                 g.FillEllipse(GetBrush(
-                    Color.FromArgb(120, _theme?.PrimaryColor ?? Color.DodgerBlue)), iconRect);
+                    Color.FromArgb(120, Theme.PrimaryColor)), iconRect);
                 string initials = item.Text?.Length > 0 ? item.Text.Substring(0, 1).ToUpper() : "?";
                 var iFnt = GetCachedFont(14f, FontStyle.Bold);
-                TextRenderer.DrawText(g, initials, iFnt, iconRect, Color.White,
+                TextRenderer.DrawText(g, initials, iFnt, iconRect, Theme.OnPrimaryColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
 
             // Label
             var labelRect = new Rectangle(itemRect.Left, iconRect.Bottom + gap, itemRect.Width, labelH);
             Color textColor = isSelected
-                ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
-                : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray);
+                ? (Theme.PrimaryColor)
+                : Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.ListForeColor);
             var lFont = GetCachedFont(Math.Max(7.5f, _owner.TextFont.Size - 1.5f),
                 isSelected ? FontStyle.Bold : FontStyle.Regular);
             TextRenderer.DrawText(g, item.Text ?? "", lFont, labelRect, textColor,
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     itemRect.Top + (itemRect.Height - barH) / 2,
                     ListBoxTokens.PinnedAccentBarWidth, barH);
                 using var barPath = RoundedRect(barRect, barRect.Width / 2);
-                g.FillPath(GetBrush(_theme?.PrimaryColor ?? Color.DodgerBlue), barPath);
+                g.FillPath(GetBrush(Theme.PrimaryColor), barPath);
             }
         }
 

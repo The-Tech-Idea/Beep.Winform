@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Gray)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(50, Theme.ShadowColor)), path);
                 }
             }
         }
@@ -53,12 +53,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Determine state based on item text
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
-            Color borderColor = isDisabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(220, 53, 69); // Red
-            Color bgColor = isChecked ? Color.FromArgb(255, 240, 240) : Color.White;
+            Color borderColor = isDisabled ? Theme.BorderColor : Theme.ErrorColor; // Red
+            Color bgColor = isChecked ? Color.FromArgb(30, Theme.ErrorColor) : Theme.BackgroundColor;
             
             if (isDisabled)
             {
-                bgColor = Color.FromArgb(245, 245, 245);
+                bgColor = Theme.PanelBackColor;
             }
             
             // Draw background
@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(6)),
                     new Point(checkboxRect.Right - Scale(5), checkboxRect.Top + Scale(5))
                 };
-                g.DrawLines(GetPen(Color.FromArgb(220, 53, 69), 2.5f), checkPoints);
+                g.DrawLines(GetPen(Theme.ErrorColor, 2.5f), checkPoints);
             }
         }
         

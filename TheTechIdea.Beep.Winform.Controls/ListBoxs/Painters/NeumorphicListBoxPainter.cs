@@ -67,10 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Text
-            Color textColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.DimGray;
+            Color textColor = Theme.ListItemForeColor;
             if (isSelected)
             {
-                textColor = _theme?.OnPrimaryColor ?? Color.White;
+                textColor = Theme.OnPrimaryColor;
             }
             
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 DrawInsetNeumorphic(g, neuRect, lightShadow, darkShadow);
                 
                 // Accent indicator
-                var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                var accentColor = Theme.AccentColor;
                 var accentBrush = GetBrush(accentColor);
                 var accentRect = new Rectangle(neuRect.Left, neuRect.Top + Scale(4), Scale(4), neuRect.Height - Scale(8));
                 using (var accentPath = GraphicsExtensions.CreateRoundedRectanglePath(accentRect, new CornerRadius(Scale(2))))
@@ -179,11 +179,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, new CornerRadius(Scale(4))))
                 {
                     // Background
-                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    var accentColor = Theme.AccentColor;
                     g.FillPath(GetBrush(accentColor), path);
 
                     // Checkmark
-                    using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
+                    using (var pen = new Pen(Theme.OnPrimaryColor, 2f))
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;

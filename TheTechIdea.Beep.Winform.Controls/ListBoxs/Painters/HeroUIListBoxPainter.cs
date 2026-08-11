@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             try
             {
-                var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                var accentColor = Theme.AccentColor;
 
                 // Add padding to item bounds
                 var contentBounds = new Rectangle(
@@ -71,8 +71,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 );
 
                 Color textColor = isSelected
-                    ? (_theme?.OnPrimaryColor ?? Color.White)
-                    : (_theme?.LabelForeColor ?? _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
+                    ? (Theme.OnPrimaryColor)
+                    : (_theme?.LabelForeColor ?? Theme.ListItemForeColor);
                 
                 // Main text
                 var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    var hoverColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? _theme?.BorderColor ?? Color.Gray;
+                    var hoverColor = _theme?.AccentColor ?? Theme.PrimaryColor;
                     g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)), path);
                 }
             }

@@ -394,28 +394,8 @@ namespace TheTechIdea.Beep.Winform.Controls;
             if (_showSearch)
                 InitializeSearchTextBox();
 
-            // Set default selection visuals from theme when available
-            try
-            {
-                var t = _currentTheme;
-                if (t != null)
-                {
-                    if (SelectionBackColor == Color.Empty)
-                        SelectionBackColor = t.PrimaryColor;
-                    if (SelectionBorderColor == Color.Empty)
-                        SelectionBorderColor = t.AccentColor;
-                    if (FocusOutlineColor == Color.Empty)
-                        FocusOutlineColor = t.PrimaryColor;
-                }
-            }
-            catch (Exception ex)
-            {
-                // Kept narrow deliberately: assigning these Color properties cannot throw, so if
-                // anything ever surfaces here it is the theme lookup above, and that is worth
-                // seeing rather than discarding.
-                BeepLog.FailureOnce("listbox.seedselectioncolours", this,
-                    "seed the selection colours from the theme", ex);
-            }
+            // No selection-colour seeding: the painters read PrimaryColor and AccentColor from
+            // the theme directly.
         }
 
         private void HoverAnimationTimer_Tick(object sender, EventArgs e)

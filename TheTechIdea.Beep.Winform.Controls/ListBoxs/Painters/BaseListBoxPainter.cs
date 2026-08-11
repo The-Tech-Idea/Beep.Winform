@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
@@ -161,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var textRect = new Rectangle(rect.Left + v8, iconRect.Bottom + v8, rect.Width - v16, v36);
             var fontToUse = TextFont ?? GetCachedFont(Math.Max(10f, _owner.TextFont.Size - 1f));
             TextRenderer.DrawText(g, text, fontToUse, textRect,
-                _theme?.ListForeColor ?? Color.Gray,
+                Theme.ListForeColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.WordEllipsis | TextFormatFlags.NoPrefix);
         }
         
@@ -306,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 _owner.ShowSearch &&
                 !string.IsNullOrWhiteSpace(_owner.SearchText))
             {
-                Color hlBack = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.DodgerBlue, 45);
+                Color hlBack = PathPainterHelpers.WithAlphaIfNotEmpty(Theme.PrimaryColor, 45);
                 Color hlFore = _theme?.OnPrimaryColor ?? textColor;
                 _owner.DrawHighlightedText(g, text, _owner.SearchText, textRect, font, textColor, hlFore, hlBack);
                 return;
@@ -335,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 int inflate = DpiScalingHelper.ScaleValue(4, _owner);
                 var smallRect = imageRect;
                 smallRect.Inflate(-inflate, -inflate);
-                g.FillEllipse(GetBrush(Color.FromArgb(150, Color.Gray)), smallRect);
+                g.FillEllipse(GetBrush(Color.FromArgb(150, Theme.ShadowColor)), smallRect);
             }
         }
         
@@ -343,10 +344,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Theme-driven colors with fallback chains (Phase 9: no hardcoded RGB)
             Color bgColor = isHovered
-                ? (_theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240))
-                : (_theme?.BackgroundColor ?? Color.White);
-            Color accent = _theme?.PrimaryColor ?? Color.Blue;
-            Color borderColor = isChecked ? accent : (_theme?.BorderColor ?? Color.Gray);
+                ? (Theme.ListItemHoverBackColor)
+                : (Theme.BackgroundColor);
+            Color accent = Theme.PrimaryColor;
+            Color borderColor = isChecked ? accent : (Theme.BorderColor);
 
             // High-contrast override
             if (_owner != null && _owner.IsHighContrast)
@@ -380,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             float hoverProgress = isHovered ? 1f : 0f;
 
-            Color backgroundColor = _theme?.BackgroundColor ?? Color.White;
+            Color backgroundColor = Theme.BackgroundColor;
 
             if (isSelected)
             {
@@ -390,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else if (hoverProgress > 0f)
             {
-                Color hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(230, 230, 230);
+                Color hoverColor = Theme.ListItemHoverBackColor;
                 backgroundColor = BlendColors(backgroundColor, hoverColor, hoverProgress);
             }
 
@@ -408,7 +409,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // CRITICAL: Always clear the specific item's background first to prevent overlap artifacts
             // This ensures that any previous painting in this rect is completely overwritten
-            g.FillRectangle(GetBrush(_theme?.BackgroundColor ?? Color.White), itemRect);
+            g.FillRectangle(GetBrush(Theme.BackgroundColor), itemRect);
 
             // Allow painter-specific background customization via DrawItemBackground override.
             // Called BEFORE selection/hover/focus overlays so the painter provides the base
@@ -427,19 +428,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 // Use owner-defined selection color or fallback to theme
-                var selColor = (_owner.SelectionBackColor != Color.Empty) ? _owner.SelectionBackColor : (_theme?.PrimaryColor ?? Color.LightBlue);
+                var selColor = Theme.PrimaryColor;
                 int alpha = Math.Max(0, Math.Min(255, _owner.SelectionOverlayAlpha > 0 ? _owner.SelectionOverlayAlpha : 90));
                 g.FillRectangle(GetBrush(Color.FromArgb(alpha, selColor.R, selColor.G, selColor.B)), itemRect);
 
                 // Draw selection border
-                var borderColor = (_owner.SelectionBorderColor != Color.Empty) ? _owner.SelectionBorderColor : (_theme?.AccentColor ?? Color.Empty);
+                var borderColor = Theme.AccentColor;
                 int borderThickness = Math.Max(1, _owner.SelectionBorderThickness);
                 g.DrawRectangle(GetPen(borderColor, borderThickness), itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
 
                 // Focus outline for focused item
                 if (_owner.Focused && _owner.SelectedItem == item)
                 {
-                    var focusColor = (_owner.FocusOutlineColor != Color.Empty) ? _owner.FocusOutlineColor : (_theme?.PrimaryColor ?? Color.LightBlue);
+                    var focusColor = Theme.PrimaryColor;
                     int focusThickness = Math.Max(1, _owner.FocusOutlineThickness);
                     g.DrawRectangle(GetPen(focusColor, focusThickness), itemRect.X + 2, itemRect.Y + 2, itemRect.Width - 4, itemRect.Height - 4);
                 }
@@ -447,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else if (hoverProgress > 0f)
             {
                 // Only apply hover overlay if not selected
-                var hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(230, 230, 230);
+                var hoverColor = Theme.ListItemHoverBackColor;
                 var overlayColor = BlendColors(Color.Transparent, hoverColor, hoverProgress);
                 g.FillRectangle(GetBrush(Color.FromArgb((int)(hoverProgress * 60), overlayColor.R, overlayColor.G, overlayColor.B)), itemRect);
             }
@@ -528,13 +529,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     rich.TrailingMeta,
                     metricFont,
                     metricRect,
-                    Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListItemForeColor ?? Color.Gray),
+                    Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.ListItemForeColor),
                     TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 trailingReservation = metricW + DpiScalingHelper.ScaleValue(4, _owner);
             }
 
             // Draw text (use TextFont from theme)
-            Color textColor = isSelected ? (_theme?.OnPrimaryColor ?? Color.White) : (_theme?.ListItemForeColor ?? Color.Black);
+            Color textColor = isSelected ? (Theme.OnPrimaryColor) : (Theme.ListItemForeColor);
             var primaryRect = new Rectangle(contentRect.Left, contentRect.Top, Math.Max(0, contentRect.Width - trailingReservation), contentRect.Height);
 
             bool hasSubText = item is BeepListItem richItem2 &&
@@ -607,6 +608,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     new Rectangle(bounds.X, top + titleH + gap, bounds.Width, subH), subtitleColor, flags);
         }
 
+        /// <summary>The theme in force. There is always one.</summary>
+        /// <remarks>
+        /// Replaces the `_theme?.Slot ?? Color.Something` pattern that appeared 200+ times across
+        /// these painters. That form silently substituted a literal for the whole palette whenever
+        /// the field was null, and the literal was usually a light-theme grey - so a dark theme
+        /// rendered light patches. The slots themselves are real; only the fallback was wrong.
+        /// </remarks>
+        protected IBeepTheme Theme => _theme ?? BeepThemesManager.CurrentTheme;
+
         protected static bool HasSecondLine(object item)
         {
             if (item is BeepListItem rich && !string.IsNullOrEmpty(rich.SubText)) return true;
@@ -638,8 +648,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             string groupKey, bool isCollapsed, int itemCount)
         {
             if (g == null || headerRect.IsEmpty) return;
-            Color accent = _theme?.PrimaryColor ?? Color.Gray;
-            Color foreColor = _theme?.ListForeColor ?? Color.Gray;
+            Color accent = Theme.PrimaryColor;
+            Color foreColor = Theme.ListForeColor;
 
             // Background + bottom border line (alpha overlays of the theme accent)
             g.FillRectangle(GetBrush(Color.FromArgb(30, accent)), headerRect);
@@ -686,7 +696,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int cy = rect.Y + rect.Height / 2;
             int size = Math.Min(rect.Width, rect.Height) / 2;
 
-            var chevronColor = _helper?.GetTextColor() ?? Color.Gray;
+            var chevronColor = _helper?.GetTextColor() ?? Theme.SecondaryTextColor;
             var pen = GetPen(Color.FromArgb(ListBoxTokens.SubTextAlpha, chevronColor), 1.5f);
 
             var oldSmoothing = g.SmoothingMode;
@@ -739,12 +749,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var pillRect = new Rectangle(pillX, pillY, pillW, pillH);
 
             // Fill pill
-            var fill = badgeColor == Color.Empty ? (_theme?.PrimaryColor ?? Color.DodgerBlue) : badgeColor;
+            var fill = badgeColor == Color.Empty ? (Theme.PrimaryColor) : badgeColor;
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r))
                 g.FillPath(GetBrush(fill), path);
 
             // Badge text (auto-contrast on the pill fill)
-            Color textColor = fill.GetBrightness() > 0.55f ? Color.Black : Color.White;
+            Color textColor = fill.GetBrightness() > 0.55f ? Theme.ForeColor : Theme.OnPrimaryColor;
             TextRenderer.DrawText(g, badgeText, badgeFont, pillRect, textColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
@@ -768,7 +778,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected void DrawSeparatorRow(Graphics g, Rectangle rowRect, string? label = null)
         {
             int midY = rowRect.Top + rowRect.Height / 2;
-            var lineColor = Color.FromArgb(60, _theme?.ListForeColor ?? Color.Gray);
+            var lineColor = Color.FromArgb(60, Theme.ListForeColor);
             var pen = GetPen(lineColor, 1f);
 
             if (string.IsNullOrEmpty(label))
@@ -786,7 +796,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.DrawLine(pen, lX + lSize.Width + gapPad, midY, rowRect.Right - 8, midY);
                 TextRenderer.DrawText(g, label, lFont,
                     new Rectangle(lX, rowRect.Top, lSize.Width, rowRect.Height),
-                    Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray),
+                    Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.ListForeColor),
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }
         }
@@ -807,9 +817,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else
             {
-                ringColor = _owner.FocusOutlineColor != Color.Empty
-                    ? _owner.FocusOutlineColor
-                    : (_theme?.PrimaryColor ?? Color.DodgerBlue);
+                ringColor = Theme.PrimaryColor;
                 thickness = ListBoxTokens.FocusRingThickness;
             }
 
@@ -862,23 +870,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         /// </summary>
         protected void DrawInitialsFallback(Graphics g, Rectangle rect, string name)
         {
-            // Deterministic avatar palette (intentional literal colors — decorative, theme-independent)
+            // Deterministic, but drawn from the THEME's own slots rather than seven hard-coded
+            // Material hues. The old palette was labelled "theme-independent", which is exactly
+            // the problem: a dark or high-contrast theme still got the same seven light pastels.
+            // Still deterministic - the same name always lands on the same slot.
+            var t = Theme;
             Color[] palette =
             {
-                Color.FromArgb(239, 83, 80),
-                Color.FromArgb(171, 71, 188),
-                Color.FromArgb(66, 165, 245),
-                Color.FromArgb(38, 166, 154),
-                Color.FromArgb(102, 187, 106),
-                Color.FromArgb(255, 167, 38),
-                Color.FromArgb(141, 110, 99),
+                t.PrimaryColor,
+                t.AccentColor,
+                t.SuccessColor,
+                t.WarningColor,
+                t.ErrorColor,
+                t.SecondaryColor,
+                t.SurfaceColor,
             };
             int idx = Math.Abs((name ?? "").GetHashCode()) % palette.Length;
             g.FillEllipse(GetBrush(palette[idx]), rect);
 
             string initials = GetInitials(name);
             var font = GetCachedFont(Math.Max(10f, rect.Height * 0.35f), FontStyle.Bold);
-            TextRenderer.DrawText(g, initials, font, rect, Color.White,
+            TextRenderer.DrawText(g, initials, font, rect, Theme.OnPrimaryColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 

@@ -135,3 +135,52 @@ Per-hit-area cursors. `BeepListBoxHitTestHelper` registers `check_`, `icon_` and
 alongside `row_`, so a checkbox or trailing action could show something distinct from the row. The
 row-level answer is correct for every style today; splitting it further is a design decision about
 what a checkbox should feel like, not a defect.
+
+## Stages 04 + 05 — done
+
+### 05: the selection colours are gone
+
+`SelectionBackColor`, `SelectionBorderColor` and `FocusOutlineColor` were per-control colour
+overrides that had to be seeded from the theme — and the seeding **stamped** the property, so it
+was no longer `Color.Empty` and the guard never fired again. **Every later theme change was
+ignored**: the selection stayed the first theme's primary colour for the life of the control. It
+also made a caller's deliberate colour indistinguishable from a seeded one.
+
+Deleted, along with both seeding blocks and the now-dead `!= Color.Empty` guards in
+`BeepListBox.Accessibility.cs`. The painters read `Theme.PrimaryColor` / `Theme.AccentColor`
+directly. **Public members removed:** the three properties above.
+
+### 04: no colour literals left in any painter
+
+**269 sites across 38 painters.** Two passes:
+
+- **206** of the form `_theme?.Slot ?? Color.Something` (and 48 two-slot chains). That pattern
+  silently substituted a literal — usually a light-theme grey — for the entire palette whenever the
+  field was null. Replaced by `Theme.Slot`, backed by a new `BaseListBoxPainter.Theme` accessor
+  (`_theme ?? BeepThemesManager.CurrentTheme`). There is always a theme.
+- **63 + 21** standalone literals, by category rather than mechanically: selection ink →
+  `OnPrimaryColor`; shadows → an alpha veil over `ShadowColor`; disabled and border greys →
+  `DisabledForeColor` / `BorderColor` / `SecondaryTextColor`; brightness-based black/white picks →
+  a pick between two theme slots; and the semantic ones kept their meaning through the semantic
+  slot (`ErrorColor`, `WarningColor`).
+
+Two decorative palettes were labelled as deliberate and were not:
+
+- `DrawInitialsFallback` carried seven hard-coded Material hues commented *"intentional literal
+  colors — decorative, theme-independent"*. Theme-independent is the defect: a dark or
+  high-contrast theme got the same seven light pastels. It now indexes the theme's own semantic
+  slots, still deterministically.
+- `GradientCardListBoxPainter` held six `static readonly` web gradients, so every theme drew the
+  same purple-blue and pink-peach cards. Built from theme pairs per call now.
+
+**Verified:** `grep` finds zero colour literals left in `Painters/`; 50 checks pass under both
+LightTheme and DarkTheme; contact sheets rendered for both and eyeballed. The avatar discs visibly
+change colour between themes now, which they could not before.
+
+### Found while verifying — not fixed
+
+**Row backgrounds do not follow the theme.** The DarkTheme contact sheet still draws light rows in
+most styles. This is *not* the literals — those are gone. The painters fill item backgrounds
+through `BeepStyling` / `ControlStyle`, and `ControlStyle` pins its own bundled theme, so the
+palette in force is the style's rather than the application's. Same trap recorded elsewhere in this
+repo. That is the next thing to chase and is larger than a colour sweep.

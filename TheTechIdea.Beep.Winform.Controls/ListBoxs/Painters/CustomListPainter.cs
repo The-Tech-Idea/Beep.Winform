@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(30, Theme.AccentColor)), path);
                 }
 
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
@@ -92,8 +92,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw text
             Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX + rect.Left, rect.Height);
             Color textColor = isSelected
-                ? _theme?.OnPrimaryColor ?? Color.White
-                : Color.FromArgb(60, 60, 60);
+                ? Theme.OnPrimaryColor
+                : Theme.ListItemForeColor;
 
             var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
             System.Windows.Forms.TextRenderer.DrawText(g, item.Text, font, textRect, textColor,

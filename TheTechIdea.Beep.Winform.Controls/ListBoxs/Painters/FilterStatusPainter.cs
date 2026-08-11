@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    var hoverColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? _theme?.BorderColor ?? Color.Gray;
+                    var hoverColor = _theme?.AccentColor ?? Theme.PrimaryColor;
                     g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)), path);
                 }
             }
@@ -67,40 +67,42 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 // Determine color based on item state (would need item reference)
                 // For now, return primary colors
-                return Color.FromArgb(255, 237, 213); // Yellow/Gold for payment alert
+                // An alert tint: an alpha veil over the theme's warning slot keeps the meaning
+                // and follows a dark palette, which a fixed pale gold could not.
+                return Color.FromArgb(40, Theme.WarningColor);
             }
             else if (isHovered)
             {
-                return _theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.FromArgb(245, 245, 245);
+                return Theme.ListItemHoverBackColor;
             }
-            return _theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White;
+            return _theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor;
         }
         
         private Color GetItemStateColor(SimpleItem item, bool isSelected)
         {
             // Determine color based on item content or state
             if (item.Text?.ToLower().Contains("error") == true || item.Text?.ToLower().Contains("delivery") == true)
-                return Color.FromArgb(220, 53, 69); // Red
+                return Theme.ErrorColor; // Red
             else if (item.Text?.ToLower().Contains("payment") == true || item.Text?.ToLower().Contains("alert") == true)
-                return Color.FromArgb(255, 193, 7); // Amber/Gold
+                return Theme.WarningColor;
             else
-                return Color.FromArgb(108, 117, 125); // Gray
+                return Theme.SecondaryTextColor;
         }
         
         private Color GetItemTextColor(SimpleItem item, bool isSelected)
         {
             if (item.Text?.ToLower().Contains("error") == true || item.Text?.ToLower().Contains("delivery") == true)
-                return Color.FromArgb(120, 30, 40); // Dark red
+                return Theme.ErrorColor;
             else if (item.Text?.ToLower().Contains("payment") == true)
-                return Color.FromArgb(140, 100, 30); // Dark amber
+                return Theme.WarningColor;
             else
-                return _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(60, 60, 60); // Dark gray
+                return Theme.ListItemForeColor; // Dark gray
         }
         
         private void DrawColoredCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, Color stateColor)
         {
             // Draw checkbox background
-            Color bgColor = isChecked ? stateColor : (_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White);
+            Color bgColor = isChecked ? stateColor : (_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor);
             g.FillRectangle(GetBrush(bgColor), checkboxRect);
 
             // Draw checkbox border
@@ -115,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(5)),
                     new Point(checkboxRect.Right - Scale(4), checkboxRect.Top + Scale(4))
                 };
-                g.DrawLines(GetPen(_theme?.OnPrimaryColor ?? Color.White, 2f), checkPoints);
+                g.DrawLines(GetPen(Theme.OnPrimaryColor, 2f), checkPoints);
             }
         }
         

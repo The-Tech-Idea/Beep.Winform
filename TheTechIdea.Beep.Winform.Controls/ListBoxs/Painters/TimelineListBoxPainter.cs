@@ -65,8 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             int centerX = itemRect.X + Scale(12) + Scale(_nodeSize) / 2;
             Color lineColor = isSelected 
-                ? (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215))
-                : (_theme?.BorderColor ?? Color.FromArgb(200, 200, 200));
+                ? (Theme.PrimaryColor)
+                : (Theme.BorderColor);
 
             var pen = GetPen(lineColor, _lineWidth);
             {
@@ -92,21 +92,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (isSelected)
             {
-                nodeColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
-                borderColor = Color.White;
+                nodeColor = Theme.PrimaryColor;
+                borderColor = Theme.BorderColor;
             }
             else if (isHovered)
             {
-                nodeColor = Color.FromArgb(60, _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215));
-                borderColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                nodeColor = Color.FromArgb(60, Theme.PrimaryColor);
+                borderColor = Theme.PrimaryColor;
             }
             else
             {
                 // Use badge color if available, otherwise default
                 nodeColor = item.BadgeBackColor != Color.Empty 
                     ? item.BadgeBackColor 
-                    : (_theme?.BackgroundColor ?? Color.White);
-                borderColor = _theme?.BorderColor ?? Color.FromArgb(180, 180, 180);
+                    : (Theme.BackgroundColor);
+                borderColor = Theme.BorderColor;
             }
 
             // Draw node circle
@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else if (isSelected)
             {
                 // Draw checkmark for selected items
-                using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
+                using (var pen = new Pen(Theme.OnPrimaryColor, 2f))
                 {
                     pen.StartCap = LineCap.Round;
                     pen.EndCap = LineCap.Round;
@@ -147,15 +147,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Color bgColor;
                 if (isSelected)
                 {
-                    bgColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                    bgColor = Theme.PrimaryColor;
                 }
                 else if (isHovered)
                 {
-                    bgColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(248, 248, 248);
+                    bgColor = Theme.ListItemHoverBackColor;
                 }
                 else
                 {
-                    bgColor = _theme?.BackgroundColor ?? Color.White;
+                    bgColor = Theme.BackgroundColor;
                 }
 
                 g.FillPath(GetBrush(bgColor), path);
@@ -163,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Border
                 if (!isSelected)
                 {
-                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), path);
+                    g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }
 
                 // Arrow pointing to timeline
@@ -179,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 Color timeColor = isSelected 
                     ? Color.FromArgb(200, 255, 255, 255) 
-                    : (_theme?.DisabledForeColor ?? Color.FromArgb(140, 140, 140));
+                    : (Theme.DisabledForeColor);
                 
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 2, FontStyle.Regular);
                 var timeRect = new Rectangle(contentRect.Right - Scale(80), contentRect.Y + Scale(6), Scale(70), Scale(16));
@@ -191,8 +191,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Title
             var titleRect = new Rectangle(textX, contentRect.Y + Scale(8), textWidth, Scale(20));
             Color titleColor = isSelected 
-                ? Color.White 
-                : (_theme?.ListItemForeColor ?? Color.FromArgb(30, 30, 30));
+                ? Theme.OnPrimaryColor 
+                : (Theme.ListItemForeColor);
             
             var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, titleRect, item.Text ?? item.DisplayField, titleColor, boldFont);
@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var descRect = new Rectangle(textX, contentRect.Y + Scale(28), contentRect.Width - Scale(24), Scale(20));
                 Color descColor = isSelected 
                     ? Color.FromArgb(220, 255, 255, 255) 
-                    : (_theme?.DisabledForeColor ?? Color.FromArgb(100, 100, 100));
+                    : (Theme.DisabledForeColor);
                 
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
                 DrawItemText(g, descRect, item.SubText, descColor, smallFont);
@@ -223,15 +223,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             };
 
             Color arrowColor = isSelected 
-                ? (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215))
-                : (_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White);
+                ? (Theme.PrimaryColor)
+                : (Theme.ListItemHoverBackColor);
 
             g.FillPolygon(GetBrush(arrowColor), arrowPoints);
 
             // Arrow border (only if not selected)
             if (!isSelected)
             {
-                var pen = GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f);
+                var pen = GetPen(Theme.BorderColor, 1f);
                 g.DrawLine(pen, arrowPoints[1], arrowPoints[0]);
                 g.DrawLine(pen, arrowPoints[0], arrowPoints[2]);
             }

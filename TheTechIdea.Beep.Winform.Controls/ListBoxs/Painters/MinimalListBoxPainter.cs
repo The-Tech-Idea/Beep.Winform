@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else if (isHovered)
             {
                 // Very subtle hover background
-                g.FillRectangle(GetBrush(Color.FromArgb(8, Color.Black)), itemRect);
+                g.FillRectangle(GetBrush(Color.FromArgb(8, Theme.ShadowColor)), itemRect);
             }
             // No background for normal state - minimal approach
         }

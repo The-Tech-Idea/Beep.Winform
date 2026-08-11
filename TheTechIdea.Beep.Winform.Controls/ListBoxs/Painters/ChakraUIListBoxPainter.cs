@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isHovered)
                 {
                     g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
-                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue)), path);
+                        Theme.AccentColor)), path);
                 }
 
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     using (var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(outerRect, new CornerRadius(Scale(9))))
                     {
                         g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
-                            _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue), Scale(4)), outerPath);
+                            Theme.AccentColor), Scale(4)), outerPath);
                     }
 
                     // Inner ring (focus ring)
@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     innerRect.Inflate(Scale(1), Scale(1));
                     using (var innerPath = GraphicsExtensions.CreateRoundedRectanglePath(innerRect, new CornerRadius(Scale(7))))
                     {
-                        g.DrawPath(GetPen(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue, 2), innerPath);
+                        g.DrawPath(GetPen(Theme.AccentColor, 2), innerPath);
                     }
                 }
 
@@ -122,11 +122,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     // Rounded background for checkmark
                     using (var checkBgPath = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, Scale(4)))
                     {
-                        g.FillPath(GetBrush(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue), checkBgPath);
+                        g.FillPath(GetBrush(Theme.AccentColor), checkBgPath);
                     }
 
                     // Draw checkmark
-                    using (var checkPen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2))
+                    using (var checkPen = new Pen(Theme.OnPrimaryColor, 2))
                     {
                         checkPen.StartCap = LineCap.Round;
                         checkPen.EndCap = LineCap.Round;
@@ -154,8 +154,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 // Chakra uses specific text colors
                 Color textColor = _owner.IsItemSelected(item) 
-                    ? (_theme?.OnPrimaryColor ?? Color.White)
-                    : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
+                    ? (Theme.OnPrimaryColor)
+                    : (Theme.ListItemForeColor);
                 
                 var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
                 Color descColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
@@ -179,14 +179,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     // Chakra badge styling
                     using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(3)))
                     {
-                        Color badgeBgColor = _theme?.ListItemHoverBackColor
-                            ?? _theme?.BackgroundColor
-                            ?? Color.FromArgb(237, 242, 247);
+                        Color badgeBgColor = Theme.ListItemHoverBackColor;
                         g.FillPath(GetBrush(badgeBgColor), badgePath);
                     }
 
                     // Badge text
-                    Color badgeTextColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Gray;
+                    Color badgeTextColor = Theme.ListItemForeColor;
                     TextRenderer.DrawText(g, shortcut, badgeFont, badgeRect, badgeTextColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }

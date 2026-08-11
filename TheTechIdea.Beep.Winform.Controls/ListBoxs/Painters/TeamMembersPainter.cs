@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int avatarSpace = !string.IsNullOrEmpty(item.ImagePath) ? (avatarSize + avatarPadding) : 0;
 
             Rectangle textRect = new Rectangle(leftStart, itemRect.Y, Math.Max(0, itemRect.Right - leftStart - avatarSpace), itemRect.Height);
-            Color textColor = isSelected ? Color.White : _helper.GetTextColor();
+            Color textColor = isSelected ? Theme.OnPrimaryColor : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
             // Draw circular avatar on the right using StyledImagePainter
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle gradient
                 if (isHovered && !isSelected)
                 {
-                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Color.LightBlue), Color.Transparent, LinearGradientMode.Vertical))
+                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Theme.AccentColor), Color.Transparent, LinearGradientMode.Vertical))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add shadow for selected items
                 if (isSelected)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Black)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(50, Theme.ShadowColor)), path);
                 }
             }
         }

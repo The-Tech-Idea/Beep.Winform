@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (isSelected)
             {
-                var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                var selColor = Theme.PrimaryColor;
 
                 // Filled background for selected
                 g.FillRectangle(GetBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)), itemRect);
@@ -40,14 +40,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else if (isHovered)
             {
-                g.FillRectangle(GetBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White), itemRect);
+                g.FillRectangle(GetBrush(Theme.ListItemHoverBackColor), itemRect);
 
-                g.DrawRectangle(GetPen(_theme?.AccentColor ?? Color.Gray, 1f), itemRect.X, itemRect.Y, itemRect.Width - 1, itemRect.Height - 1);
+                g.DrawRectangle(GetPen(Theme.AccentColor, 1f), itemRect.X, itemRect.Y, itemRect.Width - 1, itemRect.Height - 1);
             }
             else
             {
                 // Normal compact style - minimal background
-                g.FillRectangle(GetBrush(_theme?.BackgroundColor ?? Color.White), itemRect);
+                g.FillRectangle(GetBrush(Theme.BackgroundColor), itemRect);
             }
         }
     }

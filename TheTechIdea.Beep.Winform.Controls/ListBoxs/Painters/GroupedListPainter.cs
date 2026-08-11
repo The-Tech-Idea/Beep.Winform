@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 // Text (indented)
                 var indentedText = new Rectangle(textRect.X + Scale(16), textRect.Y, Math.Max(0, textRect.Width - Scale(16)), textRect.Height);
-                Color textColor = isSelected ? Color.White : (_helper.GetTextColor());
+                Color textColor = isSelected ? Theme.OnPrimaryColor : (_helper.GetTextColor());
                 DrawItemText(g, indentedText, item.Text, textColor, _owner.TextFont);
             }
         }
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemText(g, textRect, item.Text, headerColor, headerFont);
 
             // Draw divider line
-            g.DrawLine(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
+            g.DrawLine(GetPen(Theme.BorderColor, 1f), rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
         }
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Gray)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(50, Theme.ShadowColor)), path);
                 }
             }
         }

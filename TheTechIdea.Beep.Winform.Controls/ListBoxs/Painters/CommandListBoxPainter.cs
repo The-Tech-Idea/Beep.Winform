@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int textX = itemRect.Left + pad + iconSz + DpiScalingHelper.ScaleValue(ListBoxTokens.IconTextGap, _owner);
             Color nameColor = Color.FromArgb(alpha, isSelected
                 ? _owner.GetSelectionTextColor()
-                : (_theme?.ListItemForeColor ?? Color.Black));
+                : (Theme.ListItemForeColor));
 
             // Shortcut (from SubText)
             string? shortcut = (item as BeepListItem)?.SubText;
@@ -77,9 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 using var path = RoundedRect(chipRect, DpiScalingHelper.ScaleValue(ListBoxTokens.CornerRadiusSmall, _owner));
                 g.FillPath(GetBrush(Color.FromArgb(alpha / 2,
-                    _theme?.ButtonBackColor ?? Color.LightGray)), path);
+                    Theme.ButtonBackColor)), path);
 
-                Color kbdColor = Color.FromArgb(alpha, _theme?.ListForeColor ?? Color.Gray);
+                Color kbdColor = Color.FromArgb(alpha, Theme.ListForeColor);
                 TextRenderer.DrawText(g, shortcut, kbdFont, chipRect, kbdColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
             }

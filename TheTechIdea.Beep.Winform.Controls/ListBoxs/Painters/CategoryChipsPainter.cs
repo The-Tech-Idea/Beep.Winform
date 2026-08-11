@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 yOffset = chipY + Scale(32);
                 
                 // Draw separator line
-                g.DrawLine(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), drawingRect.Left, yOffset, drawingRect.Right, yOffset);
+                g.DrawLine(GetPen(Theme.BorderColor, 1f), drawingRect.Left, yOffset, drawingRect.Right, yOffset);
                 
                 yOffset += gap;
             }
@@ -67,13 +67,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Improved shadow with gradient
             var shadowRect = Rectangle.Inflate(chipRect, Scale(2), Scale(2));
-            using (var shadowBrush = new LinearGradientBrush(shadowRect, Color.FromArgb(50, Color.Black), Color.Transparent, 90f))
+            using (var shadowBrush = new LinearGradientBrush(shadowRect, Color.FromArgb(50, Theme.ShadowColor), Color.Transparent, 90f))
             {
                 g.FillRectangle(shadowBrush, shadowRect);
             }
 
             // Enhanced chip background with gradient
-            Color chipBg = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.DodgerBlue;
+            Color chipBg = Theme.PrimaryColor;
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, chipRadius))
             using (var brush = new LinearGradientBrush(chipRect, Color.FromArgb(230, chipBg.R, chipBg.G, chipBg.B), Color.FromArgb(200, chipBg.R, chipBg.G, chipBg.B), LinearGradientMode.Vertical))
             {
@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw text with better contrast
             int textPad = Scale(12);
             var textRect = new Rectangle(x + textPad, y, chipWidth - textPad * 2, chipHeight);
-            Color chipText = _theme?.OnPrimaryColor ?? Color.White;
+            Color chipText = Theme.OnPrimaryColor;
             System.Windows.Forms.TextRenderer.DrawText(g, text, _owner.TextFont, textRect, chipText,
                 System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
 
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int xInset = Scale(20);
             int xYOff = Scale(6);
             Rectangle xRect = new Rectangle(chipRect.Right - xInset, y + xYOff, xSize, xSize);
-            Color closeColor = chipBg.GetBrightness() > 0.6f ? Color.Black : Color.White;
+            Color closeColor = chipBg.GetBrightness() > 0.6f ? Theme.ForeColor : Theme.OnPrimaryColor;
             {
                 var pen = GetPen(closeColor, 1.5f);
                 g.DrawLine(pen, xRect.Left, xRect.Top, xRect.Right, xRect.Bottom);
@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (xRect.Contains(_owner.PointToClient(Control.MousePosition)))
             {
-                g.FillEllipse(GetBrush(Color.FromArgb(100, Color.White)), xRect);
+                g.FillEllipse(GetBrush(Color.FromArgb(100, Theme.OnPrimaryColor)), xRect);
             }
 
             return new Size(chipWidth, chipHeight);

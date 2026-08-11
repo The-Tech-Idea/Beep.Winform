@@ -73,11 +73,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 textColor = _owner.HCItemForeground(isSelected);
             else if (disabled)
                 textColor = System.Drawing.Color.FromArgb(ListBoxTokens.DisabledAlpha,
-                    _theme?.ListItemForeColor ?? System.Drawing.Color.FromArgb(26, 32, 44));
+                    Theme.ListItemForeColor);
             else
                 textColor = isSelected
-                    ? (_theme?.OnPrimaryColor ?? System.Drawing.Color.White)
-                    : (_theme?.ListItemForeColor ?? System.Drawing.Color.FromArgb(26, 32, 44));
+                    ? Theme.OnPrimaryColor
+                    : Theme.ListItemForeColor;
 
             // Sub-text 2-line layout
             if (rich != null && !string.IsNullOrEmpty(rich.SubText))
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     textRect.Width, subH);
                 DrawItemText(g, titleRect, item.Text, textColor, _owner.TextFont);
                 DrawSubText(g, subRect, rich.SubText,
-                    _owner.IsHighContrast ? _owner.HCItemForeground(isSelected) : (_theme?.ListItemForeColor ?? System.Drawing.Color.Gray),
+                    _owner.IsHighContrast ? _owner.HCItemForeground(isSelected) : Theme.ListItemForeColor,
                     _owner.TextFont);
             }
             else
@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                    var selColor = Theme.PrimaryColor;
 
                     // Selected background with subtle gradient
                     using (var brush = new LinearGradientBrush(itemRect,
@@ -130,27 +130,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else if (isHovered)
                 {
                     // Hover background
-                    var hoverBg = _theme?.ListItemHoverBackColor ?? Color.FromArgb(248, 248, 248);
+                    var hoverBg = Theme.ListItemHoverBackColor;
                     g.FillPath(GetBrush(hoverBg), path);
 
                     // Hover border
-                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.Gray, 1.5f), path);
+                    g.DrawPath(GetPen(Theme.AccentColor, 1.5f), path);
                 }
                 else
                 {
                     // Normal state
-                    var normalBg = _theme?.BackgroundColor ?? Color.White;
+                    var normalBg = Theme.BackgroundColor;
                     g.FillPath(GetBrush(normalBg), path);
 
                     // Normal border
-                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f), path);
+                    g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }
             }
 
             // Draw subtle divider
             {
                 int inset = Scale(ListBoxTokens.IconTextGap - 2);
-                g.DrawLine(GetPen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f), itemRect.Left + inset, itemRect.Bottom - 1, itemRect.Right - inset, itemRect.Bottom - 1);
+                g.DrawLine(GetPen(Theme.BorderColor, 1f), itemRect.Left + inset, itemRect.Bottom - 1, itemRect.Right - inset, itemRect.Bottom - 1);
             }
         }
     }

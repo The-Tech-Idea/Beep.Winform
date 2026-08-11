@@ -35,10 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Draw text
             Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - Scale(12), rect.Height);
-            Color textColor = isSelected ? Color.FromArgb(20, 80, 90) : _helper.GetTextColor();
+            Color textColor = isSelected ? Theme.OnPrimaryColor : _helper.GetTextColor();
 
             DrawTitleAndSubtitle(g, textRect, item.Text, item.Description,
-                textColor, Color.FromArgb(100, 120, 130),
+                textColor, Theme.SecondaryTextColor,
                 _owner.TextFont, GetCachedFont(_owner.TextFont.Size - 1));
         }
         
@@ -63,17 +63,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add subtle shadow for selected items
                 if (isSelected)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(50, Color.Black)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(50, Theme.ShadowColor)), path);
                 }
             }
         }
         
         private void DrawTealCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isHovered)
         {
-            Color tealColor = Color.FromArgb(13, 148, 136); // Teal
+            Color tealColor = Theme.AccentColor; // Teal
             
             // Draw background
-            Color bgColor = isChecked ? tealColor : Color.White;
+            Color bgColor = isChecked ? tealColor : Theme.BackgroundColor;
             g.FillRectangle(GetBrush(bgColor), checkboxRect);
 
             // Draw border
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw checkmark if checked
             if (isChecked)
             {
-                var checkPen = GetPen(Color.White, 2f);
+                var checkPen = GetPen(Theme.OnPrimaryColor, 2f);
                 Point[] checkPoints = new Point[]
                 {
                     new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),

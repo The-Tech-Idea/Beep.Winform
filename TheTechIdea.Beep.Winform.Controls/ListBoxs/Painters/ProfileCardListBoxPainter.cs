@@ -36,12 +36,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int curY  = avRect.Bottom + Scale(6);
 
             Color primaryFg = isSelected
-                ? Color.White
-                : (_theme?.ListItemForeColor ?? Color.Black);
+                ? Theme.OnPrimaryColor
+                : (Theme.ListItemForeColor);
             Color secondaryFg = Color.FromArgb(ListBoxTokens.SubTextAlpha,
-                _theme?.ListItemForeColor ?? Color.Gray);
+                Theme.ListItemForeColor);
             Color tertiaryFg = Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 0.7f),
-                _theme?.ListItemForeColor ?? Color.Gray);
+                Theme.ListItemForeColor);
 
             // Name (bold, centered)
             var boldFont = GetCachedFont(_owner.TextFont.Size + 1f, FontStyle.Bold);

@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.Restore(state);
 
                 // Subtle border
-                var borderPen = GetPen(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.BorderColor ?? Color.Black), 1f);
+                var borderPen = GetPen(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, Theme.BorderColor), 1f);
                 using var borderPath = GraphicsExtensions.CreateRoundedRectanglePath(
                     new RectangleF(imgRect.X, imgRect.Y, imgRect.Width, imgRect.Height), radius);
                 g.DrawPath(borderPen, borderPath);
@@ -63,12 +63,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int lineH = Math.Max(Scale(18), Scale(ListBoxTokens.ItemPaddingV * 2));
 
             Color primaryFg = isSelected
-                ? Color.White
-                : (_theme?.ListItemForeColor ?? Color.Black);
+                ? Theme.OnPrimaryColor
+                : (Theme.ListItemForeColor);
             Color secondaryFg = Color.FromArgb(ListBoxTokens.SubTextAlpha,
-                _theme?.ListItemForeColor ?? Color.Gray);
+                Theme.ListItemForeColor);
             Color tertiaryFg = Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 0.65f),
-                _theme?.ListItemForeColor ?? Color.Gray);
+                Theme.ListItemForeColor);
 
             // Count visible lines for centering
             int linesCount = 1

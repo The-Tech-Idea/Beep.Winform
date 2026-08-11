@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 DrawItemImage(g, iconRect, item.ImagePath);
             }
 
-            Color textColor = isSelected ? Color.White : (_helper.GetTextColor());
+            Color textColor = isSelected ? Theme.OnPrimaryColor : (_helper.GetTextColor());
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
         }
         
@@ -49,13 +49,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                    var selColor = Theme.PrimaryColor;
 
                     // Shadow for selected state
                     var shadowRect = itemRect;
                     shadowRect.Offset(0, Scale(2));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect,
-                        Color.FromArgb(50, Color.Black),
+                        Color.FromArgb(50, Theme.ShadowColor),
                         Color.Transparent,
                         90f))
                     {
@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Hover shadow
                     using (var shadowBrush = new LinearGradientBrush(itemRect,
-                        Color.FromArgb(25, Color.Black),
+                        Color.FromArgb(25, Theme.ShadowColor),
                         Color.Transparent,
                         90f))
                     {
@@ -86,18 +86,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover background
-                    g.FillPath(GetBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White), path);
+                    g.FillPath(GetBrush(Theme.ListItemHoverBackColor), path);
 
                     // Hover border
-                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.Gray, 1.5f), path);
+                    g.DrawPath(GetPen(Theme.AccentColor, 1.5f), path);
                 }
                 else
                 {
                     // Normal rounded style
-                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? Color.White), path);
+                    g.FillPath(GetBrush(Theme.BackgroundColor), path);
 
                     // Subtle border
-                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(210, 210, 210), 1f), path);
+                    g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }
             }
         }

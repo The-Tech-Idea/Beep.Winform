@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 textColor = Color.FromArgb(ListBoxTokens.DisabledAlpha, _helper.GetTextColor());
             else
                 textColor = isSelected
-                    ? (_theme?.OnPrimaryColor ?? Color.White)
+                    ? (Theme.OnPrimaryColor)
                     : _helper.GetTextColor();
 
             if (textColor == Color.Empty) textColor = _helper.GetTextColor();
@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Draw background with gradient based on state
                 if (isSelected)
                 {
-                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                    var selColor = Theme.PrimaryColor;
                     using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(itemRect, 
                         Color.FromArgb(100, selColor.R, selColor.G, selColor.B),
                         Color.FromArgb(60, selColor.R, selColor.G, selColor.B),
@@ -114,14 +114,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Selection border
-                    using (var pen = new System.Drawing.Pen(_theme?.PrimaryColor ?? Color.Blue, selBorder))
+                    using (var pen = new System.Drawing.Pen(Theme.PrimaryColor, selBorder))
                     {
                         g.DrawPath(pen, path);
                     }
                 }
                 else if (isHovered)
                 {
-                    var hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240);
+                    var hoverColor = Theme.ListItemHoverBackColor;
                     using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(itemRect,
                         Color.FromArgb(50, hoverColor.R, hoverColor.G, hoverColor.B),
                         Color.FromArgb(20, hoverColor.R, hoverColor.G, hoverColor.B),
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover border
-                    using (var pen = new System.Drawing.Pen(_theme?.AccentColor ?? Color.LightGray, hoverBorder))
+                    using (var pen = new System.Drawing.Pen(Theme.AccentColor, hoverBorder))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -139,13 +139,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default background
-                    using (var brush = new System.Drawing.SolidBrush(_theme?.BackgroundColor ?? Color.White))
+                    using (var brush = new System.Drawing.SolidBrush(Theme.BackgroundColor))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Default subtle border
-                    using (var pen = new System.Drawing.Pen(Color.FromArgb(200, 200, 200), defaultBorder))
+                    using (var pen = new System.Drawing.Pen(Theme.BorderColor, defaultBorder))
                     {
                         g.DrawPath(pen, path);
                     }

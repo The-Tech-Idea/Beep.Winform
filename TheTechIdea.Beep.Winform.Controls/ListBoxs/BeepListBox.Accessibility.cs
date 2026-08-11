@@ -1,3 +1,5 @@
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Drawing;
@@ -45,14 +47,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Returns the effective hover fill colour, respecting High Contrast mode.
         /// Painters should call this instead of using a hard-coded colour.
         /// </summary>
+        /// <summary>The theme in force. There is always one.</summary>
+        private IBeepTheme ActiveTheme => _currentTheme ?? BeepThemesManager.CurrentTheme;
+
         internal Color GetHoverFillColor()
         {
             if (SystemInformation.HighContrast)
                 return SystemColors.Highlight;
-            if (SelectionBackColor != Color.Empty)
-                return Color.FromArgb(ListBoxs.Tokens.ListBoxTokens.HoverOverlayAlpha, SelectionBackColor);
-            return Color.FromArgb(ListBoxs.Tokens.ListBoxTokens.HoverOverlayAlpha,
-                _currentTheme?.PrimaryColor ?? SystemColors.Highlight);
+            return Color.FromArgb(ListBoxs.Tokens.ListBoxTokens.HoverOverlayAlpha, ActiveTheme.PrimaryColor);
         }
 
         /// <summary>
@@ -62,10 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (SystemInformation.HighContrast)
                 return SystemColors.Highlight;
-            if (SelectionBackColor != Color.Empty)
-                return Color.FromArgb(SelectionOverlayAlpha, SelectionBackColor);
-            return Color.FromArgb(SelectionOverlayAlpha,
-                _currentTheme?.PrimaryColor ?? SystemColors.Highlight);
+            return Color.FromArgb(SelectionOverlayAlpha, ActiveTheme.PrimaryColor);
         }
 
         /// <summary>
@@ -83,9 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal Color GetFocusRingColor()
         {
             if (SystemInformation.HighContrast) return SystemColors.Highlight;
-            return FocusOutlineColor != Color.Empty
-                ? FocusOutlineColor
-                : (_currentTheme?.PrimaryColor ?? SystemColors.Highlight);
+            return ActiveTheme.PrimaryColor;
         }
 
         internal void SyncAccessibilityRole()

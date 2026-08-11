@@ -50,17 +50,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             bool disabled = item?.IsEnabled == false;
 
             Color mainColor = isSelected
-                ? (_theme?.OnPrimaryColor ?? Color.White)
-                : (disabled ? Color.FromArgb(160, 160, 160) : _helper.GetTextColor());
+                ? (Theme.OnPrimaryColor)
+                : (disabled ? Theme.DisabledForeColor : _helper.GetTextColor());
 
             // Bold only when selected; never clone the owner's font.
             Font mainFont = isSelected ? GetCachedFont(_owner.TextFont.Size, FontStyle.Bold) : _owner.TextFont;
 
-            Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
-            Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
+            Color onPrimary = Theme.OnPrimaryColor;
+            Color secondary = Theme.SecondaryTextColor;
             Color descColor = isSelected
                 ? Color.FromArgb(220, onPrimary)
-                : (disabled ? Color.FromArgb(180, 180, 180) : secondary);
+                : (disabled ? Theme.DisabledForeColor : secondary);
 
             DrawTitleAndSubtitle(g, textAvail, item.Text, hasDesc ? item.Description : null,
                 mainColor, descColor, mainFont,
@@ -92,11 +92,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             bool isDisabled = item?.IsEnabled == false;
 
             // Outer circle fill and border
-            Color outerFill = Color.White;
+            Color outerFill = Theme.BackgroundColor;
             Color borderColor = isDisabled
-                ? Color.FromArgb(200, 200, 200)
+                ? Theme.BorderColor
                 : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty)
-                                             : (_theme?.BorderColor ?? Color.FromArgb(180, 180, 180));
+                                             : (Theme.BorderColor);
 
             g.FillEllipse(GetBrush(outerFill), radioRect);
             g.DrawEllipse(GetPen(borderColor, Scale(2)), radioRect.X + Scale(1), radioRect.Y + Scale(1), radioRect.Width - Scale(3), radioRect.Height - Scale(3));
@@ -108,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 innerRect.Inflate(-(Math.Max(Scale(4), radioRect.Width / 4)), -(Math.Max(Scale(4), radioRect.Height / 4)));
 
                 Color dotColor = isDisabled
-                    ? Color.FromArgb(180, 180, 180)
+                    ? Theme.DisabledForeColor
                     : (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty);
                 g.FillEllipse(GetBrush(dotColor), innerRect);
             }

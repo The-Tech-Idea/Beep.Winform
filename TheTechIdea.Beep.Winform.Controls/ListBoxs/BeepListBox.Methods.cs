@@ -365,21 +365,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _searchTextBox.ApplyTheme();
             }
 
-            // Apply theme defaults for selection visuals if not explicitly set
-            try
-            {
-                if (_currentTheme != null)
-                {
-                    if (SelectionBackColor == Color.Empty) SelectionBackColor = _currentTheme.PrimaryColor;
-                    if (SelectionBorderColor == Color.Empty) SelectionBorderColor = _currentTheme.AccentColor;
-                    if (FocusOutlineColor == Color.Empty) FocusOutlineColor = _currentTheme.PrimaryColor;
-                }
-            }
-            catch (Exception ex)
-            {
-                BeepLog.FailureOnce("listbox.seedselectioncolours", this,
-                    "seed the selection colours from the theme", ex);
-            }
+            // No selection-colour seeding: the properties resolve from the theme themselves, and
+            // stamping here is what used to freeze them to whichever theme applied first.
         }
         
         #endregion

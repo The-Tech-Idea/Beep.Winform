@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -391,21 +393,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Background color used for selection overlays")]
-        [DefaultValue(null)]
-        public Color SelectionBackColor { get; set; } = Color.Empty;
-
-        [Browsable(true)]
-        [Category("Appearance")]
         [Description("Selection overlay alpha (0..255)")]
         [DefaultValue(90)]
         public int SelectionOverlayAlpha { get; set; } = 90;
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Border color for selected items")]
-        [DefaultValue(null)]
-        public Color SelectionBorderColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -413,11 +403,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(1)]
         public int SelectionBorderThickness { get; set; } = 1;
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Outline color when the control and item are focused")]
-        [DefaultValue(null)]
-        public Color FocusOutlineColor { get; set; } = Color.Empty;
+        // SelectionBackColor, SelectionBorderColor and FocusOutlineColor are gone. They were
+        // per-control colour overrides that had to be seeded from the theme, and the seeding
+        // stamped the property so every later theme change was ignored - the selection stayed the
+        // first theme's colour for the life of the control. Nothing assigns colours: the painters
+        // read PrimaryColor and AccentColor from the theme directly.
 
         [Browsable(true)]
         [Category("Appearance")]

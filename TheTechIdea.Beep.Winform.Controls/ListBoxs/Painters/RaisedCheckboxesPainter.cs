@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle shadow
                 if (isHovered && !isSelected)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.AccentColor ?? _theme?.ErrorColor ?? Color.Gray)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, Theme.AccentColor)), path);
                 }
             }
         }
@@ -57,20 +57,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
             return isDisabled
-                ? Color.FromArgb(ListBoxTokens.DisabledAlpha, _theme?.ListItemForeColor ?? Color.Gray)
-                : (_theme?.ListItemForeColor ?? Color.FromArgb(60, 60, 60));
+                ? Color.FromArgb(ListBoxTokens.DisabledAlpha, Theme.ListItemForeColor)
+                : (Theme.ListItemForeColor);
         }
         
         private void DrawRaisedCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, SimpleItem item)
         {
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
-            Color accent = _theme?.ErrorColor ?? _theme?.AccentColor ?? Color.FromArgb(220, 53, 69);
-            Color borderColor = isDisabled ? (_theme?.BorderColor ?? Color.FromArgb(200, 200, 200)) : accent;
-            Color bgColor = isChecked ? accent : (_theme?.BackgroundColor ?? Color.White);
+            Color accent = Theme.ErrorColor;
+            Color borderColor = isDisabled ? (Theme.BorderColor) : accent;
+            Color bgColor = isChecked ? accent : (Theme.BackgroundColor);
             
             if (isDisabled)
             {
-                bgColor = _theme?.BackgroundColor ?? Color.FromArgb(240, 240, 240);
+                bgColor = Theme.BackgroundColor;
             }
             
             // Draw checkbox shadow for raised effect
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(5)),
                     new Point(checkboxRect.Right - Scale(4), checkboxRect.Top + Scale(4))
                 };
-                g.DrawLines(GetPen(Color.White, 2.5f), checkPoints);
+                g.DrawLines(GetPen(Theme.OnPrimaryColor, 2.5f), checkPoints);
             }
         }
         

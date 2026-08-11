@@ -58,8 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Primary text (name)
             var primaryTextRect = new Rectangle(contentX, itemRect.Y + Scale(10), textWidth, Scale(20));
             Color primaryColor = isSelected 
-                ? (_theme?.OnPrimaryColor ?? Color.White)
-                : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(30, 30, 30));
+                ? (Theme.OnPrimaryColor)
+                : (Theme.ListItemForeColor);
             
             var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, primaryTextRect, item.Text ?? item.DisplayField, primaryColor, boldFont);
@@ -68,8 +68,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 var secondaryTextRect = new Rectangle(contentX, itemRect.Y + Scale(30), textWidth, Scale(18));
                 Color secondaryColor = isSelected 
-                    ? Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                    : (_theme?.DisabledForeColor ?? Color.FromArgb(120, 120, 120));
+                    ? Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.OnPrimaryColor)
+                    : (Theme.DisabledForeColor);
                 
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
                 DrawItemText(g, secondaryTextRect, item.SubText, secondaryColor, smallFont);
@@ -97,12 +97,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    var accentColor = Theme.AccentColor;
                     g.FillPath(GetBrush(accentColor), path);
                 }
                 else if (isHovered)
                 {
-                    var hoverColor = _theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.FromArgb(245, 245, 245);
+                    var hoverColor = Theme.ListItemHoverBackColor;
                     g.FillPath(GetBrush(hoverColor), path);
                 }
             }
@@ -114,8 +114,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Draw avatar border
             g.DrawEllipse(GetPen(isSelected
-                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                : Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.BorderColor ?? Color.Gray), 2f), avatarRect);
+                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, Theme.OnPrimaryColor)
+                : Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, Theme.BorderColor), 2f), avatarRect);
         }
 
         private void DrawStatusIndicator(Graphics g, Rectangle avatarRect, Color statusColor)
@@ -128,13 +128,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 dotSize, dotSize);
 
             // White border
-            g.FillEllipse(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White),
+            g.FillEllipse(GetBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Theme.OnPrimaryColor),
                 Rectangle.Inflate(dotRect, 2, 2));
 
             // Status color
             Color effectiveStatus = statusColor != Color.Empty
                 ? statusColor
-                : (_theme?.SuccessColor ?? _theme?.AccentColor ?? Color.LimeGreen);
+                : (Theme.SuccessColor);
             g.FillEllipse(GetBrush(effectiveStatus), dotRect);
         }
 
@@ -145,15 +145,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isChecked)
                 {
                     var accentColor = isSelected 
-                        ? (_theme?.OnPrimaryColor ?? Color.White)
-                        : (_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue);
+                        ? (Theme.OnPrimaryColor)
+                        : (Theme.AccentColor);
                     
                     g.FillPath(GetBrush(isSelected
-                        ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
+                        ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, Theme.OnPrimaryColor)
                         : accentColor), path);
 
                     // Checkmark
-                    Color checkColor = _theme?.OnPrimaryColor ?? Color.White;
+                    Color checkColor = Theme.OnPrimaryColor;
                     using (var pen = new Pen(checkColor, 2f))
                     {
                         pen.StartCap = LineCap.Round;
@@ -172,8 +172,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Unchecked border
                     Color borderColor = isSelected 
-                        ? Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White)
-                        : (_theme?.BorderColor ?? Color.FromArgb(180, 180, 180));
+                        ? Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.OnPrimaryColor)
+                        : (Theme.BorderColor);
                     
                     g.DrawPath(GetPen(borderColor, 1.5f), path);
                 }

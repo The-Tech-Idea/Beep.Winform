@@ -54,8 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Text with proper contrast
             Color textColor = isSelected 
-                ? (_theme?.OnPrimaryColor ?? Color.White)
-                : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
+                ? (Theme.OnPrimaryColor)
+                : (Theme.ListItemForeColor);
             
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     // Selected: vibrant glass with accent color
-                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    var accentColor = Theme.AccentColor;
                     
                     // Glass background
                     using (var brush = new LinearGradientBrush(glassRect,
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     // Hover border
                     g.DrawPath(GetPen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
-                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.Gray), 1f), path);
+                        Theme.AccentColor), 1f), path);
                 }
                 else
                 {
@@ -135,11 +135,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isChecked)
                 {
                     // Checked: accent color glass
-                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    var accentColor = Theme.AccentColor;
                     g.FillPath(GetBrush(Color.FromArgb(200, accentColor)), path);
 
                     // Checkmark
-                    using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
+                    using (var pen = new Pen(Theme.OnPrimaryColor, 2f))
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     // Unchecked: glass border
                     g.FillPath(GetBrush(Color.FromArgb(40, 255, 255, 255)), path);
                     g.DrawPath(GetPen(Color.FromArgb(100,
-                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f), path);
+                        Theme.BorderColor), 1f), path);
                 }
             }
         }

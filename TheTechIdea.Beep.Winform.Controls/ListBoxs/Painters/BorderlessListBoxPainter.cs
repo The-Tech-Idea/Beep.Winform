@@ -29,8 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var contentRect = Rectangle.Inflate(itemRect, -padding.Left, -padding.Top);
 
             Color textColor = isSelected
-                ? (_theme?.OnPrimaryColor ?? Color.White)
-                : (_theme?.ListItemForeColor ?? Color.Black);
+                ? (Theme.OnPrimaryColor)
+                : (Theme.ListItemForeColor);
 
             DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
         }
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 int inset = Scale(8);
-                g.DrawLine(GetPen(_theme?.AccentColor ?? Color.Blue, Scale(2)), itemRect.Left + inset, itemRect.Bottom - Scale(2),
+                g.DrawLine(GetPen(Theme.AccentColor, Scale(2)), itemRect.Left + inset, itemRect.Bottom - Scale(2),
                                 itemRect.Right - inset, itemRect.Bottom - Scale(2));
             }
         }

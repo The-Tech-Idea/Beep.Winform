@@ -34,8 +34,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int textPad = Scale(16);
             Rectangle textRect = new Rectangle(currentX, itemRect.Y + Scale(8), itemRect.Width - currentX - textPad, itemRect.Height / 2);
             Color textColor = _owner.IsItemSelected(item)
-                ? Color.White
-                : (_theme?.ListItemForeColor ?? Color.FromArgb(40, 40, 40));
+                ? Theme.OnPrimaryColor
+                : (Theme.ListItemForeColor);
 
             var boldFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
             DrawItemText(g, textRect, item.Text, textColor, boldFont);
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - textPad, itemRect.Height / 2 - Scale(8));
                 Color descColor = _owner.IsItemSelected(item)
                     ? Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 1.3f), 255, 255, 255)
-                    : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListItemForeColor ?? Color.Gray);
+                    : Color.FromArgb(ListBoxTokens.SubTextAlpha, Theme.ListItemForeColor);
 
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
                     System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top);
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    g.FillPath(GetBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(30, Theme.AccentColor)), path);
                 }
 
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
@@ -74,9 +74,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Determine checkbox color based on item
             if (item.Text?.ToLower().Contains("custom") == true)
-                return _theme?.PrimaryColor ?? Color.FromArgb(76, 175, 80); // Green
+                return Theme.PrimaryColor; // Green
             else
-                return Color.FromArgb(120, 120, 120); // Gray
+                return Theme.SecondaryTextColor;
         }
 
         private void DrawColoredCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, Color checkColor, bool isHovered)
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Draw background with hover effect
                 Color bgColor = isChecked
                     ? checkColor
-                    : (isHovered ? (_theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240)) : (_theme?.BackgroundColor ?? Color.White));
+                    : (isHovered ? (Theme.ListItemHoverBackColor) : (Theme.BackgroundColor));
 
                 g.FillPath(GetBrush(bgColor), path);
 
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Draw checkmark if checked
                 if (isChecked)
                 {
-                    var checkPen = GetPen(Color.White, 2f);
+                    var checkPen = GetPen(Theme.OnPrimaryColor, 2f);
                     Point[] checkPoints = new Point[]
                     {
                         new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),

@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw text
-            Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
+            Color textColor = isSelected ? Theme.OnPrimaryColor : Theme.ListItemForeColor;
             DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
         }
 
@@ -56,13 +56,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                    var selColor = Theme.PrimaryColor;
 
                     // Multiple shadow layers for card elevation
                     var shadowRect1 = itemRect;
                     shadowRect1.Offset(0, Scale(3));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect1,
-                        Color.FromArgb(30, Color.Black),
+                        Color.FromArgb(30, Theme.ShadowColor),
                         Color.Transparent,
                         90f))
                     {
@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var shadowRect = itemRect;
                     shadowRect.Offset(0, Scale(2));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect,
-                        Color.FromArgb(20, Color.Black),
+                        Color.FromArgb(20, Theme.ShadowColor),
                         Color.Transparent,
                         90f))
                     {
@@ -95,10 +95,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover background
-                    g.FillPath(GetBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White), path);
+                    g.FillPath(GetBrush(Theme.ListItemHoverBackColor), path);
 
                     // Hover border
-                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.Blue, Scale(2)), path);
+                    g.DrawPath(GetPen(Theme.AccentColor, Scale(2)), path);
                 }
                 else
                 {
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var shadowRect = itemRect;
                     shadowRect.Offset(0, Scale(1));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect,
-                        Color.FromArgb(10, Color.Black),
+                        Color.FromArgb(10, Theme.ShadowColor),
                         Color.Transparent,
                         90f))
                     {
@@ -114,10 +114,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Card background
-                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? Color.White), path);
+                    g.FillPath(GetBrush(Theme.BackgroundColor), path);
 
                     // Card border
-                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(225, 225, 225), 1f), path);
+                    g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }
             }
         }

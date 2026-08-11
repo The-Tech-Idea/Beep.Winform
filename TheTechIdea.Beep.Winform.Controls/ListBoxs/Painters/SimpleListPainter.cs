@@ -21,14 +21,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var contentRect = Rectangle.Inflate(itemRect, -padding.Left, -padding.Top);
 
             // Draw text
-            Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
+            Color textColor = isSelected ? Theme.OnPrimaryColor : (Theme.ListItemForeColor);
             DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
 
             // Draw selection indicator on left
             if (isSelected)
             {
                 Rectangle indicator = new Rectangle(itemRect.Left, itemRect.Top, Scale(4), itemRect.Height);
-                g.FillRectangle(GetBrush(_theme?.PrimaryColor ?? Color.DodgerBlue), indicator);
+                g.FillRectangle(GetBrush(Theme.PrimaryColor), indicator);
             }
         }
         
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    var selColor = Theme.PrimaryColor;
 
                     // Subtle background fill
                     g.FillPath(GetBrush(Color.FromArgb(15, selColor.R, selColor.G, selColor.B)), path);
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else if (isHovered)
                 {
                     // Hover effect with subtle gradient
-                    var hoverBase = _theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White;
+                    var hoverBase = Theme.ListItemHoverBackColor;
                     using (var hoverBrush = new LinearGradientBrush(itemRect,
                         Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, hoverBase),
                         Color.Transparent,
@@ -60,14 +60,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         g.FillPath(hoverBrush, path);
                     }
 
-                    g.DrawPath(GetPen(_theme?.AccentColor ?? Color.LightGray, 1f), path);
+                    g.DrawPath(GetPen(Theme.AccentColor, 1f), path);
                 }
                 else
                 {
                     // Normal state - subtle border only
-                    g.FillPath(GetBrush(_theme?.BackgroundColor ?? Color.White), path);
+                    g.FillPath(GetBrush(Theme.BackgroundColor), path);
 
-                    g.DrawPath(GetPen(_theme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f), path);
+                    g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }
             }
         }

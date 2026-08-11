@@ -395,8 +395,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public bool UseMarkup { get; set; } = false;
 
+        private ToolTipLayoutVariant _layoutVariant = ToolTipLayoutVariant.Simple;
+        private bool _layoutVariantSetExplicitly;
+
         /// <summary>Layout variant: Simple / Rich / Card / Preview / Tour / Shortcut.</summary>
-        public ToolTipLayoutVariant LayoutVariant { get; set; } = ToolTipLayoutVariant.Simple;
+        /// <remarks>
+        /// Defaults to <see cref="ToolTipLayoutVariant.Simple"/>, which draws body text only.
+        /// <para>
+        /// If a <see cref="Title"/> is set and the caller never chose a variant, this reports
+        /// <see cref="ToolTipLayoutVariant.Rich"/> so the title is actually drawn. Simple
+        /// deliberately suppresses the title, so leaving the default in place silently discarded
+        /// every title a caller supplied - the tooltip rendered body-only with no indication that
+        /// half the content had been dropped.
+        /// </para>
+        /// <para>
+        /// Setting this property explicitly always wins, including an explicit
+        /// <c>Simple</c> with a title present: "Simple means simple" still holds when it is asked
+        /// for by name.
+        /// </para>
+        /// </remarks>
+        public ToolTipLayoutVariant LayoutVariant
+        {
+            get => !_layoutVariantSetExplicitly
+                   && _layoutVariant == ToolTipLayoutVariant.Simple
+                   && !string.IsNullOrWhiteSpace(Title)
+                       ? ToolTipLayoutVariant.Rich
+                       : _layoutVariant;
+            set
+            {
+                _layoutVariant = value;
+                _layoutVariantSetExplicitly = true;
+            }
+        }
 
         #endregion
 

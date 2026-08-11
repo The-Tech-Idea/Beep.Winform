@@ -133,3 +133,43 @@ There is ALWAYS a theme — slot per role from the control's OWN slot family, no
 guards, no blends/luminance (alpha veils + WCAG picks are accepted idioms). A
 wrong-looking colour is the THEME's bug, fixed in the theme parts (both homes). A check
 must be able to fail; renders get eyeballed. Commit to master only.
+
+## Batch 6 — UI/UX review of the tooltip forms (rendered gallery, eyeballed)
+
+Fourteen configurations rendered through the real manager and inspected:
+plain / title+text / long / the semantic types / arrow / multi-line / Rich / Card, under
+Default, Zen and ArcLinux.
+
+### Fixed: a Title set on the default variant was silently discarded
+
+`LayoutVariant` defaults to `Simple`, and `ToolTipSectionPlan.For` sets `ShowTitle = false` for
+Simple by design ("Simple means simple"). The consequence was that the natural call -
+`new ToolTipConfig { Title = ..., Text = ... }` - rendered **body only**, dropping half the
+content with no warning. Confirmed by render: identical configs showed the title under `Rich`
+and lost it under the default.
+
+`LayoutVariant` now tracks whether it was set **explicitly**. If a Title is present and the
+caller never chose a variant, it reports `Rich`; an explicit `Simple` still suppresses the title,
+so the original design intent survives when it is asked for by name. Titled tooltips grew
+61px -> 86px, and the title now renders in every default-variant shot.
+
+### Checked and NOT a defect
+
+- **"Everything looks bold."** It is not: the painter resolves title = Roboto 11.5pt **Bold** and
+  body = Roboto 10pt **Regular** (verified by reflecting `GetTitleFont`/`GetTextFont`). Roboto
+  Regular at 10pt simply renders heavy at this size. Worth recording because it looked like a bug.
+- **Semantic types** (Error/Success/Warning) render a full-bleed semantic card with white ink and
+  read well.
+- **Rich / Card variants** lay out title, divider and body correctly.
+
+### Open findings (not fixed)
+
+1. **One-liners are too tall.** "Save" occupies 150x61. `CalculateSize` starts at
+   `DefaultPadding * 2` (24) and then adds the style's shadow blur/offset to the WINDOW size, so a
+   single short word gets a 61px window. A native tooltip is ~22px. The shadow allowance is
+   legitimate but should not read as vertical padding around the text.
+2. **Minimum width is effectively 150** even though `DefaultMinWidth` is 100 - short tooltips are
+   wider than their content needs.
+3. **`ShowArrow = true` produced no visible arrow** in the client capture. It may be drawn outside
+   the client rect (the capture is client-only), so this is unconfirmed rather than proven broken.
+4. `BeepPopover` and the tour tooltip painters were not rendered in this pass.

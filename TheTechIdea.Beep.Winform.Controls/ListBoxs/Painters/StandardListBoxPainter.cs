@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default background
-                    using (var brush = new System.Drawing.SolidBrush(Theme.BackgroundColor))
+                    using (var brush = new System.Drawing.SolidBrush(Theme.ListBackColor))
                     {
                         g.FillPath(brush, path);
                     }

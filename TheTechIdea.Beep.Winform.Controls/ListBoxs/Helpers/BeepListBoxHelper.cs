@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -37,7 +38,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
         /// </summary>
         public Color GetTextColor()
         {
-            return _owner.ForeColor;
+            // The theme's item ink, not the control's ForeColor property.
+            //
+            // ForeColor is a plain WinForms property that nothing keeps in step with the theme, so
+            // it sat at the system default (near-black) whatever theme was in force. That did not
+            // show while the rows were painted with the style's own light palette, and became
+            // dark-on-dark the moment the backgrounds started following a dark theme.
+            return ThemeManagement.BeepThemesManager.CurrentTheme.ListItemForeColor;
         }
         
         /// <summary>

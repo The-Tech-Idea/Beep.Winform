@@ -344,6 +344,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
 
+            // The control's own surface and ink come from the theme.
+            //
+            // ApplyTheme set neither, so BackColor and ForeColor stayed at the WinForms defaults -
+            // a white surface and near-black text - whatever theme was in force. It went unnoticed
+            // because the two defaults happen to be readable together: dark text on a white box.
+            // The moment either half started following a dark theme the pair stopped agreeing, and
+            // the styles that do not fill their own row background (Standard, Minimal, Outlined
+            // and the rest) showed theme-light text on a still-white control.
+            var t = _currentTheme ?? BeepThemesManager.CurrentTheme;
+            BackColor = t.ListBackColor;
+            ForeColor = t.ListItemForeColor;
+
             // Set _textFont from theme (fallback remains in field initializer)
             if (_currentTheme != null)
             {

@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Normal state
-                    var normalBg = Theme.BackgroundColor;
+                    var normalBg = Theme.ListBackColor;
                     g.FillPath(GetBrush(normalBg), path);
 
                     // Normal border

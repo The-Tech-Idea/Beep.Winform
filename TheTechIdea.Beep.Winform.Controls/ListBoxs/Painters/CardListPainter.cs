@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Card background
-                    g.FillPath(GetBrush(Theme.BackgroundColor), path);
+                    g.FillPath(GetBrush(Theme.ListBackColor), path);
 
                     // Card border
                     g.DrawPath(GetPen(Theme.BorderColor, 1f), path);

@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 Color bgColor = isChecked
                     ? checkColor
-                    : (isHovered ? (Theme.ListItemHoverBackColor) : (Theme.BackgroundColor));
+                    : (isHovered ? (Theme.ListItemHoverBackColor) : (Theme.ListBackColor));
                 g.FillPath(GetBrush(bgColor), path);
 
                 g.DrawPath(GetPen(checkColor, 1.5f), path);
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillPath(GetBrush(Color.FromArgb(30, Theme.ShadowColor)), hoverPath);
             }
 
-            Color badgeTextColor = Theme.ForeColor;
+            Color badgeTextColor = Theme.ListItemForeColor;
             System.Windows.Forms.TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect, badgeTextColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);
         }

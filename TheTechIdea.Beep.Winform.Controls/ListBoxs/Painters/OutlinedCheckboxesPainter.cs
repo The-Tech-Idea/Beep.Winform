@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Determine state based on item text
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
             Color borderColor = isDisabled ? Theme.BorderColor : Theme.ErrorColor; // Red
-            Color bgColor = isChecked ? Color.FromArgb(30, Theme.ErrorColor) : Theme.BackgroundColor;
+            Color bgColor = isChecked ? Color.FromArgb(30, Theme.ErrorColor) : Theme.ListBackColor;
             
             if (isDisabled)
             {

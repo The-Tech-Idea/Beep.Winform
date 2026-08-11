@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Use badge color if available, otherwise default
                 nodeColor = item.BadgeBackColor != Color.Empty 
                     ? item.BadgeBackColor 
-                    : (Theme.BackgroundColor);
+                    : (Theme.ListBackColor);
                 borderColor = Theme.BorderColor;
             }
 
@@ -155,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
                 else
                 {
-                    bgColor = Theme.BackgroundColor;
+                    bgColor = Theme.ListBackColor;
                 }
 
                 g.FillPath(GetBrush(bgColor), path);

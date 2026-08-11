@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r);
             g.FillPath(GetBrush(fill), path);
 
-            Color textColor = fill.GetBrightness() > 0.55f ? Theme.ForeColor : Theme.OnPrimaryColor;
+            Color textColor = fill.GetBrightness() > 0.55f ? Theme.ListItemForeColor : Theme.OnPrimaryColor;
             TextRenderer.DrawText(g, text, font, Rectangle.Round(pillRect), textColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }

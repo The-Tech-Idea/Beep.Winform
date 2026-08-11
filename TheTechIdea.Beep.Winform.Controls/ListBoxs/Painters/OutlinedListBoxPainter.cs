@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Normal outlined style - just border
-                    g.FillPath(GetBrush(Theme.BackgroundColor), path);
+                    g.FillPath(GetBrush(Theme.ListBackColor), path);
 
                     g.DrawPath(GetPen(Theme.BorderColor, 1f), path);
                 }

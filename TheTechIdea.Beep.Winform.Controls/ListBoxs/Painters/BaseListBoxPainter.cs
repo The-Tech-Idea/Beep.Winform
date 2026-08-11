@@ -345,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Theme-driven colors with fallback chains (Phase 9: no hardcoded RGB)
             Color bgColor = isHovered
                 ? (Theme.ListItemHoverBackColor)
-                : (Theme.BackgroundColor);
+                : (Theme.ListBackColor);
             Color accent = Theme.PrimaryColor;
             Color borderColor = isChecked ? accent : (Theme.BorderColor);
 
@@ -381,13 +381,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             float hoverProgress = isHovered ? 1f : 0f;
 
-            Color backgroundColor = Theme.BackgroundColor;
+            Color backgroundColor = Theme.ListBackColor;
 
             if (isSelected)
             {
-                Color primary = _theme?.PrimaryColor ?? Color.Empty;
-                backgroundColor = PathPainterHelpers.WithAlphaIfNotEmpty(primary, 20);
-                g.DrawRectangle(GetPen(Color.FromArgb(200, primary), 1.5f), itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
+                // The list's own selected slots, not PrimaryColor. A theme sets these separately
+                // precisely so a selected row need not be the brand colour.
+                backgroundColor = Theme.ListItemSelectedBackColor;
+                g.DrawRectangle(GetPen(Theme.ListItemSelectedBorderColor, 1.5f),
+                    itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
             }
             else if (hoverProgress > 0f)
             {
@@ -409,7 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // CRITICAL: Always clear the specific item's background first to prevent overlap artifacts
             // This ensures that any previous painting in this rect is completely overwritten
-            g.FillRectangle(GetBrush(Theme.BackgroundColor), itemRect);
+            g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
 
             // Allow painter-specific background customization via DrawItemBackground override.
             // Called BEFORE selection/hover/focus overlays so the painter provides the base
@@ -754,7 +756,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillPath(GetBrush(fill), path);
 
             // Badge text (auto-contrast on the pill fill)
-            Color textColor = fill.GetBrightness() > 0.55f ? Theme.ForeColor : Theme.OnPrimaryColor;
+            Color textColor = fill.GetBrightness() > 0.55f ? Theme.ListItemForeColor : Theme.OnPrimaryColor;
             TextRenderer.DrawText(g, badgeText, badgeFont, pillRect, textColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }

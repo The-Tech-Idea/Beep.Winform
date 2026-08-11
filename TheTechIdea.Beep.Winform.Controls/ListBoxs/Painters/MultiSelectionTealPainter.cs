@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Color tealColor = Theme.AccentColor; // Teal
             
             // Draw background
-            Color bgColor = isChecked ? tealColor : Theme.BackgroundColor;
+            Color bgColor = isChecked ? tealColor : Theme.ListBackColor;
             g.FillRectangle(GetBrush(bgColor), checkboxRect);
 
             // Draw border

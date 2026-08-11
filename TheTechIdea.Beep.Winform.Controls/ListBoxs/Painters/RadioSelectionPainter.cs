@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             bool isDisabled = item?.IsEnabled == false;
 
             // Outer circle fill and border
-            Color outerFill = Theme.BackgroundColor;
+            Color outerFill = Theme.ListBackColor;
             Color borderColor = isDisabled
                 ? Theme.BorderColor
                 : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty)

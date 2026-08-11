@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Draw background with hover effect
                 Color bgColor = isChecked
                     ? checkColor
-                    : (isHovered ? (Theme.ListItemHoverBackColor) : (Theme.BackgroundColor));
+                    : (isHovered ? (Theme.ListItemHoverBackColor) : (Theme.ListBackColor));
 
                 g.FillPath(GetBrush(bgColor), path);
 

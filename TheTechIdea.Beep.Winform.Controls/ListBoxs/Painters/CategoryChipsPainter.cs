@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int xInset = Scale(20);
             int xYOff = Scale(6);
             Rectangle xRect = new Rectangle(chipRect.Right - xInset, y + xYOff, xSize, xSize);
-            Color closeColor = chipBg.GetBrightness() > 0.6f ? Theme.ForeColor : Theme.OnPrimaryColor;
+            Color closeColor = chipBg.GetBrightness() > 0.6f ? Theme.ListItemForeColor : Theme.OnPrimaryColor;
             {
                 var pen = GetPen(closeColor, 1.5f);
                 g.DrawLine(pen, xRect.Left, xRect.Top, xRect.Right, xRect.Bottom);

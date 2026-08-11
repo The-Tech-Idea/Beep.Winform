@@ -38,7 +38,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
         // Current Style and theme
         public static BeepControlStyle CurrentControlStyle { get; set; }
-        public static IBeepTheme CurrentTheme { get; set; }
+
+        /// <summary>
+        /// The theme these style painters colour from. Falls back to the application's current
+        /// theme, so it is never null.
+        /// </summary>
+        /// <remarks>
+        /// This was a plain auto-property that **almost nothing set** — a repo-wide search finds
+        /// two writers, in GridX and ToolTips. Everywhere else it stayed null, and
+        /// <see cref="GetColor"/> tests <c>UseThemeColors &amp;&amp; CurrentTheme != null</c>
+        /// before consulting the theme: with null it fell straight through to the style's own
+        /// hard-coded palette. That is why a dark theme still painted light rows in every control
+        /// that draws through <c>PaintStyleBackground</c> — the theme was never even asked.
+        /// <para>
+        /// An explicit setter still wins, so the two existing writers behave exactly as before.
+        /// </para>
+        /// </remarks>
+        public static IBeepTheme CurrentTheme
+        {
+            get => _currentTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
+            set => _currentTheme = value;
+        }
+        private static IBeepTheme _currentTheme;
         public static bool UseThemeColors { get; set; } = true;  // Global setting to use theme colors
 
         static BeepStyling()

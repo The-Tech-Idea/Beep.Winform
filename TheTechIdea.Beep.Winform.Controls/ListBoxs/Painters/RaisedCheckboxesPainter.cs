@@ -66,11 +66,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
             Color accent = Theme.ErrorColor;
             Color borderColor = isDisabled ? (Theme.BorderColor) : accent;
-            Color bgColor = isChecked ? accent : (Theme.BackgroundColor);
+            Color bgColor = isChecked ? accent : (Theme.ListBackColor);
             
             if (isDisabled)
             {
-                bgColor = Theme.BackgroundColor;
+                bgColor = Theme.ListBackColor;
             }
             
             // Draw checkbox shadow for raised effect

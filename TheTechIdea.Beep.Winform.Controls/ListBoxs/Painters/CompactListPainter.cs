@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else
             {
                 // Normal compact style - minimal background
-                g.FillRectangle(GetBrush(Theme.BackgroundColor), itemRect);
+                g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect);
             }
         }
     }

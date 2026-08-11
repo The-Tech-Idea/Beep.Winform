@@ -196,3 +196,54 @@ most styles. This is *not* the literals — those are gone. The painters fill it
 through `BeepStyling` / `ControlStyle`, and `ControlStyle` pins its own bundled theme, so the
 palette in force is the style's rather than the application's. Same trap recorded elsewhere in this
 repo. That is the next thing to chase and is larger than a colour sweep.
+
+## Stage 07 — theme reaches the painters (partly done)
+
+### Root cause was not what stage 04 assumed
+
+`BeepStyling.CurrentTheme` was a plain auto-property that **almost nothing set** — a repo-wide
+search finds two writers, in GridX and ToolTips. Everywhere else it stayed **null**, and
+`BeepStyling.GetColor` tests `UseThemeColors && CurrentTheme != null` before consulting the theme:
+with null it fell straight through to `styleColorFunc(style)`, the style's own hard-coded palette.
+The theme was never even asked. It now falls back to `BeepThemesManager.CurrentTheme`; an explicit
+setter still wins, so the two existing writers are unaffected.
+
+**This is library-wide**, not ListBoxs-only: every control that paints through
+`PaintStyleBackground` was getting the style's literals instead of the application's theme.
+
+### Painters use the list's own slots now
+
+`ListBackColor`, `ListItemSelectedBackColor` and `ListItemSelectedForeColor` had **zero** uses
+across 44 painters; the row surface was filled from the generic `BackgroundColor` (19 sites) and
+selection from `PrimaryColor` (39). A theme sets the `List*` slots separately precisely so a list
+need not be a panel and a selected row need not be the brand colour — and DarkTheme does differ.
+Swept: surface and ink to `ListBackColor` / `ListItemForeColor` (24 sites), and the base painter's
+selection to `ListItemSelectedBackColor` / `ListItemSelectedBorderColor`.
+
+`BeepListBoxHelper.GetTextColor()` returned `_owner.ForeColor` — a plain WinForms property nothing
+keeps in step with the theme, so it sat at the system near-black whatever theme was in force. It
+reads `ListItemForeColor` now. `BeepListBox.ApplyTheme` also set neither `BackColor` nor
+`ForeColor`; it sets both from the theme now.
+
+### Verified
+
+The 16 painters that draw through `BeepStyling` — MaterialOutlined, LanguageSelector, TeamMembers,
+FilledStyle, Grouped, OutlinedCheckboxes, RaisedCheckboxes, MultiSelectionTeal, ColoredSelection,
+RadioSelection, Custom, ErrorStates, FilterStatus, RekaUI, ChakraUI, HeroUI — render dark rows with
+readable light text under DarkTheme. They rendered light rows before. 50 checks pass in both
+themes.
+
+### NOT fixed — the other ~25 styles still show a light surface
+
+Standard, Minimal, Outlined, Rounded, Filled, Borderless, CategoryChips, SearchableList, WithIcons,
+Compact, CardList, ChipStyle, Glassmorphism, Neumorphic, GradientCard, AvatarList, Timeline,
+InfiniteScroll, CommandList, NavigationRail, ChatList, ContactList, ThreeLineList,
+NotificationList and ProfileCard still draw a white surface under DarkTheme.
+
+It is **not** the painters' fill colours — those now resolve to `ListBackColor` (30,30,30 in
+DarkTheme). The surface is painted *before* the painter runs, by the control/`BaseControl` path,
+and setting `BeepListBox.BackColor` from the theme did not change it. That path is the next thing
+to find; it was not chased further here rather than guess at it.
+
+**Do not read the light rows in the contact sheet as "the sweep failed"** — the sweep is visible in
+the 16 styles above and in the avatar discs, which change colour with the theme in every style.

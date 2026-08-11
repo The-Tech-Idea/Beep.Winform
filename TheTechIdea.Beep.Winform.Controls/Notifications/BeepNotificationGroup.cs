@@ -44,7 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private readonly List<BeepPanel> _itemPanels = new();
         #region Private Fields
         private readonly List<NotificationData> _notifications;
-        private bool _isExpanded = false;
+        // A group REPLACES individual toasts that were already on screen, so it opens expanded -
+        // collapsing by default hid content the reader had been given no chance to read.
+        private bool _isExpanded = true;
         private string _groupKey = string.Empty;
         private string _groupTitle = "Notifications";
         private NotificationType _groupType;
@@ -95,22 +97,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // badge + chevron hint. Items stack as their own BeepPanel rows
             // inside _itemsHost (see RebuildItems).
             // â”€â”€ Header panel (Dock=Top) with title + count + chevron
-            _headerPanel = new BeepPanel
-            {
+            _headerPanel = new BeepPanel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None,
                 Dock = DockStyle.Top, Height = HeaderHeight,
                 Padding = new Padding(DpiScalingHelper.ScaleValue(12,this), DpiScalingHelper.ScaleValue(8,this), DpiScalingHelper.ScaleValue(12,this), DpiScalingHelper.ScaleValue(8,this))
             };
-            _titleLabel        = new BeepLabel { Dock = DockStyle.Fill,  AutoEllipsis = true, Text = "Notifications" };
-            _expandHintLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(16,this), TextAlign = ContentAlignment.MiddleCenter, Text = "\u25BE" };
-            _countBadgeLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(28,this), TextAlign = ContentAlignment.MiddleCenter };
+            _titleLabel        = new BeepLabel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None, Dock = DockStyle.Fill,  AutoEllipsis = true, Text = "Notifications" };
+            _expandHintLabel   = new BeepLabel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None, Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(16,this), TextAlign = ContentAlignment.MiddleCenter, Text = "\u25BE" };
+            _countBadgeLabel   = new BeepLabel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None, Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(28,this), TextAlign = ContentAlignment.MiddleCenter };
             _headerPanel.Controls.Add(_titleLabel);
             _headerPanel.Controls.Add(_countBadgeLabel);
             _headerPanel.Controls.Add(_expandHintLabel);
-            this.Controls.Add(_headerPanel);
 
             // â”€â”€ Items host (Dock=Fill below header)
-            _itemsHost = new BeepPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent, Visible = false };
+            _itemsHost = new BeepPanel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None, Dock = DockStyle.Fill, BackColor = Color.Transparent, Visible = true };
+            // Dock order matters: WinForms lays docked children out from the END of the
+            // collection backwards, so the Fill child must be added BEFORE the Top child or it
+            // claims the whole client area and the header lands on top of the first row.
+            // (BringToFront does not fix this - it only changes who paints last.)
             this.Controls.Add(_itemsHost);
+            this.Controls.Add(_headerPanel);
         }
 
         #endregion
@@ -266,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public void Clear()
         {
             _notifications.Clear();
-            _isExpanded = false;
+            _isExpanded = true;
             UpdateSize();
             UpdateHeaderText();
             UpdateAccessibility();
@@ -351,15 +356,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             // Phase 3 / G26: if notifications have different types, show
             // "Mixed" instead of the dominant type's name.
-            var titles = _notifications
-                .Where(n => n != null)
-                .Select(n => string.IsNullOrEmpty(n.Title) ? null : n.Title)
-                .ToList();
-            var distinctTitles = titles.Where(t => t != null).Distinct().ToList();
-            string resolvedTitle;
-            if (distinctTitles.Count == 1) resolvedTitle = distinctTitles[0];
-            else if (distinctTitles.Count == 0) resolvedTitle = _groupTitle ?? "Notifications";
-            else resolvedTitle = distinctTitles.Count + " notification types";     // mixed
+            // The group's OWN title wins when it has one: the manager sets it from the
+            // notifications' Source ("Sync", "Build server"), which is what the reader needs.
+            // Deriving a title from the items only makes sense when no group title was given -
+            // otherwise a group explicitly titled "Sync" rendered as "5 notification types",
+            // which names nothing the user can act on.
+            string resolvedTitle = _groupTitle;
+            if (string.IsNullOrWhiteSpace(resolvedTitle))
+            {
+                var distinctTitles = _notifications
+                    .Where(n => n != null && !string.IsNullOrEmpty(n.Title))
+                    .Select(n => n.Title)
+                    .Distinct()
+                    .ToList();
+
+                resolvedTitle = distinctTitles.Count == 1
+                    ? distinctTitles[0]
+                    : (distinctTitles.Count == 0 ? "Notifications" : $"{_notifications.Count} notifications");
+            }
 
             _titleLabel.Text = resolvedTitle;
 
@@ -367,7 +381,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             var n = _notifications.Count;
             _countBadgeLabel.Text = n > 99 ? "99+" : n.ToString();
 
-            _expandHintLabel.Text = _isExpanded ? "\u25C0" : "\u25B6";      // â—€ / â–¶
+            _expandHintLabel.Text = _isExpanded ? "▲" : "▼";   // collapse / expand
+
+            // Collapsed, the group showed a chevron and nothing else, so the message each
+            // notification existed to deliver was invisible until the reader guessed to expand.
+            // Carry the most recent line as a subtitle instead.
+            var latest = _notifications.Count > 0 ? _notifications[_notifications.Count - 1] : null;
+            string preview = latest == null
+                ? string.Empty
+                : (!string.IsNullOrWhiteSpace(latest.Message) ? latest.Message : (latest.Title ?? string.Empty));
+            _titleLabel.SubHeaderText = _isExpanded ? string.Empty : preview;
         }
         #endregion
 
@@ -432,8 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         private BeepPanel CreateItemRow(NotificationData notification)
         {
-            var row = new BeepPanel
-            {
+            var row = new BeepPanel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None,
                 Dock = DockStyle.Top,
                 Height = ItemHeight,
                 UseThemeColors = false,        // explicit BackColor below
@@ -452,16 +474,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             row.Click += (s, e) => NotificationClicked?.Invoke(this,
                 new NotificationEventArgs { Notification = capture });
 
-            var inner = new BeepPanel
-            {
+            var inner = new BeepPanel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None,
                 Dock = DockStyle.Fill,
                 BackColor = Color.Transparent
             };
             row.Controls.Add(inner);
 
             // Timestamp: top, single line, right-aligned
-            inner.Controls.Add(new BeepLabel
-            {
+            inner.Controls.Add(new BeepLabel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None,
                 Dock = DockStyle.Top,
                 Height = DpiScalingHelper.ScaleValue(14, this),
                 TextAlign = ContentAlignment.TopRight,
@@ -472,8 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 Tag = "_time"
             });
             // Title: top, single line, bold
-            inner.Controls.Add(new BeepLabel
-            {
+            inner.Controls.Add(new BeepLabel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None,
                 Dock = DockStyle.Top,
                 Height = DpiScalingHelper.ScaleValue(18, this),
                 AutoEllipsis = true,
@@ -481,8 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 Tag = "_title"
             });
             // Message: fill remaining â€” multi-line truncated
-            inner.Controls.Add(new BeepLabel
-            {
+            inner.Controls.Add(new BeepLabel { IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None,
                 Dock = DockStyle.Fill,
                 AutoEllipsis = true,
                 ForeColor = Color.FromArgb(160, this.ForeColor),

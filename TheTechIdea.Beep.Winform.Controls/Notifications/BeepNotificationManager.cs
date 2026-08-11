@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _notificationQueue = new Queue<NotificationData>();
             _animators = new Dictionary<BeepNotification, BeepNotificationAnimator>();
             _notificationGroups = new Dictionary<string, BeepNotificationGroup>();
+            _groupHosts = new Dictionary<string, BeepNotificationGroupHost>();
         }
         #endregion
 
@@ -35,6 +36,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private readonly Queue<NotificationData> _notificationQueue;
         private readonly Dictionary<BeepNotification, BeepNotificationAnimator> _animators;
         private readonly Dictionary<string, BeepNotificationGroup> _notificationGroups;
+        // Each group lives in its own window; closing the group must close the window with it.
+        private readonly Dictionary<string, BeepNotificationGroupHost> _groupHosts;
         private BeepNotificationHistory? _historyPanel;
         private NotificationPosition _defaultPosition = NotificationPosition.BottomRight;
         private int _maxVisibleNotifications = 5;
@@ -43,7 +46,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private Screen? _targetScreen = Screen.PrimaryScreen;
         private NotificationAnimation _defaultAnimation = NotificationAnimation.SlideAndFade;
         private bool _trackHistory = true;
-        private bool _enableGrouping = true;
+        // OFF by default. Grouping silently REPLACES several individual toasts with one
+        // collapsed summary window as soon as three notifications share a GroupKey or Source,
+        // which reads as "a small empty box appeared next to my notification" and hides the
+        // messages the reader was meant to see. Opt in with EnableGrouping = true.
+        private bool _enableGrouping = false;
         private int _groupingThreshold = 3; // Min notifications to create a group
         private bool _doNotDisturbMode = false;
         private NotificationPriority _doNotDisturbMinPriority = NotificationPriority.Critical;
@@ -1000,11 +1007,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // Add to dictionary (Phase 4.4 / G23 — locked).
             lock (_lock) _notificationGroups[groupKey] = group;
 
-            // Position the group
-            var targetLocation = CalculateGroupPosition(group);
-            group.Location = targetLocation;
-            group.Show();
-            group.BringToFront();
+            // Host the group in a real window. group.Show() on a parentless BaseControl produced
+            // a bare Win32 top-level window - no owner, no shadow, never on top - which is what
+            // appeared beside real notifications as a small empty box.
+            var host = new BeepNotificationGroupHost(group);
+            lock (_lock) _groupHosts[groupKey] = host;
+
+            host.Location = CalculateGroupPosition(group);
+            host.Show();
+            host.BringToFront();
 
             // Play sound
             if (newData.PlaySound)
@@ -1399,8 +1410,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                     }
                 }
 
-                // Dispose group
-                group.Dispose();
+                // Close the window that hosts the group. Disposing only the group would leave
+                // its host form on screen as an empty shell.
+                BeepNotificationGroupHost? host = null;
+                lock (_lock)
+                {
+                    if (!string.IsNullOrEmpty(groupKey) && _groupHosts.TryGetValue(groupKey, out var h))
+                    {
+                        host = h;
+                        _groupHosts.Remove(groupKey);
+                    }
+                }
+
+                if (host != null && !host.IsDisposed)
+                {
+                    // The group is a child of the host, so closing the host disposes it too;
+                    // disposing the group first would pull the control out from under the form.
+                    host.Close();
+                    host.Dispose();
+                }
+                else
+                {
+                    group.Dispose();
+                }
 
                 // Reposition remaining
                 RepositionNotificationsAnimated();

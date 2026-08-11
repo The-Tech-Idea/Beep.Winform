@@ -141,3 +141,47 @@ control, draw title/message/icon directly.
 
 The icon is unverified in the same way - `_iconContainer` is 36px wide and `IconPicture_Paint`
 calls `StyledImagePainter.PaintWithTint`, but nothing appears in any render. Not diagnosed.
+
+## Batch 4 — the small empty popup beside every notification
+
+Reported as "a small notification that shows nothing appears with the actual notification".
+It was **not** the toast and **not** the group: enumerating this process's visible windows showed
+two, and the small one was a **`CustomToolTip` (150x40)**.
+
+The stack at construction:
+`CustomToolTip..ctor <- ToolTipInstance.ShowAsync <- ToolTipManager.ShowTooltipAsync <-
+ToolTipManager.OnControlMouseEnter`
+
+Mechanism: `BeepNotification` registered `ToolTipText` on its close button, progress bar and
+action buttons, then `OnShown` **focused the close button** "so Esc dismisses on first key". A
+registered tooltip is keyboard-triggerable, so `TriggerStillValid` passes on
+`config.KeyboardTriggerable && control.Focused` **even with the pointer nowhere near** - the
+tooltip opened next to every toast. Reproduced deterministically with the cursor parked at (5,5).
+
+Fixes:
+- The toast registers **no tooltips at all**. A transient card that dismisses itself does not
+  need hover help on its own close button, and that registration was the entire cause.
+- `OnShown` no longer focuses the close button. The form already sets `KeyPreview` and handles
+  Escape itself, so the focus bought nothing - and this window shows *without activation*, so
+  taking focus was a contradiction. Focus still goes to the first ACTION button when the toast
+  has actions, which is a real affordance.
+
+Verified by enumerating top-level windows: one `BeepNotification` and nothing else, both with
+and without actions. NoteProbe 7/7 and FontProbe 20/20 still green.
+
+### Grouping is now OFF by default
+
+`EnableGrouping` defaulted to `true` with `GroupingThreshold = 3`, so three notifications sharing
+a `GroupKey` **or merely a `Source`** silently replaced the individual toasts with one collapsed
+summary. Per the user's decision, plain notifications are the default; grouping is opt-in.
+
+While it was still on, three group defects were fixed and are worth keeping for anyone who opts
+in: the group is hosted in a real `BeepiFormPro` window (`group.Show()` on a parentless
+`BaseControl` produced a bare, unowned, never-on-top window); the title resolves from the group's
+own title instead of rendering "5 notification types"; it opens expanded and shows a one-line
+preview of the newest message when collapsed; and the header/items dock ORDER was corrected (the
+Fill child must be added before the Top child, which `BringToFront` cannot fix).
+
+The group's interior is still dock-stacked and **not** rebuilt on the grid, so its rows remain
+visually rough. That is acceptable while grouping is opt-in and off, and is the first thing to
+do if it is ever turned back on.

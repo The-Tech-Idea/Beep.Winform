@@ -216,28 +216,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             ApplyTypography();
             RefreshAccessibility();
-            UpdateTooltips();
         }
 
-        /// <summary>
-        /// Each Beep child carries its own <see cref="BaseControl.ToolTipText"/>
-        /// (managed centrally by ToolTipManager) — no System.Windows.Forms.ToolTip
-        /// instance is needed here. Called from the constructor (after children
-        /// exist), from <see cref="ApplyData"/> on data change, and from the
-        /// progress tick to keep the live countdown current.
-        /// </summary>
-        private void UpdateTooltips()
-        {
-            if (_closeButton != null)
-                _closeButton.ToolTipText = "Close (Esc)";
-            if (_progressBar != null)
-            {
-                var pct = _progressPercentage.ToString("0");
-                _progressBar.ToolTipText = string.IsNullOrEmpty(_notificationData?.ProgressText)
-                    ? $"Auto-dismiss in {pct}% of duration remaining"
-                    : _notificationData.ProgressText;
-            }
-        }
         #endregion
 
         /// <summary>
@@ -469,7 +449,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                         Dismiss();
                     };
                     // Tooltip surfaces the action to screen-reader users.
-                    btn.ToolTipText = $"{capture.Text} (Enter)";
                     _actionsLayout.Controls.Add(btn);
                     i++;
                 }
@@ -795,7 +774,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 // reflects the live countdown. ToolTipText on the child is
                 // read by ToolTipManager on the next hover/paint, so we don't
                 // need to invalidate here.
-                if (_progressBar != null) UpdateTooltips();
             }
             catch { /* control may be disposed mid-shutdown */ }
         }
@@ -885,22 +863,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 if (IsDisposed) return;
 
-                // Prefer the first action button if actions exist (UX convention);
-                // otherwise focus the close button so Esc dismisses on first key.
-                Control focusTarget = null;
-
+                // Focus the first ACTION button when the toast has actions - that is a real
+                // affordance the user may want to trigger with Enter.
+                //
+                // Never focus the close button just to make Esc work: the form sets
+                // KeyPreview and handles Escape itself, and focusing a child was actively
+                // harmful. A tooltip registered on that child is keyboard-triggerable, so
+                // focusing it satisfied ToolTipManager.TriggerStillValid and popped a second
+                // little tooltip window next to every notification, with the pointer nowhere
+                // near it. This form also shows without activation, so taking focus at all is
+                // a contradiction.
                 if (_actionsLayout?.Controls.Count > 0)
                 {
-                    // FlowLayoutPanel with FlowDirection.LeftToRight puts the
-                    // first added control first in tab order.
-                    focusTarget = _actionsLayout.Controls[0];
+                    _actionsLayout.Controls[0].Focus();
                 }
-                else if (_closeButton?.Visible == true)
-                {
-                    focusTarget = _closeButton;
-                }
-
-                focusTarget?.Focus();
             }));
         }
         #endregion

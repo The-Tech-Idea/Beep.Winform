@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Images;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -50,14 +51,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         // Child controls (compose the notification body via docking)
         private BeepPanel _bodyPanel;
-        private BeepPanel _iconContainer;     // wraps the PictureBox so it sits inside a themed BeepPanel
-        private PictureBox _iconPicture;
-        private BeepPanel _textPanel;         // title + message host
+        // One control per cell in a TableLayoutPanel - not dock stacks. Docking three
+        // auto-sizing controls inside each other is what stretched the labels and let them
+        // overlap; a grid gives each element a cell whose size is negotiated once.
+        private TableLayoutPanel _grid;
+        private BeepImage _iconImage;         // BeepImage is the control that renders/themes SVGs
         private BeepLabel _titleLabel;
         private BeepLabel _messageLabel;
         private BeepButton _closeButton;
         private BeepProgressBar _progressBar;
-        private BeepPanel _actionsPanel;
         private FlowLayoutPanel _actionsLayout;
 
         // State
@@ -112,56 +114,103 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _progressTimer = new Timer { Interval = 50 };
             _progressTimer.Tick += ProgressTimer_Tick;
 
-            // ── Child controls + theme fonts
-            // ── Child controls (layered via docking)
-            // Only the toast CARD carries a frame: every inner panel/label is frameless
-            // and IsChild (parent's colour), so the card stops reading as a stack of
-            // nested rounded boxes. IsFrameless is honoured by BOTH painter branches
-            // (ClassicBaseControlPainter passes it into BeepStyling.PaintControl).
-            _bodyPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
-            _iconContainer = new BeepPanel { Dock = DockStyle.Left, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
-            _iconPicture = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.Transparent };
-            _iconPicture.Paint += IconPicture_Paint;
-            _iconContainer.Controls.Add(_iconPicture);
+            // ── Composition: one TableLayoutPanel, one control per cell ──
+            //   col 0 = icon (fixed)   col 1 = text (fills)   col 2 = close (fixed)
+            //   row 0 = title          row 1 = message        row 2 = actions
+            _grid = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 3,
+                RowCount = 3,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                BackColor = Color.Transparent
+            };
+            _grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            _grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            _grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            _actionsPanel = new BeepPanel { Dock = DockStyle.Bottom, Height = 0, Visible = false, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
-            _actionsLayout = new FlowLayoutPanel { Dock = DockStyle.Top, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = Color.Transparent };
-            _actionsPanel.Controls.Add(_actionsLayout);
+            _iconImage = new BeepImage
+            {
+                IsFrameless = true,
+                IsChild = true,
+                IsTransparentBackground = true,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                ControlStyle = BeepControlStyle.None,
+                ScaleMode = ImageScaleMode.KeepAspectRatio,
+                Anchor = AnchorStyles.Top,
+                Margin = new Padding(0, 0, 0, 0)
+            };
 
-            _textPanel = new BeepPanel { Dock = DockStyle.Fill, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
+            _titleLabel = new BeepLabel
+            {
+                AutoSize = false,
+                TextAlign = ContentAlignment.MiddleLeft,
+                TabIndex = 1,
+                TabStop = false,
+                IsFrameless = true, IsChild = true, IsTransparentBackground = true,
+                ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None
+            };
 
-            // Both labels dock TOP with explicit measured heights (RecomputeSize).
-            // The message used to be Dock=Fill: inside an AutoSize form that contributes
-            // no preferred height, so the form stayed at MinimumSize and the title's
-            // AutoSize height ate the whole text panel - the message was laid out BELOW
-            // the panel and never drawn at all.
-            _titleLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, TabIndex = 1,
-                                          TextAlign = ContentAlignment.MiddleLeft, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
-            _messageLabel = new BeepLabel { Dock = DockStyle.Top, AutoSize = false, TabIndex = 2,
-                                            Multiline = true, WordWrap = true,
-                                            TextAlign = ContentAlignment.TopLeft, IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
+            // BeepLabel needs BOTH WordWrap and Multiline: one decides where lines break,
+            // the other renders more than one.
+            _messageLabel = new BeepLabel
+            {
+                AutoSize = false,
+                Multiline = true,
+                WordWrap = true,
+                TextAlign = ContentAlignment.TopLeft,
+                TabIndex = 2,
+                TabStop = false,
+                IsFrameless = true, IsChild = true, IsTransparentBackground = true,
+                ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None
+            };
 
-            _textPanel.Controls.Add(_messageLabel);
-            _textPanel.Controls.Add(_titleLabel);
-
-            _closeButton = new BeepButton { Dock = DockStyle.Right, Text = "\u2715", TabIndex = 0, TabStop = true,
-                                            IsFrameless = true, IsChild = true, IsTransparentBackground = true, ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None };
+            _closeButton = new BeepButton
+            {
+                Text = "\u2715",
+                TabIndex = 0,
+                TabStop = true,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                IsFrameless = true, IsChild = true, IsTransparentBackground = true,
+                ShowAllBorders = false, ShowShadow = false, ControlStyle = BeepControlStyle.None
+            };
             _closeButton.Click += (s, e) => Dismiss();
 
-            _progressBar = new BeepProgressBar { Dock = DockStyle.Bottom, Visible = false, IsFrameless = true, ShowAllBorders = false };
+            _actionsLayout = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
 
-            // Z-order for docking (last-added = fills leftover space)
-            _bodyPanel.Controls.Add(_progressBar);
-            _bodyPanel.Controls.Add(_actionsPanel);
-            _bodyPanel.Controls.Add(_iconContainer);
-            _bodyPanel.Controls.Add(_closeButton);
-            _bodyPanel.Controls.Add(_textPanel);
-            this.Controls.Add(_bodyPanel);
+            _progressBar = new BeepProgressBar
+            {
+                Dock = DockStyle.Bottom,
+                Visible = false,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                ControlStyle = BeepControlStyle.None
+            };
 
-            _closeButton.TabStop = true;
-            _titleLabel.TabStop = false;
-            _messageLabel.TabStop = false;
-            _actionsPanel.Tag = 3;
+            _grid.Controls.Add(_iconImage,     0, 0);
+            _grid.SetRowSpan(_iconImage, 2);
+            _grid.Controls.Add(_titleLabel,    1, 0);
+            _grid.Controls.Add(_closeButton,   2, 0);
+            _grid.Controls.Add(_messageLabel,  1, 1);
+            _grid.Controls.Add(_actionsLayout, 1, 2);
+            _grid.SetColumnSpan(_actionsLayout, 2);
+
+            this.Controls.Add(_grid);
+            this.Controls.Add(_progressBar);
+
 
             if (IsHandleCreated) RescaleLayout();
 
@@ -200,43 +249,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         private void RescaleLayout()
         {
-            int pad       = DpiScalingHelper.ScaleValue(12,  this);
-            int iconSize  = DpiScalingHelper.ScaleValue(28,  this);
-            int closeSize = DpiScalingHelper.ScaleValue(24,  this);
-            int progressH = DpiScalingHelper.ScaleValue(4,   this);
-            int gap       = DpiScalingHelper.ScaleValue(8,   this);
-            int iconPad   = DpiScalingHelper.ScaleValue(2,   this);
-            int iconGap   = DpiScalingHelper.ScaleValue(4,   this);
-            int actPadY   = DpiScalingHelper.ScaleValue(4,   this);
-            int txtPadY   = DpiScalingHelper.ScaleValue(2,   this);
-            int msgPadT   = DpiScalingHelper.ScaleValue(2,   this);
+            int pad      = DpiScalingHelper.ScaleValue(12, this);
+            int iconSize = DpiScalingHelper.ScaleValue(24, this);
+            int closeSz  = DpiScalingHelper.ScaleValue(18, this);
+            int gap      = DpiScalingHelper.ScaleValue(10, this);
+            int rowGap   = DpiScalingHelper.ScaleValue(3, this);
 
-            if (_bodyPanel != null)
-                _bodyPanel.Padding = new Padding(pad, pad, pad, pad);
+            if (_grid != null) _grid.Padding = new Padding(pad);
 
-            if (_iconContainer != null)
+            if (_iconImage != null)
             {
-                _iconContainer.Width = iconSize + gap;
-                _iconContainer.Padding = new Padding(iconPad, 0, iconGap, 0);
+                _iconImage.Size   = new Size(iconSize, iconSize);
+                _iconImage.Margin = new Padding(0, 0, gap, 0);
             }
-
+            if (_titleLabel   != null) _titleLabel.Margin   = new Padding(0, 0, 0, rowGap);
+            if (_messageLabel != null) _messageLabel.Margin = new Padding(0, 0, 0, 0);
+            if (_closeButton  != null)
+            {
+                _closeButton.Size   = new Size(closeSz, closeSz);
+                _closeButton.Margin = new Padding(gap, 0, 0, 0);
+            }
             if (_actionsLayout != null)
-                _actionsLayout.Padding = new Padding(0, actPadY, 0, 0);
+                _actionsLayout.Margin = new Padding(0, DpiScalingHelper.ScaleValue(6, this), 0, 0);
+            if (_progressBar != null)
+                _progressBar.Height = DpiScalingHelper.ScaleValue(4, this);
 
-            if (_textPanel != null)
-                _textPanel.Padding = new Padding(0, txtPadY, 0, txtPadY);
+            MinimumSize = DpiScalingHelper.ScaleSize(new Size(300, 60), this);
+            MaximumSize = DpiScalingHelper.ScaleSize(new Size(460, 320), this);
 
-            if (_messageLabel != null)
-                _messageLabel.Padding = new Padding(0, msgPadT, 0, 0);
-
-            if (_closeButton  != null) _closeButton.Width  = closeSize;
-            if (_progressBar  != null) _progressBar.Height = progressH;
-
-            // Form's min/max also DPI-affected
-            MinimumSize = DpiScalingHelper.ScaleSize(new Size(280, 60), this);
-            MaximumSize = DpiScalingHelper.ScaleSize(new Size(420, 300), this);
-
-            // Recompute + request re-layout
             RecomputeSize();
         }
 
@@ -354,28 +394,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // NotificationThemeHelpers.GetColorsForType.
             _iconTintResolved = _notificationData.IconTint ?? colors.IconColor;
 
-            // Icon path: default per type unless overridden
+            // Icon path: default per type unless overridden. BeepImage is the control that
+            // renders and themes SVGs - the old PictureBox + manual SVG paint drew nothing.
             string iconPath = !string.IsNullOrEmpty(_notificationData.IconPath)
                 ? _notificationData.IconPath
                 : NotificationData.GetDefaultIconForType(_notificationData.Type);
 
-            if (iconPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)
-                || iconPath.EndsWith(".svgz", StringComparison.OrdinalIgnoreCase))
+            if (_iconImage != null)
             {
-                _iconPicture.Image = null;       // force the Paint event to redraw
-                _iconPicture.Tag = iconPath;
+                _iconImage.ImagePath = iconPath;
+                _iconImage.Visible = !string.IsNullOrEmpty(iconPath);
             }
-            else if (System.IO.File.Exists(iconPath))
-            {
-                _iconPicture.Image = Image.FromFile(iconPath);
-                _iconPicture.Tag = null;
-            }
-            else
-            {
-                _iconPicture.Image = null;
-                _iconPicture.Tag = iconPath;     // unknown extension → let SVG painter try
-            }
-            _iconPicture.Invalidate();
 
             // Hide labels entirely if their text is empty; the Fill dock of the
             // message label collapses the empty region so the form shrinks to
@@ -383,10 +412,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             var title = _notificationData.Title ?? string.Empty;
             _titleLabel.Text = title;
             _titleLabel.Visible = title.Length > 0;
+            _titleLabel.ForeColor = ForeColor;
 
             var message = _notificationData.Message ?? string.Empty;
             _messageLabel.Text = message;
             _messageLabel.Visible = message.Length > 0;
+            _messageLabel.ForeColor = ForeColor;
 
             _closeButton.Visible = _notificationData.ShowCloseButton;
             if (!_notificationData.ShowCloseButton) _closeButton.TabStop = false;
@@ -408,7 +439,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _actionsLayout.SuspendLayout();
             _actionsLayout.Controls.Clear();
 
-            int tabStart = _actionsPanel.Tag is int t ? t : 3;
+            int tabStart = 3;
 
             if (_notificationData?.Actions != null && _notificationData.Actions.Length > 0)
             {
@@ -443,19 +474,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                     i++;
                 }
 
-                _actionsPanel.Visible = true;
-                // Height is driven by FlowLayoutPanel.AutoSize plus a small buffer.
-                _actionsPanel.Height = _actionsLayout.GetPreferredSize(Size.Empty).Height
-                                       + DpiScalingHelper.ScaleValue(2, this);
+                _actionsLayout.Visible = true;
             }
             else
             {
-                _actionsPanel.Height = 0;
-                _actionsPanel.Visible = false;
+                _actionsLayout.Visible = false;
             }
 
             _actionsLayout.ResumeLayout();
-            _actionsPanel.PerformLayout();
         }
 
         /// <summary>
@@ -464,70 +490,78 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// useless here (Fill-docked labels report no preferred height), which is why the
         /// toast sat at MinimumSize with the message clipped away entirely.
         /// </summary>
+        /// <summary>
+        /// Sizes the card from the grid's own preferred size. The message label is capped to the
+        /// text column first, so it WRAPS instead of widening the card indefinitely - an
+        /// AutoSize label with no MaximumSize reports one very long line, which is what made the
+        /// old layout look stretched.
+        /// </summary>
         private void RecomputeSize()
         {
-            if (_bodyPanel == null || _textPanel == null) return;
+            if (_grid == null) return;
 
-            int minW = MinimumSize.Width  > 0 ? MinimumSize.Width  : 280;
-            int minH = MinimumSize.Height > 0 ? MinimumSize.Height : 60;
-            int maxW = MaximumSize.Width  > 0 ? MaximumSize.Width  : 420;
-            int maxH = MaximumSize.Height > 0 ? MaximumSize.Height : 300;
+            int maxW = MaximumSize.Width > 0 ? MaximumSize.Width : DpiScalingHelper.ScaleValue(460, this);
+            int minW = MinimumSize.Width > 0 ? MinimumSize.Width : DpiScalingHelper.ScaleValue(300, this);
 
-            // Horizontal budget the text actually gets: card minus body padding,
-            // icon column and close button.
-            int chrome = _bodyPanel.Padding.Horizontal
-                       + (_iconContainer != null && _iconContainer.Visible ? _iconContainer.Width : 0)
-                       + (_closeButton != null && _closeButton.Visible ? _closeButton.Width : 0)
-                       + _textPanel.Padding.Horizontal;
+            int sideChrome = _grid.Padding.Horizontal
+                           + (_iconImage != null && !string.IsNullOrEmpty(_iconImage.ImagePath) ? _iconImage.Width + _iconImage.Margin.Horizontal : 0)
+                           + (_closeButton != null && (_notificationData?.ShowCloseButton ?? true) ? _closeButton.Width + _closeButton.Margin.Horizontal : 0);
 
-            string title = _titleLabel?.Text ?? string.Empty;
-            string message = _messageLabel?.Text ?? string.Empty;
+            int textW = Math.Max(DpiScalingHelper.ScaleValue(120, this), maxW - sideChrome);
 
-            int textW = Math.Max(80, maxW - chrome);
+            // Measure each label against the text column and give it that exact size. A
+            // BaseControl-derived label does not negotiate AutoSize with TableLayoutPanel the way
+            // a WinForms Label does - left to itself the message collapsed to 2px wide and was
+            // laid out on top of the title.
+            // Two passes. Pass 1 finds the natural (unwrapped) width of each line so a short
+            // toast does not stretch to the maximum. Pass 2 re-measures HEIGHT at the width the
+            // label will actually be given - measuring height at one width and rendering at a
+            // narrower one is what truncated the message.
+            string titleText = _titleLabel?.Text ?? string.Empty;
+            string messageText = _messageLabel?.Text ?? string.Empty;
+            int contentW, titleH = 0, messageH = 0;
 
-            Size titleSize = Size.Empty;
-            Size messageSize = Size.Empty;
             using (var g = CreateGraphics())
             {
-                if (title.Length > 0 && _titleLabel?.Font != null)
-                {
-                    titleSize = TextRenderer.MeasureText(g, title, _titleLabel.Font,
-                        new Size(textW, int.MaxValue), TextFormatFlags.SingleLine);
-                }
-                if (message.Length > 0 && _messageLabel?.Font != null)
-                {
-                    messageSize = TextRenderer.MeasureText(g, message, _messageLabel.Font,
-                        new Size(textW, int.MaxValue), TextFormatFlags.WordBreak);
-                }
+                var titleFont = _titleLabel?.TextFont ?? _titleLabel?.Font;
+                var msgFont = _messageLabel?.TextFont ?? _messageLabel?.Font;
+
+                int natural = 0;
+                if (titleText.Length > 0 && titleFont != null)
+                    natural = Math.Max(natural, TextRenderer.MeasureText(g, titleText, titleFont,
+                        new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Width);
+                if (messageText.Length > 0 && msgFont != null)
+                    natural = Math.Max(natural, TextRenderer.MeasureText(g, messageText, msgFont,
+                        new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Width);
+
+                // A couple of pixels of slack: MeasureText without padding is a tight fit and the
+                // label's own renderer can need one more pixel before it decides to wrap.
+                natural += DpiScalingHelper.ScaleValue(4, this);
+                contentW = Math.Max(DpiScalingHelper.ScaleValue(120, this), Math.Min(textW, natural));
+
+                if (titleText.Length > 0 && titleFont != null)
+                    titleH = TextRenderer.MeasureText(g, titleText, titleFont,
+                        new Size(contentW, int.MaxValue), TextFormatFlags.WordBreak).Height
+                        + DpiScalingHelper.ScaleValue(2, this);
+                if (messageText.Length > 0 && msgFont != null)
+                    messageH = TextRenderer.MeasureText(g, messageText, msgFont,
+                        new Size(contentW, int.MaxValue), TextFormatFlags.WordBreak).Height
+                        + DpiScalingHelper.ScaleValue(2, this);
             }
 
-            // Give each label the height its own text needs.
-            if (_titleLabel != null)
-                _titleLabel.Height = title.Length > 0 ? titleSize.Height + DpiScalingHelper.ScaleValue(2, this) : 0;
-            if (_messageLabel != null)
-                _messageLabel.Height = message.Length > 0
-                    ? messageSize.Height + _messageLabel.Padding.Vertical + DpiScalingHelper.ScaleValue(2, this)
-                    : 0;
+            if (_titleLabel != null) _titleLabel.Size = new Size(contentW, titleH);
+            if (_messageLabel != null) _messageLabel.Size = new Size(contentW, messageH);
 
-            int contentH = (_titleLabel?.Height ?? 0) + (_messageLabel?.Height ?? 0) + _textPanel.Padding.Vertical;
-            int iconH = _iconContainer != null && _iconContainer.Visible ? _iconContainer.Width : 0;
+            _grid.PerformLayout();
+            Size preferred = _grid.GetPreferredSize(new Size(maxW, 0));
 
-            int newH = _bodyPanel.Padding.Vertical
-                     + Math.Max(contentH, iconH)
-                     + (_actionsPanel != null && _actionsPanel.Visible ? _actionsPanel.Height : 0)
-                     + (_progressBar != null && _progressBar.Visible ? _progressBar.Height : 0);
+            // Width comes from the MEASURED content, not the grid's preferred size: the grid is
+            // Dock=Fill, so it reports the form's current width and the card could never shrink.
+            int newW = Math.Min(Math.Max(contentW + sideChrome, minW), maxW);
+            int newH = preferred.Height + ((_progressBar != null && (_notificationData?.ShowProgressBar ?? false)) ? _progressBar.Height : 0);
+            newH = Math.Min(Math.Max(newH, MinimumSize.Height), MaximumSize.Height);
 
-            int widest = Math.Max(titleSize.Width, messageSize.Width);
-            int newW = widest > 0 ? widest + chrome : minW;
-
-            newW = Math.Min(Math.Max(newW, minW), maxW);
-            newH = Math.Min(Math.Max(newH, minH), maxH);
-
-            if (Width != newW || Height != newH)
-            {
-                Size = new Size(newW, newH);
-            }
-            PerformLayout();
+            if (Width != newW || Height != newH) Size = new Size(newW, newH);
         }
 
         /// <summary>True when the form is hosted in a designer (Visual Studio).</summary>
@@ -657,20 +691,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         #endregion
 
         #region Icon paint (SVG fallback when PictureBox can't load it natively)
-        private void IconPicture_Paint(object? sender, PaintEventArgs e)
-        {
-            if (_iconPicture?.Tag is string path)
-            {
-                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                StyledImagePainter.PaintWithTint(
-                    e.Graphics,
-                    _iconPicture.ClientRectangle,
-                    path,
-                    _iconTintResolved,
-                    1f,
-                    0);
-            }
-        }
         #endregion
 
         #region Public methods (Show / Dismiss / Pause / Resume)

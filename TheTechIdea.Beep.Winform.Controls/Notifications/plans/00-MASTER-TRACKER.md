@@ -76,6 +76,44 @@ Also: children are `IsFrameless`/`IsChild`/`IsTransparentBackground`/`ControlSty
 handed down from the resolved semantic colours, and the ctor's mojibake moon icon was replaced with
 an escaped codepoint.
 
+### Batch 3 — composed with a TableLayoutPanel (supersedes the "NOT fixed" note below)
+
+The dock-stack interior was replaced with what CLAUDE.md rule 5 asks for: **one
+`TableLayoutPanel`, one control per cell.**
+
+```
+col 0 = icon (AutoSize)   col 1 = text (100%)   col 2 = close (AutoSize)
+row 0 = title             row 1 = message       row 2 = actions
+```
+
+- **The icon renders for the first time.** It was a `PictureBox` painted by hand through
+  `StyledImagePainter` in a `Paint` handler and drew nothing. It is a **`BeepImage`** now - the
+  control that renders and themes SVGs.
+- Labels are sized by a **two-pass measurement**: pass 1 takes the natural unwrapped width so a
+  short toast does not stretch to the maximum; pass 2 re-measures HEIGHT at the width the label
+  will actually be given. Measuring height at one width and rendering at a narrower one is what
+  truncated the message to "A Success toast for the".
+- The card's width comes from that measured content, not from `_grid.GetPreferredSize`: the grid
+  is `Dock=Fill` and therefore reports the form's current width, so the card could never shrink.
+  It now sizes 300x94 instead of pinning to the 460 maximum.
+- `_bodyPanel`/`_iconContainer`/`_textPanel` are gone; only genuine affordances remain as
+  controls (close button, action buttons).
+
+**Two traps worth remembering, both of which cost a diagnostic cycle here:**
+1. `Control.Visible` returns EFFECTIVE visibility - it is `false` for every child while the form
+   is still unshown, so gating measurement on `.Visible` silently skipped every label. Gate on
+   intent (`Text.Length > 0`, `ShowCloseButton`) instead.
+2. A probe exe carries its own copy of the library DLL. After rebuilding the library the probe
+   **must** be rebuilt too, or it runs the old code and the traces you just added never appear.
+
+Verified: NoteProbe 7/7 and all renders eyeballed under Default/ArcLinux/Zen - icon, title,
+wrapped message, close glyph, correct semantic ink, no stretching, no overlap.
+
+Remaining (minor): a faint edge is still visible where each label's surface meets the card in
+some themes; the label chrome is no longer stretched so it reads as a subtle seam rather than a
+box. Actions row and progress bar are composed but unprobed.
+
+### Superseded note from batch 2
 ### NOT fixed: every inner label/panel still paints its own box, and the icon never renders
 
 Five approaches were tried and all failed; the flags are all verifiably correct at runtime

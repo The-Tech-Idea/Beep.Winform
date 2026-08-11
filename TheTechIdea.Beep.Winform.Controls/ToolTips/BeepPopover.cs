@@ -58,6 +58,46 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             Configure(cfg);
             MountActionButtons();
+            ReserveButtonRow();
+        }
+
+        // Button row geometry, shared by the reservation and the positioning so they cannot
+        // disagree. Both used to hardcode 28/8 independently.
+        private const int ButtonHeight = 28;
+        private const int ButtonMargin = 8;
+        private const int ButtonGap = 12;
+
+        /// <summary>
+        /// Grows the popover to make room for its action buttons.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="CustomToolTip"/> sizes itself from title + text only - it knows nothing
+        /// about buttons a subclass mounts afterwards. <see cref="PositionButtons"/> then anchors
+        /// them to <c>Height - ButtonHeight - margin</c>, i.e. straight on top of the body text:
+        /// a "Discard changes? / This cannot be undone." popover rendered its message underneath
+        /// the Cancel button. The row has to be reserved, and the popover has to be wide enough
+        /// for both buttons.
+        /// </remarks>
+        private void ReserveButtonRow()
+        {
+            if (_primaryBtn == null && _secondaryBtn == null) return;
+
+            int rowHeight = ButtonHeight + ButtonMargin * 2;
+
+            int required = ButtonMargin * 2;
+            if (_primaryBtn != null) required += 80;
+            if (_secondaryBtn != null)
+            {
+                required += TextRenderer.MeasureText(_secondaryBtn.Text, _secondaryBtn.Font).Width + 16;
+                if (_primaryBtn != null) required += ButtonGap;
+            }
+
+            int newWidth = Math.Max(Width, required);
+            if (_popoverConfig?.MaxPopoverWidth > 0)
+                newWidth = Math.Min(newWidth, _popoverConfig.MaxPopoverWidth);
+
+            Size = new Size(newWidth, Height + rowHeight);
+            PerformLayout();
         }
 
         /// <summary>Dismiss the popover and raise the secondary-click callback.</summary>
@@ -181,25 +221,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         private void PositionButtons(object sender, LayoutEventArgs e)
         {
-            int margin = 8;
-            int btnH   = 28;
-            int x      = Width - margin;
+            int x = Width - ButtonMargin;
+            int y = Height - ButtonHeight - ButtonMargin;
 
             if (_primaryBtn != null)
             {
-                _primaryBtn.Size     = new Size(80, btnH);
+                _primaryBtn.Size     = new Size(80, ButtonHeight);
                 x                   -= 80;
-                _primaryBtn.Location = new Point(x, Height - btnH - margin);
-                x                   -= margin + 4;
+                _primaryBtn.Location = new Point(x, y);
+                x                   -= ButtonGap;
             }
 
             if (_secondaryBtn != null)
             {
                 int w = TextRenderer.MeasureText(_secondaryBtn.Text,
                         _secondaryBtn.Font).Width + 16;
-                _secondaryBtn.Size     = new Size(w, btnH);
+                _secondaryBtn.Size     = new Size(w, ButtonHeight);
                 x                     -= w;
-                _secondaryBtn.Location = new Point(x, Height - btnH - margin);
+                _secondaryBtn.Location = new Point(x, y);
             }
         }
 

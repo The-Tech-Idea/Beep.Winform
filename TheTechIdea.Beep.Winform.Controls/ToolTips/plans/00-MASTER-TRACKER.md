@@ -206,3 +206,37 @@ TipProbe 13/13, NoteProbe 7/7, renders eyeballed under Default/Zen/ArcLinux.
 
 Still open from batch 6: the arrow was not visible in a client-only capture (unconfirmed), and
 `BeepPopover` plus the tour painters remain unrendered.
+
+## Batch 8 — BeepPopover and the remaining painters rendered
+
+Finishes the review: Tour, Preview, Glass and `BeepPopover` all rendered and eyeballed.
+
+### Fixed: BeepPopover drew its buttons ON TOP of its message
+
+`CustomToolTip` sizes itself from title + text only - it knows nothing about buttons a subclass
+mounts afterwards - and `PositionButtons` anchors them to `Height - btnH - margin`. With no room
+reserved, a "Discard changes? / This cannot be undone." popover rendered its message *underneath*
+the Cancel button (client 187x66, buttons at Y=32 where the body text sits).
+
+`ReserveButtonRow` now grows the popover by the button row after mounting, and widens it when the
+two buttons need more than the text does (respecting `MaxPopoverWidth`). Row geometry moved to
+shared constants - the reservation and the positioning previously hardcoded 28/8 independently,
+which is how they drifted. Client 187x66 -> 187x110, buttons Y=32 -> Y=76, message clear.
+
+**Capture note:** neither capture alone shows this control. Driving `OnPaint` renders the painter's
+card but no child controls; `DrawToBitmap` renders the children but not the painted card. The
+gallery now composites both, which is the only way the overlap was visible.
+
+### Rendered and sound
+
+- **Tour** - step counter, title, body, progress dots, Skip / Back / Next all laid out correctly.
+- **Glass** - renders, but see below.
+
+### Open findings (not fixed)
+
+1. **Preview variant reserves a large empty image area when no image is supplied** (280x199, most
+   of it blank, filename stranded at the bottom). It should collapse to the text when there is
+   nothing to preview.
+2. **Glass variant has very low text contrast** - the title is barely legible against the acrylic
+   fill. It needs the WCAG ink pick the semantic types already use.
+3. The arrow is still unconfirmed (client-only captures cannot show it if it is drawn outside).

@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Small icon or circle
             Rectangle iconRect = new Rectangle(rect.Left + (rect.Width - v36) / 2, rect.Top + v8, v36, v36);
-            using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 40)))
+            using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(Theme.PrimaryColor, 40)))
             {
                 g.FillEllipse(brush, iconRect);
             }

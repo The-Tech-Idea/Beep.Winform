@@ -247,3 +247,190 @@ to find; it was not chased further here rather than guess at it.
 
 **Do not read the light rows in the contact sheet as "the sweep failed"** — the sweep is visible in
 the 16 styles above and in the avatar discs, which change colour with the theme in every style.
+
+## Painter-by-painter — every painter, its issues
+
+Read individually, not sampled. `no unselected row fill` was confirmed by reading each
+`DrawItemBackground` body — an earlier regex flagged `Outlined`, `Standard`, `Rounded`,
+`Simple`, `CardList`, `Checkbox` and `Filled` as well, and reading them showed all seven **do**
+fill in an `else` branch. The instrument was wrong; the list below is what the code says.
+
+**`AvatarListBoxPainter`** (189 loc)
+- **no unselected row fill** — the control surface shows through
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`BaseListBoxPainter`** (900 loc)
+- **18 unscaled px** — ignores DPI
+- had 1 `?? Color.Empty` fallbacks — fixed
+
+**`BorderlessListBoxPainter`** (51 loc)
+- **no unselected row fill** — the control surface shows through
+
+**`CardListPainter`** (125 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+
+**`CategoryChipsPainter`** (110 loc)
+- no `GetPreferredItemHeight` override
+
+**`ChakraUIListBoxPainter`** (205 loc)
+- paints via `BeepStyling` ×3
+
+**`ChatListBoxPainter`** (108 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`CheckboxListPainter`** (157 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`ChipStyleListBoxPainter`** (180 loc)
+- **no unselected row fill** — the control surface shows through
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- **8 unscaled px** — ignores DPI
+
+**`ColoredSelectionPainter`** (116 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- paints via `BeepStyling` ×3
+
+**`CommandListBoxPainter`** (102 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- **8 unscaled px** — ignores DPI
+
+**`CompactListPainter`** (54 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+
+**`ContactListBoxPainter`** (77 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`CustomListPainter`** (121 loc)
+- paints via `BeepStyling` ×3
+
+**`ErrorStatesPainter`** (165 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- paints via `BeepStyling` ×3
+
+**`FilledListBoxPainter`** (97 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+
+**`FilledStylePainter`** (106 loc)
+- paints via `BeepStyling` ×3
+
+**`FilterStatusPainter`** (155 loc)
+- paints via `BeepStyling` ×3
+
+**`GlassmorphismListBoxPainter`** (172 loc)
+- **no unselected row fill** — the control surface shows through
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- **32 unscaled px** — ignores DPI
+
+**`GradientCardListBoxPainter`** (240 loc)
+- **no unselected row fill** — the control surface shows through
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`GroupedListPainter`** (99 loc)
+- paints via `BeepStyling` ×5
+
+**`HeroUIListBoxPainter`** (135 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- paints via `BeepStyling` ×3
+
+**`InfiniteScrollListBoxPainter`** (63 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`LanguageSelectorPainter`** (26 loc)
+- paints via `BeepStyling` ×3
+- no `GetPreferredItemHeight` override
+
+**`MaterialOutlinedListBoxPainter`** (46 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- paints via `BeepStyling` ×3
+
+**`MinimalListBoxPainter`** (39 loc)
+- **no unselected row fill** — the control surface shows through
+- had 2 `?? Color.Empty` fallbacks — fixed
+
+**`MultiSelectionTealPainter`** (101 loc)
+- paints via `BeepStyling` ×3
+
+**`NavigationRailListBoxPainter`** (111 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- **16 unscaled px** — ignores DPI
+
+**`NeumorphicListBoxPainter`** (235 loc)
+- **no unselected row fill** — the control surface shows through
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- **10 unscaled px** — ignores DPI
+
+**`NotificationListBoxPainter`** (112 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`OutlinedCheckboxesPainter`** (88 loc)
+- paints via `BeepStyling` ×3
+
+**`OutlinedListBoxPainter`** (57 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- no `GetPreferredItemHeight` override
+
+**`ProfileCardListBoxPainter`** (79 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`RadioSelectionPainter`** (127 loc)
+- paints via `BeepStyling` ×3
+- had 3 `?? Color.Empty` fallbacks — fixed
+
+**`RaisedCheckboxesPainter`** (105 loc)
+- paints via `BeepStyling` ×3
+
+**`RekaUIListBoxPainter`** (199 loc)
+- paints via `BeepStyling` ×3
+
+**`RoundedListBoxPainter`** (110 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+
+**`SearchableListPainter`** (10 loc)
+- no `GetPreferredItemHeight` override
+
+**`SimpleListPainter`** (75 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- no `GetPreferredItemHeight` override
+
+**`StandardListBoxPainter`** (156 loc)
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- no `GetPreferredItemHeight` override
+
+**`TeamMembersPainter`** (96 loc)
+- paints via `BeepStyling` ×3
+
+**`ThreeLineListBoxPainter`** (115 loc)
+- own two-line layout (not `DrawTitleAndSubtitle`)
+
+**`TimelineListBoxPainter`** (246 loc)
+- **no unselected row fill** — the control surface shows through
+- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+- own two-line layout (not `DrawTitleAndSubtitle`)
+- **11 unscaled px** — ignores DPI
+
+**`WithIconsListBoxPainter`** (25 loc)
+- no outstanding issues found
+
+### The counts
+
+| issue | painters |
+|---|---:|
+| no unselected row fill | 8 |
+| selection via `PrimaryColor` instead of `ListItemSelectedBackColor` | 12 |
+| own two-line layout instead of the shared helper | 19 |
+| paints through `BeepStyling` | 16 |
+| 8+ unscaled pixel literals | 7 |
+| no `GetPreferredItemHeight` override | 6 |
+
+### What this changes about stage 07
+
+The ~25 styles still showing a light surface under DarkTheme are **not** one problem. Eight of
+them (`Minimal`, `Borderless`, `Avatar`, `ChipStyle`, `Glassmorphism`, `GradientCard`,
+`Neumorphic`, `Timeline`) paint **no** unselected row background at all — by design, so the
+control surface shows through — which means their appearance depends entirely on the control's
+own background, and that is the thing still not following the theme. The rest do fill, and need
+checking individually against the slot they fill with.

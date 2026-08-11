@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle shadow
                 if (isHovered && !isSelected)
                 {
-                    g.FillPath(GetBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 30)), path);
+                    g.FillPath(GetBrush(PathPainterHelpers.WithAlphaIfNotEmpty(Theme.PrimaryColor, 30)), path);
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Color outerFill = Theme.ListBackColor;
             Color borderColor = isDisabled
                 ? Theme.BorderColor
-                : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty)
+                : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? Theme.AccentColor)
                                              : (Theme.BorderColor);
 
             g.FillEllipse(GetBrush(outerFill), radioRect);
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 Color dotColor = isDisabled
                     ? Theme.DisabledForeColor
-                    : (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty);
+                    : (_theme?.PrimaryColor ?? Theme.AccentColor);
                 g.FillEllipse(GetBrush(dotColor), innerRect);
             }
         }

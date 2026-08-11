@@ -18,10 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 // Subtle selection highlight
-                g.FillRectangle(GetBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 25)), itemRect);
+                g.FillRectangle(GetBrush(PathPainterHelpers.WithAlphaIfNotEmpty(Theme.PrimaryColor, 25)), itemRect);
 
                 // Very subtle selection indicator on left
-                g.FillRectangle(GetBrush(_theme?.PrimaryColor ?? Color.Empty), itemRect.Left, itemRect.Top, Scale(2), itemRect.Height);
+                g.FillRectangle(GetBrush(Theme.PrimaryColor), itemRect.Left, itemRect.Top, Scale(2), itemRect.Height);
             }
             else if (isHovered)
             {

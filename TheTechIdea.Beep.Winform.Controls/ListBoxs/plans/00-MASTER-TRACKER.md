@@ -33,7 +33,7 @@ because the instrument, not the code, was at fault.
 |---|---|---|---|
 | 01 | Nothing reported: 21 bare catches | **rule 1** | ☑ done |
 | 02 | Sizing and alignment across the 43 styles | **review** | ◐ two defects fixed |
-| 03 | Pointers / cursor affordances | **review** | ☐ open |
+| 03 | Pointers / cursor affordances | **bug** | ☑ done |
 | 04 | The `?? Color.X` fallback layer (329 sites) | **rule 4** | ☐ open |
 | 05 | Selection colours stamped into properties | **bug** | ☐ open |
 | 06 | Neumorphic's luminance shifts | refactor | ☐ open |
@@ -93,6 +93,13 @@ is what actually repairs the rendering, because it makes two lines fit inside th
 compact height. Whether `AutoItemHeight` should default to `true` is a behavioural change and is
 left as a decision, not taken quietly.
 
+### Two faults in the probe, not the code
+
+Worth recording because both would have read as defects: the style check asserted every list draws
+**4** rows, which no style with a 72–120px row can do inside a 220px viewport (it now compares
+against the number of rows that actually fit); and the pointer check found an empty layout cache,
+because that cache is built during **painting** and `Invalidate()` alone does not build it.
+
 ### Still open
 
 - The remaining five painters that draw `item.Description` have not been converted to
@@ -101,10 +108,30 @@ left as a decision, not taken quietly.
 - Tall styles (`ProfileCard` 120px, `ThreeLineList` 88px, `NotificationList` 80px) clip their last
   row against the viewport rather than the row — not yet investigated.
 
-## Stage 03 — pointers (open)
+## Stage 03 — pointers (done)
 
-Only three `Cursor` assignments exist in the whole folder (`BeepListBox.Events.cs:26,51,101`):
-`IBeam` while searching, `Hand` over an item, `Default` on leave. Nothing sets a cursor for the
-checkbox, radio, avatar, chevron or trailing-action hit areas that several painters draw, so a
-clickable affordance and dead space feel identical under the mouse. `BeepListBoxHitTestHelper`
-already registers those areas, which is what a fix would read.
+Two defects, both in `OnMouseMove`.
+
+**The cursor was only updated when the hovered ITEM changed.** The assignment sat inside the
+`newHoveredItem != _hoveredItem` block, so moving out of the search box and back onto the row you
+were already hovering left the cursor as an **IBeam over a list row** — the block never ran,
+because the item had not changed. It is now resolved on every move.
+
+**A disabled row still offered the hand.** The affordance is a promise, and this one was false.
+Group headers and separators are labels too, and now say so.
+
+The decision is a function, `ResolveCursorFor(Point)`, not a side effect buried in a
+change-detection block — a cursor is otherwise only observable by moving a real mouse, which no
+check can do reliably. The probe asserts it directly: enabled row → `Hand`, disabled row →
+`Default`, empty space → `Default`, plus a guard that the two rows do not resolve to the same
+thing.
+
+**Break-it-first:** removing the `IsEnabled` guard turns the disabled check *and* the
+"two rows differ" guard red; restored, both go green. 50 checks, 0 failures.
+
+### Not done
+
+Per-hit-area cursors. `BeepListBoxHitTestHelper` registers `check_`, `icon_` and `text_` areas
+alongside `row_`, so a checkbox or trailing action could show something distinct from the row. The
+row-level answer is correct for every style today; splitting it further is a design decision about
+what a checkbox should feel like, not a defect.

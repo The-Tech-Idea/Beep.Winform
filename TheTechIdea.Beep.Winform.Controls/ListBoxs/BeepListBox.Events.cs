@@ -17,6 +17,41 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Mouse Events
 
+        /// <summary>
+        /// The pointer this control should show at <paramref name="location"/>.
+        /// </summary>
+        /// <remarks>
+        /// A function rather than a side effect inside a change-detection block, so it can be
+        /// asserted directly from a probe: a cursor is otherwise only observable by moving a real
+        /// mouse, which no check can do reliably.
+        /// </remarks>
+        internal Cursor ResolveCursorFor(Point location)
+        {
+            if (_showSearch && _searchAreaRect.Contains(location))
+                return Cursors.IBeam;
+
+            var cache = _layoutHelper?.GetCachedLayout();
+            if (cache == null) return Cursors.Default;
+
+            foreach (var info in cache)
+            {
+                if (!info.RowRect.Contains(location)) continue;
+
+                // A group header is a label, not a target.
+                if (info.Item is ListBoxs.Models.BeepListItem rich &&
+                    (rich.IsGroupHeader || rich.IsSeparator))
+                    return Cursors.Default;
+
+                // A disabled row must not offer the hand: the affordance is the promise.
+                if (info.Item != null && info.Item.IsEnabled == false)
+                    return Cursors.Default;
+
+                return Cursors.Hand;
+            }
+
+            return Cursors.Default;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -27,6 +62,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.IBeam;
                 return;
             }
+
+            // The pointer is resolved on EVERY move, not only when the hovered item changes.
+            //
+            // It used to be set inside the `newHoveredItem != _hoveredItem` block below, so moving
+            // out of the search box and back onto the row you were already hovering left the
+            // cursor as an IBeam over a list row - the block never ran, because the item had not
+            // changed. Setting it here also means a disabled row stops advertising itself as
+            // clickable.
+            var desiredCursor = ResolveCursorFor(e.Location);
+            if (Cursor != desiredCursor) Cursor = desiredCursor;
 
             // Determine hovered item using layout cache
             var layoutCache = _layoutHelper.GetCachedLayout();
@@ -49,7 +94,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _prevHoveredItem = _hoveredItem;
                 _prevHoverProgress = _hoverProgress;
                 _hoveredItem = newHoveredItem;
-                Cursor = _hoveredItem != null ? Cursors.Hand : Cursors.Default;
                 Invalidate();
 
                 // Tooltip tracking

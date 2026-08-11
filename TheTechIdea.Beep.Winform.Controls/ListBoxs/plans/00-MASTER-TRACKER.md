@@ -32,7 +32,7 @@ because the instrument, not the code, was at fault.
 | # | Stage | Kind | Status |
 |---|---|---|---|
 | 01 | Nothing reported: 21 bare catches | **rule 1** | ☑ done |
-| 02 | Sizing and alignment across the 43 styles | **review** | ☐ open |
+| 02 | Sizing and alignment across the 43 styles | **review** | ◐ two defects fixed |
 | 03 | Pointers / cursor affordances | **review** | ☐ open |
 | 04 | The `?? Color.X` fallback layer (329 sites) | **rule 4** | ☐ open |
 | 05 | Selection colours stamped into properties | **bug** | ☐ open |
@@ -57,15 +57,49 @@ because the instrument, not the code, was at fault.
   "catching is not error handling if nothing throws" — the division's catch is gone entirely, and
   the two colour-seeding ones now report because the *theme lookup* above them can fail.
 
-## Stage 02 — sizing and alignment (open)
+## Stage 02 — sizing and alignment (partly done)
 
-The thing to check, and how it can fail: each painter implements both `GetItemHeight` /
-`GetPreferredItemHeight` (measure) and its own draw. The repo's recurring defect is these two
-disagreeing — measured at one height, drawn at another, so text clips or rows overlap. With 43
-painters this needs a rendered contact sheet per style, eyeballed, not a count.
+All 43 styles rendered with the same four items and eyeballed as a contact sheet
+(`ListProbe`, `%TEMP%\ListShots\contact-sheet.png`). Two defects, both systemic.
 
-`AutoItemHeight` selects between `GetItemHeight(owner, item)` and `GetPreferredItemHeight()`, so
-both paths need covering.
+### 1. A "PgUp / PgDn" hint painted over the last row — removed
+
+`BaseListBoxPainter` drew the string at the bottom-right of the drawing rect whenever the content
+overflowed, with **no space reserved and no background**, straight across the last visible item.
+It showed in roughly twenty of the forty-three styles. A scrollbar already says there is more to
+see, and says it without defacing a row. Deleted.
+
+### 2. Two-line rows sliced their subtitle in half — fixed, and de-duplicated
+
+Four painters (`RekaUI`, `ChakraUI`, `MultiSelectionTeal`, `RadioSelection`) each carried their
+own copy of the same broken arithmetic: draw the title into the **full** row height with
+`VerticalCenter`, then put the subtitle in the **bottom half**. The two overlap, and half a row is
+less than the subtitle's own font needs — so every subtitle was cut through horizontally.
+
+All four now call one `BaseListBoxPainter.DrawTitleAndSubtitle`, which stacks the two lines from
+their **measured font heights** and centres the block. If a row is too short for both, the top edge
+wins so the title stays whole rather than both lines being half-cut.
+
+### 3. The measure and the paint keyed on different properties
+
+`GetItemHeight` grew the row for `BeepListItem.SubText` — assigned in **two** places in the entire
+repo — while **nine** painters draw `SimpleItem.Description`. Any list built the ordinary way was
+measured as one line and drawn as two. There is now one `HasSecondLine(item)` authority that both
+sides use.
+
+**Note it is still inert by default:** `AutoItemHeight` defaults to `false`, so `GetItemHeight` is
+never called and every row uses the flat per-style `GetPreferredItemHeight()`. The layout fix above
+is what actually repairs the rendering, because it makes two lines fit inside the style's own
+compact height. Whether `AutoItemHeight` should default to `true` is a behavioural change and is
+left as a decision, not taken quietly.
+
+### Still open
+
+- The remaining five painters that draw `item.Description` have not been converted to
+  `DrawTitleAndSubtitle`; they were not visibly clipping in the sheet, but they hold their own
+  copies of the layout.
+- Tall styles (`ProfileCard` 120px, `ThreeLineList` 88px, `NotificationList` 80px) clip their last
+  row against the viewport rather than the row — not yet investigated.
 
 ## Stage 03 — pointers (open)
 

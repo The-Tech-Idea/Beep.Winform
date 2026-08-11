@@ -290,35 +290,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
             }
 
-            // Optionally draw 'Page Up / Page Down' hints if the content is taller than the viewport
-            try
-            {
-                var clientArea = _owner.GetClientArea();
-                // Use the real virtual height (accounts for AutoItemHeight / rich rows),
-                // not an estimate of PreferredItemHeight * count.
-                int virtualHeight = _owner.VirtualSize.Height;
-                if (clientArea.Height > 0 && virtualHeight > clientArea.Height)
-                {
-                    int v120 = DpiScalingHelper.ScaleValue(120, _owner);
-                    int v26 = DpiScalingHelper.ScaleValue(26, _owner);
-                    int v110 = DpiScalingHelper.ScaleValue(110, _owner);
-                    int v20 = DpiScalingHelper.ScaleValue(20, _owner);
-                    var hintFont = TextFont ?? GetCachedFont(Math.Max(8f, _owner.TextFont.Size - 2f));
-                    var hint = "PgUp / PgDn";
-                    var hintRect = new Rectangle(drawingRect.Right - v120, drawingRect.Bottom - v26, v110, v20);
-                    TextRenderer.DrawText(g, hint, hintFont, hintRect,
-                        PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.ListForeColor ?? Color.Empty, 140),
-                        TextFormatFlags.Right | TextFormatFlags.Bottom | TextFormatFlags.NoPrefix);
-                }
-            }
-            catch (Exception ex)
-            {
-                // A paint path: report once per key, not once per WM_PAINT.
-                BeepLog.FailureOnce("listbox.painter.hint", _owner,
-                    "draw the paging hint overlay", ex);
-            }
+            // The "PgUp / PgDn" hint that used to be drawn here is gone. It was painted at the
+            // bottom-right of the drawing rect with no space reserved for it and no background,
+            // directly on top of the last visible row - so in every style whose content overflows
+            // (about twenty of the forty-three) it sat across the last item's text. A scrollbar
+            // already says there is more to see, and it says it without defacing a row.
         }
-        
+
         protected virtual void DrawItemText(Graphics g, Rectangle textRect, string text, Color textColor, Font font)
         {
             if (string.IsNullOrEmpty(text))
@@ -586,16 +564,70 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         /// <inheritdoc/>
         /// Returns a taller height for rich items that have a sub-text line.
+        /// <summary>
+        /// True when the item carries a second line of text that a painter will draw.
+        /// </summary>
+        /// <remarks>
+        /// One authority so measure and paint cannot key on different properties again.
+        /// </remarks>
+        /// <summary>
+        /// Draws a title with an optional subtitle beneath it, stacked and centred as a block.
+        /// </summary>
+        /// <remarks>
+        /// One implementation because there were four, all with the same defect: the title was
+        /// drawn into the FULL row height with <c>VerticalCenter</c> and the subtitle into the
+        /// bottom half, so the two overlapped and the subtitle's half-a-row was smaller than its
+        /// own font needed - every subtitle came out sliced through horizontally.
+        /// <para>
+        /// Heights come from the fonts. If the row is too short for both lines the top edge wins,
+        /// so the title stays whole rather than both lines being half-cut.
+        /// </para>
+        /// </remarks>
+        protected void DrawTitleAndSubtitle(
+            Graphics g, Rectangle bounds, string title, string subtitle,
+            Color titleColor, Color subtitleColor, Font titleFont, Font subtitleFont)
+        {
+            if (g == null || bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            const TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.Top
+                                        | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis;
+
+            bool hasSub = !string.IsNullOrWhiteSpace(subtitle) && subtitleFont != null;
+            int titleH  = titleFont?.Height ?? 0;
+            int subH    = hasSub ? subtitleFont.Height : 0;
+            int gap     = hasSub ? DpiScalingHelper.ScaleValue(1, _owner) : 0;
+            int top     = bounds.Y + Math.Max(0, (bounds.Height - (titleH + gap + subH)) / 2);
+
+            if (!string.IsNullOrEmpty(title))
+                TextRenderer.DrawText(g, title, titleFont,
+                    new Rectangle(bounds.X, top, bounds.Width, titleH), titleColor, flags);
+
+            if (hasSub)
+                TextRenderer.DrawText(g, subtitle, subtitleFont,
+                    new Rectangle(bounds.X, top + titleH + gap, bounds.Width, subH), subtitleColor, flags);
+        }
+
+        protected static bool HasSecondLine(object item)
+        {
+            if (item is BeepListItem rich && !string.IsNullOrEmpty(rich.SubText)) return true;
+            return item is SimpleItem si && !string.IsNullOrWhiteSpace(si.Description);
+        }
+
         public virtual int GetItemHeight(BeepListBox owner, object item)
         {
-            if (item is BeepListItem ri && !string.IsNullOrEmpty(ri.SubText))
+            if (item is BeepListItem sep && sep.IsSeparator)
+                return DpiScalingHelper.ScaleValue(ListBoxTokens.SeparatorHeight, owner ?? _owner);
+
+            // A second line means EITHER property, because the measure and the paint disagreed
+            // about which one carries it: this method asked for BeepListItem.SubText - assigned in
+            // exactly two places in the whole repo - while nine painters draw
+            // SimpleItem.Description. Any list built the ordinary way therefore measured one line
+            // and drew two, and the subtitle was sliced through by the row boundary.
+            if (HasSecondLine(item))
             {
-                // 2-line item: base height + sub-text line (~18 px scaled)
                 int sub = DpiScalingHelper.ScaleValue(18, owner ?? _owner);
                 return GetPreferredItemHeight() + sub;
             }
-            if (item is BeepListItem sep && sep.IsSeparator)
-                return DpiScalingHelper.ScaleValue(ListBoxTokens.SeparatorHeight, owner ?? _owner);
 
             return GetPreferredItemHeight();
         }

@@ -36,17 +36,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw text
             Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - Scale(12), rect.Height);
             Color textColor = isSelected ? Color.FromArgb(20, 80, 90) : _helper.GetTextColor();
-            DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
-            
-            // Draw description text if available
-            if (!string.IsNullOrEmpty(item.Description))
-            {
-                Font smallFont = GetCachedFont(_owner.TextFont.Size - 1);
-                Rectangle descRect = new Rectangle(currentX, rect.Y + rect.Height / 2 + Scale(2), rect.Right - currentX - Scale(12), rect.Height / 2 - Scale(4));
-                Color descColor = Color.FromArgb(100, 120, 130);
-                System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
-                    System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top);
-            }
+
+            DrawTitleAndSubtitle(g, textRect, item.Text, item.Description,
+                textColor, Color.FromArgb(100, 120, 130),
+                _owner.TextFont, GetCachedFont(_owner.TextFont.Size - 1));
         }
         
         // Enhanced hover effects and selection indicators

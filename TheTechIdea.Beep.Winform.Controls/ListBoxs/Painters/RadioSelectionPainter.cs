@@ -43,41 +43,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 DrawItemImage(g, iconRect, item.ImagePath);
             }
 
-            // Layout: if description is present, use two lines; otherwise center the main text
+            // One title/subtitle layout, shared with every other two-line style. The split-in-
+            // half arithmetic this replaces gave the subtitle less room than its own font needed,
+            // so it was cut through horizontally.
             bool hasDesc = !string.IsNullOrEmpty(item.Description);
-            int topPadding = Math.Max(Scale(4), rect.Height / 8);
-            int split = textAvail.Height / 2;
-            var mainRect = hasDesc
-                ? new Rectangle(textAvail.Left, textAvail.Top + topPadding, textAvail.Width, Math.Max(0, split - topPadding))
-                : textAvail;
-            var descRect = hasDesc
-                ? new Rectangle(textAvail.Left, textAvail.Top + split, textAvail.Width, Math.Max(0, textAvail.Height - split - Scale(6)))
-                : Rectangle.Empty;
-
             bool disabled = item?.IsEnabled == false;
+
             Color mainColor = isSelected
                 ? (_theme?.OnPrimaryColor ?? Color.White)
                 : (disabled ? Color.FromArgb(160, 160, 160) : _helper.GetTextColor());
 
-            // Use bold font only when selected; avoid cloning owner's font
-            Font mainFont = _owner.TextFont;
-            if (isSelected)
-            {
-                mainFont = GetCachedFont(_owner.TextFont.Size, FontStyle.Bold);
-            }
-            if (mainRect.Height > 0)
-                DrawItemText(g, mainRect, item.Text, mainColor, mainFont);
+            // Bold only when selected; never clone the owner's font.
+            Font mainFont = isSelected ? GetCachedFont(_owner.TextFont.Size, FontStyle.Bold) : _owner.TextFont;
 
-            if (hasDesc && descRect.Height > 0)
-            {
-                var smallFont = GetCachedFont(Math.Max(Scale(6), _owner.TextFont.Size - 1));
-                Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
-                Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
-                Color disabledColor = Color.FromArgb(180, 180, 180);
-                Color descColor = isSelected ? Color.FromArgb(220, onPrimary) : (disabled ? disabledColor : secondary);
-                System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
-                    System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top | System.Windows.Forms.TextFormatFlags.EndEllipsis);
-            }
+            Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
+            Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
+            Color descColor = isSelected
+                ? Color.FromArgb(220, onPrimary)
+                : (disabled ? Color.FromArgb(180, 180, 180) : secondary);
+
+            DrawTitleAndSubtitle(g, textAvail, item.Text, hasDesc ? item.Description : null,
+                mainColor, descColor, mainFont,
+                hasDesc ? GetCachedFont(Math.Max(Scale(6), _owner.TextFont.Size - 1)) : null);
 
             // Right-aligned radio control
             DrawRadioButton(g, radioRect, isSelected, isHovered, item);

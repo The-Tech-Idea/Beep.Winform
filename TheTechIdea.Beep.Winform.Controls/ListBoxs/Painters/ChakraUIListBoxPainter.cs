@@ -158,26 +158,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
                 
                 var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
-                TextRenderer.DrawText(g, item.Text ?? string.Empty, font, textRect, textColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+                Color descColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
+                DrawTitleAndSubtitle(g, textRect, item.Text, item.Description,
+                    textColor, descColor,
+                    font, GetCachedFont(_owner.TextFont.Size - 1f, FontStyle.Regular));
 
-                // STEP 6: Draw description with Chakra's muted text
-                if (!string.IsNullOrEmpty(item.Description))
-                {
-                    var descY = contentBounds.Y + contentBounds.Height / 2 + Scale(4);
-                    var descRect = new Rectangle(
-                        leftOffset,
-                        descY,
-                        textRect.Width,
-                        contentBounds.Bottom - descY - Scale(4)
-                    );
-
-                    Color descColor = Color.FromArgb(ListBoxTokens.SubTextAlpha,
-                        _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Gray);
-                    var descFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);
-                    TextRenderer.DrawText(g, item.Description, descFont, descRect, descColor,
-                        TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
-                }
 
                 // STEP 7: Draw keyboard shortcut/badge (right aligned)
                 if (item.Tag != null && item.Tag is string shortcut && !string.IsNullOrEmpty(shortcut))

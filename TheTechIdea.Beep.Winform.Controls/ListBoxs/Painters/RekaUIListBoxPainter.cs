@@ -126,33 +126,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     leftOffset += iconSize + spacing;
                 }
 
-                // STEP 6: Draw text content
-                var textRect = new Rectangle(
-                    leftOffset,
-                    contentBounds.Y,
-                    contentBounds.Right - leftOffset - (isSelected ? Scale(32) : Scale(12)),
-                    contentBounds.Height
-                );
-
+                // STEP 6/7: Title, and a subtitle when there is one.
+                //
+                // Laid out from the MEASURED font heights, stacked, and centred as a block. The
+                // previous version drew the title into the full row height with VerticalCenter and
+                // then put the subtitle in the bottom half: the two overlapped, and the subtitle's
+                // 'Height / 2 - 2' was smaller than its own font needed, so every subtitle was cut
+                // through horizontally.
+                int textWidth = contentBounds.Right - leftOffset - (isSelected ? Scale(32) : Scale(12));
                 Color textColor = _theme.LabelForeColor;
-                
-                var font = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
-                TextRenderer.DrawText(g, item.Text ?? string.Empty, font, textRect, textColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
 
-                // STEP 7: Draw description/subtitle if present
-                if (!string.IsNullOrEmpty(item.Description))
+                var font     = GetCachedFont(_owner.TextFont.Size, FontStyle.Regular);
+                bool hasSub  = !string.IsNullOrWhiteSpace(item.Description);
+                var descFont = hasSub ? GetCachedFont(_owner.TextFont.Size - 1.5f, FontStyle.Regular) : null;
+
+                int titleH = font.Height;
+                int descH  = hasSub ? descFont.Height : 0;
+                int gap    = hasSub ? Scale(1) : 0;
+                int blockH = titleH + gap + descH;
+
+                // Centre the stack; if the row is too short for both, the top edge wins so the
+                // title stays whole rather than both lines being half-cut.
+                int top = contentBounds.Y + Math.Max(0, (contentBounds.Height - blockH) / 2);
+
+                TextRenderer.DrawText(g, item.Text ?? string.Empty, font,
+                    new Rectangle(leftOffset, top, textWidth, titleH), textColor,
+                    TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+
+                if (hasSub)
                 {
-                    var descRect = new Rectangle(
-                        leftOffset,
-                        contentBounds.Y + contentBounds.Height / 2 + Scale(2),
-                        textRect.Width,
-                        contentBounds.Height / 2 - Scale(2)
-                    );
-
-                    Color descColor = Color.FromArgb(120, textColor);
-                    var descFont = GetCachedFont(_owner.TextFont.Size - 1.5f, FontStyle.Regular);
-                    TextRenderer.DrawText(g, item.Description, descFont, descRect, descColor,
+                    TextRenderer.DrawText(g, item.Description, descFont,
+                        new Rectangle(leftOffset, top + titleH + gap, textWidth, descH),
+                        Color.FromArgb(120, textColor),
                         TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
                 }
             }
@@ -165,8 +170,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Scale(36); // Reka UI default compact height
+            return Scale(36); // Reka UI default compact height - one line
         }
+
+        /// <summary>Two lines need two lines' worth of row.</summary>
+        public override int GetItemHeight(BeepListBox owner, object item)
+            => HasSecondLine(item)
+                ? Scale(52)
+                : base.GetItemHeight(owner, item);
 
         // Enhanced hover effects and selection indicators
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)

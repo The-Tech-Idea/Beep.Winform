@@ -345,16 +345,34 @@ fill in an `else` branch. The instrument was wrong; the list below is what the c
 - Height is self-consistent: `_chipHeight 32 + 4` matches `GetPreferredItemHeight`.
 - **8 unscaled px** — ignores DPI
 
-**`ColoredSelectionPainter`** (116 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- paints via `BeepStyling` ×3
+**`ColoredSelectionPainter`** (116 loc) — *read in full*
+- **The checkbox colour is chosen by sniffing the item's text.** `GetSelectionColor` returns one
+  colour if `item.Text.ToLower().Contains("custom")` and another otherwise — styling driven by a
+  substring of user data, so renaming an item changes its checkbox colour. (The comment says
+  `// Green`; the code returns `PrimaryColor`.)
+- **Two width bugs, fixed.** Both text rects were `itemRect.Width - currentX - pad`, mixing a
+  width with an absolute X — correct only while `itemRect.X == 0`, and short by exactly `Left`
+  otherwise, so text clipped early in any indented list.
+- **A third form of literal white**, `FromArgb((int)(alpha * 1.3f), 255, 255, 255)`, which neither
+  earlier sweep matched. Fixed → `OnPrimaryColor`.
+- Two-line layout is the split-in-half pattern (`Height / 2` each) — the same one that sliced
+  subtitles in the four already converted.
+- Paints through `BeepStyling` ×3.
 
-**`CommandListBoxPainter`** (102 loc)
-- own two-line layout (not `DrawTitleAndSubtitle`)
-- **8 unscaled px** — ignores DPI
+**`CommandListBoxPainter`** (102 loc) — *read in full*
+- **The shortcut chip was scaled twice, fixed.** `ScaleValue(MeasureText(...).Width + gap)` scaled
+  a measurement already in device pixels, so at 150–200% DPI the chip grew past its own text.
+- The shortcut reads `(item as BeepListItem)?.SubText` — assigned in two places repo-wide, so
+  shortcuts are invisible for ordinary items.
+- Carries a private `RoundedRect` duplicating `GraphicsExtensions`.
+- `Paint` overrides the base only to call `base.Paint` — a no-op override.
 
-**`CompactListPainter`** (54 loc)
-- selection uses `PrimaryColor`, not `ListItemSelectedBackColor`
+**`CompactListPainter`** (54 loc) — *read in full*
+- Inherits `Minimal` but **does** fill unselected rows (`ListBackColor`), so it does not share its
+  parent's transparent-row problem — worth stating, since the two are otherwise near-identical.
+- Selection uses `PrimaryColor` for the overlay and the left bar, not `ListItemSelectedBackColor`.
+- Padding is `ItemPaddingH / 2` **before** scaling — integer division on the token loses a pixel
+  before DPI is applied.
 
 **`ContactListBoxPainter`** (77 loc)
 - own two-line layout (not `DrawTitleAndSubtitle`)

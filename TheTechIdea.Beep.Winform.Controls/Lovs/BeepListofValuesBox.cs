@@ -755,10 +755,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_keyTextBox == null)
                 return;
 
-            // The key box themes ITSELF - it is a BaseControl subscribed to ThemeChanged. Pushing
-            // a theme name and a flag in and then calling ApplyTheme() on it re-enters theming
-            // from the outside, which CLAUDE.md rule 4 forbids. Only the font is ours to set,
-            // because it is this control's typography decision, not the child's.
+            // Set Theme and stop. The setter resolves the theme and applies it; calling
+            // ApplyTheme() on a child from outside is what CLAUDE.md rule 4 forbids.
+            _keyTextBox.Theme = _currentTheme?.ThemeName ?? Theme;
             if (_fieldFont != null) _keyTextBox.Font = _fieldFont;
 
             // The popup is a plain Form and follows ThemeChanged on its own; handing it the

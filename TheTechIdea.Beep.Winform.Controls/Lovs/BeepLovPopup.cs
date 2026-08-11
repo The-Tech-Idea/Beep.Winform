@@ -577,6 +577,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             _loadingLabel.BackColor   = Color.Transparent;
             _loadingLabel.Font        = LovFontHelpers.GetLovFontFromTheme(theme);
 
+            // Tell the Beep children WHICH theme, and let each apply it itself.
+            //
+            // BaseControl re-themes on BeepThemesManager.ThemeChanged, but that only fires when
+            // the GLOBAL theme changes. A host that themes this LOV alone - lov.Theme = "X" with
+            // the global theme untouched - would otherwise leave the popup's grid, search box and
+            // buttons on the old theme, which is exactly how the dropdown's rows end up unthemed.
+            //
+            // Setting the Theme property is the supported route: its setter resolves the theme and
+            // calls ApplyTheme itself. That is NOT the same as calling ApplyTheme() on a child from
+            // outside, which is what CLAUDE.md rule 4 forbids and what this code used to do.
+            // Guarded on inequality so a redundant assignment does not re-theme the grid on every
+            // paint-adjacent call.
+            string themeName = theme.ThemeName;
+            if (!string.IsNullOrEmpty(themeName))
+            {
+                ApplyChildTheme(_searchBox);
+                ApplyChildTheme(_closeButton);
+                ApplyChildTheme(_okButton);
+                ApplyChildTheme(_cancelButton);
+                ApplyChildTheme(_countLabel);
+                ApplyChildTheme(_grid);
+
+                foreach (Control c in _recentPanel.Controls)
+                    if (c is BaseControl chip) ApplyChildTheme(chip);
+
+                void ApplyChildTheme(BaseControl c)
+                {
+                    if (c != null && !string.Equals(c.Theme, themeName, StringComparison.Ordinal))
+                        c.Theme = themeName;
+                }
+            }
+
             Invalidate();
         }
 

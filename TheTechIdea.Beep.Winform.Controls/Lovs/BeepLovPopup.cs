@@ -498,13 +498,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (MaxRows > 0 && shownRows > MaxRows) shownRows = MaxRows;
             shownRows = Math.Max(1, Math.Min(shownRows, VisibleRows));
 
-            // The chrome allowance includes a horizontal scrollbar. BeepGridPro shows one here even
-            // after FitColumns has scaled every visible column to the grid's exact client width, so
-            // the space it takes is real whether or not it should be: without this the last row of
-            // a list that was sized to fit exactly is clipped in half. The cause is inside the
-            // grid's own scrollbar logic, not this popup's arithmetic - see the plans note.
-            int gridH  = (shownRows * _grid.RowHeight) + _grid.ColumnHeaderHeight
-                         + Scale(GridChromeH) + SystemInformation.HorizontalScrollBarHeight;
+            // GridChromeH (18) does not cover everything BeepGridPro puts around its rows, so the
+            // last row of a list sized to fit exactly was clipped in half. Measured rather than
+            // guessed at: taking the allowance out clips "Operations" off a four-row list, putting
+            // it back shows all four. It is a scrollbar's height because that is what the shortfall
+            // measures, not because a horizontal scrollbar is expected - FitColumns now reserves
+            // the vertical scrollbar's width so no horizontal one is raised at all.
+            int gridChrome = Scale(GridChromeH) + SystemInformation.HorizontalScrollBarHeight;
+            int gridH  = (shownRows * _grid.RowHeight) + _grid.ColumnHeaderHeight + gridChrome;
             int formH  = Scale(HeaderH) + recentH + gridH + Scale(FooterH);
 
             // MaxPopupHeight was a public property on this class AND on BeepListofValuesBox, pushed
@@ -885,11 +886,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             var visible = _grid.Columns.Where(c => c.Visible).ToList();
             if (visible.Count == 0) return;
 
-            // No reserve of any kind: the columns fill the grid's full width. Holding space back for a
-            // scrollbar left a blank strip down the right whenever the list was short, and making the
-            // reserve conditional just moved the inconsistency around - the columns changed width
-            // depending on how many rows happened to be loaded.
-            int available = _grid.ClientSize.Width;
+            // Fit to the grid's OWN rows rectangle, minus a permanent vertical-scrollbar reserve.
+            //
+            // Fitting to ClientSize.Width was measuring against a width the grid does not use.
+            // GridScrollBarsHelper compares the total column width against
+            // `Layout.RowsRect.Width - ScrollbarWidth` whenever a vertical scrollbar is needed, so
+            // columns scaled to the full client width overflowed by exactly the scrollbar width and
+            // the grid raised a HORIZONTAL scrollbar - which then ate enough height to clip the
+            // last row off a popup that had been sized to fit its rows exactly.
+            //
+            // The reserve is unconditional on purpose. The previous comment here rejected a
+            // conditional reserve because it made column widths depend on how many rows happened
+            // to be loaded - which is true, and is an argument for reserving ALWAYS, not for
+            // reserving never. Always-reserve is stable at every row count and never overflows.
+            int available = _grid.Layout.RowsRect.Width > 0
+                ? _grid.Layout.RowsRect.Width
+                : _grid.ClientSize.Width;
+            available -= _grid.Layout.ScrollbarWidth;
             if (available <= 0) return;
 
             int current = visible.Sum(c => c.Width);

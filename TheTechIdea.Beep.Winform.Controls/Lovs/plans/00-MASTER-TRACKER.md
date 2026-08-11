@@ -253,15 +253,26 @@ Two sources, both removed:
   so every chip was sized for a font it never used. One font measures and draws now, and the chip
   height scales.
 
-### Not fixed — it is in BeepGridPro, not here
+### Fixed — and the fault was here, not in BeepGridPro
 
-**The grid shows a horizontal scrollbar it should not, and clips its last row.** After `FitColumns`
-scales every visible column to the grid's exact client width, and after re-fitting once the popup
-has its final width, the horizontal scrollbar is still there; and giving the popup extra height for
-it does not hand that height to the grid's viewport — the fourth of four rows stays cut in half.
-The popup's arithmetic is right (it asks for `rows x RowHeight + header + chrome`); what the grid
-does with the space is not this folder's code. Left as an explicit allowance plus this note rather
-than papered over with a magic constant.
+**The spurious horizontal scrollbar was `FitColumns` measuring against the wrong width.**
+`GridScrollBarsHelper` compares the total column width against
+`Layout.RowsRect.Width - ScrollbarWidth` whenever a vertical scrollbar is needed. `FitColumns`
+scaled the columns to `_grid.ClientSize.Width` — a different, larger number, with (per its own
+comment) "no reserve of any kind" — so the columns overflowed by exactly the scrollbar's width and
+the grid correctly raised a horizontal scrollbar, which then ate the height that the last row
+needed.
+
+It now fits against the grid's own `Layout.RowsRect.Width` with the vertical scrollbar's width
+reserved unconditionally. The old comment rejected a *conditional* reserve because it made column
+widths depend on how many rows happened to be loaded — which is true, and is an argument for
+reserving always rather than never. No change to `BeepGridPro` was needed: its scrollbar logic was
+right and the caller was wrong.
+
+One allowance remains and is honest about itself: `GridChromeH` (18px) does not cover everything
+the grid puts around its rows, so the height adds a scrollbar's worth on top. That figure is
+measured, not assumed — removing it clips "Operations" off a four-row list and restoring it shows
+all four.
 
 Verified by rendering the popup populated in both themes and eyeballing, plus 62 passing checks.
 The 5 failures are still the pre-existing composition ones recorded above.

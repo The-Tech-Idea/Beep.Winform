@@ -34,6 +34,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         _owner.Invalidate(_hover.Bounds);
                     }
 
+                    // Tooltips key off the same transition, including the leave (_hover == null),
+                    // which the RegionHover event below deliberately does not report.
+                    _owner.OnCaptionHoverChanged(oldHover, _hover);
+
                     // Raise hover event
                     if (_hover != null)
                     {

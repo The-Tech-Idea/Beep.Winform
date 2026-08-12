@@ -327,11 +327,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private string _searchText = string.Empty;
         private bool _searchBoxFocused = false;
         private string _keyboardFocusedCaptionAreaName = string.Empty;
-        private string _baseAccessibleName = string.Empty;
-        private string _baseAccessibleDescription = string.Empty;
-        private string _baseAccessibleDefaultActionDescription = string.Empty;
-        private AccessibleRole _baseAccessibleRole = AccessibleRole.Default;
-        private bool _captionAccessibilitySnapshotCaptured = false;
         private bool _highContrastMode = false;
         private bool _screenReaderSupport = true;
         private FocusIndicatorStyle _focusIndicatorStyle = FocusIndicatorStyle.Subtle;
@@ -602,18 +597,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             return true;
         }
 
-        private void CaptureCaptionAccessibilitySnapshot()
-        {
-            if (_captionAccessibilitySnapshotCaptured)
-                return;
-
-            _baseAccessibleName = AccessibleName ?? string.Empty;
-            _baseAccessibleDescription = AccessibleDescription ?? string.Empty;
-            _baseAccessibleDefaultActionDescription = AccessibleDefaultActionDescription ?? string.Empty;
-            _baseAccessibleRole = AccessibleRole;
-            _captionAccessibilitySnapshotCaptured = true;
-        }
-
         private AccessibleRole GetCaptionAccessibilityRole(string areaName)
         {
             string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
@@ -702,52 +685,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             Invalidate();
         }
 
+        /// <summary>
+        /// Tells assistive technology that keyboard focus moved to a caption region.
+        /// </summary>
+        /// <remarks>
+        /// This used to be UpdateCaptionAccessibilityFocus/RestoreCaptionAccessibilityFocus, which
+        /// copied the region's name, role, description and default action ONTO THE FORM and stashed
+        /// the form's own values to restore later. That is why the form renamed itself as focus
+        /// moved - measured as a form named "My Application Window" reporting "Caption close button"
+        /// - and why there was nothing for a screen reader to enumerate.
+        ///
+        /// The vocabulary now lives on the accessible children (BeepiFormPro.Accessibility.cs) and
+        /// is read, not copied. All that remains is the notification.
+        /// </remarks>
+        /// <summary>The caption region that currently has keyboard focus, or empty.</summary>
+        internal string KeyboardFocusedCaptionArea => _keyboardFocusedCaptionAreaName ?? string.Empty;
+
         private void UpdateCaptionAccessibilityFocus(string areaName)
         {
-            if (!ScreenReaderSupport)
-                return;
-
-            CaptureCaptionAccessibilitySnapshot();
-            AccessibleName = GetCaptionAccessibilityName(areaName);
-            AccessibleDescription = GetCaptionAccessibilityDescription(areaName);
-            AccessibleDefaultActionDescription = GetCaptionAccessibilityDefaultActionDescription(areaName);
-            AccessibleRole = GetCaptionAccessibilityRole(areaName);
-
-            try
-            {
-                AccessibilityNotifyClients(AccessibleEvents.NameChange, 0);
-                AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, 0);
-                AccessibilityNotifyClients(AccessibleEvents.DefaultActionChange, 0);
-                AccessibilityNotifyClients(AccessibleEvents.Focus, 0);
-            }
-            catch
-            {
-                // Accessibility notifications are best-effort and should not block interaction.
-            }
+            if (!ScreenReaderSupport) return;
+            NotifyCaptionChildFocus(areaName);
         }
 
         private void RestoreCaptionAccessibilityFocus(bool force = false)
         {
-            if ((!ScreenReaderSupport && !force) || !_captionAccessibilitySnapshotCaptured)
-                return;
-
-                AccessibleName = _baseAccessibleName;
-                AccessibleDescription = _baseAccessibleDescription;
-                AccessibleDefaultActionDescription = _baseAccessibleDefaultActionDescription;
-                AccessibleRole = _baseAccessibleRole;
-                _captionAccessibilitySnapshotCaptured = false;
-
-                try
-                {
-                    AccessibilityNotifyClients(AccessibleEvents.NameChange, 0);
-                    AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, 0);
-                    AccessibilityNotifyClients(AccessibleEvents.DefaultActionChange, 0);
-                }
-                catch
-                {
-                    // Accessibility notifications are best-effort and should not block interaction.
-                }
-            }
+            // Nothing to restore: the form's identity is no longer borrowed in the first place.
+            // Kept as the single place focus-left is expressed, so callers keep reading naturally.
+        }
 
             /// <summary>
             /// Returns a defensive snapshot of the currently registered hit areas.

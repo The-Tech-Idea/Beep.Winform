@@ -52,6 +52,109 @@ Consequences a commercial accessibility audit fails on:
 5. **System-menu parity check**: caption double-click maximizes, right-click shows the system
    menu, drag-from-maximized restores. Where already correct, record the check green.
 
+## Outcome — ☑ done (items 1–4); item 5 not verified
+
+### Measured before the fix
+
+```
+FAIL  the caption exposes one accessible child per visible region: GetChildCount()=-1, regions=3
+FAIL  every accessible child has a non-empty name: no children to name
+FAIL  the close child actually closes the form when invoked: no close child exists to invoke
+FAIL  the form's own accessible name survives caption focus:
+        became: Caption close button -> Caption maximize button -> Caption minimize button
+FAIL  hovering maximize reports HTMAXBUTTON: WM_NCHITTEST returned 1 (HTMAXBUTTON=9)
+```
+
+`GetChildCount()` returning **-1** is the sharpest number here: not "an empty tree" but *no tree at
+all*. And a form explicitly named "My Application Window" reported itself as "Caption close button"
+the moment F6 reached the close button — this document's claim, reproduced verbatim.
+
+### What changed
+
+1. **`BeepiFormPro.Accessibility.cs`** (new). `CreateAccessibilityInstance` returns a
+   `ControlAccessibleObject` with one `CaptionRegionAccessibleObject` child per *visible* caption
+   region. `Name`/`Description`/`DefaultAction`/`Role` **read** the existing
+   `GetCaptionAccessibility*` methods rather than copying them onto the form; `Bounds` are screen
+   coordinates (a client rect would misplace a screen reader's highlight on every monitor but the
+   primary); `DoDefaultAction` calls the same `OnRegionClicked` the mouse and Enter use; `State`
+   carries `Focused`. `HitTest` and `GetFocused` are overridden so a reader landing on the caption
+   by cursor or by focus finds the child, not the form.
+2. **The identity mutation is deleted** — `CaptureCaptionAccessibilitySnapshot`, the
+   `UpdateCaptionAccessibilityFocus` body, `RestoreCaptionAccessibilityFocus`'s body and five
+   `_baseAccessible*` fields. What remains is the notification
+   (`AccessibilityNotifyClients(Focus, index + 1)` — MSAA child IDs are 1-based).
+3. **Tooltips** (`BeepiFormPro.CaptionToolTips.cs`, new; `ShowCaptionToolTips`, default true) on the
+   glyph-only buttons, text from `GetCaptionAccessibilityName`. One source is the point: a tooltip
+   and a screen reader that disagree is worse than either alone, and sharing the method makes
+   disagreement impossible rather than merely unlikely. It also means the tooltip already says
+   "restore" when the window is maximized, for free.
+4. **Snap layouts** — `WM_NCHITTEST` returns `HTMAXBUTTON` over the maximize button on Win11.
+
+### Two bugs found in passing, both real
+
+- **`WM_NCMOVE` is not a Windows message.** The constant declared `WM_NCMOVE = 0x00A0`, which is
+  **`WM_NCMOUSEMOVE`**, and `case WM_NCMOVE:` was therefore quietly swallowing every non-client
+  mouse move. Latent while the case only `break`s — but it made `WM_NCMOUSEMOVE` unusable, which is
+  exactly the message the maximize button's hover state needed. The fiction was deleted, not
+  renumbered.
+- **Reporting `HTMAXBUTTON` moves the button out of the client-mouse world.** Its click then arrives
+  as `WM_NCLBUTTONUP` and its hover as `WM_NCMOUSEMOVE`, neither of which the form handled. Left
+  alone, this stage would have traded a snap flyout for a maximize button that no longer maximizes
+  and no longer highlights. Both are now forwarded to the same interaction path the client-area
+  buttons use, and `TrackMouseEvent(TME_LEAVE | TME_NONCLIENT)` asks for the leave message — without
+  it the hover highlight sticks after the cursor leaves, because NC mouse messages simply stop
+  arriving and there is nothing to infer "moved away" from.
+
+### Break-it-first — seven breaks, all run
+
+| break | result |
+|---|---|
+| A. `GetChildCount()` returns -1 again | **red** — 4 checks |
+| B. child list hardcoded to three | **red** — the visibility differential only |
+| C. `DoDefaultAction` inert | **red** — invoke check |
+| D. focus renames the form again | **red** — identity check |
+| E. never report `HTMAXBUTTON` | **red** — snap check |
+| F. tooltip text given its own source | **red** — tooltip/UIA agreement |
+| G. `WM_NCLBUTTONUP` no longer maximizes | **red** — the click-still-works check |
+| all restored | green (12 checks) |
+
+**B is the one worth keeping.** Three children and three visible regions could both be hardcoded and
+the count check would pass on a coincidence. Only the differential — toggle `ShowThemeButton`, the
+count must move by exactly one — separates a tree that follows visibility from one that does not,
+and B is red on *that check alone*.
+
+### Verified
+
+- 12 checks green; seven breaks each seen red; all green restored.
+- Renders eyeballed: `03-caption-focus-close.png` / `03-caption-focus-minimize.png` — the focus ring
+  is drawn around the close button in the first and the minimize button in the second, so it both
+  renders and tracks.
+- Full library builds clean.
+
+### Public / protected surface
+
+| member | change |
+|---|---|
+| `protected override AccessibleObject CreateAccessibilityInstance()` | **added** |
+| `public bool ShowCaptionToolTips` | **added** (default `true`) |
+| `internal BeepiFormProAccessibleObject`, `internal CaptionRegionAccessibleObject` | **added** |
+| `internal string KeyboardFocusedCaptionArea` | **added** |
+| `private const int WM_NCMOVE` | **removed** — not a Windows message; see above |
+| `CaptureCaptionAccessibilitySnapshot`, 5 × `_baseAccessible*` fields | **removed** (private) |
+
+`RestoreCaptionAccessibilityFocus` is kept as an empty method, deliberately: it is the one place
+"focus left the caption" is expressed and its callers read naturally. It is documented as such
+rather than left looking like an oversight.
+
+### NOT verified — item 5, system-menu parity
+
+Caption double-click to maximize, right-click for the system menu, and drag-from-maximized to
+restore are **not checked**. They were not touched by this stage, but "not touched" is not "still
+works" — and this stage moved the maximize button into the non-client world, which is adjacent
+enough to warrant a look. A probe cannot drive a real double-click or a drag; this needs a human.
+
+Recorded as open rather than assumed green.
+
 ## Verification
 
 - **UIA tree**: `AccessibilityObject.GetChildCount()` equals the number of *visible* caption

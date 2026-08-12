@@ -59,6 +59,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         // Window message constants
     private const int WM_NCHITTEST = 0x84;
     private const int WM_NCLBUTTONDBLCLK = 0xA3;
+        private const int WM_NCLBUTTONUP = 0x00A2;
+        private const int WM_NCMOUSEMOVE = 0x00A0;
+        private const int WM_NCMOUSELEAVE = 0x02A2;
+        private const int HTMAXBUTTON = 9;
         private const int WM_NCCALCSIZE = 0x83;
         private const int WM_NCPAINT = 0x85;
         private const int WM_NCACTIVATE = 0x86;
@@ -68,7 +72,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     private const int WM_CTLCOLORSTATIC = 0x0138;
         private const int WM_MOVE = 0x0003;
         private const int WM_SIZE = 0x0005;
-        private const int WM_NCMOVE = 0x00A0;
         private const int WM_ENTERSIZEMOVE = 0x0231;
         private const int WM_EXITSIZEMOVE = 0x0232;
 
@@ -83,6 +86,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// the deferred work never ran for them at all. See ShouldRefreshChromeAfterWmSize.
         /// </remarks>
         private bool _inInteractiveSizeMove;
+
+        private bool _nonClientMouseTracked;
+
+        /// <summary>Client-area point from an NC message's screen-coordinate lParam.</summary>
+        private Point NonClientToClient(IntPtr lParam)
+        {
+            long l = lParam.ToInt64();
+            return PointToClient(new Point((short)(l & 0xffff), (short)((l >> 16) & 0xffff)));
+        }
+
+        /// <summary>
+        /// Asks for WM_NCMOUSELEAVE. Without it the maximize button keeps its hover highlight
+        /// after the cursor leaves, because NC mouse messages simply stop arriving - there is no
+        /// "moved away" message to infer it from.
+        /// </summary>
+        private void TrackNonClientMouseLeave()
+        {
+            if (_nonClientMouseTracked || !IsHandleCreated) return;
+
+            var tme = new TRACKMOUSEEVENT
+            {
+                cbSize = Marshal.SizeOf<TRACKMOUSEEVENT>(),
+                dwFlags = TME_LEAVE | TME_NONCLIENT,
+                hwndTrack = Handle,
+                dwHoverTime = 0
+            };
+            _nonClientMouseTracked = TrackMouseEvent(ref tme);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct TRACKMOUSEEVENT
+        {
+            public int cbSize;
+            public int dwFlags;
+            public IntPtr hwndTrack;
+            public int dwHoverTime;
+        }
+
+        private const int TME_LEAVE = 0x00000002;
+        private const int TME_NONCLIENT = 0x00000010;
+
+        [DllImport("user32.dll")]
+        private static extern bool TrackMouseEvent(ref TRACKMOUSEEVENT lpEventTrack);
         private const int WM_SETFOCUS = 0x0007;
         private const int WM_KILLFOCUS = 0x0008;
         private const int WM_CHILDACTIVATE = 0x0022;
@@ -324,6 +370,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                                 // caption would appear unresponsive.
                                 ReleaseCapture();
 
+                                // Windows 11 shows the snap-layout flyout when a window reports
+                                // HTMAXBUTTON under the cursor. Reporting HTCLIENT (as every
+                                // custom-caption form does by default) is why hovering maximize
+                                // did nothing here while every stock window offered snap layouts.
+                                //
+                                // The cost is that the button leaves the client-mouse world: the
+                                // click arrives as WM_NCLBUTTONDOWN and the hover as
+                                // WM_NCMOUSEMOVE, both handled below. Without those the button
+                                // would gain a flyout and lose its click and its highlight.
+                                if (IsPointInMaximizeButton(pos))
+                                {
+                                    m.Result = (IntPtr)HTMAXBUTTON;
+                                    return;
+                                }
+
                                 if (IsPointInCaptionButtons(pos))
                                 {
                                     // CRITICAL: Point is on a caption button (close, minimize, maximize, etc.)
@@ -365,7 +426,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         m.Result = IntPtr.Zero;
                         return;
                     case WM_MOVE:
-                    case WM_NCMOVE:
+                        // There was a `case WM_NCMOVE:` here too, on a constant declaring
+                        // WM_NCMOVE = 0x00A0. Windows has no WM_NCMOVE; 0x00A0 is WM_NCMOUSEMOVE,
+                        // so the label was quietly swallowing every non-client mouse move. Latent
+                        // while the case only broke - but it made WM_NCMOUSEMOVE unusable, which
+                        // is exactly the message the maximize button's hover state now needs.
                         break;
                     case WM_SIZE:
                         // CRITICAL: During live resize the window region must track the new size
@@ -387,6 +452,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             }
                         }
                         return;
+                    // The maximize button now lives in the non-client world (see HTMAXBUTTON
+                    // above), so its click, hover and leave arrive as NC messages. Each is
+                    // forwarded to the same interaction path the client-area buttons use, so the
+                    // button behaves identically - it simply also gets the snap flyout.
+                    case WM_NCMOUSEMOVE:
+                        if ((int)m.WParam == HTMAXBUTTON)
+                        {
+                            TrackNonClientMouseLeave();
+                            _interact?.OnMouseMove(NonClientToClient(m.LParam));
+                            return;
+                        }
+                        break;
+
+                    case WM_NCMOUSELEAVE:
+                        _nonClientMouseTracked = false;
+                        _interact?.OnMouseMove(new Point(-1, -1));   // outside every hit area
+                        return;
+
+                    case WM_NCLBUTTONDOWN:
+                        if ((int)m.WParam == HTMAXBUTTON)
+                        {
+                            // Swallow the press. Letting DefWindowProc see it starts the system's
+                            // maximize-button loop, which paints its own pressed glyph over ours.
+                            return;
+                        }
+                        break;
+
+                    case WM_NCLBUTTONUP:
+                        if ((int)m.WParam == HTMAXBUTTON)
+                        {
+                            var maxArea = _hits?.GetHitArea(FormHitAreaNames.Maximize);
+                            if (maxArea != null) OnRegionClicked(maxArea);
+                            return;
+                        }
+                        break;
+
                     case WM_ENTERSIZEMOVE:
                         _inInteractiveSizeMove = true;
                         base.WndProc(ref m);
@@ -692,6 +793,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             var child = GetChildAtPoint(clientPos, GetChildAtPointSkip.Invisible | GetChildAtPointSkip.Transparent);
             return child != null;
+        }
+
+        /// <summary>
+        /// The maximize button alone - the only caption button Windows will show a snap-layout
+        /// flyout for, and only when WM_NCHITTEST reports HTMAXBUTTON over it.
+        /// </summary>
+        private bool IsPointInMaximizeButton(Point p)
+        {
+            if (!DwmRoundingSupported) return false;   // pre-Win11: no snap layouts to offer
+            if (!ShowMinMaxButtons || !MaximizeBox) return false;
+            if (CurrentLayout == null) return false;
+
+            var r = CurrentLayout.MaximizeButtonRect;
+            return r.Width > 0 && r.Height > 0 && r.Contains(p);
         }
 
         private bool IsPointInCaptionButtons(Point p)

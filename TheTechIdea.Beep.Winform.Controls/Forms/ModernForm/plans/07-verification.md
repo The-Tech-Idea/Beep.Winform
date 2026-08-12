@@ -73,6 +73,13 @@ actually run — "the check exists" and "the check has been seen red" must never
 | `the DWM backend sets no managed region` (+2) | DWM backend leaves a region in place | 2026-08-12 — red |
 | `guard: an idle form does not invalidate itself` | (blindness guard — red if anything else repaints) | n/a |
 | `guard: this machine can round windows through DWM` | (blindness guard — **fails**, not skips, on Win10) | n/a |
+| `the caption exposes one child per visible region` (+3) | `GetChildCount()` returns -1 again | 2026-08-12 — red (4 checks) |
+| `toggling a caption button changes the count by one` | child list hardcoded to three | 2026-08-12 — red (this check alone) |
+| `the close child actually closes the form` | `DoDefaultAction` made inert | 2026-08-12 — red |
+| `the form's own accessible name survives focus` | restore the identity mutation | 2026-08-12 — red |
+| `hovering maximize reports HTMAXBUTTON` | never report `HTMAXBUTTON` | 2026-08-12 — red |
+| `every caption tooltip says what the reader says` | give the tooltip its own text source | 2026-08-12 — red |
+| `clicking maximize still maximizes` | `WM_NCLBUTTONUP` no longer acts | 2026-08-12 — red |
 
 **Three instruments were wrong before any code was.** Full account in
 `02-geometry-and-invalidate.md`; the short form, because each will recur:
@@ -90,7 +97,7 @@ with MSB3021/MSB3027, which that grep does not match — the build looks clean, 
 on disk, and every break reports "still green" because none of them were ever in the running code.
 
 **Probe status:** `FormProbe` exists in the session scratchpad (`scratchpad/FormProbe`), builds
-clean, runs in ~4s, watchdog + hard exit, **stages 01 + 02 + 02b green (15 checks, 0 failures)**.
+clean, runs in ~4s, watchdog + hard exit, **stages 01 + 02 + 02b + 03 green (27 checks, 0 failures)**.
 
 **Capture note, learned the hard way:** `DrawToBitmap` returns a blank image for this form —
 `WM_PRINTCLIENT` does not invoke the custom `OnPaintBackground`. `Shot()` drives that method over

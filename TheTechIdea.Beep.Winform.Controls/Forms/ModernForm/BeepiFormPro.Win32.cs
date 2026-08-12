@@ -69,7 +69,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private const int WM_MOVE = 0x0003;
         private const int WM_SIZE = 0x0005;
         private const int WM_NCMOVE = 0x00A0;
+        private const int WM_ENTERSIZEMOVE = 0x0231;
         private const int WM_EXITSIZEMOVE = 0x0232;
+
+        /// <summary>
+        /// True only between WM_ENTERSIZEMOVE and WM_EXITSIZEMOVE - i.e. while the user is
+        /// dragging the frame.
+        /// </summary>
+        /// <remarks>
+        /// Needed to tell an INTERACTIVE resize from a programmatic one. The chrome deliberately
+        /// defers heavy geometry work to the end of a drag, but the designer and
+        /// <c>form.Size = ...</c> resize by property write and never produce this message pair, so
+        /// the deferred work never ran for them at all. See ShouldRefreshChromeAfterWmSize.
+        /// </remarks>
+        private bool _inInteractiveSizeMove;
         private const int WM_SETFOCUS = 0x0007;
         private const int WM_KILLFOCUS = 0x0008;
         private const int WM_CHILDACTIVATE = 0x0022;
@@ -108,10 +121,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             bool windowStateChanged = _lastChromeSyncedWindowState != WindowState;
             bool nonNormalSizeChanged = WindowState != FormWindowState.Normal && _lastChromeSyncedClientSize != ClientSize;
 
+            // A Normal-state size change that is NOT part of an interactive drag.
+            //
+            // This is the reported design-time bug. Geometry sync was deferred to OnResizeEnd /
+            // WM_EXITSIZEMOVE, which arrive only when the USER drags the frame; the VS designer and
+            // `form.Size = ...` resize by property write and send neither, so the old condition
+            // returned false for exactly those cases and the chrome kept the previous size's
+            // layout - measured at a 584px caption against an 898px client.
+            //
+            // During a real drag _inInteractiveSizeMove is true and the deferral is preserved,
+            // which is what keeps the right/bottom border artefact fixed.
+            bool programmaticNormalResize = !_inInteractiveSizeMove
+                                            && WindowState == FormWindowState.Normal
+                                            && _lastChromeSyncedClientSize != ClientSize;
+
             _lastChromeSyncedWindowState = WindowState;
             _lastChromeSyncedClientSize = ClientSize;
 
-            return windowStateChanged || nonNormalSizeChanged;
+            return windowStateChanged || nonNormalSizeChanged || programmaticNormalResize;
         }
         
         protected override void WndProc(ref Message m)
@@ -360,7 +387,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             }
                         }
                         return;
+                    case WM_ENTERSIZEMOVE:
+                        _inInteractiveSizeMove = true;
+                        base.WndProc(ref m);
+                        return;
                     case WM_EXITSIZEMOVE:
+                        _inInteractiveSizeMove = false;
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {

@@ -62,7 +62,17 @@ actually run — "the check exists" and "the check has been seen red" must never
 
 | check | break | seen red on |
 |---|---|---|
-| (filled in as checks land) | | |
+| `runtime: caption tracks the new width` | remove `programmaticNormalResize` from `ShouldRefreshChromeAfterWmSize` | 2026-08-12 — red (584→584 vs client 898) |
+| `design-mode: caption tracks the new width` | restore `OnResize` to a no-op | 2026-08-12 — red (0→572 vs client 886) |
+| `guard: the two sizes differ` | (guard — fails by construction if sizes are equal) | n/a |
+
+**Probe status:** `FormProbe` exists in the session scratchpad (`scratchpad/FormProbe`), builds
+clean, runs in ~4s, watchdog + hard exit, **stage 01 green (5 checks, 0 failures)**.
+
+**Capture note, learned the hard way:** `DrawToBitmap` returns a blank image for this form —
+`WM_PRINTCLIENT` does not invoke the custom `OnPaintBackground`. `Shot()` drives that method over
+a magenta-prefilled bitmap instead. Any future check that renders this form must do the same, or
+it will "prove" the chrome is missing.
 
 ## Exit criteria
 

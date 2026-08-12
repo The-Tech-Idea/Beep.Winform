@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     try
                     {
                         SetupGraphicsQuality(e.Graphics);
-                        
+
+                        // Compute the layout before painting from it.
+                        //
+                        // The runtime branch below calls this; the design-mode branch did not, so
+                        // every design-time paint used whatever CurrentLayout happened to hold -
+                        // measured as CaptionRect.Right == 0, i.e. the caption was drawn from a
+                        // layout that had never been calculated. That is why the design surface
+                        // looked stale regardless of what else was fixed.
+                        EnsureLayoutCalculated();
+
                         // CRITICAL: Don't clear hit areas on every paint!
                         // Hit areas should only be recalculated when layout changes (resize, property changes, etc.)
                         // Clearing them here breaks mouse interaction because paint can happen between mouse-down and mouse-up
@@ -146,6 +156,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+
+            // Programmatic resizes must still repaint.
+            //
+            // This method was a deliberate no-op, with all geometry work deferred to
+            // OnResizeEnd / WM_EXITSIZEMOVE - messages that only an interactive drag produces. The
+            // VS designer and `form.Size = ...` resize by property write, so nothing invalidated
+            // and the chrome kept the old layout. In design mode the effect was starker still: the
+            // layout was recomputed on the next paint, but no paint was ever requested, so the
+            // caption stayed a whole resize behind.
+            //
+            // During a real drag _inInteractiveSizeMove is true and the original deferral is
+            // preserved - that deferral is what fixed the missing right/bottom border, and this
+            // must not undo it.
+            if (_inInteractiveSizeMove || IsDisposed || !IsHandleCreated)
+                return;
+
+            // Recompute NOW rather than hoping a paint arrives.
+            //
+            // Invalidate alone was enough at runtime but not in design mode: the runtime path also
+            // re-syncs through WM_SIZE, while the designer's surface does not necessarily deliver
+            // a paint to this form at all. Computing here makes the layout correct for whoever
+            // reads it next - painter, hit test, or the designer - instead of depending on a
+            // repaint that may never come.
+            InvalidateLayout();
+            try
+            {
+                EnsureLayoutCalculated();
+            }
+            catch (Exception ex)
+            {
+                BeepLog.FailureOnce("form.resize.layout", this,
+                    "recalculate the form layout after a programmatic resize", ex);
+            }
+            Invalidate(true);
         }
 
         /// <summary>

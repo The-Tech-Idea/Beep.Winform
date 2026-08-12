@@ -10,19 +10,25 @@
   says to remove it (`BeepiFormPro.cs:70-73`), while every derived form's designer file
   serializes its own. Depending on construction order this double-applies or no-ops scaling.
   (Deleting the ctor write is stage 01's item; this stage owns proving the end-to-end story.)
-- **Metrics are scaled at many call sites.** `FormPainterMetrics` (1,455 lines) mixes raw
-  constants with per-site `DpiScalingHelper` calls; whether a given painter's number is scaled
-  once, twice, or never is unknowable by reading. The repo has already paid for this shape twice
-  (`CommandListBoxPainter` double-scale; `CheckboxListPainter` unscaled floor).
+- **⚠︎ Corrected after reading the code.** The first draft said metrics "mix raw constants with
+  per-site calls, unknowable by reading". That was wrong: `FormPainterMetrics.cs:1420-1450`
+  **does** scale centrally — caption height, button widths, icon size, spacing, search box and
+  paddings, in one place, guarded by `AreScaleFactorsEqual`.
+  The residual hole is narrower and therefore fixable: **6 painters call `DpiScalingHelper`
+  directly** (`Linear`, `MaterialYou`, `Modern`, `NextJS`, `RadixUI`, +1). Those are the sites
+  where a value can be scaled twice — the exact defect already paid for in
+  `CommandListBoxPainter`, where `ScaleValue(MeasureText(...).Width + gap)` inflated a chip at
+  150% DPI.
 
 ## The work
 
 1. **Handle `WM_DPICHANGED`:** accept the suggested rect, invalidate layout, drop cached
    geometry (border path cache keys on size+style today — add DPI), re-fetch fonts (cache-owned,
    never disposed), repaint. `WM_GETDPISCALEDSIZE` for a clean size negotiation.
-2. **One scaling seam.** Metrics leave `FormPainterMetrics` pre-scaled for the form's *current*
-   DPI — painters never call `DpiScalingHelper` themselves. One authority, so double-scaling
-   becomes structurally impossible rather than individually audited.
+2. **Close the painter-side hole.** Metrics already leave `FormPainterMetrics` pre-scaled;
+   make that the *only* seam by removing the 6 painters' direct `DpiScalingHelper` calls (each
+   either takes a pre-scaled metric or gains one). Then double-scaling is structurally impossible
+   rather than individually audited — and the fence below keeps it that way.
 3. **Fonts across DPI:** caption/title fonts re-resolved on DPI change through the font cache
    (rule 2: never dispose them).
 4. **The AutoScale decision recorded:** designer file owns `AutoScaleDimensions`; base sets only

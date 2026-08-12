@@ -1,55 +1,78 @@
-# Stage 03 — Caption bar: accessibility, keyboard, tooltips, snap layouts
+# Stage 03 — Caption: real UIA children, tooltips, snap layouts
 
-## The gap
+> **Corrected after reading the code.** The first draft said "no UIA, no keyboard, no focus ring".
+> That was wrong: keyboard operation and accessible naming both exist. The defect is narrower and
+> more specific — and, being narrower, it is also cheaper to fix properly.
 
-The caption bar is painted, and its buttons — close, min/max, theme, style, profile, custom
-action, search (`Core.cs:802-1240`) — are hit-area rectangles in
-`BeepiFormProHitAreaManager`, not controls. That buys pixel freedom and costs everything a
-commercial product is audited for:
+## What already works — keep it
 
-- **No UIA presence.** A screen reader sees a form with no close button. Narrator/NVDA users
-  cannot operate the chrome at all. DevExpress ships `AccessibleObject`s for every caption glyph.
-- **No keyboard path.** Painted buttons cannot take focus; there is no visible focus ring and no
-  Enter/Space activation.
-- **No tooltips.** Seven glyph-only buttons, none of them named on hover.
-- **No Win11 snap layouts** (`WM_NCHITTEST` never returns `HTMAXBUTTON` — F6): hovering maximize
-  shows no snap flyout, instantly marking the window as non-native.
-- System behaviours to verify and fill where absent: caption double-click maximizes, right-click
-  shows the system menu, `Alt+Space` opens it, drag from maximized restores-and-drags.
+- `F6` / `Shift+F6` cycles caption regions; `Ctrl+F` focuses the search box; `Alt+Space` opens the
+  system menu; Enter activates the focused region (`Win32.cs:739-800`).
+- A keyboard focus indicator is painted (`PaintKeyboardCaptionFocusIndicator`), invalidated
+  precisely on focus movement (`InvalidateKeyboardCaptionFocus`, `Core.cs:502`).
+- Per-region accessible **names, roles and descriptions** are authored
+  (`GetCaptionAccessibilityName/Role/Description`, `Core.cs:620-680`) — including live variation
+  ("Caption restore button" vs "Caption maximize button" by `WindowState`).
+- Custom caption regions carry their own `AccessibleName`/`AccessibleRole`.
+
+## The actual defect
+
+**There are zero `AccessibleObject`s in the folder.** The accessible vocabulary above is delivered
+by *mutating the form's own identity*: on focus change the form's `AccessibleName`, `Role` and
+`Description` are overwritten, with the originals stashed in `_baseAccessibleName` etc.
+(`CaptureCaptionAccessibilitySnapshot`, `Core.cs:606`).
+
+Consequences a commercial accessibility audit fails on:
+
+1. **UIA sees one element whose identity changes.** There is no child tree, so a screen reader
+   cannot enumerate the caption buttons, list them, or navigate to one directly — it only hears
+   the form rename itself as focus moves.
+2. **Automation cannot invoke them.** No `InvokePattern` per button; UI test frameworks
+   (WinAppDriver, FlaUI, Coded UI) have nothing to click. This alone blocks enterprise adoption.
+3. **The form's real identity is clobbered** while a caption region has focus — anything reading
+   the form's `AccessibleName` mid-focus gets a button's name.
+4. **No tooltips** on seven glyph-only buttons.
+5. **No snap layouts** (F6): `WM_NCHITTEST` never returns `HTMAXBUTTON`, so hovering maximize
+   shows no Win11 snap flyout.
 
 ## The work
 
-1. **Accessible objects over the painted buttons.** Keep the painting; add an
-   `AccessibleObject` tree (`ControlAccessibleObject` children, role `PushButton`, names from
-   localizable resources, `Bounds` fed from the existing hit areas, `DoDefaultAction` invoking the
-   same handlers the mouse uses). This is the standard pattern for owner-drawn chrome and does not
-   require composing real controls.
-2. **Keyboard.** A focus cycle across visible caption buttons (F6 or Ctrl+Tab section-style),
-   painted focus ring from the theme's focus slot, Enter/Space activation, Esc leaves the cycle.
-3. **Tooltips** through `ToolTipManager` with the shaped `CustomToolTip` — the captions come from
-   the same resource strings UIA uses, so the two can never disagree.
-4. **Snap layouts:** return `HTMAXBUTTON` from `WM_NCHITTEST` over the maximize hit area on
-   Win11, and handle `WM_NCLBUTTONDOWN`/`UP` there so the flyout's own click-through works.
-5. **System-menu parity:** double-click, right-click menu, `Alt+Space`, drag-restore. Each gets a
-   check; any already working simply gets its check recorded green.
+1. **`CreateAccessibilityInstance` → a `ControlAccessibleObject` with children.** One child per
+   *visible* caption region, `Role`/`Name`/`Description` fed by the existing
+   `GetCaptionAccessibility*` methods (they become the child's data source — no new vocabulary),
+   `Bounds` from the hit-area manager (screen coords), `DoDefaultAction` calling the same
+   `OnRegionClicked` path the mouse and Enter use. `GetChildCount`/`GetChild` follow visibility.
+2. **Stop mutating the form's identity.** Delete the snapshot/restore machinery once children
+   exist; the form keeps its own name, and focus is expressed through the child's `State`
+   (`Focused`/`Focusable`) instead.
+3. **Tooltips** via `ToolTipManager` + the shaped `CustomToolTip`, text drawn from the *same*
+   `GetCaptionAccessibilityName` source, so tooltip and screen reader can never disagree.
+4. **Snap layouts**: return `HTMAXBUTTON` over the maximize hit area on Win11 (build ≥ 22000) and
+   handle `WM_NCLBUTTONDOWN`/`WM_NCLBUTTONUP` there so the flyout's click-through works.
+5. **System-menu parity check**: caption double-click maximizes, right-click shows the system
+   menu, drag-from-maximized restores. Where already correct, record the check green.
 
 ## Verification
 
-- UIA: walk the form's `AccessibleObject` children; assert one per *visible* caption button with
-  a non-empty localized name; toggle `ShowThemeButton` and assert the child count follows.
-  `DoDefaultAction` on the close child must raise the same closing path as a mouse click
-  (`_isForcedClose` observable).
-- Keyboard: drive the focus cycle programmatically; assert the focus ring paints (differential
-  render: focused vs not) and Enter fires the button's action.
-- Snap: send a synthetic `WM_NCHITTEST` at the maximize hit-point; assert `HTMAXBUTTON` on Win11
-  builds and the legacy value elsewhere.
-- Tooltip: hover-register a caption button; assert `ToolTipManager` holds a config whose text
-  equals the UIA name.
-- Break-it-first: hide a button and confirm the UIA-count check fails if the accessible child
-  fails to disappear; blank a resource string and confirm the name check goes red.
+- **UIA tree**: `AccessibilityObject.GetChildCount()` equals the number of *visible* caption
+  regions; toggling `ShowThemeButton` changes it by exactly one; each child has a non-empty name
+  matching `GetCaptionAccessibilityName`.
+- **Invoke**: `GetChild(closeIndex).DoDefaultAction()` reaches the same closing path as a click
+  (observe `_isForcedClose` / the `FormClosing` sequence).
+- **Identity**: move keyboard focus across every region and assert the *form's* `AccessibleName`
+  never changes (this is the regression the current design would fail).
+- **Focus ring**: differential render, focused vs not (blindness guard: two unfocused renders
+  identical first).
+- **Snap**: synthetic `WM_NCHITTEST` at the maximize hit-point returns `HTMAXBUTTON` on Win11,
+  legacy value elsewhere.
+- **Tooltip == UIA name** for every caption region.
+- **Break-it-first**: hide a button and confirm the child-count check fails if the child does not
+  disappear; blank one name resource and confirm the name check goes red; restore the identity
+  mutation and confirm the identity check goes red.
 
 ## Exit criteria
 
-Every visible caption button reachable by screen reader and keyboard with a themed focus ring;
-snap layouts on Win11; tooltips named identically to UIA; checks + break-tests recorded. Any new
-public surface (e.g. localization hooks) recorded in the tracker.
+A real UIA child per visible caption button, invokable by automation; the form's own identity
+stable; tooltips sourced from the accessibility names; snap layouts on Win11; all checks with
+their break-tests recorded. Public/protected surface changes (e.g. `CreateAccessibilityInstance`
+override, any exposed region descriptor) recorded in the tracker.

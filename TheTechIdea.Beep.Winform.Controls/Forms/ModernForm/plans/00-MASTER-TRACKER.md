@@ -1,82 +1,102 @@
 # BeepiFormPro — commercial-grade enhancement plan
 
-Master tracker for `Forms/ModernForm/`. Goal: a form chrome that stands next to DevExpress /
-Telerik / SyncFusion — correct in the designer, correct per-monitor, accessible, fast, and
-consistent across every one of its skins.
+Master tracker for `Forms/ModernForm/`. Goal: form chrome that stands next to DevExpress /
+Telerik / SyncFusion — correct in the designer, correct per-monitor, accessible to automation,
+themed, and consistent across every one of its skins.
 
-**58 files, 26,741 lines: the form (12 partials), 38 skin painters, metrics, managers, designers.**
+**58 files, 26,741 lines: the form (12 partials), 38 skin painters, 1,455-line metrics,
+875-line render helper, hit-area + interaction managers, designer + action list.**
 
-## Where it stands today
+> **Revision 2.** The first draft was written from a structural survey. Every partial has since
+> been read, and four of its findings were wrong or imprecise — corrected below and marked
+> ⚠︎. Recorded rather than quietly edited, because "the plan said X" gets repeated downstream.
 
-The foundation is real: custom non-client area via `WM_NCCALCSIZE`, a painter-per-skin
-architecture, hit-area + interaction managers, DWM bits already imported
-(`DWMWA_SYSTEMBACKDROP_TYPE`, `DwmExtendFrameIntoClientArea`), a theme bridge, a backdrop layer,
-and a designer with an action list. What separates it from a commercial product is not missing
-ambition — it is correctness at the seams: the designer, resize, DPI, accessibility, and 38
-painters that each re-implement the same chrome slightly differently.
+## What is already good (do not rebuild these)
 
-## Headline findings (evidence, not opinion)
+Worth stating, because a plan that lists only faults invites replacing working machinery:
+
+- **Custom non-client chrome** via `WM_NCCALCSIZE`/`WM_NCHITTEST` with a real hit-area manager
+  and interaction manager — the hard part, and it works.
+- **Keyboard operation of the caption already exists**: `F6`/`Shift+F6` cycles caption regions,
+  `Ctrl+F` focuses the search box, `Alt+Space` opens the system menu, Enter activates the focused
+  region, and a focus indicator is painted (`Win32.cs:739-800`, `Core.cs:502-600`).
+- **Accessible names, roles and descriptions** are authored per caption region
+  (`Core.cs:620-680`) — the vocabulary exists; only its delivery is wrong (F7).
+- **A real DWM/composition backdrop implementation** — `BeepiFormPro.Backdrop.cs` does
+  `DwmSetWindowAttribute(DWMWA_SYSTEMBACKDROP_TYPE)`, `SetWindowCompositionAttribute` acrylic,
+  blur-behind, with OS-version gating (Win10 vs Win11 build 22000).
+- **Central DPI scaling of metrics** — `FormPainterMetrics.cs:1420-1450` scales caption height,
+  button widths, icon size, spacing, search box and paddings in one place.
+- A layout cache keyed on size/style/every `Show*` flag (`Core.cs:36-60`), and a painter registry.
+
+## Headline findings
 
 | # | finding | where |
 |---|---|---|
-| F1 | **Design-time resize does not refresh content** (the reported bug). `OnResize` is a deliberate no-op — geometry sync is deferred to `OnResizeEnd` / `WM_EXITSIZEMOVE`, which fire on *interactive* resizes only. The VS designer resizes via `SetBoundsCore`/property writes and never sends them, so nothing re-syncs. | `BeepiFormPro.Events.cs:139-149`, `Win32.cs:347-369` |
-| F2 | The designer is a **`ParentControlDesigner`** on a *Form* root — the root designer for a document is `DocumentDesigner`; and it hooks component/selection changes but never `Resize`/`SizeChanged`. | `Designers/BeepiFormProDesigner.cs:10` |
-| F3 | **`DebouncedInvalidate` swallows the trailing repaint**: leading-edge-only, returns without scheduling, so the *last* invalidate of any burst (< 16 ms after the previous) is silently dropped — the classic "stops one frame stale" bug. | `BeepiFormPro.cs:54-63` |
-| F4 | **Two competing window-region authorities** — `UpdateFormRegion` (managed `Region`) and `UpdateWindowRegion` (`SetWindowRgn`), both rebuilding a rounded rect on every size/style change. Already proven hostile: `CustomToolTip` had to abandon this base entirely because its silhouette was overwritten (commit `0dc50a57`). Region-based rounding also kills the DWM drop shadow and gives aliased corners; Win11 has `DWMWA_WINDOW_CORNER_PREFERENCE` for exactly this. | `Drawing.cs:456-499`, `Win32.cs:490-540` |
-| F5 | **No per-monitor DPI handling**: no `WM_DPICHANGED` anywhere; the ctor hard-codes `AutoScaleDimensions = (96,96)` directly under a comment saying to remove it — derived forms' designer files set their own, a double-scale hazard. | `BeepiFormPro.cs:70-73`, `Win32.cs` (absent) |
-| F6 | **No Win11 snap layouts**: `WM_NCHITTEST` never returns `HTMAXBUTTON`, so hovering the maximize button shows no snap flyout — an immediate "not native" tell next to commercial suites. | `Win32.cs:268+` |
-| F7 | **Painted caption buttons are invisible to accessibility**: close/min/max/theme/style/profile/search are hit-area rectangles, not controls — no UIA tree entries, no keyboard activation, no tooltips, no focus visuals. | `Managers/BeepiFormProHitAreaManager.cs`, `Core.cs:802-1240` |
-| F8 | **38 painters × 300–700 lines ≈ 16k lines of near-duplicate chrome.** Every painter re-implements caption layout, button glyphs, borders and shadows; `FormPainterMetrics` is 1,455 lines and `FormPainterRenderHelper` 875 on top. Skin parity is unverifiable by reading. | `Painters/*` |
+| F1 | **Design-time resize does not refresh** (the reported bug). `OnResize` is a deliberate no-op; all geometry sync is deferred to `OnResizeEnd`/`WM_EXITSIZEMOVE`, which fire only for *interactive* resizes. The designer resizes by property write, so the sync never runs. Affects runtime `form.Size = …` identically. | `Events.cs:139-149`, `Win32.cs:347-369` |
+| F2 | Root designer is a **`ParentControlDesigner`** on a *Form* (root documents use `DocumentDesigner`), and hooks component/selection changes but never `Resize`/`SizeChanged`. | `Designers/BeepiFormProDesigner.cs:10` |
+| F3 | **`DebouncedInvalidate` drops the trailing repaint** — leading-edge only, returns without scheduling, so the last invalidate of a burst is silently lost. | `BeepiFormPro.cs:54-63` |
+| F4 | **Two window-region authorities** (`UpdateFormRegion` managed `Region` + `UpdateWindowRegion` `SetWindowRgn`), both rebuilding a rounded rect. Already forced `CustomToolTip` off this base (commit `0dc50a57`). Regions also give aliased corners and **kill the DWM shadow**; Win11 has `DWMWA_WINDOW_CORNER_PREFERENCE`. | `Drawing.cs:456-499`, `Win32.cs:490-540` |
+| F5 | **No `WM_DPICHANGED`** anywhere; ctor hard-codes `AutoScaleDimensions = (96,96)` under a comment saying to remove it, while derived designer files serialize their own. | `BeepiFormPro.cs:70-73` |
+| F6 | **No Win11 snap layouts** — `WM_NCHITTEST` never returns `HTMAXBUTTON`. | `Win32.cs:268+` |
+| F7 ⚠︎ | **Accessibility is delivered by mutating the form's own identity.** Correction: names/roles/keyboard all exist, but there are **zero `AccessibleObject`s** in the folder — focus changes swap the *form's* `AccessibleName`/`Role`/`Description` (`CaptureCaptionAccessibilitySnapshot`, `_baseAccessibleName`). A screen reader sees one object whose identity mutates; UIA cannot enumerate the buttons, and automation cannot invoke them. Also no per-button tooltips. | `Core.cs:333-680` |
+| F8 | **38 painters, ~16k lines** of near-duplicate chrome, atop a 1,455-line metrics file and 875-line render helper. Skin parity is unverifiable by reading. | `Painters/*` |
+| F9 ⚠︎ **new** | **Two parallel backdrop APIs, and the paint path uses the fake one.** `BackdropEffect` (`Core.cs:950`) is applied by `ApplyBackdropEffect` (`Drawing.cs:193-230`), which just fills `Color.FromArgb(20,255,255,255)`-style rectangles — its own comment says "in a production implementation, this would use DWM API". The *real* DWM implementation sits in `Backdrop.cs` behind a different property (`Backdrop`/`BackdropType`) plus two more switches (`EnableAcrylicForGlass`, `EnableMicaBackdrop`). Four overlapping controls for one concept. | `Core.cs:948`, `Drawing.cs:193`, `Backdrop.cs:28-80` |
+| F10 **new** | **The largest literal-colour concentration in the repo: 1,026 `FromArgb(r,g,b)`, 69 named `Color.X`, 73 luminance shifts**, plus **71 `useThemeColors` sites**. Themes cannot reach most of this chrome. | folder-wide |
+| F11 **new** | **28 bare `catch { }` and zero `BeepLog` calls** in 26.7k lines; `Backdrop.cs` reports 9 failures to `Debug.WriteLine`. Every backdrop, layout and style failure is currently silent. | folder-wide |
+| F12 ⚠︎ | DPI: correction — metrics **are** centrally scaled (`FormPainterMetrics.cs:1420-1450`). The residual risk is narrower than first stated: **6 painters** also call `DpiScalingHelper` directly, which is where double-scaling can enter. | `Painters/{Linear,MaterialYou,Modern,NextJS,RadixUI,…}` |
 
 ## Stages
 
 | # | Stage | Kind | Status |
 |---|---|---|---|
 | [01](01-design-time.md) | The designer: resize refresh + a real root designer | **bug** (reported) | ☐ open |
-| [02](02-geometry-and-invalidate.md) | One geometry authority; invalidate that cannot drop the last frame | **bug** | ☐ open |
-| [03](03-caption-accessibility.md) | Caption bar: UIA, keyboard, tooltips, snap layouts | enhancement | ☐ open |
-| [04](04-dpi.md) | Per-monitor DPI v2, `WM_DPICHANGED`, one AutoScale story | **bug** | ☐ open |
-| [05](05-painter-architecture.md) | 38 painters on one chrome pipeline; skin parity enforced | refactor | ☐ open |
-| [06](06-backdrop-effects.md) | Mica/Acrylic backdrops, DWM shadow, transitions | enhancement | ☐ open |
-| [07](07-verification.md) | `FormProbe` — the harness the other stages report through | verification | ☐ open |
+| [02](02-geometry-and-invalidate.md) | One geometry authority; invalidate that cannot drop a frame | **bug** | ☐ open |
+| [03](03-caption-accessibility.md) | Caption: real UIA children, tooltips, snap layouts | **bug** | ☐ open |
+| [04](04-dpi.md) | Per-monitor DPI v2; close the painter-side scaling hole | **bug** | ☐ open |
+| [05](05-painter-architecture.md) | 38 painters onto one chrome pipeline; parity enforced | refactor | ☐ open |
+| [06](06-backdrop-effects.md) | One backdrop API — delete the placebo, keep the DWM one | **bug** | ☐ open |
+| [07](07-verification.md) | `FormProbe` — the harness every stage reports through | verification | ☐ open |
+| [08](08-theme-and-reporting.md) | 1,026 literals → theme slots; 28 silent catches → `BeepLog` | **rule 1 + 4** | ☐ open |
 
 Status marks: ☐ open · ◐ in progress · ☑ done
 
 ## Order rationale
 
-**01 first** because it is the reported bug and everything later is eyeballed on the design
-surface too. **07 is written alongside 01**, not last — every stage needs a check that can fail
-before its work starts (repo doctrine: break the instrument first). 02 before 03/05 because the
-caption and the painters both sit on the geometry that 02 makes single-owner. 05 before 06 so the
-backdrop lands on one pipeline, not 38.
+**01 first** — the reported bug, and every later stage is eyeballed on the design surface.
+**07 is written alongside 01**, never last: each stage's checks must be seen red before its fix
+(repo doctrine — break the instrument first). **02 before 03/05/06** because caption, painters and
+backdrop all sit on the geometry it makes single-owner, and because the DWM backdrop needs the
+region gone. **06 before 05** would also be defensible, but 05 first means the backdrop lands on
+one pipeline instead of 38. **08 can run in parallel** with anything after 02 — it is a sweep, not
+a redesign, and its fences protect every later stage.
 
-## Standing constraints (CLAUDE.md — these hold in every stage)
+## Standing constraints (CLAUDE.md — hold in every stage)
 
-- Every catch reports through `BeepLog` (`…Once` in paint paths). No bare `catch { }`.
-- Theme slots only; no literal colours; a wrong colour is the theme's bug, fixed in its part file.
-- Cached `Font`s are never disposed. Sizes scale through `DpiScalingHelper`.
-- Compose from Beep controls where a control exists; no control flow in `InitializeComponent`.
+- Every catch reports through `BeepLog` (`…Once` in paint/timer paths). No bare `catch { }`.
+- Theme slots only. A wrong-looking colour is the **theme's** bug, fixed in its part file.
+- Cached `Font`s are never disposed. Sizes scale through `DpiScalingHelper` — once.
+- Compose from Beep controls where one exists; no control flow in `InitializeComponent`.
 - Delete dead paths rather than keeping them beside the new one; record public-member removals here.
-- A check must be able to fail for the reason it was written — break it first, and record which
-  break-tests were actually run.
-- Renders are **eyeballed**, not just counted. `Control.DrawToBitmap`, never `CopyFromScreen`.
+- A check must be able to fail for the reason it was written. Record which break-tests were run.
+- Renders are **eyeballed**, not counted. `Control.DrawToBitmap`, never `CopyFromScreen`.
 
-## Known hazards for whoever executes this
+## Hazards already paid for in this repo
 
-- **`WizProbe` in the scratchpad hangs on unmodified library code** (recorded in
-  `Wizards/plans/00-MASTER-TRACKER.md`). Do not reuse it; stage 07 builds fresh. `StepperProbe`
-  is healthy and is the model to copy.
-- The probe/exe lock trap: a hung probe holds its own `.exe`, silently turning every later build
-  into a no-op — always verify build error counts *before* trusting a run, and hard-exit +
-  watchdog every probe.
-- `ControlStyle` pins a bundled theme; theme-responsiveness checks must switch themes *after*
-  control creation.
-- Derived forms in this repo (wizard forms, dialogs, popups) inherit every behavioural change made
-  here; stage exit criteria include a build of the whole library plus a spot-render of one derived
-  form.
+- **`WizProbe` hangs on unmodified library code** (`Wizards/plans/00-MASTER-TRACKER.md`) — do not
+  reuse it. `StepperProbe` is the healthy model: watchdog, hard exit, flush.
+- **The stale-binary trap**: a hung probe holds its own `.exe`, silently turning later builds into
+  no-ops. Check build error counts *before* trusting any run — this produced three false
+  conclusions in one session.
+- **Differentials beat thresholds** where layout can shift: a Steppers check measured a band
+  derived from step positions, and the fix moved the band — it reported *less* ink after working.
+- **`ControlStyle` pins a bundled theme**; theme-responsiveness checks must switch themes *after*
+  construction.
+- Every derived form (wizards, dialogs, popups) inherits changes made here — each stage exits with
+  a full-library build plus a spot-render of one derivative.
 
 ## Record as you go
 
-A stage marked done must say what was actually done, what was verified (including which
-break-it-first tests ran), what was **not** verified, and every public member added or removed.
-"Checked and fine" and "not checked" must never look the same to the next reader.
+A finished stage must state what was done, what was verified (naming the break-tests that ran),
+what was **not** verified, and every public member added or removed. "Checked and fine" and
+"not checked" must never look the same to the next reader.

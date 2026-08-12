@@ -14,24 +14,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
     /// <summary>
     /// Minimal wizard form with simple progress indicator
     /// </summary>
-    public class MinimalWizardForm : BeepiFormPro, IWizardFormHost
+    public partial class MinimalWizardForm : BeepiFormPro, IWizardFormHost
     {
         #region Fields
 
         private WizardInstance _instance;
         private MinimalPainter _painter;
         
-        private Panel _headerPanel;
-        private Panel _contentPanel;
-        private Panel _buttonPanel;
-        private Panel _errorPanel;
-        private Label _lblError;
+        // Controls are declared and built in MinimalWizardForm.Designer.cs
         
-        private BeepButton _btnNext;
-        private BeepButton _btnBack;
-        private BeepButton _btnCancel;
-        private BeepButton _btnSkip;
-        private BeepButton _btnHelp;
 
         private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
         private int _previousStepIndex = -1;
@@ -62,9 +53,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             
             _painter = new MinimalPainter();
 
+            InitializeComponent();
             InitializeForm();
-            InitializeControls();
-            LayoutControls();
+            ApplyConfigToControls();
             SetupEventHandlers();
             UpdateUI();
         }
@@ -76,9 +67,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             
             _painter = new MinimalPainter();
 
+            InitializeComponent();
             InitializeForm();
-            InitializeControls();
-            LayoutControls();
+            ApplyConfigToControls();
             SetupEventHandlers();
 
             // Apply Config.Theme if configured, otherwise use default
@@ -96,154 +87,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private void InitializeForm()
         {
+            // Only what depends on the instance; the rest is in the designer file.
             Text = _instance.Config.Title;
             Size = _instance.Config.Size;
-            StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            KeyPreview = true;
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint, true);
         }
 
-        private void InitializeControls()
+        /// <summary>
+        /// Applies the wizard's configuration to controls the designer already built.
+        /// </summary>
+        /// <remarks>
+        /// The layout itself is in MinimalWizardForm.Designer.cs so it is visible on the design
+        /// surface. Only what depends on <see cref="WizardConfig"/> - button captions, and whether
+        /// the optional Skip and Help buttons appear at all - can be decided here, because a
+        /// conditional inside InitializeComponent breaks the designer.
+        /// </remarks>
+        private void ApplyConfigToControls()
         {
-            // Header panel with minimal progress (top)
-            _headerPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                // 72, not 60: the band holds the dot row (top 25 + ring) AND the step title
-                // (25px + padding). 60 clipped the title's bottom half at 96 DPI and worse scaled.
-                Height = 72,
-                BackColor = Color.Transparent
-            };
-            _headerPanel.Paint += HeaderPanel_Paint;
+            _btnNext.Text   = _instance.Config.NextButtonText;
+            _btnBack.Text   = _instance.Config.BackButtonText;
+            _btnCancel.Text = _instance.Config.CancelButtonText;
+            _btnSkip.Text   = _instance.Config.SkipButtonText;
 
-            // Inline error panel (below header, hidden by default)
-            _errorPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 40,
-                Visible = false,
-                BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme),
-                Padding = new Padding(16, 0, 16, 0)
-            };
-            _lblError = new Label
-            {
-                Dock = DockStyle.Fill,
-                TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = WizardHelpers.GetErrorColor(CurrentTheme),
-                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular),
-                AutoEllipsis = true
-            };
-            _errorPanel.Controls.Add(_lblError);
+            // Created unconditionally by the designer, shown only when configured.
+            _btnSkip.Visible = _instance.Config.AllowSkip;
+            _btnHelp.Visible = _instance.Config.ShowHelp;
 
-            // Button panel (bottom)
-            _buttonPanel = new Panel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 60,
-                Padding = new Padding(20, 10, 20, 10)
-            };
-
-            // Content panel (fill) — uses BufferedPanel to eliminate flicker
-            _contentPanel = new BufferedPanel
-            {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(40, 20, 40, 20)
-            };
-
-            // Navigation buttons
-            _btnNext = new BeepButton
-            {
-                Text = _instance.Config.NextButtonText,
-                Size = new Size(120, 36),
-                Anchor = AnchorStyles.Right | AnchorStyles.Bottom
-            };
-
-            _btnBack = new BeepButton
-            {
-                Text = _instance.Config.BackButtonText,
-                Size = new Size(100, 36),
-                Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
-                Enabled = false
-            };
-
-            _btnCancel = new BeepButton
-            {
-                Text = _instance.Config.CancelButtonText,
-                Size = new Size(100, 36),
-                Anchor = AnchorStyles.Left | AnchorStyles.Bottom
-            };
-
-            if (_instance.Config.AllowSkip)
-            {
-                _btnSkip = new BeepButton
-                {
-                    Text = _instance.Config.SkipButtonText,
-                    Size = new Size(100, 36),
-                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
-                    Visible = false
-                };
-            }
-
-            if (_instance.Config.ShowHelp)
-            {
-                _btnHelp = new BeepButton
-                {
-                    Text = "Help",
-                    Size = new Size(80, 36),
-                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom
-                };
-            }
+            _errorPanel.BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme);
+            _lblError.ForeColor   = WizardHelpers.GetErrorColor(CurrentTheme);
+            _lblError.Font        = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular);
 
             _painter.Initialize(this, CurrentTheme, _instance);
         }
 
-        private void LayoutControls()
-        {
-            int rightEdge = _buttonPanel.ClientSize.Width - _buttonPanel.Padding.Right;
-            int buttonY = (_buttonPanel.Height - _btnNext.Height) / 2;
-
-            _btnNext.Location = new Point(rightEdge - _btnNext.Width, buttonY);
-            _btnBack.Location = new Point(_btnNext.Left - _btnBack.Width - 10, buttonY);
-            _btnCancel.Location = new Point(_buttonPanel.Padding.Left, buttonY);
-
-            _buttonPanel.Controls.Add(_btnNext);
-            _buttonPanel.Controls.Add(_btnBack);
-            _buttonPanel.Controls.Add(_btnCancel);
-
-            if (_btnSkip != null)
-            {
-                _btnSkip.Location = new Point(_btnCancel.Right + 10, buttonY);
-                _buttonPanel.Controls.Add(_btnSkip);
-            }
-
-            if (_btnHelp != null)
-            {
-                var helpX = _btnSkip != null ? _btnSkip.Right + 10 : _btnCancel.Right + 10;
-                _btnHelp.Location = new Point(helpX, buttonY);
-                _buttonPanel.Controls.Add(_btnHelp);
-            }
-
-            Controls.Add(_contentPanel);
-            Controls.Add(_errorPanel);
-            Controls.Add(_buttonPanel);
-            Controls.Add(_headerPanel);
-        }
-
         private void SetupEventHandlers()
         {
-            _btnNext.Click += BtnNext_Click;
-            _btnBack.Click += BtnBack_Click;
-            _btnCancel.Click += BtnCancel_Click;
-            if (_btnSkip != null)
-                _btnSkip.Click += BtnSkip_Click;
-            if (_btnHelp != null)
-                _btnHelp.Click += BtnHelp_Click;
+            // Button clicks are wired in the designer file, beside the controls they belong to.
             KeyDown += Form_KeyDown;
             Resize += Form_Resize;
         }

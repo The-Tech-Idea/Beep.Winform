@@ -42,7 +42,7 @@ Worth stating, because a plan that lists only faults invites replacing working m
 | F7 ⚠︎ | **Accessibility is delivered by mutating the form's own identity.** Correction: names/roles/keyboard all exist, but there are **zero `AccessibleObject`s** in the folder — focus changes swap the *form's* `AccessibleName`/`Role`/`Description` (`CaptureCaptionAccessibilitySnapshot`, `_baseAccessibleName`). A screen reader sees one object whose identity mutates; UIA cannot enumerate the buttons, and automation cannot invoke them. Also no per-button tooltips. | `Core.cs:333-680` |
 | F8 | **38 painters, ~16k lines** of near-duplicate chrome, atop a 1,455-line metrics file and 875-line render helper. Skin parity is unverifiable by reading. | `Painters/*` |
 | F9 ⚠︎ **new** | **Two parallel backdrop APIs, and the paint path uses the fake one.** `BackdropEffect` (`Core.cs:950`) is applied by `ApplyBackdropEffect` (`Drawing.cs:193-230`), which just fills `Color.FromArgb(20,255,255,255)`-style rectangles — its own comment says "in a production implementation, this would use DWM API". The *real* DWM implementation sits in `Backdrop.cs` behind a different property (`Backdrop`/`BackdropType`) plus two more switches (`EnableAcrylicForGlass`, `EnableMicaBackdrop`). Four overlapping controls for one concept. | `Core.cs:948`, `Drawing.cs:193`, `Backdrop.cs:28-80` |
-| F10 **new** | **The largest literal-colour concentration in the repo: 1,026 `FromArgb(r,g,b)`, 69 named `Color.X`, 73 luminance shifts**, plus **71 `useThemeColors` sites**. Themes cannot reach most of this chrome. | folder-wide |
+| F10 ⚠︎ **revised** | Colour literals: 1,026 total, but **the skin painters are exempt by ruling** — a painter's palette *is* the skin, and each matches its own theme (Dracula ↔ Dracula, Nord ↔ Nord). Exempt: `Painters/*FormPainter.cs` (566) and `FormPainterMetrics.cs` (535, per-style palette defaults). **Actually in scope: ~30** — `Core.cs` (17, incl. a hard-coded close-button red and a light/dark grey ladder the theme already publishes), `FormPainterRenderHelper.cs` (7, shared code not a skin), `Drawing.cs` (6, deleted by stage 06). | measured split in [08](08-theme-and-reporting.md) |
 | F11 **new** | **28 bare `catch { }` and zero `BeepLog` calls** in 26.7k lines; `Backdrop.cs` reports 9 failures to `Debug.WriteLine`. Every backdrop, layout and style failure is currently silent. | folder-wide |
 | F12 ⚠︎ | DPI: correction — metrics **are** centrally scaled (`FormPainterMetrics.cs:1420-1450`). The residual risk is narrower than first stated: **6 painters** also call `DpiScalingHelper` directly, which is where double-scaling can enter. | `Painters/{Linear,MaterialYou,Modern,NextJS,RadixUI,…}` |
 
@@ -57,7 +57,7 @@ Worth stating, because a plan that lists only faults invites replacing working m
 | [05](05-painter-architecture.md) | 38 painters onto one chrome pipeline; parity enforced | refactor | ☐ open |
 | [06](06-backdrop-effects.md) | One backdrop API — delete the placebo, keep the DWM one | **bug** | ☐ open |
 | [07](07-verification.md) | `FormProbe` — the harness every stage reports through | verification | ☐ open |
-| [08](08-theme-and-reporting.md) | 1,026 literals → theme slots; 28 silent catches → `BeepLog` | **rule 1 + 4** | ☐ open |
+| [08](08-theme-and-reporting.md) | 28 silent catches → `BeepLog`; ~30 non-skin literals → slots | **rule 1** (+4, scoped) | ☐ open |
 
 Status marks: ☐ open · ◐ in progress · ☑ done
 
@@ -74,7 +74,11 @@ a redesign, and its fences protect every later stage.
 ## Standing constraints (CLAUDE.md — hold in every stage)
 
 - Every catch reports through `BeepLog` (`…Once` in paint/timer paths). No bare `catch { }`.
-- Theme slots only. A wrong-looking colour is the **theme's** bug, fixed in its part file.
+- Theme slots only — **with one standing exemption**: the 38 skin painters and
+  `FormPainterMetrics`' per-style defaults may use colour literals, because a skin's palette *is*
+  the skin and matches its corresponding theme. That exemption covers colour only, never silence:
+  the `BeepLog` rule applies to painters like everything else. Everywhere outside those files, a
+  wrong-looking colour is the **theme's** bug, fixed in its part file.
 - Cached `Font`s are never disposed. Sizes scale through `DpiScalingHelper` — once.
 - Compose from Beep controls where one exists; no control flow in `InitializeComponent`.
 - Delete dead paths rather than keeping them beside the new one; record public-member removals here.

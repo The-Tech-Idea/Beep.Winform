@@ -1,75 +1,102 @@
-# Stage 08 — Themeable chrome, and failures that report
+# Stage 08 — Reporting, and the colour literals that are *not* skin identity
 
-A sweep, not a redesign. It can run in parallel with anything after stage 02, and its fences
-protect every later stage from re-importing what it removes.
+A sweep, not a redesign. Runs in parallel with anything after stage 02.
 
-## The numbers (folder-wide census)
+> **Scope correction (owner's ruling).** The form painters are **exempt from the literal-colour
+> rule**: a skin painter's palette *is* the skin, and each skin's colours match its corresponding
+> theme (Dracula painter ↔ Dracula theme, Nord ↔ Nord, GruvBox ↔ GruvBox, and so on). Those
+> literals are declarative data, not hard-coded chrome, and sweeping them into theme slots would
+> destroy the product's visual identity. Rev 2 of this plan treated all 1,026 as debt; that was
+> wrong, and it would have been an expensive mistake to act on.
 
-| pattern | count | meaning |
+## Where the literals actually are
+
+Measured, once the exemption made the split matter:
+
+| group | literals | verdict |
 |---|---:|---|
-| `Color.FromArgb(r,g,b)` literals | **1,026** | the largest concentration in the repo — ListBoxs, the previous record, had 110 |
-| named `Color.X` literals | 69 | `Color.White` pens for glyphs, `Color.Black` shadows |
-| luminance shifts / blends | 73 | `ShiftLuminance`, `Lighten`, `Darken` — each an invented colour |
-| `useThemeColors` sites | 71 | the flag disease: theme reachable only when a boolean says so |
-| bare `catch { }` | **28** | rule 1 violations |
-| `BeepLog` calls | **0** | in 26,741 lines |
-| `Debug.WriteLine` | 9 | all in `Backdrop.cs`, hiding DWM failures |
+| `Painters/*FormPainter.cs` (38 skins) | **566** | **exempt** — skin identity, matches its theme |
+| `FormPainterMetrics.cs` | **535** | mostly **exempt** — per-style palette defaults, same rationale; see below |
+| `BeepiFormPro.Core.cs` | 17 | **in scope** |
+| `Painters/FormPainterRenderHelper.cs` | 7 | **in scope** — shared helper, not a skin |
+| `BeepiFormPro.Drawing.cs` | 6 | **in scope** — all in the stage-06 placebo |
 
-At this density, a theme cannot reach most of the chrome: the theme is *consulted* where
-`UseThemeColors` is true and a slot happens to be used, and *ignored* across a thousand hard-coded
-values. That is what makes the skins look inconsistent under a dark theme, and it is invisible to
-reading because it is spread over 38 files.
+So the real debt is **~30 sites**, not 1,026. The rest is the product.
 
-## Why this is two rules, not one stage of tidying
+### `FormPainterMetrics.cs` — mostly exempt, with two caveats
 
-- **Rule 4 (nothing assigns colours).** Chrome that hard-codes `FromArgb(232,17,35)` for the close
-  button's hover (`Core.cs:1357`) cannot follow a theme, a high-contrast mode, or a customer's
-  brand — the three things enterprise buyers ask for first.
-- **Rule 1 (never swallow).** 28 silent catches include `try { ApplyFormStyle(); } catch { }`
-  (`Core.cs:68`) and `try { EnsureLayoutCalculated(); } catch { }` at four sites: if styling or
-  layout fails, the form renders wrong and says nothing. This is precisely the class of bug that
-  cost a full session elsewhere in this repo.
+Its 535 are per-style palette defaults (`BackgroundColor`, `MinimizeButtonHoverColor`, …) — the
+same declarative role as a painter's palette, so the same exemption applies. Two things still
+warrant a look, and neither is a colour sweep:
+
+- `Blend`, `Luma`, `EnsureMinLuma` (`:130-160`) *derive* colours at runtime (blend toward white to
+  reach a target luma). That is a readability fix computed at paint time. Where a theme already
+  publishes the readable pairing, prefer the slot; where it does not, keep the derivation and say
+  so. This is a correctness question, not a literal-count one.
+- `UseThemeColors = false` is the **default** here (`:130`), so the theme is off unless a caller
+  opts in — worth a decision: is the default right for a product whose users expect themes to
+  apply? Record either way.
+
+## In scope: the ~30 non-skin literals
+
+- **`Core.cs:1357` — `Color.FromArgb(232, 17, 35)`**: the close button's hover red, hard-coded in
+  the *form*, not a skin. Every skin therefore gets Windows' close-red regardless of its palette.
+  Semantic → `ErrorColor`, so it follows a dark or high-contrast palette while keeping its meaning.
+- **`Core.cs:1505-1590`** — a light/dark ladder of greys for the search box (`255,255,255` /
+  `245,245,245` / `60,60,60` / `45,45,45`), its border, icon, placeholder and text, selected by
+  `UseThemeColors && _currentTheme.IsDarkTheme`. This is the form re-deriving what the theme
+  already publishes; it is also why the search box looks the same under every skin.
+- **`Core.cs:1525`** — `?? Color.FromArgb(99, 102, 241) // Default indigo` behind
+  `_currentTheme?.AccentColor`: a fallback that fires exactly when there is no theme, which per
+  the standing rule cannot happen.
+- **`Core.cs:201`** — `_bordercolor = Color.LightGray` as a field initialiser.
+- **`Drawing.cs`** — the six in `ApplyBackdropEffect`; **deleted by stage 06**, not swept here.
+- **`FormPainterRenderHelper.cs`** — 7 in shared helper code used by all skins; a shared helper is
+  not a skin, so these take theme slots or become parameters supplied by the skin.
+
+## The reporting debt (unchanged, and the larger problem)
+
+| pattern | count |
+|---|---:|
+| bare `catch { }` | **28** |
+| `BeepLog` calls | **0** in 26,741 lines |
+| `Debug.WriteLine` | 9 (all `Backdrop.cs`) |
+
+`try { ApplyFormStyle(); } catch { }` (`Core.cs:68`) and `try { EnsureLayoutCalculated(); }
+catch { }` at four sites mean a form that fails to style or lay out renders wrong and says
+nothing. This is the class of defect that cost a full session elsewhere in this repo.
 
 ## The work
 
-1. **Categorise before replacing.** The ListBoxs sweep is the model, including its lesson: a blind
-   regex replace produced `Theme.X(30,30,30)` and a claim of "zero literals" that was wrong
-   **three times** (a 4-argument form, a numeric-alpha form, and `?? Color.Empty` each escaped a
-   different pass). Categories here:
-   - glyph ink on a filled button → `OnPrimaryColor` / a WCAG pick between two theme slots
-   - shadows → alpha veil over `ShadowColor`
-   - borders / dividers → `BorderColor`
-   - caption surface → the caption/panel slots
-   - semantic (close-button red, error states) → `ErrorColor` — meaning preserved through the
-     semantic slot, not a hue
-   - decorative skin palettes (Cyberpunk neon, Dracula, GruvBox, Nord…) → **these are the skin's
-     identity**; they move into the skin descriptor of stage 05 as declared data, not into theme
-     slots. Deleting them would destroy the product.
-2. **Retire `UseThemeColors`** where it gates a theme lookup that should always happen; keep it
-   only if it means something a caller genuinely chooses (record the decision either way).
-3. **28 catches → `BeepLog`**, `…Once` in paint/timer paths, keyed so a failing style or layout
-   names itself; 9 `Debug.WriteLine` → the same.
-4. **Luminance shifts**: keep where a skin *is* a gradient (Neumorphic, Glassmorphism), replace
-   where a shift is standing in for a missing slot (hover/pressed states have real slots).
+1. **~30 non-skin literals** → theme slots, by category: semantic (close red → `ErrorColor`),
+   surfaces/ink (search box → the theme's textbox/panel slots), and one dead `??` fallback deleted.
+2. **28 bare catches → `BeepLog`**, `…Once` in paint/timer paths, keys attributable
+   (`form.style:{FormStyle}`, `form.layout`, …). 9 `Debug.WriteLine` → the same.
+3. **Decide `UseThemeColors`'s default** in `FormPainterMetrics` and record it.
+4. **Write the exemption down where a future sweeper will see it** — a comment at the top of the
+   painters folder and of `FormPainterMetrics`, stating that these palettes are skin identity and
+   are not to be converted. Without that, the next literal census re-opens this.
 
 ## Verification
 
-- **Fence, with the right pattern.** A literal-colour scan that includes *all four* forms that
-  escaped previously: `FromArgb(r,g,b)`, `FromArgb(a,r,g,b)`, named `Color.X`, and
-  `?? Color.Empty`. Count must reach the agreed floor (skin-identity palettes excepted **by name**,
-  listed in this file — an exception that is not enumerated is a hole).
-- **Theme responsiveness, per skin**: render each skin under two themes; assert the renders differ
-  (blindness guard: two renders under the *same* theme must be identical first). This is the check
-  that actually proves a theme reaches the chrome — a literal count does not.
+- **Scoped fence, not a global one.** The literal scan covers `BeepiFormPro.*.cs` and
+  `FormPainterRenderHelper.cs` only, and must reach zero there. `Painters/*FormPainter.cs` and
+  `FormPainterMetrics.cs` are excluded **by name, in the fence source**, with the exemption quoted
+  — an exclusion that isn't written down is a hole. Pattern covers all four escape forms
+  (`FromArgb(r,g,b)`, `FromArgb(a,r,g,b)`, named `Color.X`, `?? Color.Empty`), because the
+  ListBoxs sweep claimed "zero literals" three times and each form defeated a different pass.
+- **Close-button semantics**: render the close button hover under two themes; the fills must
+  differ, and both must equal each theme's `ErrorColor` family (blindness guard: two renders under
+  the same theme identical first).
+- **Search box**: same two-theme differential — this is the visible proof the grey ladder is gone.
 - **Reporting**: probe subscribes to `BeepLog.Reported`; force a style-application failure and
-  assert exactly one report with an attributable key. Fence: zero bare `catch { }` and zero
-  `Debug.WriteLine` in the folder.
-- **Break-it-first**: restore one literal in a swept painter and confirm the per-skin theme
-  differential goes red for that skin; re-add one bare catch and confirm the fence goes red.
+  assert exactly one attributable report. Fences: zero bare `catch { }`, zero `Debug.WriteLine`
+  folder-wide (these apply to painters too — the exemption is about colour, not silence).
+- **Break-it-first**: restore the hard-coded close red and confirm its two-theme differential goes
+  red; re-add one bare catch and confirm the fence goes red.
 
 ## Exit criteria
 
-Literal count at the agreed floor with skin-identity palettes enumerated by name; every skin's
-render provably theme-responsive; zero bare catches and zero `Debug.WriteLine`; `BeepLog` keys
-attributable; break-tests recorded. Any `UseThemeColors` removal recorded as a public-member
-change in the tracker.
+The ~30 non-skin literals on theme slots; the skin exemption documented in the code where a
+future sweeper will hit it; zero bare catches and zero `Debug.WriteLine`; `BeepLog` keys
+attributable; the `UseThemeColors` default decided and recorded; break-tests named.

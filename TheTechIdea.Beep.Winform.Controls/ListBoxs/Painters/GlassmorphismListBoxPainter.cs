@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var highlightRect = new Rectangle(glassRect.X, glassRect.Y, glassRect.Width, glassRect.Height / 3);
                     using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, new CornerRadius(Scale(_itemCornerRadius))))
                     using (var highlightBrush = new LinearGradientBrush(highlightRect,
-                        Color.FromArgb(80, 255, 255, 255),
+                        Color.FromArgb(80, Theme.OnPrimaryColor),
                         Color.FromArgb(0, Theme.OnPrimaryColor),
                         LinearGradientMode.Vertical))
                     {
@@ -103,14 +103,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Glass border
-                    g.DrawPath(GetPen(Color.FromArgb(120, 255, 255, 255), 1f), path);
+                    g.DrawPath(GetPen(Color.FromArgb(120, Theme.OnPrimaryColor), 1f), path);
                 }
                 else if (isHovered)
                 {
                     // Hovered: subtle frosted glass
                     using (var brush = new LinearGradientBrush(glassRect,
-                        Color.FromArgb(60, 255, 255, 255),
-                        Color.FromArgb(30, 255, 255, 255),
+                        Color.FromArgb(60, Theme.OnPrimaryColor),
+                        Color.FromArgb(30, Theme.OnPrimaryColor),
                         LinearGradientMode.Vertical))
                     {
                         g.FillPath(brush, path);
@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default: very subtle glass
-                    g.FillPath(GetBrush(Color.FromArgb(15, 255, 255, 255)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(15, Theme.OnPrimaryColor)), path);
                 }
             }
         }
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Unchecked: glass border
-                    g.FillPath(GetBrush(Color.FromArgb(40, 255, 255, 255)), path);
+                    g.FillPath(GetBrush(Color.FromArgb(40, Theme.OnPrimaryColor)), path);
                     g.DrawPath(GetPen(Color.FromArgb(100,
                         Theme.BorderColor), 1f), path);
                 }

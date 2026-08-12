@@ -233,7 +233,21 @@ RadioSelection, Custom, ErrorStates, FilterStatus, RekaUI, ChakraUI, HeroUI — 
 readable light text under DarkTheme. They rendered light rows before. 50 checks pass in both
 themes.
 
-### NOT fixed — the other ~25 styles still show a light surface
+### Still light, and the reason is NOT the fills
+
+Glass, Neumorphic and GradientCard are fixed. The remaining light styles - Standard, Minimal,
+Outlined, Rounded, Filled, Borderless and the others that rely on the base - are **not** missing a
+fill: `DrawItemBackgroundEx` already begins with
+`g.FillRectangle(GetBrush(Theme.ListBackColor), itemRect)`, and `Theme.ListBackColor` is
+(30,30,30) under DarkTheme. So the fill happens and it is the right colour, which means the
+painter's `_theme` is resolving to a *light* theme at paint time rather than the manager's current
+one.
+
+That is a lifetime question - when `Initialize(owner, theme)` runs and whether anything refreshes
+`_theme` on `ThemeChanged` - not a colour question. A reflection probe to read `_theme` at paint
+time segfaulted and was removed; it needs a different instrument.
+
+### Superseded — the earlier note said the surface came from the control
 
 Standard, Minimal, Outlined, Rounded, Filled, Borderless, CategoryChips, SearchableList, WithIcons,
 Compact, CardList, ChipStyle, Glassmorphism, Neumorphic, GradientCard, AvatarList, Timeline,
@@ -266,6 +280,17 @@ recorded and still open.
 | square shadows now fill the rounded path | CardList (3), Rounded (1) |
 | `O(n^2)` per-paint `IndexOf` replaced by a stable hash | GradientCard |
 | stopped forcing a light surface on dark themes | Neumorphic |
+
+**Second fix pass:**
+
+| fix | detail |
+|---|---|
+| `BeepListItem.IsError` **added** | There was nowhere to say a row had failed. `ErrorStates` keyed off `IsDisabled` as a stopgap; it reads `IsError \|\| IsDisabled` now. |
+| a **fourth** literal-colour form removed | `FromArgb(<number>, 255,255,255)` and `FromArgb(<number>, 0,0,0)` - a numeric alpha, which none of the three earlier sweeps matched. 11 sites: Glassmorphism 6, Timeline 2, Base 1, GradientCard 1, RaisedCheckboxes 1. **This is why Glass stayed light: it painted white veils.** |
+| Glass / Neumorphic / GradientCard now render dark | Confirmed on the DarkTheme contact sheet - all three were light before. |
+
+A literal-colour count over `Painters/` now returns **0**, checked with a pattern that includes
+the 4-argument numeric-alpha form the earlier ones missed.
 
 `Notification` and `ProfileCard` deliberately keep the raw `SubText`: they use it *and*
 `Description` for different lines, so the fallback would have printed the same string twice.

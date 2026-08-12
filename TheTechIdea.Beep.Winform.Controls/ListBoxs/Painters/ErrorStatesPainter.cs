@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Was: Text.Contains("part-time") || Description.Contains("prohibited") - two demo
             // strings deciding a semantic state. A row is in error when the item says so.
-            return item is BeepListItem rich && rich.IsDisabled;
+            return item is BeepListItem rich && (rich.IsError || rich.IsDisabled);
         }
 
         private Color GetTextColor(SimpleItem item)

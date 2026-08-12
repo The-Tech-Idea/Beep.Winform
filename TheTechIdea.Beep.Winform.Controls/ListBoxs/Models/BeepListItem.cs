@@ -56,6 +56,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Models
         /// <summary>When true the item renders as a 1 px horizontal separator rule (height = 20 px).</summary>
         public bool IsSeparator { get; set; }
 
+        /// <summary>
+        /// The item failed validation, or represents a state the user cannot choose.
+        /// </summary>
+        /// <remarks>
+        /// Added because there was nowhere to say this. <c>ErrorStatesPainter</c> decided a row was
+        /// in error by testing whether its text contained "part-time" or its description contained
+        /// "prohibited" - two demo strings deciding a semantic state, so renaming a row changed
+        /// whether it looked broken. Callers set this instead.
+        /// </remarks>
+        public bool IsError { get; set; }
+
         // ── Visual accent ─────────────────────────────────────────────────────────
 
         /// <summary>Optional 3 px left-edge accent colour bar. Color.Empty = none.</summary>

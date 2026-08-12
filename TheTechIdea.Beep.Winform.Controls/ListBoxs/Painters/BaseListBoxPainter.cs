@@ -880,7 +880,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Subtle translucent-black hairline ring around the avatar (alpha overlay, intentional)
-            var pen = GetPen(Color.FromArgb(40, 0, 0, 0), 1.5f);
+            var pen = GetPen(Color.FromArgb(40, Theme.ShadowColor), 1.5f);
             g.DrawEllipse(pen, avatarRect);
         }
 

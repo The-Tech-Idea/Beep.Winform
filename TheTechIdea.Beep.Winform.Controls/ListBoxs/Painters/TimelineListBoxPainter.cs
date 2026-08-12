@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(item.SubText2))
             {
                 Color timeColor = isSelected 
-                    ? Color.FromArgb(200, 255, 255, 255) 
+                    ? Color.FromArgb(200, Theme.OnPrimaryColor) 
                     : (Theme.DisabledForeColor);
                 
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 2, FontStyle.Regular);
@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 var descRect = new Rectangle(textX, contentRect.Y + Scale(28), contentRect.Width - Scale(24), Scale(20));
                 Color descColor = isSelected 
-                    ? Color.FromArgb(220, 255, 255, 255) 
+                    ? Color.FromArgb(220, Theme.OnPrimaryColor) 
                     : (Theme.DisabledForeColor);
                 
                 var smallFont = GetCachedFont(_owner.TextFont.Size - 1, FontStyle.Regular);

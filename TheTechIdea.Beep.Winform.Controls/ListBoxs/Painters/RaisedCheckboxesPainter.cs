@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw checkbox shadow for raised effect
             var shadowRect = checkboxRect;
             shadowRect.Offset(0, 2);
-            g.FillRectangle(GetBrush(Color.FromArgb(40, 0, 0, 0)), shadowRect);
+            g.FillRectangle(GetBrush(Color.FromArgb(40, Theme.ShadowColor)), shadowRect);
 
             // Draw background
             g.FillRectangle(GetBrush(bgColor), checkboxRect);

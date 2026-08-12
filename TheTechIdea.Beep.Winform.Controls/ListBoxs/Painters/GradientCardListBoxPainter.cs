@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     g.FillPath(GetBrush(Theme.ListBackColor), path);
 
                     // Subtle border
-                    g.DrawPath(GetPen(Color.FromArgb(40, 0, 0, 0), 0.5f), path);
+                    g.DrawPath(GetPen(Color.FromArgb(40, Theme.ShadowColor), 0.5f), path);
                 }
             }
         }

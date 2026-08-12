@@ -27,6 +27,31 @@ It now draws the title beside the node — under it when horizontal, right of it
 with the subtitle beneath, from `StepperThemeHelpers.GetStepLabelColor` so the state colouring
 carries. No font is allocated in the paint path.
 
+## `Text` is the title, and every painter now draws it
+
+There is no separate title property — `StepModel.Text` **is** the title — so every painter is
+expected to show it. Two drew nothing at all and the rest each rolled their own placement:
+
+- **`SquareDashed`** drew its square and even computed a text colour it never used for a caption.
+- **`Dots`** was worse: `Initialize` **discarded the owner and all three fonts**, keeping only the
+  theme, so it could not have drawn a caption even in principle.
+- Of the twelve that did draw text, **one** measured against the room it had and **one** applied
+  `EndEllipsis`. A title longer than its slot ran into its neighbour rather than being cut.
+
+`Helpers/StepperLabelHelpers.cs` is now the one authority: it measures, clamps to the width the
+step actually owns, ellipsises, and places by orientation — under the node when horizontal, right
+of it when vertical. No font is allocated in the paint path.
+
+Sizing took three corrections, each visible only in a render:
+
+1. The box was sized from the **title** and then reused for the **subtitle**, so a short title
+   clipped a longer one — "Profile" / "Ste…" while "Account" / "Step 1" was fine. It measures both
+   lines and takes the wider.
+2. A lone step fell back to the **node's** width, which is far narrower than its room. It gets the
+   content rect now.
+3. `Dots` captions only the **active** step, so it competes with nothing — but it was being clamped
+   to the ~20px dot pitch and rendered "Pr…" / "St…". It uses the full content width.
+
 ## The instrument was wrong three times, and each time it said PASS
 
 Worth recording, because every version looked reasonable:

@@ -10,13 +10,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
 {
     public sealed class DotsStepperPainter : IStepperPainter
     {
+        private BaseControl _owner;
         private IBeepTheme _theme;
+        private Font _labelFont;
 
         public string Name => "Dots";
 
         public void Initialize(BaseControl owner, IBeepTheme theme, Font stepFont, Font labelFont, Font numberFont)
         {
+            // The owner and the fonts were discarded here, which is why this painter could not
+            // draw a caption even in principle - it had nothing to draw one with.
+            _owner = owner;
             _theme = theme;
+            _labelFont = labelFont ?? stepFont ?? numberFont;
         }
 
         public StepperLayoutResult ComputeLayout(Rectangle clientRect, IReadOnlyList<StepModel> steps, Orientation orientation, StepperStyleConfig styleConfig)
@@ -113,6 +119,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             {
                 g.FillEllipse(brush, dotRect);
             }
+            // Dots are minimal, so only the ACTIVE step is captioned - enough to say where you are without
+            // turning a dot row into a label row.
+            if (stepIndex == context.SelectedIndex)
+            StepperLabelHelpers.DrawStepTitle(
+                g, step, stepRect, context.Orientation,
+                _labelFont ?? context.LabelFont ?? SystemFonts.DefaultFont,
+                StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State),
+                // The whole content width, not the pitch between dots: only the ACTIVE step is
+                // captioned here, so it competes with nothing. Using the ~20px dot pitch clipped
+                // every caption to "Pr..." / "St...".
+                context.DrawingRect.Width,
+                _owner);
         }
 
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)

@@ -134,6 +134,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             float y = stepRect.Top + ((stepRect.Height - size.Height) / 2f);
             using var textBrush = new SolidBrush(text);
             g.DrawString(marker, font, textBrush, x, y);
+            // A dashed square is still a step: it carries a title like every other style.
+            StepperLabelHelpers.DrawStepTitle(
+                g, step, stepRect, context.Orientation,
+                _textFont ?? context.LabelFont ?? SystemFonts.DefaultFont,
+                StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State),
+                StepperLabelHelpers.SlotWidth(context, stepIndex, stepRect),
+                _owner);
         }
 
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)

@@ -89,6 +89,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             return true;
         }
 
+        /// <summary>The first of the candidates that actually carries text, or null.</summary>
+        private static string FirstNonBlank(params string[] candidates)
+        {
+            if (candidates == null) return null;
+            foreach (var c in candidates)
+                if (!string.IsNullOrWhiteSpace(c)) return c;
+            return null;
+        }
+
         private List<StepModel> BuildPainterSteps()
         {
             if (stepCount <= 0)
@@ -105,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (!showLabel)
                     {
                         model.Text = string.Empty;
-                        model.Subtitle = string.Empty;
+                        model.SubText = string.Empty;
                     }
                     return model;
                 }).ToList();
@@ -117,15 +126,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var item = i < ListItems.Count ? ListItems[i] : null;
                 bool showLabel = ShouldShowStepLabel(i);
+                // Text is the title. Name and SubText are the fallbacks, not the other way round.
+                //
+                // This read `item.Name` for the title and `item.Text` for the subtitle, which is
+                // backwards from every other Beep control - Text is the display text everywhere
+                // else. A caller filling ListItems the ordinary way (Text set, Name left null)
+                // therefore got a generic "Step 1" heading with their real caption demoted to the
+                // subtitle line, which reads as "the stepper shows no titles".
                 string label = showLabel ? (item != null
-                    ? (item.Name ?? $"Step {i + 1}")
+                    ? (FirstNonBlank(item.Text, item.Name) ?? $"Step {i + 1}")
                     : GetStepLabel(i)) : string.Empty;
-                string subtitle = showLabel ? item?.Text : string.Empty;
+                string subtitle = showLabel ? FirstNonBlank(item?.SubText, item?.Description) : string.Empty;
 
                 steps.Add(new StepModel
                 {
                     Text = label,
-                    Subtitle = subtitle,
+                    SubText = subtitle,
                     Tooltip = item != null ? GetStepTooltip(i) : label,
                     State = GetStepState(i),
                     IsEnabled = true

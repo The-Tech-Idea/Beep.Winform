@@ -103,9 +103,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StepState state = i < selectedIndex ? StepState.Completed : i == selectedIndex ? StepState.Active : StepState.Pending;
                 bool showLabel = ShouldShowStepLabel(i);
                 // Name and Text usually carry the SAME string (SimpleItem convention here) -
-                // forwarding both as Text + Subtitle doubled every label ("Account"/"Account").
-                string header = ListItems[i].Name ?? string.Empty;
-                string sub = ListItems[i].Text ?? string.Empty;
+                // forwarding both as Text + SubText doubled every label ("Account"/"Account").
+                // Text is the title here too. This read Name for the header and Text for the
+                // sub-line: with Name left null - which is normal, since Text is the property
+                // every other Beep control uses - the header fell to string.Empty and the crumb
+                // showed no title at all.
+                string header = !string.IsNullOrWhiteSpace(ListItems[i].Text) ? ListItems[i].Text
+                              : (ListItems[i].Name ?? string.Empty);
+                string sub = !string.IsNullOrWhiteSpace(ListItems[i].SubText) ? ListItems[i].SubText
+                           : (ListItems[i].Description ?? string.Empty);
                 if (string.Equals(sub, header, StringComparison.Ordinal))
                 {
                     sub = string.Empty;
@@ -113,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 steps.Add(new StepModel
                 {
                     Text = showLabel ? header : string.Empty,
-                    Subtitle = showLabel ? sub : string.Empty,
+                    SubText = showLabel ? sub : string.Empty,
                     Tooltip = GetStepTooltip(i),
                     State = state,
                     IsEnabled = true

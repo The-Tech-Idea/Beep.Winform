@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             // through (`_stepModels.Take(stepCount)`). Mutating in place left the count stale.
             var models = new System.ComponentModel.BindingList<StepModel>();
             foreach (var wizardStep in _instance.Config.Steps)
-                models.Add(new StepModel { Text = wizardStep.Title, Subtitle = wizardStep.Description });
+                models.Add(new StepModel { Text = wizardStep.Title, SubText = wizardStep.Description });
             _stepper.StepModels = models;
             _stepper.CurrentStep = _instance.CurrentStepIndex;
         }

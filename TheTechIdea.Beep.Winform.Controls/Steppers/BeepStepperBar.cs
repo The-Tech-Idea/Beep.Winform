@@ -815,6 +815,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            // The control's own heading, above the steps.
+            DrawTitleBand(e.Graphics, StepperLayoutHelper.ComputeContentBounds(
+                ClientRectangle, _showNextPrevButtons, GetNavigationButtonsReservedHeight(),
+                DpiScalingHelper.ScaleValue(6, this)));
+
             if (TryPaintWithRegisteredPainter(e.Graphics))
             {
                 return;

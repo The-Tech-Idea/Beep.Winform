@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _stepModels.Add(new StepModel
             {
                 Text = "Select",
-                Subtitle = "Choose your plan",
+                SubText = "Choose your plan",
                 State = StepState.Completed,
                 Tooltip = "Step 1: Select your plan",
                 ImagePath = "check.svg"
@@ -63,21 +63,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             _stepModels.Add(new StepModel
             {
                 Text = "Configure",
-                Subtitle = "Customize settings",
+                SubText = "Customize settings",
                 State = StepState.Active,
                 Tooltip = "Step 2: Configure your settings"
             });
             _stepModels.Add(new StepModel
             {
                 Text = "Review",
-                Subtitle = "Verify details",
+                SubText = "Verify details",
                 State = StepState.Pending,
                 Tooltip = "Step 3: Review your order"
             });
             _stepModels.Add(new StepModel
             {
                 Text = "Complete",
-                Subtitle = "Confirmation",
+                SubText = "Confirmation",
                 State = StepState.Pending,
                 Tooltip = "Step 4: Order confirmed"
             });

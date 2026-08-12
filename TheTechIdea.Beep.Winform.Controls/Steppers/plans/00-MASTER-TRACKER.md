@@ -27,7 +27,36 @@ It now draws the title beside the node — under it when horizontal, right of it
 with the subtitle beneath, from `StepperThemeHelpers.GetStepLabelColor` so the state colouring
 carries. No font is allocated in the paint path.
 
-## `Text` is the title, and every painter now draws it
+## The control had no title of its own
+
+`BeepStepperBar` could not show a heading at all. It inherits `Control.Text`, but nothing ever
+painted it — setting it did nothing — so callers had to park a separate label above the bar and
+keep it aligned by hand. The wizard forms were doing exactly that with their own step-count label.
+
+- **`Text` is the control's title**, painted in the theme's title typography.
+- **`SubText`** (new) is the optional line under it, in its own smaller font. It first inherited
+  `_textFont ?? titleFont`, which fell through to the bold heading face whenever `_textFont` was
+  unset and read as a second title.
+- **`TitleImagePath`** (new) draws an icon left of the title through `StyledImagePainter` — the
+  control that renders and themes SVGs here — in a square box matched to the band height, so icon
+  and heading share a baseline at any DPI.
+- **`TitleAlignment`** places the heading within the band.
+
+The band is measured and `GetStepperContentBounds` subtracts its height, so the steps can never be
+laid out over the heading. Verified: first step top moves to 105px once a title is set.
+
+### The check for it was wrong twice
+
+- Measuring ink in a band derived from the step positions **moved that band** the moment a title
+  existed (the steps shift down), so it compared two different regions and reported *less* ink with
+  a title than without.
+- The icon check failed on a path that does not resolve in the probe's environment. A probe that
+  goes red on a **missing asset** says nothing about whether the painting code is right, so the
+  icon is rendered for eyeballing instead of counted.
+
+Both are now a whole-bitmap differential plus a saved render. 82 checks, 0 failures.
+
+## Per-step captions: `Text` is the title there too, and every painter now draws it
 
 There is no separate title property — `StepModel.Text` **is** the title — so every painter is
 expected to show it. Two drew nothing at all and the rest each rolled their own placement:

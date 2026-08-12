@@ -64,9 +64,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             // was fine, because the box inherited each title's own width.
             Size measured = TextRenderer.MeasureText(g, step.Text, font);
             int lineH = measured.Height;
-            if (!string.IsNullOrWhiteSpace(step.Subtitle))
+            if (!string.IsNullOrWhiteSpace(step.SubText))
             {
-                Size sub = TextRenderer.MeasureText(g, step.Subtitle, font);
+                Size sub = TextRenderer.MeasureText(g, step.SubText, font);
                 measured.Width = Math.Max(measured.Width, sub.Width);
             }
 
@@ -93,11 +93,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
             TextRenderer.DrawText(g, step.Text, font, titleRect, ink, flags);
 
-            if (string.IsNullOrWhiteSpace(step.Subtitle)) return titleRect;
+            if (string.IsNullOrWhiteSpace(step.SubText)) return titleRect;
 
             // The same font, dimmed - deliberately not a second Font instance.
             var subRect = new Rectangle(titleRect.X, titleRect.Bottom, titleRect.Width, lineH);
-            TextRenderer.DrawText(g, step.Subtitle, font, subRect, Color.FromArgb(150, ink), flags);
+            TextRenderer.DrawText(g, step.SubText, font, subRect, Color.FromArgb(150, ink), flags);
             return Rectangle.Union(titleRect, subRect);
         }
 

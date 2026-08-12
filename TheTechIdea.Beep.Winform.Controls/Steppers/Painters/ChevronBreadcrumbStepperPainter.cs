@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             if (context.Orientation == Orientation.Horizontal)
             {
                 string headerText = step.Text ?? string.Empty;
-                string subText = step.Subtitle ?? string.Empty;
+                string subText = step.SubText ?? string.Empty;
                 Font headerFont = _labelFont ?? _stepFont ?? SystemFonts.DefaultFont;
                 Font subFont = _stepFont ?? _labelFont ?? SystemFonts.DefaultFont;
                 var headerSize = g.MeasureString(headerText, headerFont);

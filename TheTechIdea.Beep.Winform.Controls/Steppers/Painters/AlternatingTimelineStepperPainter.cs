@@ -194,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             Color labelColor = StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, step.State);
             using var brush = new SolidBrush(labelColor);
             string title = step.Text ?? "Step";
-            string subtitle = step.Subtitle ?? string.Empty;
+            string subtitle = step.SubText ?? string.Empty;
             g.DrawString(title, font, brush, cardRect.Left + DpiScalingHelper.ScaleValue(8, _owner), cardRect.Top + DpiScalingHelper.ScaleValue(4, _owner));
             if (!string.IsNullOrWhiteSpace(subtitle))
             {

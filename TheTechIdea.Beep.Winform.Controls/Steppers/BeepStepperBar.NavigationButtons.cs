@@ -92,11 +92,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle GetStepperContentBounds()
         {
             int outerPadding = DpiScalingHelper.ScaleValue(6, this);
-            return StepperLayoutHelper.ComputeContentBounds(
+            var bounds = StepperLayoutHelper.ComputeContentBounds(
                 ClientRectangle,
                 _showNextPrevButtons,
                 GetNavigationButtonsReservedHeight(),
                 outerPadding);
+
+            // Take the title band off the top so the steps cannot be laid out over the heading.
+            int band = GetTitleBandHeight();
+            if (band > 0)
+                bounds = new Rectangle(bounds.Left, bounds.Top + band, bounds.Width, Math.Max(1, bounds.Height - band));
+            return bounds;
         }
 
         private void UpdateNavigationButtonsLayout()

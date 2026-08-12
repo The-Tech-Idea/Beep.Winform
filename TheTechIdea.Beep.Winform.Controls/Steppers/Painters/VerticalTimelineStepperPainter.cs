@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
         {
             Font labelFont = _labelFont ?? context.LabelFont ?? SystemFonts.DefaultFont;
             string title = step.Text ?? $"Step {stepIndex + 1}";
-            string subtitle = step.Subtitle ?? string.Empty;
+            string subtitle = step.SubText ?? string.Empty;
 
             float titleHeight = g.MeasureString(title, labelFont).Height;
             float subtitleHeight = string.IsNullOrWhiteSpace(subtitle) ? 0f : g.MeasureString(subtitle, labelFont).Height;

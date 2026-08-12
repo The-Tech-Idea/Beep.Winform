@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultForCached(FormStyle.Modern, owner);
+            return owner.MetricsFor(FormStyle.Modern);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)

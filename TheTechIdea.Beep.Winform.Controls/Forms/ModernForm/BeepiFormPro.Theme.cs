@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
             _formpaintermaterics = null;
             InvalidateLayout();
-            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? appliedTheme : null).BackgroundColor;
+            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? appliedTheme : null, DpiScaleFactor, UseThemeColors).BackgroundColor;
 
           // pass theme to controls or apply theme-specific settings here
             foreach (var control in this.Controls)

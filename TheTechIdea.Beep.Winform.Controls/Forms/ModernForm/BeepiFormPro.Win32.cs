@@ -488,6 +488,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         }
                         break;
 
+                    case WM_DPICHANGED:
+                        // Windows has already updated DeviceDpi by the time this arrives; this is
+                        // the cue to rebuild everything that was measured at the old scale.
+                        base.WndProc(ref m);
+                        HandleDpiChanged(m);
+                        m.Result = IntPtr.Zero;
+                        return;
+
                     case WM_ENTERSIZEMOVE:
                         _inInteractiveSizeMove = true;
                         base.WndProc(ref m);
@@ -589,7 +597,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     else
                     {
                         // Fallback: draw border using the form's shape
-                        var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
+                        var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null, DpiScaleFactor, UseThemeColors);
                         using (var borderPen = new Pen(metrics.BorderColor, bt))
                         {
                             using (var shapePath = CreateRoundedRectanglePath(formRect, radius))
@@ -844,7 +852,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         // Helpers: effective metrics-driven values with safe fallbacks
         private int GetEffectiveResizeMarginDpi()
         {
-            var m = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
+            var m = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null, DpiScaleFactor, UseThemeColors);
             int raw = m?.ResizeBorderWidth ?? 0;
             if (raw <= 0) raw = m?.BorderWidth ?? 0; // fall back to border width
             if (raw <= 0) raw = _resizeMarginWin32;   // legacy default
@@ -854,7 +862,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private int GetEffectiveBorderThicknessDpi()
         {
-            var m = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
+            var m = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null, DpiScaleFactor, UseThemeColors);
             int raw = m?.BorderWidth ?? 0;
             if (raw <= 0) raw = _customBorderThickness; // fallback to property if set
             if (raw <= 0) raw = 1;                      // final fallback

@@ -56,7 +56,7 @@ Worth stating, because a plan that lists only faults invites replacing working m
 | [04](04-dpi.md) | Per-monitor DPI v2; close the painter-side scaling hole | **bug** | ☐ open |
 | [05](05-painter-architecture.md) | 38 painters onto one chrome pipeline; parity enforced | refactor | ☐ open |
 | [06](06-backdrop-effects.md) | One backdrop API — drop DWM backdrops, keep a real painted effect | **bug** | ☐ open |
-| [07](07-verification.md) | `FormProbe` — the harness every stage reports through | verification | ◐ live — stages 01/02/02b/03 green (27 checks), 13 breaks recorded |
+| [07](07-verification.md) | `FormProbe` — the harness every stage reports through | verification | ◐ live — stages 01/02/02b/03/04 green (37 checks), 17 breaks recorded, 1 check unproven |
 | [08](08-theme-and-reporting.md) | 28 silent catches → `BeepLog`; ~30 non-skin literals → slots | **rule 1** (+4, scoped) | ☐ open |
 
 Status marks: ☐ open · ◐ in progress · ☑ done

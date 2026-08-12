@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultForCached(FormStyle.NextJS, owner);
+            return owner.MetricsFor(FormStyle.NextJS);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)

@@ -80,6 +80,17 @@ actually run — "the check exists" and "the check has been seen red" must never
 | `hovering maximize reports HTMAXBUTTON` | never report `HTMAXBUTTON` | 2026-08-12 — red |
 | `every caption tooltip says what the reader says` | give the tooltip its own text source | 2026-08-12 — red |
 | `clicking maximize still maximizes` | `WM_NCLBUTTONUP` no longer acts | 2026-08-12 — red |
+| `metrics a painter receives are DPI-scaled` (+2) | `MetricsFor` drops the DPI argument | 2026-08-12 — red (3 checks) |
+| `WM_DPICHANGED discards stale metrics` | gut `HandleDpiChanged` | 2026-08-12 — red |
+| `a metrics-driven skin responds to DPI` | one painter bypasses the seam | 2026-08-12 — red |
+| `no painter re-scales a pre-scaled metric` | insert 5 real double-scale calls | 2026-08-12 — **STAYED GREEN; check unproven** |
+
+**Two checks that could not fail, both found by breaking them:**
+
+- `WM_DPICHANGED adopts the suggested rect` — WinForms' `base.WndProc` does that, so the check
+  passed with our handler gutted. Replaced with the one effect only our handler has.
+- `no painter re-scales a pre-scaled metric` — still green with five genuine double-scale calls
+  inserted. Cause not found. Recorded as decorative rather than quietly kept; see 04-dpi.md.
 
 **Three instruments were wrong before any code was.** Full account in
 `02-geometry-and-invalidate.md`; the short form, because each will recur:
@@ -97,7 +108,7 @@ with MSB3021/MSB3027, which that grep does not match — the build looks clean, 
 on disk, and every break reports "still green" because none of them were ever in the running code.
 
 **Probe status:** `FormProbe` exists in the session scratchpad (`scratchpad/FormProbe`), builds
-clean, runs in ~4s, watchdog + hard exit, **stages 01 + 02 + 02b + 03 green (27 checks, 0 failures)**.
+clean, runs in ~4s, watchdog + hard exit, **stages 01/02/02b/03/04 green (37 checks, 0 failures — one of them unproven, see the ledger)**.
 
 **Capture note, learned the hard way:** `DrawToBitmap` returns a blank image for this form —
 `WM_PRINTCLIENT` does not invoke the custom `OnPaintBackground`. `Shot()` drives that method over

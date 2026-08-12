@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_formpaintermaterics == null)
                 {
                     // Lazy load metrics based on current Style and theme
-                    _formpaintermaterics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null);
+                    _formpaintermaterics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null, DpiScaleFactor, UseThemeColors);
                 }
                 return _formpaintermaterics;
             }
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             this.HandleCreated += (s, e) => { ApplyWindowShape(); DebouncedInvalidate(); };
 
             ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
-            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
+            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null, DpiScaleFactor, UseThemeColors).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
             FormBorderStyle = FormBorderStyle.None;
             
             // CRITICAL: Design-time support - hook child control events for auto-refresh
@@ -503,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 PerformLayout();
             }
-            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
+            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null, DpiScaleFactor, UseThemeColors).BackgroundColor;
             ApplyStyletoChildControls();
             
             // CRITICAL: Update window region to match new Style's corner radius

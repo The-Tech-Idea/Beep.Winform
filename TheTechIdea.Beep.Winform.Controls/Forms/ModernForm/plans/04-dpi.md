@@ -34,6 +34,93 @@
 4. **The AutoScale decision recorded:** designer file owns `AutoScaleDimensions`; base sets only
    `AutoScaleMode.Dpi`; derived forms audited for contradicting serialized values.
 
+## Outcome — ☑ core done; two items recorded open
+
+### The plan's premise was wrong, and the truth was worse
+
+This document's ⚠︎ correction said `FormPainterMetrics` "**does** scale centrally" and that the
+residual hole was 6 painters that might scale a second time. Measured:
+
+- `FormPainterMetrics.DefaultFor(style, theme, dpiScaleFactor)` and its cached twin — the complete,
+  guarded, 20-line central scaler — had **zero callers anywhere in the repository**. Every real call
+  site used `DefaultForCached(style, theme)`, the overload with no DPI in it.
+- So metrics were **never** DPI-scaled. The 6 painters calling `DpiScalingHelper` directly were not
+  a double-scaling hazard — they were the only painters that scaled **at all**. The other 32 ignored
+  DPI completely, and two skins on the same 150% monitor disagreed about whether DPI exists.
+- Dead DPI-aware overloads are worse than none: they make the pipeline read as correct.
+
+Routing the form's own 9 metrics fetches through the DPI overload changed **nothing a painter
+draws**, because each of the 38 painters had its own `GetMetrics` calling the unscaled overload.
+Thirty-eight copies of one lookup is also why the hole stayed invisible: there was no single place
+to be wrong in.
+
+### What changed
+
+1. **`BeepiFormPro.Dpi.cs`** (new). `protected virtual float DpiScaleFactor` — one answer to "what
+   scale are we at". It is **virtual out of necessity**: `Control.DeviceDpi` is neither virtual nor
+   settable (its backing store is a `readonly static` in this runtime), so without this seam the
+   scaling pipeline cannot be exercised by any probe — it would be verifiable only by dragging a
+   window between two physical monitors by hand.
+2. **`internal FormPainterMetrics MetricsFor(FormStyle)`** — the one metrics lookup, DPI-aware.
+   All **38 painters** now route through it (31 + 7 of a second signature); zero call
+   `DefaultForCached` directly.
+3. **`WM_DPICHANGED` handled**: adopt the suggested rect, drop metrics measured at the old scale,
+   rebuild layout and window shape, repaint.
+
+### Verified
+
+```
+PASS  the metrics a painter receives are scaled for the form's DPI:
+        caption 32->48, button 32->48, radius 6->9 at 1.0x -> 1.5x
+PASS  a metrics-driven skin's caption responds to DPI: Dracula 40px -> 48px (x1.20)
+PASS  WM_DPICHANGED discards metrics measured at the old scale: cache 6 -> 1 entries
+```
+
+**No skin's appearance changed.** Caption height was captured for all **37 styles** before and after;
+the tables are byte-identical. At this machine's scale `DefaultForCached(…, 1.0f, …)` falls through
+to the unscaled path, so the change is inert at 96 DPI by construction — and now measured to be.
+
+### Break-it-first — four breaks
+
+| break | result |
+|---|---|
+| A. `MetricsFor` drops the DPI argument | **red** — 3 checks |
+| B. `WM_DPICHANGED` no longer handled | **red** — the cache check |
+| C. one painter bypasses the seam | **red** — that skin stops responding |
+| D. a painter re-scales a metric | **STILL GREEN — see below** |
+| all restored | green (10 checks) |
+
+**B only became a real check after a first attempt failed to fail.** It originally asserted that the
+window adopted the suggested rect — which WinForms' own `base.WndProc` does. Gutting
+`HandleDpiChanged` entirely left it green: it was testing the framework, not this form. It now
+asserts the one thing only our handler does — discarding metrics measured at the old scale.
+
+### ⚠︎ The double-scale fence is UNPROVEN
+
+`no painter re-scales a value that came from pre-scaled metrics` reports 0 sites and passes. Break D
+inserted five genuine `ScaleValue(metrics.ButtonWidth, …)` calls into `DraculaFormPainter` and the
+check **stayed green**. The build succeeded and the probe ran, so the fence is not seeing what it
+claims to scan; the cause was not found before this stage was written up.
+
+Treat this check as decorative until it has been seen red. It is recorded here rather than removed
+because the invariant it encodes is the right one — banning `DpiScalingHelper` outright would also
+ban correct code (a painter scaling its **own literal** once is fine; scaling a value that already
+came from pre-scaled metrics is the defect, as in `CommandListBoxPainter`).
+
+### NOT done — recorded, with counts
+
+- **16 painters compute `owner.Font.Height + <literal>`** for caption height. The font grows with
+  DPI; the literal does not — so those captions are *partially* scaled. Converting them changes each
+  skin's appearance wherever the literal and `metrics.CaptionHeight` disagree, so it needs its own
+  before/after table across 37 styles. 21 painters take caption height from pre-scaled metrics and
+  are correct.
+- **6 painters still scale their own literals** via `DpiScalingHelper` (Linear, MaterialYou, Modern,
+  NextJS, RadixUI, Shadcn). This is *correct* — scaled once — but it answers to the real monitor
+  rather than to `DpiScaleFactor`, so those skins are outside the seam and invisible to any probe.
+- **`AutoScaleDimensions` (F5, inherited from stage 01)** — still untouched. It needs an audit of
+  every derived form's serialized value, and getting it wrong silently rescales existing forms.
+- **A real monitor drag** has not been performed. Everything above is measured through the seam.
+
 ## Verification
 
 Real monitor-dragging cannot run in a probe, so the checks target the seams:

@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            var metrics = FormPainterMetrics.DefaultForCached(FormStyle.GNOME, owner.UseThemeColors ? owner.CurrentTheme : null);
+            var metrics = owner.MetricsFor(FormStyle.GNOME);
             // GNOME prefers subtle rounded corners
             return metrics;
         }

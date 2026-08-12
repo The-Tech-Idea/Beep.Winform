@@ -1212,7 +1212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// current style instead of a stale closure captured at construction time.
         /// </summary>
         private FormPainterMetrics GetCurrentMetrics()
-            => FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
+            => FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null, DpiScaleFactor, UseThemeColors);
 
         private void InitializeBuiltInRegions()
         {
@@ -1443,7 +1443,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     if (!_showSearchBox || r.Width <= 0 || r.Height <= 0) return;
                     
                     var isHovered = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Search)) ?? false;
-                    var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
+                    var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null, DpiScaleFactor, UseThemeColors);
                     
                     // Background with rounded corners
                     int radius = 4;

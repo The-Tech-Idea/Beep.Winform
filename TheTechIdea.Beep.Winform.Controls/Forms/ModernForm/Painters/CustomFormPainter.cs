@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         // PC-08: Use cached metrics instead of creating new instance every call
         public virtual FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            var metrics = FormPainterMetrics.DefaultForCached(FormStyle.Custom, owner.UseThemeColors ? owner.CurrentTheme : null);
+            var metrics = owner.MetricsFor(FormStyle.Custom);
             // Apply custom overrides if theme didn't provide specific values
             if (metrics.BackgroundColor == Color.Empty) metrics.BackgroundColor = DefaultBackgroundColor;
             if (metrics.BorderColor == Color.Empty) metrics.BorderColor = DefaultBorderColor;

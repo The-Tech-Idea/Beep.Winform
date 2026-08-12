@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultForCached(FormStyle.Material, owner);
+            return owner.MetricsFor(FormStyle.Material);
         }
 
         /// <summary>
@@ -388,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
-            FormPainterMetrics metrics = FormPainterMetrics.DefaultForCached(FormStyle.Material, owner.UseThemeColors ? owner.CurrentTheme : null);
+            FormPainterMetrics metrics = owner.MetricsFor(FormStyle.Material);
             
             // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
             int captionHeight = owner.Font.Height + 32;

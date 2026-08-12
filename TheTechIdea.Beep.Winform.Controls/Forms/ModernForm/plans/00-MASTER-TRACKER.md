@@ -65,11 +65,16 @@ Status marks: ☐ open · ◐ in progress · ☑ done
 
 **01 first** — the reported bug, and every later stage is eyeballed on the design surface.
 **07 is written alongside 01**, never last: each stage's checks must be seen red before its fix
-(repo doctrine — break the instrument first). **02 before 03/05/06** because caption, painters and
-backdrop all sit on the geometry it makes single-owner, and because the DWM backdrop needs the
-region gone. **06 before 05** would also be defensible, but 05 first means the backdrop lands on
-one pipeline instead of 38. **08 can run in parallel** with anything after 02 — it is a sweep, not
-a redesign, and its fences protect every later stage.
+(repo doctrine — break the instrument first). **02 before 03/05** because caption and painters
+both sit on the geometry it makes single-owner.
+
+**06's ordering changed with its ruling.** It used to sit behind 02 because "a `SetWindowRgn`
+region defeats the system backdrop" — void now that there is no system backdrop. What remains is a
+property collapse (which can land immediately, nothing depends on it) plus one painted effect that
+belongs with stage 05's skin descriptor.
+
+**08 runs in parallel** with anything after 02 — a sweep, not a redesign, and its fences protect
+every later stage.
 
 ## Standing constraints (CLAUDE.md — hold in every stage)
 
@@ -98,6 +103,22 @@ a redesign, and its fences protect every later stage.
   construction.
 - Every derived form (wizards, dialogs, popups) inherits changes made here — each stage exits with
   a full-library build plus a spot-render of one derivative.
+
+## Public-member changes already known
+
+Seeded from the survey so a breaking change is never a surprise at merge time; filled in as
+stages land.
+
+| member | stage | change | notes |
+|---|---|---|---|
+| `BeepiFormPro.Backdrop` (`BackdropType`) | 06 | **remove** | cannot work while a painter owns the pixels |
+| `BeepiFormPro.EnableAcrylicForGlass` | 06 | **remove** | same |
+| `BeepiFormPro.EnableMicaBackdrop` | 06 | **remove** | same; duplicates `Backdrop = Mica` |
+| `BeepFormUIManager.Backdrop` (`BackdropType?`) | 06 | **remove** | external consumer at `Managers/BeepFormUIManager.cs:135,397`; **not** on `IBeepFormUIManager`, so the interface is unaffected |
+| `Forms/Effects/BackdropType.cs` | 06 | **remove** | only after both consumers above |
+| `BeepiFormPro.BackdropEffect` | 06 | **rename** | to `SurfaceOverlay` (name to confirm): what survives is a painted treatment, not a compositor backdrop |
+| `BeepiFormPro.OwnsWindowShape` | 02 | **add** (protected virtual) | lets a derivative own its silhouette - the API `CustomToolTip` needed and never had |
+| `CreateAccessibilityInstance` + caption child objects | 03 | **add** | real UIA tree replacing the identity-mutation approach |
 
 ## Record as you go
 

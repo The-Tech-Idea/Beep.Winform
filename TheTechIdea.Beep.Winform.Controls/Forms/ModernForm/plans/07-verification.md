@@ -38,9 +38,17 @@ shape as `Tools/BeepBlockWizardPreviewHarness`). Non-negotiables learned this se
    fence at zero; 96-vs-144 render differential [04]
 5. All-skins contact sheet ×{active, inactive, maximized} ×2 sizes; per-flag per-skin pixel
    differential; deprecated-helper fence [05]
-6. One-API backdrop fence; DWM attribute round-trip + `EffectiveBackdrop` on refusal +
-   `BeepLog.Reported` subscription; placebo regression (no flat translucent full-client fill);
-   caption contrast ≥ 4.5:1 per backdrop×theme; opacity ramp / reduced-motion jump [06]
+6. One-API fence (no `Backdrop`/`BackdropType`/`EnableMicaBackdrop`/`EnableAcrylicForGlass`
+   references remain); the surviving painted effect changes pixels **and** its tint tracks the
+   theme across two themes; frame-level DWM (corner preference, shadow) still applies with the
+   backdrop path gone; caption contrast ≥ 4.5:1 over the painted surface per theme; opacity ramp /
+   reduced-motion jump [06]
+
+   **Retired with the ruling — and worth keeping as a cautionary note:** the DWM attribute
+   round-trip and `EffectiveBackdrop`-on-refusal checks are gone, because they test a negotiation
+   that no longer happens. More importantly, the round-trip check **would have passed today**:
+   `DwmSetWindowAttribute` returns S_OK for an effect the painter immediately covers. A check that
+   green-lights an invisible feature is precisely the failure this stage exists to record.
 7. Literal-colour fence covering **all four** escape forms (`FromArgb(r,g,b)`, `FromArgb(a,r,g,b)`,
    named `Color.X`, `?? Color.Empty`); per-skin two-theme render differential; zero bare
    `catch { }`; zero `Debug.WriteLine` [08]

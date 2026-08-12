@@ -1,4 +1,13 @@
-# Stage 06 — Backdrops: decide who owns the client pixels
+# Stage 06 — Backdrops: painted, not composited (**decided**)
+
+**Decision — owner, this session: option A.** DWM system backdrops are dropped; the form keeps one
+honestly-named painted effect. The options below are kept as the record of *why*, not as an open
+question. Reversing to option C remains possible and its price is written down.
+
+**Ordering note.** This stage used to be blocked on stage 02 ("a `SetWindowRgn` region defeats the
+system backdrop") — void now that there is no system backdrop. The property deletions can land
+immediately; the painted effect belongs with stage 05's skin descriptor. Stage 02 still owns the
+*frame*-level DWM work (corner preference, shadow) that survives the ruling.
 
 > **Rev 3 — the owner asked the question that inverts this stage: "backdrop effect, how can it
 > affect my custom background?"** It cannot. Rev 2 said "delete the placebo, keep the real DWM
@@ -30,10 +39,9 @@ changes what a user sees, precisely because it draws *over* the painted backgrou
 imitation (a flat translucent wash, no blur, no sampling of what is behind the window), but
 calling it the fake one and the DWM path the real one had it backwards in terms of *effect*.
 
-## The decision this stage actually needs
+## The options as they were weighed (history — the decision is A)
 
-Who owns the client pixels? This is a product decision, not a cleanup, and it wants the owner's
-call before any code moves:
+Who owns the client pixels? This was the product decision behind the stage:
 
 **Option A — painters keep the pixels (least disruption).**
 Accept that true Mica/Acrylic cannot show through an opaque skin. Delete the DWM backdrop path
@@ -103,45 +111,68 @@ reproduce that. If it ever becomes a requirement this decision reverses to C, at
 - `EffectiveBackdrop` is no longer needed for DWM negotiation, but its *principle* stands: no
   property may report success for an effect that cannot appear.
 
-## Work that is unconditional (whichever option wins)
+## The work (option A)
 
-> Under the recommended option A, items 1 and 3-4 stand; item 2 (`EffectiveBackdrop`) reduces to
-> "the surviving property must not claim an effect it cannot produce".
-
-1. **Collapse four overlapping switches into one.** `BackdropEffect` (`Core.cs:950`), `Backdrop`
-   (`Backdrop.cs:28`), `EnableAcrylicForGlass` (`:51`), `EnableMicaBackdrop` (`:74`) all control
-   one concept, and two of them call the same DWM attribute independently. One property survives;
-   the removals are recorded in the tracker as public-member changes.
-2. **`EffectiveBackdrop` (read-only)** — what the OS *and the architecture* actually granted, so a
-   caller can ask instead of inferring from pixels. Under option A it reports the painter-level
-   effect; under B/C it reports the DWM state, and reports `None` for a skin that paints opaque.
-   **This is the property that makes the current failure impossible to repeat**: today the setter
-   succeeds and the effect never appears, with nothing to query.
-3. **`BeepLog` for the 9 `Debug.WriteLine`s** in `Backdrop.cs` — `FallbackOnce` for expected OS
-   refusals, `Failure` for genuine errors.
-4. **Contrast guard** on caption ink over whatever surface results, reusing the WCAG pick already
-   shipped in ToolTips/Lovs — the `GlassToolTipPainter` "light ink on light frost" failure is the
-   same shape.
+1. **Delete the DWM backdrop path.** `TryEnableMica`, `TryEnableAcrylic`, `TryDisableMica`,
+   `TryDisableAcrylic`, the blur-behind call, `ApplyBackdrop`, and the
+   `SetWindowCompositionAttribute` / `ACCENT_STATE` / `WINDOWCOMPOSITIONATTRIBDATA` plumbing that
+   exists only for them. **Keep** `DwmSetWindowAttribute` itself and the frame attributes stage 02
+   uses (corner preference, shadow, `DWMWA_NCRENDERING_POLICY`) — those work regardless of client
+   opacity.
+2. **Collapse four public switches to one.** Removed: `Backdrop` (`BackdropType`),
+   `EnableAcrylicForGlass`, `EnableMicaBackdrop`. Kept and renamed: `BackdropEffect` →
+   `SurfaceOverlay` (name to confirm), because what survives is a painted surface treatment, not a
+   **`BackdropType` has a consumer outside this folder — checked, not assumed:**
+   `Managers/BeepFormUIManager.cs:135` exposes `public BackdropType? Backdrop` and applies it at
+   `:397` (`_beepiForm.Backdrop = Backdrop.Value`). It is *not* on `IBeepFormUIManager`, so the
+   interface is unaffected, but the manager property and its assignment go with the form's, and
+   `Forms/Effects/BackdropType.cs` is deleted only once both are gone.
+   **All removals recorded in the tracker as public-member changes** — a breaking change for any
+   caller setting them today, and the fact that those callers currently get *nothing visible*
+   does not make the break invisible to a compiler.
+3. **Make the surviving effect real.** `ApplyBackdropEffect` currently fills
+   `Color.FromArgb(20,255,255,255)` and similar — a flat literal wash that ignores the theme
+   entirely. Replace with a theme-sourced treatment: tint from the theme's surface/overlay slot,
+   and for skins that want depth (Glass, Glassmorphism, NeoMorphism, Holographic) a real
+   gradient/noise layer rendered by the skin. Under stage 05 this becomes a skin-descriptor
+   capability rather than a form-level switch.
+4. **`BeepLog` for the 9 `Debug.WriteLine`s** in `Backdrop.cs`. Most of them disappear with the
+   code they report on; whatever survives reports through `BeepLog` — `FallbackOnce` for expected
+   OS refusals on the frame attributes, `Failure` for genuine errors.
+5. **Contrast guard.** Caption ink resolved against the *painted* surface (base + overlay),
+   reusing the WCAG pick already shipped in ToolTips and Lovs. `GlassToolTipPainter` shipped light
+   ink on a light frost for exactly this reason; the overlay makes the same mistake available here.
+6. **Motion stays modest.** `PaintWithEffects` / `SupportsAnimations` / `EnableAnimations` already
+   exist in the paint path — open/close fade and maximize/restore easing go behind the existing
+   flag, off in design mode, honouring reduced-motion.
 
 ## Verification
 
-- **The check that would have caught this**: set a system backdrop, render, and assert the client
-  pixels are **not** the painter's flat fill — i.e. that the backdrop is actually reachable. Under
-  option A this check is inverted and asserts the painter-level tint changed the pixels. Either
-  way, *no check may pass on the DWM call returning S_OK* — that is precisely what happens today.
-- One-API fence: no references to the removed properties anywhere in the library.
-- `EffectiveBackdrop` round-trip: request each kind on a supporting OS and assert the reported
-  value matches what is observable; on refusal assert `None` **and** a `BeepLog` report.
-- Contrast ≥ 4.5:1 for caption ink over the resulting surface, per theme (blindness guard: a
-  deliberately wrong pairing fails).
-- **Break-it-first**: make `DwmSetWindowAttribute` fail (wrong size argument) and confirm the
-  `EffectiveBackdrop` and `BeepLog` checks go red; and — the important one — re-add an opaque
-  full-client fill under option B/C and confirm the backdrop-reachability check goes red.
-- Eyeball: backdrops × two themes on a Win11 host, before/after.
+- **One-API fence**: no references to `Backdrop`, `BackdropType`, `EnableMicaBackdrop` or
+  `EnableAcrylicForGlass` anywhere in the library after the sweep (including derived forms and
+  designer-serialized files — a stale `.Designer.cs` assignment is a compile break, not a warning).
+- **The overlay actually does something**: render with the effect off and on; the pixels must
+  differ (blindness guard: two renders with it off must be identical first).
+- **The overlay follows the theme**: same effect under two themes must produce different tints —
+  this is the check the current flat literal would fail, and the reason it is worth writing.
+- **Frame DWM survives**: corner preference and shadow still apply with the backdrop path deleted
+  (stage 02's silhouette/shadow checks cover this; assert they stay green after the deletion).
+- **Contrast**: caption ink vs the composited painted surface ≥ 4.5:1, per theme.
+- **Motion**: sample `Opacity` across an animated open — intermediate values present; with
+  reduced-motion simulated, straight to 1.0.
+- **Break-it-first**: restore the flat literal wash and confirm the theme-tracking check goes red;
+  delete the overlay call and confirm the on/off differential goes red.
+
+**Retired, and recorded so it is not re-added:** the DWM attribute round-trip and
+`EffectiveBackdrop`-on-refusal checks. They test a negotiation that no longer happens — and the
+round-trip check **would have passed today**, because `DwmSetWindowAttribute` returns S_OK for an
+effect the painter then covers. A green check over an invisible feature is the exact failure this
+stage documents.
 
 ## Exit criteria
 
-The pixel-ownership decision recorded here with the owner's ruling; one backdrop property with a
-queryable `EffectiveBackdrop` that cannot report success for an invisible effect; DWM failures
-reported through `BeepLog`; contrast green; break-tests named — including the opaque-fill
-regression if option B or C is chosen.
+The DWM backdrop path and its three redundant properties deleted, with the removals listed in the
+tracker; one surviving painted effect whose tint comes from the theme and demonstrably changes
+pixels; frame-level DWM (corners, shadow) unaffected; `Debug.WriteLine` gone from `Backdrop.cs`;
+contrast green in both themes; break-tests named. If anything here proves impossible, the decision
+record above is the thing to revisit — not the code quietly.

@@ -1,221 +1,57 @@
-# Steppers — review & enhancement plan (2026-08)
+# Steppers — review and enhancement
 
-43 files, ~8,000 lines. `BeepStepperBar : BaseControl` (in `BeepSteppperBar.cs` — note the
-long-standing filename typo) + `BeepStepperBreadCrumb`, 14 style painters + NoOp over
-`IStepperPainter` with a registry, helpers for theme/font/icon/style/accessibility, a
-`StepperColorConfig` custom-override model.
+## Census — unusually clean
 
-Entry motive: the user reports **alignment issues in stepper styles** seen via the wizard forms —
-this folder's painters are the likely source, so the probe leads with per-painter renders and
-alignment checks, not just distinctness.
-
-## Findings (static pass)
-
-### F1 — `StepperThemeHelpers` has the full anti-pattern, third folder running
-
-`useThemeColors` flag, `!= Color.Empty` guards, literal fallbacks — and worse than the previous two:
-**reflection-based theme property lookup** (`GetProperty(...).GetValue(theme)`) per colour, per
-paint. Same fix as Calendar/VerticalTables (the settled end-state): theme = supplied ??
-`BeepThemesManager.CurrentTheme`, one slot one return, no flag, no guards, no reflection.
-
-### F2 — ~46 literal colours
-
-Helpers (17), painters (~23 across 10 files), `BeepSteppperBar` (3), `StepperColorConfig` (3 — check
-whether these are custom-override *defaults*, which should be `Color.Empty`, not a palette).
-
-### F3 — 4 empty swallows
-
-`StepperAccessibilityHelpers` ×2, `StepperFontHelpers` ×1, `StepperThemeHelpers` ×1 → BeepLog per
-site.
-
-### F4 — no probe; alignment unverified (the user's actual complaint)
-
-Planned probe (StepperProbe):
-1. Render ALL 14 painters at two widths (wide + narrow) with 4 steps, one completed/current/pending/
-   error; blank-guard + aliased-style distinctness.
-2. **Alignment checks, mechanical**: for each painter, every drawn text/glyph pixel must lie inside
-   the control bounds (no off-edge bleed — the wizard Cards/Horizontal lesson); node centres evenly
-   spaced (max deviation ≤2px); label column x-alignment for vertical painters.
-3. Theme responsiveness: one painter under two themes → different pixels.
-4. State round-trip: CurrentStep set → StepChanged raised once; click a node → navigation (if the
-   control supports it) via the real pipeline (cursor parked — the VerticalTables lesson).
-5. Eyeball EVERY painter render individually — this is the complaint; distinctness checks alone
-   don't see misalignment.
-
-### F5 — spacing, sizing and alignment revision, ALL 14 painters (user directive)
-
-Not just probe checks — a per-painter geometry pass with the rules that fixed the wizard forms:
-
-1. **Every text rect sized from its font** (`font.Height + pad`), never a constant. A constant rect
-   clips any taller font silently — DrawText clips to its rect (Minimal title, HStepper labels).
-2. **Bands sized from their content stack**, top-anchored: sum of rows (glyph row + label row +
-   description row + gaps), not a guessed height that content overruns (HStepper 100→112).
-3. **Node spacing computed from available width**: first/last nodes inset by half a node + label
-   half-width so edge labels never bleed past control bounds; centres evenly spaced; label rects
-   clamped to bounds (HStepper's label ran 10px off the form edge).
-4. **No collisions between fixed chrome and flowing content** — counters/badges own their row or are
-   anchored opposite the flow (the chip-on-circle collision, twice).
-5. **Vertical painters**: one shared left gutter width for node column, labels x-aligned to a single
-   column edge; connector lines centred on node centres, not rect edges.
-6. **DPI**: every constant through DpiScalingHelper; no raw pixel offsets.
-7. Paddings consistent across painters (same outer inset per orientation) so switching styles does
-   not shift content.
-
-Each painter gets: geometry read → rules applied → render at wide/narrow → eyeball → next. The probe's
-mechanical checks (F4.2) then hold the line against regressions.
-
-## Order
-
-1. F3 swallows + F1 helpers rewrite (mechanical, settled pattern) — build + commit
-2. F2 painter sweep to slots — build + commit
-3. F4 probe + F5 geometry pass painter by painter; render-eyeball all 14 — commit per fix batch
-4. Filename typo `BeepSteppperBar.cs` → rename only if the user wants the churn (git mv, all refs)
-
-## Batch 1 done — swallows + helpers rewrite (build 0 errors)
-
-F3: the 4 empty swallows report (StepperAccessibilityHelpers ×2 WarnOnce a11yColors/a11yName,
-StepperFontHelpers WarnOnce fontReflect, StepperThemeHelpers — see below, its swallow died with the
-machinery).
-
-F1: `StepperThemeHelpers` rewritten to the settled end-state — 370 lines → 92. The reflection probes
-targeted **phantom property names** (`StepperCompletedColor`, `StepperConnectorPendingColor`, …) that
-do not exist on `IBeepTheme`; they had never hit once, and every call fell through to the hardcoded
-Tailwind palette. Mapping now (real `Stepper*` family, one slot one return, `theme ??
-BeepThemesManager.CurrentTheme`, no flag):
-
-| getter | slot |
+| rule | count |
 |---|---|
-| Completed fill | `StepperItemCheckedBoxBackColor` |
-| Active fill | `StepperItemSelectedBackColor` |
-| Pending fill | `DisabledBackColor` |
-| Error / Warning fill | `ErrorColor` / `WarningColor` |
-| Connector | completed → CheckedBoxBack, else `StepperBorderColor` |
-| Step text (on-node ink) | active → SelectedFore, completed → CheckedBoxFore, else `StepperItemForeColor` |
-| Label | active → `StepperForeColor`, else `DisabledForeColor` |
-| Background | `StepperBackColor` |
-| Border | active → SelectedBorder, error → `ErrorColor`, else `StepperItemBorderColor` |
+| literal `Color.Xxx` / `FromArgb(r,g,b)` | **0** |
+| `useThemeColors` flags | **0** |
+| bare `catch { }` | **0** |
+| literal `new Font("…")` | **0** |
+| luminance shifts / blends | **0** |
+| `BeepLog` calls | 5 |
+| `Color.Empty` checks | 11 — all the accepted `customColor is { } c && c != Color.Empty` passthrough, not the disease |
+| reflection | 3 — `StepperFontHelpers` reading theme fonts by name, reported through `BeepLog` |
 
-`customColor` stays: an explicit caller override is data (`Color.Empty` falls through to the slot).
-144 callsites swept to the flag-less signatures across both controls, 3 partial files, 14 painters.
+Nothing to sweep. The gap was behavioural.
 
-**Deleted, not kept** (rule 2): `ApplyThemeColors(dynamic)` + its `HasProperty`/`GetPropertyValue`
-reflection — it wrote theme colours INTO `BeepSteppperBar`'s custom-override fields, so after one
-application every themed value looked like an explicit override and no later theme change could land.
-The fields stay `Color.Empty` and per-paint resolution (which already existed at all paint sites) is
-the only path. `GetThemeColors` tuple had zero callers — deleted.
+## The gap — the default painter drew no step labels
 
-Not verified yet: renders (batch 3's probe); `UseThemeColors` still gates high-contrast accessibility
-application in `BeepSteppperBar` — F2 decides.
+`CircularNodeStepperPainter` is the **default** (`[DefaultValue("CircularNode")]`) and drew only
+the number inside each circle. It never rendered `step.Text`, so a stepper with named steps came
+out as anonymous numbered dots — and because eight of the other painters *do* draw labels, every
+caller read the omission as its own wiring fault. `ComputeLayout`'s own comment in that file
+("labels touching") shows labels were expected there.
 
-## Batch 2 done — literal sweep to slots (build 0 errors)
+It now draws the title beside the node — under it when horizontal, right of it when vertical —
+with the subtitle beneath, from `StepperThemeHelpers.GetStepLabelColor` so the state colouring
+carries. No font is allocated in the paint path.
 
-All ~44 literals resolved; census after the sweep finds **zero** (one survivor: the WCAG
-luminance contrast pick Black/White in `StepperAccessibilityHelpers:385` — the accepted
-contrast-ink idiom, same as Calendar's `GetEventInk`).
+## The instrument was wrong three times, and each time it said PASS
 
-The worst find: painters passed `Color.White` **as the `customColor` override** to the theme
-helpers (10 sites) — the override always wins, so those calls had been hardcoding White through
-the override channel and the slot never resolved once. All dropped; the slot decides.
+Worth recording, because every version looked reasonable:
 
-- Selected/active ink ternaries (`selected ? Color.White : …`) → `GetStepTextColor(theme,
-  Active)` (3 painters); checkmark on completed fill → CheckedBoxFore ink; gradient chevron
-  text → state ink.
-- Hover veils `FromArgb(α, White)` → `FromArgb(α, StepperItemHoverBackColor)` — same alpha,
-  theme-driven (10 painters).
-- Error badge: ring → `StepperBackColor` (separates badge from node in the control's own
-  background), count ink → `OnPrimaryColor`.
-- `?? Color.Gray` / `?? Color.White` null-theme guards dropped (3 sites) — always a theme.
-- `GetHighContrastColors()` non-HC branch returned the Tailwind palette → now theme slots; the
-  HC branch keeps SystemColors (the OS accessibility palette is correct there).
-- `GetIconColor` rewritten flag-less (was the same anti-pattern + both callers passed the
-  always-winning White override).
+1. **`inkBelowNodes >= 20`.** Break-it-first: with the new label drawing commented out it still
+   reported **1096 "label pixels"** and passed. It was counting the panel border, node rings and
+   connectors.
+2. **Differential, band below the nodes.** Now it failed correctly for CircularNode — but flagged
+   `ChevronBreadcrumb`, `CompactInline`, `SegmentedTab` and `GradientMaterial` as label-less. They
+   draw their text **inside** the chevron or segment, so the band was in the wrong place. Four
+   false reds.
+3. **Differential over the whole bitmap.** Correct for eight painters, but `SegmentedTab` and
+   `GradientMaterial` **size their segments from the text**, so blanking it changes the layout —
+   SegmentedTab measured *more* ink with no text at all. The check cannot separate "drew a label"
+   from "laid itself out differently" for those two.
 
-**Deleted** (rule 2): `StepperColorConfig` (zero consumers anywhere — dead model);
-`PaintStepIcon` (zero callers); `StepPainterContext.UseThemeColors` (zero readers after the
-sweep); `ApplyHighContrastAdjustments`' never-read theme/flag params; and
-`BeepStepperBreadCrumb`'s **shadow** `UseThemeColors { get; private set; }` — stuck false
-forever, it hid `BaseControl`'s real property and made the breadcrumb's themed path unreachable
-for its whole life.
+Final form: a whole-bitmap differential over the eight painters whose layout is text-independent,
+with `SegmentedTab` and `GradientMaterial` excluded by name and verified by eyeballing their
+renders instead — both plainly draw the step titles inside their shapes.
 
-Known residue for batch 3's probe to watch: high-contrast application writes system colours into
-the custom-override fields, so *leaving* HC mode won't restore themed colours until restart —
-noted, not redesigned here.
+**78 checks, 0 failures**, renders in `%TEMP%\StepperProbe`.
 
-## Batch 3 done — probe 70/70, geometry + defects found by render (the eyeball earned its keep)
+## Note for the Wizards work
 
-StepperProbe (scratchpad): all 12 painters wide+narrow, blank-guard + cross-painter distinctness,
-mechanical alignment (node centres evenly spaced ≤2px, rects in bounds, top/bottom edge-bleed rows),
-vertical orientation column alignment, theme responsiveness, PainterName switch repaint, CurrentStep
-→ StepChanged, pipeline click navigation, StepValidating.Cancel gate, breadcrumb with real items.
-
-**The colour-count checks passed while every painter rendered ONE node** — only the eyeball caught
-it. Root cause, the repo's documented re-entrant sync disease: `StepCount = 4` → InitializeSteps →
-SyncStepsWithListItems rebuilds ListItems, the FIRST Add fires ListChanged synchronously →
-SyncListItemsWithSteps adopts `stepCount = ListItems.Count` (=1) → the rebuild loop's own bound
-collapses. Every stepper constructed via StepCount ended up with one step; CurrentStep's guard then
-rejected every set, so StepChanged never fired and my first "click navigates" PASS was vacuous
-(CurrentStep was 0 all along). Fix: `_syncingListItems` guard — our own writes don't re-enter
-(SetStepState's IsChecked write guarded too).
-
-Defects found by render + fixed:
-- **PainterName was an auto-property** — assigning it after construction painted the old style until
-  something else re-ran InitializePainter. Both controls: setter now re-initializes (attributes kept
-  on the property, not the backing field).
-- **VerticalTimeline + AlternatingTimeline overflowed the band**: fixed 52px pitch centred in a
-  140px control put node 1 at Y=-24 (clipped AND unclickable). Now: inset + spacing compresses +
-  nodes shrink when even min spacing cannot fit; cards clamped to the content rect.
-- **Completed check never painted**: GetCheckIconPath's "try paths" loop returned the first
-  non-empty STRING ("check.svg") — never a resolvable resource; StyledImagePainter silently no-oped
-  and every completed node was an empty circle. All five icon getters now return SvgsUI constants.
-- **On-fill ink**: GetStepTextColor gained Error/Warning → OnPrimaryColor (the "4" marker was
-  dark-red-on-red in 8 painters); chevron segment text, breadcrumb segment text and both timeline
-  cards moved from label ink (pairs with control bg) to on-fill ink. GetStepOnFillColor briefly
-  existed and was folded back in — one concept, one name.
-- **Distribution (F5 rule 3)**: CircularNode/ProgressBar/IconTimeline/SquareDashed/BadgeStatus
-  clustered a 4-step bar in the middle of a 900px control at the recommended ~20px pitch, labels
-  touching. Horizontal layouts now distribute across available width with a label-safe edge inset
-  (56 scaled) and an 8px floor. Dots stays compact deliberately — pagination idiom. Owner plumbed
-  into the three painters that discarded it (DPI rule 6).
-- **CompactInline underline** sat at the control's bottom edge, a band-height away from the label it
-  marks — now under the label, sized to it.
-- **Breadcrumb doubled every label** ("Account"/"Account"): Name and Text carry the same string by
-  SimpleItem convention here; equal Subtitle is now dropped (painter path + legacy path).
-- 9 `?? Color.DodgerBlue` focus-pen fallbacks the batch-2 census regex missed (named-colour census
-  now clean); 3 Debug.WriteLine → BeepLog.FailureOnce.
-
-Not done / open: vertical-orientation distribution for the node painters (horizontal only was
-in-scope); high-contrast override-field freeze from batch 2 still noted; `BeepSteppperBar.cs`
-filename typo still pending user's call on churn.
-
-## Batch 4 done — high-contrast freeze fixed at the root, filename typo renamed (probe 70/70)
-
-High contrast is now a **resolution-time branch inside `StepperThemeHelpers`**: every getter
-returns the paired SystemColors mapping when `IsHighContrastMode()` (fills
-Highlight/HotTrack/ControlDark, ink HighlightText on the selection fills / WindowText elsewhere,
-borders+connectors WindowFrame, background Control). Toggling HC applies on the next repaint, works
-in every painter automatically, outranks even explicit custom colours, and never touches control
-state — the old design stamped system colours into the custom-override fields at ApplyTheme, which
-froze the HC palette in place after the mode was turned off (and was a no-op on the breadcrumb,
-which has no such fields).
-
-**Deleted** (rule 2, all caller-less after the move):
-- `ApplyHighContrastAdjustments` (the duck-typed stamping) + both controls'
-  `ApplyAccessibilityAdjustments` wrappers and their ApplyTheme call sites.
-- `GetHighContrastColors` / `AdjustColorsForHighContrast` tuple getters.
-- The whole WCAG region: `AdjustForContrast` + `CalculateContrastRatio` / `EnsureContrastRatio` /
-  luminance/darken/lighten privates. Its only three call sites were paint-time luminance shifts of
-  theme-resolved ink (banned — a bad pairing is the theme's bug); with those gone the entire chain
-  had zero callers.
-- `HasProperty` (last caller died with the stamping).
-
-`BeepSteppperBar.cs` → `BeepStepperBar.cs` (git mv; class name was already correct, zero code refs
-to the filename; historical plans docs keep the old spelling).
-
-Not verified live: the HC branch itself — `SystemInformation.HighContrast` cannot be toggled from
-the probe, so the mapping is verified by build + review only. Probe 70/70 after both changes.
-
-## Standing constraints
-
-There is ALWAYS a theme — assign slots directly, never guard, never blend, never literal (semantic
-states from semantic slots). Text rects sized from fonts, not constants. A check must be able to
-fail. Commit to master only.
+`WizProbe` hangs after its first form and times out — on **unmodified** library code, verified by
+reverting the wizard commit entirely and reproducing it. `StepperProbe` runs clean against the same
+build, so it is that probe, not the library. Any conclusion drawn from a hung `WizProbe` run is
+unsafe; the wizard forms' designer files were re-landed on that basis.

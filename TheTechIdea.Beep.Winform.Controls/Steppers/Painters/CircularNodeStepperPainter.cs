@@ -188,6 +188,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
                 using var textBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme, step.State));
                 g.DrawString(text, font, textBrush, textX, textY);
             }
+
+            DrawStepLabel(g, context, stepRect, step);
+        }
+
+        /// <summary>
+        /// Draws the step's title beside its node - under it when horizontal, to its right when
+        /// vertical - with the subtitle beneath.
+        /// </summary>
+        /// <remarks>
+        /// This painter drew only the number inside the circle and never <c>step.Text</c>, so a
+        /// stepper with named steps rendered as anonymous numbered dots. It is the DEFAULT painter
+        /// (<c>[DefaultValue("CircularNode")]</c>) and eight of the others already draw labels, so
+        /// the omission read as a wiring fault in every caller instead of a gap here.
+        /// <c>ComputeLayout</c>'s own comment ("labels touching") shows labels were expected.
+        /// <para>
+        /// No font is allocated here: a <c>new Font(...)</c> inside a paint handler churns GDI
+        /// handles on every repaint.
+        /// </para>
+        /// </remarks>
+        private void DrawStepLabel(Graphics g, StepPainterContext context, Rectangle stepRect, StepModel step)
+        {
+            if (step == null || string.IsNullOrWhiteSpace(step.Text)) return;
+
+            Font font = _labelFont ?? context.LabelFont ?? _stepFont ?? SystemFonts.DefaultFont;
+            Color ink = StepperThemeHelpers.GetStepLabelColor(context.Theme ?? _theme, step.State);
+
+            var flags = TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis;
+            Size size = TextRenderer.MeasureText(g, step.Text, font);
+            int gap = DpiScalingHelper.ScaleValue(6, _owner);
+
+            Rectangle titleRect;
+            if (context.Orientation == Orientation.Horizontal)
+            {
+                int w = Math.Max(size.Width, stepRect.Width * 3);
+                titleRect = new Rectangle(stepRect.Left + (stepRect.Width - w) / 2,
+                                          stepRect.Bottom + gap, w, size.Height);
+                flags |= TextFormatFlags.HorizontalCenter;
+            }
+            else
+            {
+                titleRect = new Rectangle(stepRect.Right + DpiScalingHelper.ScaleValue(10, _owner),
+                                          stepRect.Top + (stepRect.Height - size.Height) / 2,
+                                          Math.Max(size.Width, DpiScalingHelper.ScaleValue(120, _owner)),
+                                          size.Height);
+                flags |= TextFormatFlags.Left;
+            }
+            TextRenderer.DrawText(g, step.Text, font, titleRect, ink, flags);
+
+            if (string.IsNullOrWhiteSpace(step.Subtitle)) return;
+
+            // Same font, dimmed - see the remark above about allocating fonts in a paint path.
+            var subRect = new Rectangle(titleRect.X, titleRect.Bottom, titleRect.Width, size.Height);
+            TextRenderer.DrawText(g, step.Subtitle, font, subRect, Color.FromArgb(150, ink), flags);
         }
 
         public void PaintConnector(Graphics g, StepPainterContext context, int fromIndex, Rectangle connectorRect)

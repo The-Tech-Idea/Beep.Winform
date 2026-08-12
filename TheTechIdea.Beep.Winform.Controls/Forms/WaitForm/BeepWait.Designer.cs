@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepLabel1
             // 
-            beepLabel1.AccessibleDescription = "";
+            beepLabel1.AccessibleDescription = "The Tech Idea. Includes icon.";
             beepLabel1.AccessibleName = "The Tech Idea";
             beepLabel1.AccessibleRole = AccessibleRole.StaticText;
             beepLabel1.Anchor = AnchorStyles.Bottom;
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.BadgeForeColor = Color.White;
             beepLabel1.BadgeShape = BadgeShape.Circle;
             beepLabel1.BlockID = null;
-            beepLabel1.BorderColor = Color.FromArgb(0, 255, 0);
+            beepLabel1.BorderColor = Color.FromArgb(200, 200, 200);
             beepLabel1.BorderDashStyle = DashStyle.Solid;
             beepLabel1.BorderPainter = BeepControlStyle.Terminal;
             graphicsPath1.FillMode = FillMode.Alternate;
@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.LeadingImagePath = "";
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
-            beepLabel1.Location = new Point(237, 424);
+            beepLabel1.Location = new Point(233, 427);
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
@@ -215,7 +215,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.SelectedBackColor = Color.FromArgb(16, 32, 20);
             beepLabel1.SelectedBorderColor = Color.Green;
             beepLabel1.SelectedForeColor = Color.FromArgb(0, 255, 153);
-            beepLabel1.SelectedValue = null;
             beepLabel1.ShadowColor = Color.Black;
             beepLabel1.ShadowOffset = 3;
             beepLabel1.ShadowOpacity = 0.25F;
@@ -291,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphicsPath13.FillMode = FillMode.Alternate;
             beepImage1.BorderPath = graphicsPath13;
             beepImage1.BorderRadius = 8;
-            beepImage1.BorderRect = new Rectangle(0, 0, 99, 99);
+            beepImage1.BorderRect = new Rectangle(1, 1, 97, 97);
             beepImage1.BorderStyle = BorderStyle.FixedSingle;
             beepImage1.BorderThickness = 1;
             beepImage1.BottomoffsetForDrawingRect = 0;
@@ -306,6 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath14.FillMode = FillMode.Alternate;
             beepImage1.ContentShape = graphicsPath14;
+            beepImage1.ControlStyle = BeepControlStyle.Material3;
             beepImage1.CornerRadius = 10F;
             beepImage1.CustomClipPath = null;
             beepImage1.CustomIconColor = Color.Black;
@@ -317,7 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepImage1.DisabledBorderColor = Color.LightGray;
             beepImage1.DisabledForeColor = Color.Gray;
-            beepImage1.DrawingRect = new Rectangle(1, 1, 97, 97);
+            beepImage1.DrawingRect = new Rectangle(3, 3, 93, 93);
             beepImage1.Easing = EasingType.Linear;
             beepImage1.EnableHighQualityRendering = true;
             beepImage1.EnableRippleEffect = false;
@@ -429,7 +429,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.SelectedBackColor = Color.LightGreen;
             beepImage1.SelectedBorderColor = Color.Green;
             beepImage1.SelectedForeColor = Color.Black;
-            beepImage1.SelectedValue = null;
             beepImage1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepImage1.ShadowOffset = 3;
             beepImage1.ShadowOpacity = 0.25F;
@@ -483,13 +482,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.BadgeForeColor = Color.White;
             Title.BadgeShape = BadgeShape.Circle;
             Title.BlockID = null;
-            Title.BorderColor = Color.FromArgb(0, 255, 0);
+            Title.BorderColor = Color.FromArgb(200, 200, 200);
             Title.BorderDashStyle = DashStyle.Solid;
             Title.BorderPainter = BeepControlStyle.Terminal;
             graphicsPath10.FillMode = FillMode.Alternate;
             Title.BorderPath = graphicsPath10;
             Title.BorderRadius = 0;
-            Title.BorderRect = new Rectangle(0, 0, 636, 49);
+            Title.BorderRect = new Rectangle(0, 0, 628, 49);
             Title.BorderStyle = BorderStyle.FixedSingle;
             Title.BorderThickness = 2;
             Title.BottomoffsetForDrawingRect = 0;
@@ -520,7 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.DisabledBorderColor = Color.Gray;
             Title.DisabledForeColor = Color.FromArgb(19, 27, 19);
             Title.Dock = DockStyle.Top;
-            Title.DrawingRect = new Rectangle(2, 2, 632, 45);
+            Title.DrawingRect = new Rectangle(2, 2, 624, 45);
             Title.Easing = EasingType.Linear;
             Title.EffectColor = Color.Empty;
             Title.EnableHighQualityRendering = true;
@@ -606,7 +605,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.Margin = new Padding(0);
             Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
-            Title.MinimumSize = new Size(88, 40);
+            Title.MinimumSize = new Size(88, 28);
             Title.ModernGradientType = ModernGradientType.None;
             Title.Multiline = false;
             Title.Name = "Title";
@@ -627,7 +626,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.SelectedBackColor = Color.FromArgb(16, 32, 20);
             Title.SelectedBorderColor = Color.Green;
             Title.SelectedForeColor = Color.FromArgb(0, 255, 153);
-            Title.SelectedValue = null;
             Title.ShadowColor = Color.Black;
             Title.ShadowOffset = 3;
             Title.ShadowOpacity = 0.25F;
@@ -640,7 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ShowRightBorder = false;
             Title.ShowShadow = false;
             Title.ShowTopBorder = false;
-            Title.Size = new Size(637, 50);
+            Title.Size = new Size(629, 50);
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.StyleProfile.AutoEllipsis = false;
@@ -695,7 +693,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.BadgeShape = BadgeShape.Circle;
             _spinnerImage.BaseSize = 50;
             _spinnerImage.BlockID = null;
-            _spinnerImage.BorderColor = Color.FromArgb(0, 255, 0);
+            _spinnerImage.BorderColor = Color.FromArgb(200, 200, 200);
             _spinnerImage.BorderDashStyle = DashStyle.Solid;
             _spinnerImage.BorderPainter = BeepControlStyle.Terminal;
             graphicsPath7.FillMode = FillMode.Alternate;
@@ -813,7 +811,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.LeadingImagePath = "";
             _spinnerImage.LeftoffsetForDrawingRect = 0;
             _spinnerImage.LinkedProperty = null;
-            _spinnerImage.Location = new Point(237, 56);
+            _spinnerImage.Location = new Point(233, 57);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.MaxHitListDrawPerFrame = 0;
             _spinnerImage.MinimumSize = new Size(16, 16);
@@ -838,7 +836,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.SelectedBackColor = Color.LightGreen;
             _spinnerImage.SelectedBorderColor = Color.Green;
             _spinnerImage.SelectedForeColor = Color.Black;
-            _spinnerImage.SelectedValue = null;
             _spinnerImage.ShadowColor = Color.FromArgb(0, 0, 0);
             _spinnerImage.ShadowOffset = 3;
             _spinnerImage.ShadowOpacity = 0.25F;
@@ -894,7 +891,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.BadgeForeColor = Color.FromArgb(0, 230, 153);
             messege.BadgeShape = BadgeShape.Circle;
             messege.BlockID = null;
-            messege.BorderColor = Color.FromArgb(0, 255, 0);
+            messege.BorderColor = Color.FromArgb(200, 200, 200);
             messege.BorderDashStyle = DashStyle.Solid;
             messege.BorderPainter = BeepControlStyle.Terminal;
             graphicsPath4.FillMode = FillMode.Alternate;
@@ -932,6 +929,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.EnableHighQualityRendering = true;
             messege.EnableRippleEffect = false;
             messege.EnableSplashEffect = false;
+            messege.EnableTypingIndicator = false;
             messege.ErrorColor = Color.Empty;
             messege.ErrorText = "";
             messege.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -1006,9 +1004,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.LeadingIconPath = "";
             messege.LeadingImagePath = "";
             messege.LeftoffsetForDrawingRect = 0;
-            messege.LineNumberBackColor = Color.FromArgb(248, 248, 248);
+            messege.LineNumberBackColor = Color.FromArgb(14, 14, 14);
             messege.LineNumberFont = new Font("Consolas", 8F);
-            messege.LineNumberForeColor = Color.Gray;
+            messege.LineNumberForeColor = Color.FromArgb(153, 255, 204);
             messege.LinkedProperty = null;
             messege.Location = new Point(6, 142);
             messege.MaxHitListDrawPerFrame = 0;
@@ -1038,12 +1036,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.SavedID = null;
             messege.ScaleMode = ImageScaleMode.KeepAspectRatio;
             messege.ScrollBars = ScrollBars.Both;
-            messege.SearchCurrentMatchColor = Color.FromArgb(255, 165, 0);
-            messege.SearchMatchHighlightColor = Color.FromArgb(255, 255, 0);
+            messege.SearchCurrentMatchColor = Color.FromArgb(0, 255, 153);
+            messege.SearchMatchHighlightColor = Color.FromArgb(14, 14, 14);
             messege.SelectedBackColor = Color.FromArgb(10, 10, 10);
             messege.SelectedBorderColor = Color.Green;
             messege.SelectedForeColor = Color.FromArgb(0, 230, 153);
-            messege.SelectedValue = null;
             messege.SelectionBackColor = SystemColors.Highlight;
             messege.SelectionLength = 0;
             messege.SelectionStart = 0;
@@ -1092,7 +1089,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(643, 480);
+            ClientSize = new Size(635, 483);
             Controls.Add(messege);
             Controls.Add(_spinnerImage);
             Controls.Add(Title);

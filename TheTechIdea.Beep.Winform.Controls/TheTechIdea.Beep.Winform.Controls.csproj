@@ -4693,6 +4693,7 @@
     <Folder Include="Examples\" />
     <Folder Include="Filtering\plans\" />
     <Folder Include="Forms\Enums\" />
+    <Folder Include="Forms\ModernForm\plans\" />
     <Folder Include="Forms\PopUpForm\" />
     <Folder Include="Forms\Properties\" />
     <Folder Include="GridX\Layouts\FooterLayouts\" />

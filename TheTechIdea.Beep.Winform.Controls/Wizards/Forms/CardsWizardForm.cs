@@ -16,13 +16,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
     /// Card-based wizard form with clickable step cards on the left side.
     /// Each step is represented as a card showing step number, title, and completion status.
     /// </summary>
-    public partial class CardsWizardForm : BeepiFormPro, IWizardFormHost
+    public class CardsWizardForm : BeepiFormPro, IWizardFormHost
     {
         #region Fields
 
         private WizardInstance _instance;
 
+        private Panel _cardPanel;
+        private Panel _contentPanel;
+        private Panel _buttonPanel;
+        private Panel _errorPanel;
+        private Label _lblError;
 
+        private BeepButton _btnNext;
+        private BeepButton _btnBack;
+        private BeepButton _btnCancel;
+        private BeepButton _btnSkip;
+        private BeepButton _btnHelp;
 
         private readonly List<Panel> _stepCards = new List<Panel>();
         private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
@@ -63,9 +73,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _instance.BindFormHost(this);
 
             InitializeColors(null);
-            InitializeComponent();
             InitializeForm();
-            ApplyConfigToControls();
+            InitializeControls();
+            LayoutControls();
             SetupEventHandlers();
             UpdateUI();
         }
@@ -82,9 +92,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             }
             InitializeColors(CurrentTheme);
 
-            InitializeComponent();
             InitializeForm();
-            ApplyConfigToControls();
+            InitializeControls();
+            LayoutControls();
             SetupEventHandlers();
 
             UpdateUI();
@@ -136,30 +146,99 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                      ControlStyles.UserPaint, true);
         }
 
-        /// <summary>
-        /// Applies the wizard's configuration to controls the designer already built.
-        /// </summary>
-        /// <remarks>
-        /// The layout lives in CardsWizardForm.Designer.cs so it shows on the design surface.
-        /// Only config-dependent state belongs here - captions, and whether the optional Skip and
-        /// Help buttons appear - because a conditional inside InitializeComponent breaks the
-        /// designer.
-        /// </remarks>
-        private void ApplyConfigToControls()
+        private void InitializeControls()
         {
-            _btnNext.Text   = _instance.Config.NextButtonText;
-            _btnBack.Text   = _instance.Config.BackButtonText;
-            _btnCancel.Text = _instance.Config.CancelButtonText;
-            _btnSkip.Text   = _instance.Config.SkipButtonText;
+            // Card panel (left side)
+            _cardPanel = new Panel
+            {
+                Dock = DockStyle.Left,
+                Width = DpiScalingHelper.ScaleValue(220, this),
+                AutoScroll = true,
+                Padding = new Padding(DpiScalingHelper.ScaleValue(10, this), DpiScalingHelper.ScaleValue(15, this),
+                    DpiScalingHelper.ScaleValue(10, this), DpiScalingHelper.ScaleValue(15, this)),
+                BackColor = _cardBgColor
+            };
 
-            _btnSkip.Visible = _instance.Config.AllowSkip;
-            _btnHelp.Visible = _instance.Config.ShowHelp;
+            // Inline error panel (top of content area, hidden by default)
+            _errorPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = DpiScalingHelper.ScaleValue(40, this),
+                Visible = false,
+                BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme),
+                Padding = new Padding(16, 0, 16, 0)
+            };
+            _lblError = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = WizardHelpers.GetErrorColor(CurrentTheme),
+                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular),
+                AutoEllipsis = true
+            };
+            _errorPanel.Controls.Add(_lblError);
 
-            _errorPanel.BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme);
-            _lblError.ForeColor   = WizardHelpers.GetErrorColor(CurrentTheme);
+            // Button panel (bottom)
+            _buttonPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = DpiScalingHelper.ScaleValue(70, this),
+                Padding = new Padding(DpiScalingHelper.ScaleValue(20, this), DpiScalingHelper.ScaleValue(15, this),
+                    DpiScalingHelper.ScaleValue(20, this), DpiScalingHelper.ScaleValue(15, this))
+            };
 
-            // Depends on the instance, so it cannot live in the designer - and dropping it is what
-            // left the step rail blank after the layout moved into InitializeComponent.
+            // Content panel (fill) — uses BufferedPanel to eliminate flicker
+            _contentPanel = new BufferedPanel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(30, 20, 30, 20)
+            };
+
+            // Navigation buttons
+            _btnNext = new BeepButton
+            {
+                Text = _instance.Config.NextButtonText,
+                Size = new Size(120, 40),
+                Anchor = AnchorStyles.Right | AnchorStyles.Bottom
+            };
+
+            _btnBack = new BeepButton
+            {
+                Text = _instance.Config.BackButtonText,
+                Size = new Size(100, 40),
+                Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
+                Enabled = false
+            };
+
+            _btnCancel = new BeepButton
+            {
+                Text = _instance.Config.CancelButtonText,
+                Size = new Size(100, 40),
+                Anchor = AnchorStyles.Left | AnchorStyles.Bottom
+            };
+
+            if (_instance.Config.AllowSkip)
+            {
+                _btnSkip = new BeepButton
+                {
+                    Text = _instance.Config.SkipButtonText,
+                    Size = new Size(100, 40),
+                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
+                    Visible = false
+                };
+            }
+
+            if (_instance.Config.ShowHelp)
+            {
+                _btnHelp = new BeepButton
+                {
+                    Text = "Help",
+                    Size = new Size(80, 40),
+                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom
+                };
+            }
+
+            // Build step cards
             BuildStepCards();
         }
 
@@ -219,9 +298,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             return card;
         }
 
+        private void LayoutControls()
+        {
+            // Layout buttons
+            int rightEdge = _buttonPanel.ClientSize.Width - _buttonPanel.Padding.Right;
+            int buttonY = (_buttonPanel.Height - _btnNext.Height) / 2;
+
+            _btnNext.Location = new Point(rightEdge - _btnNext.Width, buttonY);
+            _btnBack.Location = new Point(_btnNext.Left - _btnBack.Width - 10, buttonY);
+            // The button panel already docks AFTER the left sidebar, so offsetting by the sidebar
+            // width again put Cancel mid-form. Panel-relative left padding is the whole answer.
+            _btnCancel.Location = new Point(_buttonPanel.Padding.Left, buttonY);
+
+            _buttonPanel.Controls.Add(_btnNext);
+            _buttonPanel.Controls.Add(_btnBack);
+            _buttonPanel.Controls.Add(_btnCancel);
+
+            if (_btnSkip != null)
+            {
+                _btnSkip.Location = new Point(_btnCancel.Right + 10, buttonY);
+                _buttonPanel.Controls.Add(_btnSkip);
+            }
+
+            if (_btnHelp != null)
+            {
+                var helpX = _btnSkip != null ? _btnSkip.Right + 10 : _btnCancel.Right + 10;
+                _btnHelp.Location = new Point(helpX, buttonY);
+                _buttonPanel.Controls.Add(_btnHelp);
+            }
+
+            Controls.Add(_contentPanel);
+            Controls.Add(_errorPanel);
+            Controls.Add(_buttonPanel);
+            Controls.Add(_cardPanel);
+        }
+
         private void SetupEventHandlers()
         {
-            // Button clicks are wired in the designer file, beside the controls.
+            _btnNext.Click += BtnNext_Click;
+            _btnBack.Click += BtnBack_Click;
+            _btnCancel.Click += BtnCancel_Click;
+            if (_btnSkip != null)
+                _btnSkip.Click += BtnSkip_Click;
+            if (_btnHelp != null)
+                _btnHelp.Click += BtnHelp_Click;
 
             KeyDown += Form_KeyDown;
         }

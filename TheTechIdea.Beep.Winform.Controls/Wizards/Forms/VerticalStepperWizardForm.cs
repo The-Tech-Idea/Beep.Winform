@@ -1,4 +1,3 @@
-using TheTechIdea.Beep.Winform.Controls.Steppers.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,14 +15,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
     /// <summary>
     /// Vertical stepper wizard form with timeline on left side
     /// </summary>
-    public partial class VerticalStepperWizardForm : BeepiFormPro, IWizardFormHost
+    public class VerticalStepperWizardForm : BeepiFormPro, IWizardFormHost
     {
         #region Fields
 
         private WizardInstance _instance;
         private VerticalStepperPainter _painter;
         
+        private Panel _sidePanel;
+        private Panel _contentPanel;
+        private Panel _buttonPanel;
+        private Panel _errorPanel;
+        private Label _lblError;
         
+        private BeepButton _btnNext;
+        private BeepButton _btnBack;
+        private BeepButton _btnCancel;
+        private BeepButton _btnSkip;
+        private BeepButton _btnHelp;
 
         private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
         private int _previousStepIndex = -1;
@@ -54,9 +63,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             
             _painter = new VerticalStepperPainter();
 
-            InitializeComponent();
             InitializeForm();
-            ApplyConfigToControls();
+            InitializeControls();
+            LayoutControls();
             SetupEventHandlers();
             UpdateUI();
         }
@@ -68,9 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             
             _painter = new VerticalStepperPainter();
 
-            InitializeComponent();
             InitializeForm();
-            ApplyConfigToControls();
+            InitializeControls();
+            LayoutControls();
             SetupEventHandlers();
 
             // Apply Config.Theme if configured, otherwise use default
@@ -101,47 +110,140 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                      ControlStyles.UserPaint, true);
         }
 
-        /// <summary>
-        /// Applies the wizard's configuration to controls the designer already built.
-        /// </summary>
-        /// <remarks>
-        /// The layout lives in VerticalStepperWizardForm.Designer.cs so it shows on the design surface.
-        /// Only config-dependent state belongs here - captions, and whether the optional Skip and
-        /// Help buttons appear - because a conditional inside InitializeComponent breaks the
-        /// designer.
-        /// </remarks>
-        private void ApplyConfigToControls()
+        private void InitializeControls()
         {
-            _btnNext.Text   = _instance.Config.NextButtonText;
-            _btnBack.Text   = _instance.Config.BackButtonText;
-            _btnCancel.Text = _instance.Config.CancelButtonText;
-            _btnSkip.Text   = _instance.Config.SkipButtonText;
+            // Side panel for step timeline (left)
+            _sidePanel = new Panel
+            {
+                Dock = DockStyle.Left,
+                Width = 280,
+                BackColor = Color.Transparent
+            };
+            _sidePanel.Paint += SidePanel_Paint;
 
-            _btnSkip.Visible = _instance.Config.AllowSkip;
-            _btnHelp.Visible = _instance.Config.ShowHelp;
+            // Inline error panel (top of content area, hidden by default)
+            _errorPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 40,
+                Visible = false,
+                BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme),
+                Padding = new Padding(16, 0, 16, 0)
+            };
+            _lblError = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = WizardHelpers.GetErrorColor(CurrentTheme),
+                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular),
+                AutoEllipsis = true
+            };
+            _errorPanel.Controls.Add(_lblError);
 
-            _errorPanel.BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme);
-            _lblError.ForeColor   = WizardHelpers.GetErrorColor(CurrentTheme);
+            // Button panel (bottom)
+            _buttonPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 70,
+                Padding = new Padding(20, 15, 20, 15)
+            };
 
-            // Depends on the instance, so it cannot live in the designer - and dropping it is what
-            // left the step rail blank after the layout moved into InitializeComponent.
+            // Content panel (fill) — uses BufferedPanel to eliminate flicker
+            _contentPanel = new BufferedPanel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(30, 30, 30, 20)
+            };
+
+            // Navigation buttons
+            _btnNext = new BeepButton
+            {
+                Text = _instance.Config.NextButtonText,
+                Size = new Size(130, 40),
+                Anchor = AnchorStyles.Right | AnchorStyles.Bottom
+            };
+
+            _btnBack = new BeepButton
+            {
+                Text = _instance.Config.BackButtonText,
+                Size = new Size(100, 40),
+                Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
+                Enabled = false
+            };
+
+            _btnCancel = new BeepButton
+            {
+                Text = _instance.Config.CancelButtonText,
+                Size = new Size(100, 40),
+                Anchor = AnchorStyles.Left | AnchorStyles.Bottom
+            };
+
+            if (_instance.Config.AllowSkip)
+            {
+                _btnSkip = new BeepButton
+                {
+                    Text = _instance.Config.SkipButtonText,
+                    Size = new Size(100, 40),
+                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
+                    Visible = false
+                };
+            }
+
+            if (_instance.Config.ShowHelp)
+            {
+                _btnHelp = new BeepButton
+                {
+                    Text = "Help",
+                    Size = new Size(80, 40),
+                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom
+                };
+            }
+
             _painter.Initialize(this, CurrentTheme, _instance);
+        }
 
-            // Feed the stepper from the wizard's own step list. It draws the circles, connectors,
-            // labels and states that the form used to paint by hand.
-            // ASSIGN the property rather than mutating the existing list: the setter is what
-            // syncs the control's stepCount, and stepCount is what the painter takes its models
-            // through (`_stepModels.Take(stepCount)`). Mutating in place left the count stale.
-            var models = new System.ComponentModel.BindingList<StepModel>();
-            foreach (var wizardStep in _instance.Config.Steps)
-                models.Add(new StepModel { Text = wizardStep.Title, Subtitle = wizardStep.Description });
-            _stepper.StepModels = models;
-            _stepper.CurrentStep = _instance.CurrentStepIndex;
+        private void LayoutControls()
+        {
+            // Layout buttons
+            int rightEdge = _buttonPanel.ClientSize.Width - _buttonPanel.Padding.Right;
+            int buttonY = (_buttonPanel.Height - _btnNext.Height) / 2;
+
+            _btnNext.Location = new Point(rightEdge - _btnNext.Width, buttonY);
+            _btnBack.Location = new Point(_btnNext.Left - _btnBack.Width - 10, buttonY);
+            _btnCancel.Location = new Point(_sidePanel.Width + 20, buttonY);
+
+            _buttonPanel.Controls.Add(_btnNext);
+            _buttonPanel.Controls.Add(_btnBack);
+            _buttonPanel.Controls.Add(_btnCancel);
+
+            if (_btnSkip != null)
+            {
+                _btnSkip.Location = new Point(_btnCancel.Right + 10, buttonY);
+                _buttonPanel.Controls.Add(_btnSkip);
+            }
+
+            if (_btnHelp != null)
+            {
+                var helpX = _btnSkip != null ? _btnSkip.Right + 10 : _btnCancel.Right + 10;
+                _btnHelp.Location = new Point(helpX, buttonY);
+                _buttonPanel.Controls.Add(_btnHelp);
+            }
+
+            Controls.Add(_contentPanel);
+            Controls.Add(_errorPanel);
+            Controls.Add(_buttonPanel);
+            Controls.Add(_sidePanel);
         }
 
         private void SetupEventHandlers()
         {
-            // Button clicks are wired in the designer file, beside the controls.
+            _btnNext.Click += BtnNext_Click;
+            _btnBack.Click += BtnBack_Click;
+            _btnCancel.Click += BtnCancel_Click;
+            if (_btnSkip != null)
+                _btnSkip.Click += BtnSkip_Click;
+            if (_btnHelp != null)
+                _btnHelp.Click += BtnHelp_Click;
 
             KeyDown += Form_KeyDown;
             Resize += Form_Resize;
@@ -155,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         {
             var currentStep = _instance.CurrentStep;
             // Accessibility
-            _stepper.AccessibleName = $"Step {_instance.CurrentStepIndex + 1} of {_instance.Config.Steps.Count}: {currentStep?.Title ?? ""}";
+            _sidePanel.AccessibleName = $"Step {_instance.CurrentStepIndex + 1} of {_instance.Config.Steps.Count}: {currentStep?.Title ?? ""}";
             AccessibilityNotifyClients(AccessibleEvents.Focus, 0);
 
             _btnBack.Enabled = _instance.Config.AllowBack && !_instance.IsFirstStep;
@@ -229,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 HideValidationError();
             }
 
-            _stepper.Invalidate();
+            _sidePanel.Invalidate();
         }
 
         public void ShowValidationError(string message)
@@ -414,10 +516,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private void Form_Resize(object sender, EventArgs e)
         {
-            _stepper.Invalidate();
+            _sidePanel.Invalidate();
         }
-        // SidePanel_Paint is gone: BeepStepperBar draws the steps now, so the
-        // form no longer hand-paints circles, connectors and labels.
+
+        private void SidePanel_Paint(object sender, PaintEventArgs e)
+        {
+            _painter.PaintStepTimeline(e.Graphics, _sidePanel.ClientRectangle,
+                _instance.CurrentStepIndex, _instance.Config.Steps);
+        }
 
         #endregion
 
@@ -426,7 +532,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         public override void ApplyTheme()
         {
             // Guard: base ctor triggers ApplyTheme before any wizard fields are initialized
-            if (_instance == null || _contentPanel == null || _buttonPanel == null || _stepper == null)
+            if (_instance == null || _contentPanel == null || _buttonPanel == null || _sidePanel == null)
                 return;
             base.ApplyTheme();
 
@@ -441,7 +547,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 
                 // Side panel with slightly different background
                 var sidePanelColor = ColorUtils.ShiftLuminance(CurrentTheme.BackColor, -0.05f);
-                _stepper.BackColor = sidePanelColor;
+                _sidePanel.BackColor = sidePanelColor;
 
                 _btnNext.Theme = CurrentTheme.ThemeName;
                 _btnBack.Theme = CurrentTheme.ThemeName;
@@ -456,7 +562,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _btnHelp?.ApplyTheme();
 
                 _painter.Initialize(this, CurrentTheme, _instance);
-                _stepper.Invalidate();
+                _sidePanel.Invalidate();
             }
         }
 

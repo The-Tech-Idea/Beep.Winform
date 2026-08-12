@@ -65,9 +65,32 @@ actually run — "the check exists" and "the check has been seen red" must never
 | `runtime: caption tracks the new width` | remove `programmaticNormalResize` from `ShouldRefreshChromeAfterWmSize` | 2026-08-12 — red (584→584 vs client 898) |
 | `design-mode: caption tracks the new width` | restore `OnResize` to a no-op | 2026-08-12 — red (0→572 vs client 886) |
 | `guard: the two sizes differ` | (guard — fails by construction if sizes are equal) | n/a |
+| `the last invalidate of a burst is not dropped` | `DebouncedInvalidate` back to leading-edge only | 2026-08-12 — red (0 invalidates after the suppressed call) |
+| `a derived form's own shape survives a style change` | `ReleaseManagedRegion` ignores `OwnsWindowShape` | 2026-08-12 — red |
+| `a derived form's own shape survives a resize` (+2) | `ApplyWindowShape` ignores a derived shape | 2026-08-12 — red (3 checks) |
+| `the window region follows the derived shape too` | `ShapeBackend` forgets `OwnsWindowShape` | 2026-08-12 — red (Win32 half only) |
+| `the default style selects the DWM backend` (+3) | `ShapeBackend` never selects `Dwm` | 2026-08-12 — red (4 checks) |
+| `the DWM backend sets no managed region` (+2) | DWM backend leaves a region in place | 2026-08-12 — red |
+| `guard: an idle form does not invalidate itself` | (blindness guard — red if anything else repaints) | n/a |
+| `guard: this machine can round windows through DWM` | (blindness guard — **fails**, not skips, on Win10) | n/a |
+
+**Three instruments were wrong before any code was.** Full account in
+`02-geometry-and-invalidate.md`; the short form, because each will recur:
+
+1. Counting `Paint` on an off-screen form — it never receives `WM_PAINT`, so the counter reads 0
+   whatever the code does. Count `Invalidated`.
+2. Hashing a region at points scaled to the form — a region correctly left alone still hashes
+   differently after a resize. Compare reference identity when the question is "was it replaced?".
+3. `Thread.Sleep(2)` to sit inside a 16 ms window — sleep is a floor, and on a loaded machine it
+   overshoots. The break was **green on a busy machine, red on an idle one**. Remove the timing
+   dependency rather than widening the tolerance.
+
+**A break runner must check the build's return code, not grep for `error CS`.** A locked exe fails
+with MSB3021/MSB3027, which that grep does not match — the build looks clean, the old binary stays
+on disk, and every break reports "still green" because none of them were ever in the running code.
 
 **Probe status:** `FormProbe` exists in the session scratchpad (`scratchpad/FormProbe`), builds
-clean, runs in ~4s, watchdog + hard exit, **stage 01 green (5 checks, 0 failures)**.
+clean, runs in ~4s, watchdog + hard exit, **stages 01 + 02 + 02b green (15 checks, 0 failures)**.
 
 **Capture note, learned the hard way:** `DrawToBitmap` returns a blank image for this form —
 `WM_PRINTCLIENT` does not invoke the custom `OnPaintBackground`. `Shot()` drives that method over

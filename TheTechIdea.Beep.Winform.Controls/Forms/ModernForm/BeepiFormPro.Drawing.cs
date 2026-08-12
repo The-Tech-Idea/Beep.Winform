@@ -5,6 +5,8 @@ using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
@@ -451,9 +453,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
         
         /// <summary>
-        /// Updates the form's managed Region property to clip to the rounded BorderShape path
-        /// This provides additional clipping at the managed level, complementing the Win32 window region
+        /// When true, this form's <see cref="System.Windows.Forms.Form.Region"/> belongs to the
+        /// derived class and the base will not touch it.
         /// </summary>
+        /// <remarks>
+        /// Added because a derivative could not keep its own shape. The base rebuilds a rounded
+        /// rectangle whenever the style changes, silently replacing anything a subclass had set -
+        /// measured as a diamond silhouette becoming a full rectangle on the next
+        /// <c>FormStyle</c> assignment. (A resize alone did not do it, which is why the first
+        /// version of the check passed and the defect looked absent.)
+        ///
+        /// This is the API <c>CustomToolTip</c> needed and never had: it had to abandon this base
+        /// entirely to keep its caret-and-card silhouette.
+        /// </remarks>
+        protected virtual bool OwnsWindowShape => false;
+
+        /// <summary>
+        /// Releases the managed <see cref="System.Windows.Forms.Form.Region"/> this form built,
+        /// unless a derivative owns the shape.
+        /// </summary>
+        /// <remarks>
+        /// Four separate places used to open-code `var old = Region; Region = null; old.Dispose();`.
+        /// Guarding only the two rebuild methods left the other two - both property setters - still
+        /// wiping a derivative's silhouette to null before the guarded rebuild declined to replace
+        /// it, which is strictly worse than the original bug: the shape became a full rectangle.
+        /// One release path is the only way the opt-out can hold.
+        /// </remarks>
+        private void ReleaseManagedRegion()
+        {
+            if (OwnsWindowShape) return;
+            if (Region == null) return;
+
+            var oldRegion = Region;
+            Region = null;
+            oldRegion.Dispose();
+        }
+
+        /// <summary>
+        /// Updates the form's managed Region so it clips to the rounded border path, complementing
+        /// the Win32 window region.
+        /// </summary>
+        /// <remarks>
+        /// Call only from <see cref="ApplyWindowShape"/>. It is the one place that decides whether
+        /// this form owns its shape at all - a duplicate OwnsWindowShape guard here would be
+        /// unreachable, and unreachable guards are untestable: breaking one changed no check.
+        /// </remarks>
         private void UpdateFormRegion()
         {
             if (!IsHandleCreated || ClientSize.Width <= 0 || ClientSize.Height <= 0 || ActivePainter == null)
@@ -461,13 +505,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
             try
             {
-                // Dispose old region before replacing (avoids GDI handle leak)
-                if (Region != null)
-                {
-                    var oldRegion = Region;
-                    Region = null;
-                    oldRegion.Dispose();
-                }
+                // Release the old region before replacing it (avoids a GDI handle leak).
+                ReleaseManagedRegion();
 
                 // Create a managed Region that is 1 pixel LARGER than ClientRectangle on both axes.
                 // GDI+ paths (and especially anti-aliased pens) use floating-point coordinates and
@@ -481,19 +520,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     regionRect, ActivePainter.GetCornerRadius(this));
                 Region = new Region(outerPath);
             }
-            catch
+            catch (Exception ex)
             {
-                // If region creation fails, clear any partially-set region and continue.
-                try
+                BeepLog.FailureOnce("form.region.build", this,
+                    "build the rounded window region - the form keeps square corners", ex);
+
+                // Clear any partially-set region and continue with an unshaped window.
+                try { ReleaseManagedRegion(); }
+                catch (Exception clearEx)
                 {
-                    if (Region != null)
-                    {
-                        var oldRegion = Region;
-                        Region = null;
-                        oldRegion.Dispose();
-                    }
+                    BeepLog.FailureOnce("form.region.clear", this,
+                        "clear a partially-built window region", clearEx);
                 }
-                catch { }
             }
         }
 

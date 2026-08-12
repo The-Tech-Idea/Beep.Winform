@@ -51,11 +51,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private GraphicsPath _cachedBorderShape;
         private Size       _cachedBorderShapeSize;
         private FormStyle  _cachedBorderShapeStyle;
+        private System.Windows.Forms.Timer _invalidateTrailingTimer;
+        private Rectangle? _pendingInvalidateRect;
+        private bool _pendingInvalidateChildren;
+        private bool _hasPendingInvalidate;
+
+        /// <summary>
+        /// Coalesces repaints to ~60fps while guaranteeing the LAST one still happens.
+        /// </summary>
+        /// <remarks>
+        /// This was leading-edge only: a call inside the 16ms window returned without painting
+        /// **and without scheduling anything**, so the final invalidate of any burst was dropped
+        /// and the form sat one frame stale until something else poked it. Measured: eight calls
+        /// 2ms apart produced **zero** paints.
+        ///
+        /// A debounce in a paint pipeline has to be trailing-edge - coalesce, then guarantee one
+        /// final paint. The first call in a quiet period still paints immediately, so nothing gets
+        /// slower; only the suppressed calls now leave a scheduled repaint behind them.
+        /// </remarks>
         private void DebouncedInvalidate(Rectangle? rect = null, bool invalidateChildren = false)
         {
-            if ((DateTime.Now - _lastInvalidate).TotalMilliseconds < 16) //60 FPS max
+            if (IsDisposed) return;
+
+            double since = (DateTime.Now - _lastInvalidate).TotalMilliseconds;
+            if (since >= 16)
+            {
+                _lastInvalidate = DateTime.Now;
+                DoInvalidate(rect, invalidateChildren);
                 return;
-            _lastInvalidate = DateTime.Now;
+            }
+
+            // Inside the window: remember what was asked for and make sure it lands.
+            // A pending rect plus a new one widens to cover both - dropping either would repaint
+            // less than the caller asked for.
+            _pendingInvalidateRect = _pendingInvalidateRect.HasValue && rect.HasValue
+                ? Rectangle.Union(_pendingInvalidateRect.Value, rect.Value)
+                : (rect ?? _pendingInvalidateRect);
+            _pendingInvalidateChildren |= invalidateChildren;
+            _hasPendingInvalidate = true;
+
+            if (_invalidateTrailingTimer == null)
+            {
+                _invalidateTrailingTimer = new System.Windows.Forms.Timer { Interval = 16 };
+                _invalidateTrailingTimer.Tick += (s, e) =>
+                {
+                    _invalidateTrailingTimer.Stop();
+                    if (IsDisposed || !_hasPendingInvalidate) return;
+
+                    _hasPendingInvalidate = false;
+                    _lastInvalidate = DateTime.Now;
+                    var pending = _pendingInvalidateRect;
+                    bool children = _pendingInvalidateChildren;
+                    _pendingInvalidateRect = null;
+                    _pendingInvalidateChildren = false;
+                    DoInvalidate(pending, children);
+                };
+            }
+            _invalidateTrailingTimer.Stop();
+            _invalidateTrailingTimer.Start();
+        }
+
+        private void DoInvalidate(Rectangle? rect, bool invalidateChildren)
+        {
             if (rect.HasValue)
                 Invalidate(rect.Value, invalidateChildren);
             else
@@ -105,8 +162,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Refresh the rounded window region on scroll and after the native handle
             // is created. Live resize is handled by base Form behavior (PerformLayout
             // runs from OnResize); no custom resize handler is installed.
-            this.Scroll += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
-            this.HandleCreated += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
+            this.Scroll += (s, e) => { ApplyWindowShape(); DebouncedInvalidate(); };
+            this.HandleCreated += (s, e) => { ApplyWindowShape(); DebouncedInvalidate(); };
 
             ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
             BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
@@ -399,8 +456,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
             ApplyStyletoChildControls();
 
-            UpdateWindowRegion();
-            
+            ApplyWindowShape();
+
             InvalidateLayout();
         }
 
@@ -452,8 +509,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // CRITICAL: Update window region to match new Style's corner radius
             if (IsHandleCreated)
             {
-                UpdateWindowRegion();
-                UpdateFormRegion();
+                ApplyWindowShape(force: true);
             }
 
             // Note: We no longer clear the cache here - painters are reused across style changes

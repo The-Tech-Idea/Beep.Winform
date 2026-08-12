@@ -35,8 +35,8 @@ Worth stating, because a plan that lists only faults invites replacing working m
 |---|---|---|
 | F1 ☑ | **FIXED (stage 01).** **Design-time resize does not refresh** (the reported bug). `OnResize` is a deliberate no-op; all geometry sync is deferred to `OnResizeEnd`/`WM_EXITSIZEMOVE`, which fire only for *interactive* resizes. The designer resizes by property write, so the sync never runs. Affects runtime `form.Size = …` identically. | `Events.cs:139-149`, `Win32.cs:347-369` |
 | F2 | Root designer is a **`ParentControlDesigner`** on a *Form* (root documents use `DocumentDesigner`), and hooks component/selection changes but never `Resize`/`SizeChanged`. | `Designers/BeepiFormProDesigner.cs:10` |
-| F3 | **`DebouncedInvalidate` drops the trailing repaint** — leading-edge only, returns without scheduling, so the last invalidate of a burst is silently lost. | `BeepiFormPro.cs:54-63` |
-| F4 | **Two window-region authorities** (`UpdateFormRegion` managed `Region` + `UpdateWindowRegion` `SetWindowRgn`), both rebuilding a rounded rect. Already forced `CustomToolTip` off this base (commit `0dc50a57`). Regions also give aliased corners and **kill the DWM shadow**; Win11 has `DWMWA_WINDOW_CORNER_PREFERENCE`. | `Drawing.cs:456-499`, `Win32.cs:490-540` |
+| F3 ☑ | **FIXED (stage 02).** **`DebouncedInvalidate` drops the trailing repaint** — leading-edge only, returns without scheduling, so the last invalidate of a burst is silently lost. | `BeepiFormPro.cs:54-63` |
+| F4 ☑ | **FIXED (stage 02)** — one authority (`ApplyWindowShape`), plus a DWM backend and `OwnsWindowShape`. **Two window-region authorities** (`UpdateFormRegion` managed `Region` + `UpdateWindowRegion` `SetWindowRgn`), both rebuilding a rounded rect. Already forced `CustomToolTip` off this base (commit `0dc50a57`). Regions also give aliased corners and **kill the DWM shadow**; Win11 has `DWMWA_WINDOW_CORNER_PREFERENCE`. | `Drawing.cs:456-499`, `Win32.cs:490-540` |
 | F5 | **No `WM_DPICHANGED`** anywhere; ctor hard-codes `AutoScaleDimensions = (96,96)` under a comment saying to remove it, while derived designer files serialize their own. | `BeepiFormPro.cs:70-73` |
 | F6 | **No Win11 snap layouts** — `WM_NCHITTEST` never returns `HTMAXBUTTON`. | `Win32.cs:268+` |
 | F7 ⚠︎ | **Accessibility is delivered by mutating the form's own identity.** Correction: names/roles/keyboard all exist, but there are **zero `AccessibleObject`s** in the folder — focus changes swap the *form's* `AccessibleName`/`Role`/`Description` (`CaptureCaptionAccessibilitySnapshot`, `_baseAccessibleName`). A screen reader sees one object whose identity mutates; UIA cannot enumerate the buttons, and automation cannot invoke them. Also no per-button tooltips. | `Core.cs:333-680` |
@@ -51,12 +51,12 @@ Worth stating, because a plan that lists only faults invites replacing working m
 | # | Stage | Kind | Status |
 |---|---|---|---|
 | [01](01-design-time.md) | The designer: resize refresh + a real root designer | **bug** (reported) | ☑ **done** — resize fixed; `DocumentDesigner` rebase deferred (see 01) |
-| [02](02-geometry-and-invalidate.md) | One geometry authority; invalidate that cannot drop a frame | **bug** | ☐ open |
+| [02](02-geometry-and-invalidate.md) | One geometry authority; invalidate that cannot drop a frame | **bug** | ☑ **done** — items 1–4; live-resize (item 5) deferred, see 02 |
 | [03](03-caption-accessibility.md) | Caption: real UIA children, tooltips, snap layouts | **bug** | ☐ open |
 | [04](04-dpi.md) | Per-monitor DPI v2; close the painter-side scaling hole | **bug** | ☐ open |
 | [05](05-painter-architecture.md) | 38 painters onto one chrome pipeline; parity enforced | refactor | ☐ open |
 | [06](06-backdrop-effects.md) | One backdrop API — drop DWM backdrops, keep a real painted effect | **bug** | ☐ open |
-| [07](07-verification.md) | `FormProbe` — the harness every stage reports through | verification | ◐ live — stage 01 checks green, ledger started |
+| [07](07-verification.md) | `FormProbe` — the harness every stage reports through | verification | ◐ live — stages 01/02/02b green (15 checks), 6 breaks recorded |
 | [08](08-theme-and-reporting.md) | 28 silent catches → `BeepLog`; ~30 non-skin literals → slots | **rule 1** (+4, scoped) | ☐ open |
 
 Status marks: ☐ open · ◐ in progress · ☑ done

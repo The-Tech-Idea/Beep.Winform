@@ -375,7 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {
-                            UpdateWindowRegion();
+                            ApplyWindowShape();
 
                             // Maximize, restore, and monitor-driven non-client size changes do not
                             // reliably flow through OnResizeEnd / WM_EXITSIZEMOVE. Refresh the full
@@ -519,6 +519,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// This clips the window so rectangular corners don't show through
         /// CRITICAL: This must be called whenever the form size changes or Style changes
         /// </summary>
+        /// <remarks>
+        /// Call only from <see cref="ApplyWindowShape"/>, which owns the OwnsWindowShape decision
+        /// for both halves of the shape. See the note on UpdateFormRegion.
+        /// </remarks>
         private void UpdateWindowRegion()
         {
             if (Width <= 0 || Height <= 0)

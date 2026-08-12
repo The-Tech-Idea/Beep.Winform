@@ -172,8 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             InvalidateLayout();
             try { EnsureLayoutCalculated(); } catch { }
 
-            UpdateWindowRegion();
-            UpdateFormRegion();
+            ApplyWindowShape();
 
             Invalidate(true);
         }
@@ -230,13 +229,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     try
                     {
                         _formstyle = value;
-                        // Dispose old managed region when style changes (corner radius may change)
-                        if (IsHandleCreated && Region != null)
-                        {
-                            var oldRegion = Region;
-                            Region = null;
-                            oldRegion.Dispose();
-                        }
+                        // Release the old managed region when the style changes (the corner radius
+                        // may change with it). ReleaseManagedRegion declines when a derivative owns
+                        // the shape - this setter used to wipe it unconditionally, which is how a
+                        // derived silhouette became a full rectangle on the next style assignment.
+                        if (IsHandleCreated) ReleaseManagedRegion();
                         InvalidateLayout(); // Clear cached BorderShape BEFORE recalculating regions
                         ApplyFormStyle(); // This calls UpdateWindowRegion() + UpdateFormRegion() with fresh cache
                         DebouncedInvalidate();
@@ -866,14 +863,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     if (IsHandleCreated)
                     {
                         // Dispose old managed region if it exists
-                        if (Region != null)
-                        {
-                            var oldRegion = Region;
-                            Region = null;
-                            oldRegion.Dispose();
-                        }
-                        UpdateWindowRegion();
-                        UpdateFormRegion();
+                        ReleaseManagedRegion();
+                        ApplyWindowShape(force: true);
                     }
                     InvalidateLayout();
                     Invalidate();

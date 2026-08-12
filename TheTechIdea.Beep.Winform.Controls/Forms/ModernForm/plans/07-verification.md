@@ -38,15 +38,13 @@ shape as `Tools/BeepBlockWizardPreviewHarness`). Non-negotiables learned this se
    fence at zero; 96-vs-144 render differential [04]
 5. All-skins contact sheet ×{active, inactive, maximized} ×2 sizes; per-flag per-skin pixel
    differential; deprecated-helper fence [05]
-6. Backdrop attribute round-trip + stated-fallback + `BeepLog.Reported` subscription; caption
-   contrast ≥ 4.5:1 per backdrop×theme; opacity ramp / reduced-motion jump [06]
-7. One-API backdrop fence; DWM attribute round-trip + `EffectiveBackdrop` fallback + `BeepLog`
-   report on refusal; placebo regression (no flat translucent full-client fill); caption contrast
-   per backdrop×theme [06]
-8. Literal-colour fence covering **all four** escape forms (`FromArgb(r,g,b)`, `FromArgb(a,r,g,b)`,
+6. One-API backdrop fence; DWM attribute round-trip + `EffectiveBackdrop` on refusal +
+   `BeepLog.Reported` subscription; placebo regression (no flat translucent full-client fill);
+   caption contrast ≥ 4.5:1 per backdrop×theme; opacity ramp / reduced-motion jump [06]
+7. Literal-colour fence covering **all four** escape forms (`FromArgb(r,g,b)`, `FromArgb(a,r,g,b)`,
    named `Color.X`, `?? Color.Empty`); per-skin two-theme render differential; zero bare
    `catch { }`; zero `Debug.WriteLine` [08]
-9. Cross-cutting: `BeepLog.Reported` collected for the whole run — any unexpected `Failure`
+8. Cross-cutting: `BeepLog.Reported` collected for the whole run — any unexpected `Failure`
    fails the probe; a derived form (`CardsWizardForm`) constructs, shows, renders, closes.
 
 ## Break-it-first ledger

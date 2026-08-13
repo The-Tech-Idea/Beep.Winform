@@ -58,8 +58,22 @@ registrations.
 | 3 | **Solarized** | 87 → 33 | same three gates green; diamond drawing untouched |
 | 4 | **GruvBox** | 86 → 32 | same three gates green; Win95 beveled buttons untouched |
 | 5 | **OneDark** | 87 → 32 | same three gates green; octagon buttons untouched |
+| 6 | **Dracula** | 86 → 32 | same three gates green; fang buttons untouched |
+| 7–17 | **Cyberpunk, Glassmorphism, NeoMorphism, Terminal, KDE, Neon, Nord, Nordic, Paper, Retro, Tokyo** | 81 → 29 each | migrated in one verified pass; all three gates green; contact sheet eyeballed |
 
-**431 lines of layout have become 166, and no pixel moved.** Five of seventeen migrated.
+**All seventeen are migrated: 1,431 lines of layout have become 419, and no pixel moved.**
+
+The last eleven went in one pass, but **not** on similarity alone. Each file's
+`CalculateLayoutAndHitAreas` was first checked against the shape established by the six hand-migrated
+painters — metrics-driven caption height, the `metrics.ButtonWidth` cascade, metrics-based icon and
+title — and rejected if it contained `SafeContentInsets`, `GetCaptionLeftSafeX`, `DpiScalingHelper`,
+or the traffic-light helper. All eleven matched exactly; none were skipped. Had Cartoon been in the
+list it would have been rejected on `GetCaptionLeftSafeX`, which is precisely the trap a
+similarity threshold would have walked into.
+
+Verified together: dead skin-feature combinations 2/185, painter-identity guard green, caption
+heights byte-identical across all 37 styles, and the contact sheet re-rendered and eyeballed — all
+37 skins unchanged.
 
 Both migrated painters were read end to end first. The remaining fifteen of the seventeen have
 **not** been read, and the rule stands: measured similarity of 91–97% is enough to *predict* the

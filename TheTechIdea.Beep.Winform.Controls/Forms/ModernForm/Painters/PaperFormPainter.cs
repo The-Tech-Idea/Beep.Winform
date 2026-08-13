@@ -574,107 +574,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
-            var layout = new PainterLayoutInfo();
+            // Migrated to the shared cascade (stage 05). Its layout method was verified against the
+            // shape established by six hand-migrated painters before this change: metrics-driven
+            // caption height, the metrics.ButtonWidth cascade, metrics-based icon and title, and no
+            // corner-safe or DPI work of its own. The drawing in this file is untouched.
             var metrics = GetMetrics(owner);
-            
             int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
-            // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
-            
-            // Check if caption bar should be hidden
-            if (!owner.ShowCaptionBar)
+
+            if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
+                owner,
+                captionHeight,
+                metrics.ButtonWidth,
+                metrics.SearchBoxWidth,
+                metrics.SearchBoxPadding,
+                includeCustomAction: true,
+                out var layout,
+                out int titleRightBoundary))
             {
-                layout.CaptionRect = Rectangle.Empty;
-                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
                 owner.CurrentLayout = layout;
                 return;
             }
-            
-            layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
-            owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
-            
-            int buttonWidth = metrics.ButtonWidth;
-            int buttonX = owner.ClientSize.Width - buttonWidth;
-            
-            if (owner.ShowCloseButton)
-            {
-                layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.Register(FormHitAreaNames.Close, layout.CloseButtonRect, HitAreaType.Button);
-                buttonX -= buttonWidth;
-            }
-            
-            if (owner.ShowMinMaxButtons)
-            {
-                layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.Register(FormHitAreaNames.Maximize, layout.MaximizeButtonRect, HitAreaType.Button);
-                buttonX -= buttonWidth;
-                
-                layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.Register(FormHitAreaNames.Minimize, layout.MinimizeButtonRect, HitAreaType.Button);
-                buttonX -= buttonWidth;
-            }
-            
-            // Style button (if shown)
-            if (owner.ShowStyleButton)
-            {
-                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea(FormHitAreaNames.Style, layout.StyleButtonRect, HitAreaType.Button);
-                buttonX -= buttonWidth;
-            }
-            
-            // Theme button (if shown)
-            if (owner.ShowThemeButton)
-            {
-                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea(FormHitAreaNames.Theme, layout.ThemeButtonRect, HitAreaType.Button);
-                buttonX -= buttonWidth;
-            }
-            
-            // Custom action button (fallback)
-            // Custom action button (only if ShowCustomActionButton is true)
-            if (owner.ShowCustomActionButton)
-            {
-                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea(FormHitAreaNames.CustomAction, layout.CustomActionButtonRect, HitAreaType.Button);
-                buttonX -= buttonWidth;
-            }
 
-            if (owner.ShowProfileButton)
-            {
-                layout.ProfileButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea(FormHitAreaNames.Profile, layout.ProfileButtonRect, HitAreaType.Button);
-                buttonX -= buttonWidth;
-            }
-            
-            // Search box (between title and buttons)
-            var searchMetrics = GetMetrics(owner);
-            int searchBoxWidth = searchMetrics.SearchBoxWidth;
-            int searchBoxPadding = searchMetrics.SearchBoxPadding;
-            if (owner.ShowSearchBox)
-            {
-                layout.SearchBoxRect = new Rectangle(buttonX - searchBoxWidth - searchBoxPadding, searchBoxPadding / 2, 
-                    searchBoxWidth, captionHeight - searchBoxPadding);
-                owner._hits.RegisterHitArea(FormHitAreaNames.Search, layout.SearchBoxRect, HitAreaType.TextBox);
-                buttonX -= searchBoxWidth + searchBoxPadding;
-            }
-            else
-            {
-                layout.SearchBoxRect = Rectangle.Empty;
-            }
-            
-            int iconX = metrics.IconLeftPadding;
+            owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
+
             int iconY = (captionHeight - metrics.IconSize) / 2;
-            layout.IconRect = new Rectangle(iconX, iconY, metrics.IconSize, metrics.IconSize);
+            layout.IconRect = new Rectangle(metrics.IconLeftPadding, iconY, metrics.IconSize, metrics.IconSize);
             if (owner.ShowIcon && owner.Icon != null)
             {
                 owner._hits.Register("icon", layout.IconRect, HitAreaType.Icon);
             }
-            
+
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
-            layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
-            
+            layout.TitleRect = new Rectangle(titleX, 0,
+                titleRightBoundary - titleX - metrics.ButtonSpacing, captionHeight);
+
             owner.CurrentLayout = layout;
         }
+
 
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {

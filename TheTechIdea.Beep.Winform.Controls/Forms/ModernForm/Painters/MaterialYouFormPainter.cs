@@ -234,13 +234,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         // Grid icon (Material style)
                         int gridSize = 3;
                         int spacing = 5;
-                        for (int i = 0; i < 2; i++)
+                        // Byte-identical to Material's copy of this loop, which leaked four GDI
+                        // handles per paint. Fixing Material alone left this twin broken - the
+                        // duplication is the defect; the leak is only where it shows.
+                        using (var gridBrush = new SolidBrush(baseColor))
                         {
-                            for (int j = 0; j < 2; j++)
+                            for (int i = 0; i < 2; i++)
                             {
-                                int x = iconCenterX - spacing / 2 + i * spacing;
-                                int y = iconCenterY - spacing / 2 + j * spacing;
-                                g.FillEllipse(new SolidBrush(baseColor), x - gridSize / 2, y - gridSize / 2, gridSize, gridSize);
+                                for (int j = 0; j < 2; j++)
+                                {
+                                    int x = iconCenterX - spacing / 2 + i * spacing;
+                                    int y = iconCenterY - spacing / 2 + j * spacing;
+                                    g.FillEllipse(gridBrush, x - gridSize / 2, y - gridSize / 2, gridSize, gridSize);
+                                }
                             }
                         }
                         break;

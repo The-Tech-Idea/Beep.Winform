@@ -55,7 +55,7 @@ only the icon; 25 hand-roll the whole cascade.
 
 | stage | painters | status |
 |---|---|---|
-| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ◐ 4/5 read (MaterialYou left); leak swept across all 38 |
+| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☐ |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
@@ -150,6 +150,34 @@ between flag states.
 
 DPI is split down the middle of one supposedly uniform group: of four helper-based painters,
 **Modern and Linear scale their layout literals; Material and Metro do not.**
+
+### MaterialYou (411 lines, helper-based) — read in full
+
+| # | finding | severity |
+|---|---|---|
+| MY1 ☑ | **Material's brush leak, byte-identical and unfixed.** The same 2×2 grid-icon loop constructing a `SolidBrush` per dot and disposing none — four GDI handles per paint. Fixing Material's copy left this twin broken, which is the ×N tax in one line. Fixed; a repo-wide check found no third copy. | **bug** |
+| MY2 | `PaintBorders` **and** `PaintNonClientBorder` are both empty bodies with "intentionally left minimal" comments — Material 3 uses elevation instead of borders. Defensible as design, but it means two interface methods do nothing and only a comment says so on purpose. | record |
+| MY3 | **`Color.Empty` guards** — `if (owner.CurrentTheme.SurfaceColor != Color.Empty)` and the same for `PrimaryColor`, which the standing rules forbid. | record |
+| MY4 | `touchTarget = 40`, `iconArea = 24`, `iconSize = 12` hardcoded in the paint path while the layout *does* scale — the M3/L3/Mt3/Me3 pattern, fifth occurrence. | **bug** |
+| MY5 | The dead `padding` parameter, third occurrence (Material, Metro, here). | tidy |
+| MY6 | **Only painter of the five that sets `layout.SafeContentInsets`**, keeping child controls clear of rounded corners. The other four leave it default, so a child can overlap the corner arc in every other skin. | **bug** (elsewhere) |
+
+## Stage 05a-1 complete — 5 of 38 read
+
+| painter | scales layout for DPI | distinct defect found |
+|---|---|---|
+| Modern | yes | leaked `Region` per paint; hardcoded corner radius |
+| Linear | yes | same leak inherited; same hardcoded radius |
+| Material | **no** | four brushes leaked per paint; radius literal ≠ its metric (16 vs 8) |
+| Metro | **no** | declares a shadow it never draws |
+| MaterialYou | yes | Material's brush leak, cloned and unfixed; only painter setting `SafeContentInsets` |
+
+Three of five scale their layout; two do not. Five of five hardcode paint-path button geometry. Every
+one had a real defect, and **no two had the same list** — the closest were Material and MaterialYou,
+where the shared defect existed precisely because the code was copied.
+
+**None of these defects is visible to the parity harness**, which compares caption-band pixels
+between flag states. Five for five, reading found what measurement could not.
 
 ### Swept across all 38 (2026-08-13)
 

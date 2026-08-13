@@ -207,13 +207,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         // Grid icon (Material Style)
                         int gridSize = 3;
                         int spacing = 5;
-                        for (int i = 0; i < 2; i++)
+                        // One brush for the four dots. This constructed a SolidBrush inside the
+                        // inner loop and never disposed any of them - four GDI handles leaked per
+                        // paint, whenever the style button is visible.
+                        using (var gridBrush = new SolidBrush(baseColor))
                         {
-                            for (int j = 0; j < 2; j++)
+                            for (int i = 0; i < 2; i++)
                             {
-                                int x = iconCenterX - spacing / 2 + i * spacing;
-                                int y = iconCenterY - spacing / 2 + j * spacing;
-                                g.FillEllipse(new SolidBrush(baseColor), x - gridSize / 2, y - gridSize / 2, gridSize, gridSize);
+                                for (int j = 0; j < 2; j++)
+                                {
+                                    int x = iconCenterX - spacing / 2 + i * spacing;
+                                    int y = iconCenterY - spacing / 2 + j * spacing;
+                                    g.FillEllipse(gridBrush, x - gridSize / 2, y - gridSize / 2, gridSize, gridSize);
+                                }
                             }
                         }
                         break;

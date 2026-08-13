@@ -55,7 +55,7 @@ only the icon; 25 hand-roll the whole cascade.
 
 | stage | painters | status |
 |---|---|---|
-| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ◐ Modern + Linear read; leak swept across all 38 |
+| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ◐ Modern, Linear, Material read (3/5); leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☐ |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
@@ -104,6 +104,23 @@ Modern's, they are the folder's.
 | L4 | `var metrics = GetMetrics(owner);` assigned and unused in `PaintBackground` and `PaintBorders` — both paint literals instead. | record |
 | L5 | The `PaintLinearButtons` doc comment is duplicated verbatim, twice in a row. | tidy |
 | L6 | Colours branch on `owner.CurrentTheme.IsDarkTheme` with literal light/dark pairs — a **third** colour source alongside metrics and the skin palette. | record |
+
+### Material (499 lines, helper-based) — read in full
+
+| # | finding | severity |
+|---|---|---|
+| Mt1 ☑ | **A `SolidBrush` constructed inside a nested loop and never disposed** — the style button's 2×2 grid icon leaked **four GDI handles per paint**, whenever that button is visible. Fixed: one `using` brush for all four dots. | **bug** |
+| Mt2 | **No DPI scaling at all.** Unlike Modern and Linear, `CalculateLayoutAndHitAreas` passes raw literals to the layout helper — `Font.Height + 32`, button `32`, search `200`, padding `8` — and never touches `DpiScalingHelper`. Its icon does scale, because that reads `metrics.IconSize`. So one helper-based painter scales its button row and its neighbour does not. | **bug** |
+| Mt3 | `touchTarget = 40`, `iconArea = 24`, `iconSize = 12` hardcoded in the paint path — the M3/L3 pattern again. | **bug** |
+| Mt4 | `padding` is computed as `(captionRect.Height - touchTarget) / 2`, passed to `PaintMaterial3Button`, and never used there — the button centres on its own rect. Dead parameter; also negative whenever the caption is shorter than 40px. | tidy |
+| Mt5 | `PaintBorders` computes `var radius = GetCornerRadius(owner);` and never uses it. | tidy |
+
+**Material settles the corner-radius question, and the answer is: do not sweep.** Its
+`GetCornerRadius` returns `CornerRadius(16)` (commented "MD3 spec: 16dp") while
+`FormPainterMetrics` gives `FormStyle.Material` a `BorderRadius` of **8**. Replacing the literal
+with the metric would halve Material's corners — a visible design change, not a refactor. The
+painters and the metrics genuinely disagree about this skin, and which one is right is a design
+decision per skin. Recorded as blocked on that decision rather than swept.
 
 ### Swept across all 38 (2026-08-13)
 

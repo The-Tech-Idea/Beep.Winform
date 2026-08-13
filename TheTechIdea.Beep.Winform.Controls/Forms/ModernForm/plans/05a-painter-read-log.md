@@ -55,7 +55,7 @@ only the icon; 25 hand-roll the whole cascade.
 
 | stage | painters | status |
 |---|---|---|
-| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ◐ Modern, Linear, Material read (3/5); leak swept across all 38 |
+| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ◐ 4/5 read (MaterialYou left); leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☐ |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
@@ -121,6 +121,35 @@ Modern's, they are the folder's.
 with the metric would halve Material's corners — a visible design change, not a refactor. The
 painters and the metrics genuinely disagree about this skin, and which one is right is a design
 decision per skin. Recorded as blocked on that decision rather than swept.
+
+### Metro (349 lines, helper-based) — read in full
+
+Read out of plan order (before MaterialYou) because it is the shortest remaining file in the batch
+and context was tight — noted so the log's order is not mistaken for a finding.
+
+| # | finding | severity |
+|---|---|---|
+| Me1 | **The declared shadow is never drawn.** `GetShadowEffect` returns a real shadow (alpha 30, blur 5, offsetY 2), but `PaintWithEffects` calls only `PaintBackground`, `PaintBorders`, `PaintCaption` — there is no `DrawShadow` call and no `DrawShadow` method in the file. Modern, Linear and Material all draw their own shadow in `PaintWithEffects`, so the convention is painter-drawn and Metro simply does not. The interface reports a shadow this skin never renders. | **bug** |
+| Me2 | **No DPI scaling.** `Font.Height + 16`, button width `46`, `iconSize = 16`, `iconPadding = 12` — all raw literals, `DpiScalingHelper` never referenced. Same as Material. | **bug** |
+| Me3 | `buttonSize = 22` hardcoded in the paint path while the layout is fixed too — the M3/L3/Mt3 pattern. | **bug** |
+| Me4 | `ShiftLuminance` for hover fill and border (lines 144, 152), which the standing colour rule excludes. | record |
+| Me5 | `padding` computed, passed to `Paint3DTileButton`, never used there — the same dead parameter as Material's Mt4. | tidy |
+| Me6 | ~45 lines of duplicated HSL helpers (`ShiftLuminance`/`ColorToHsl`/`ColorFromHsl`/`Hue2Rgb`), byte-identical to Modern's copy. | debt |
+
+**Me1 is not fixed.** Adding the shadow would change Metro's appearance, and a flat, shadowless
+Metro is defensible as a design — Metro's whole comment block is about flatness and sharp edges. What
+is not defensible is *declaring* a shadow that never draws. Either the skin should draw it or
+`GetShadowEffect` should return `Inner = false, Blur = 0`. That is a design call, recorded here.
+
+### Pattern across the four painters read so far
+
+Every one has real resource or correctness bugs, and each has a **different** one — Modern leaked a
+`Region`, Linear inherited it, Material leaks four brushes per paint, Metro declares a shadow it
+never draws. None of the four is visible to the parity harness, which compares caption-band pixels
+between flag states.
+
+DPI is split down the middle of one supposedly uniform group: of four helper-based painters,
+**Modern and Linear scale their layout literals; Material and Metro do not.**
 
 ### Swept across all 38 (2026-08-13)
 

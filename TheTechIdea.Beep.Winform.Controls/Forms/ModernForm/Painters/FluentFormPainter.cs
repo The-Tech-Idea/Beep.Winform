@@ -122,6 +122,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             FormPainterRenderHelper.DrawSystemButton(g, closeRect, "X", closeHovered, isClose: true, baseFont, metrics.CaptionTextColor, metrics.CloseButtonHoverColor, closeColor);
             FormPainterRenderHelper.DrawSystemButton(g, maxRect, "□", maxHovered, isClose: false, baseFont, metrics.CaptionTextColor, metrics.MaximizeButtonHoverColor);
             FormPainterRenderHelper.DrawSystemButton(g, minRect, "—", minHovered, isClose: false, baseFont, metrics.CaptionTextColor, metrics.MinimizeButtonHoverColor);
+
+            // Theme and style were laid out, hit-tested and never drawn - the same defect iOS had
+            // with its traffic lights, and the last two dead entries in the stage 05 parity matrix
+            // (ShowThemeButton and ShowStyleButton, 1/37 each, both this skin).
+            //
+            // Delegated to the form's own regions rather than given glyphs here: those regions
+            // already draw proper themed icons, and this painter deliberately does not hand-roll
+            // button art - it is the one skin that routes through the shared DrawSystemButton.
+            if (owner.ShowThemeButton && owner.CurrentLayout.ThemeButtonRect.Width > 0)
+            {
+                owner.ThemeButton?.OnPaint?.Invoke(g, owner.CurrentLayout.ThemeButtonRect);
+            }
+
+            if (owner.ShowStyleButton && owner.CurrentLayout.StyleButtonRect.Width > 0)
+            {
+                owner.StyleButton?.OnPaint?.Invoke(g, owner.CurrentLayout.StyleButtonRect);
+            }
         }
 
         // SA-02: Removed over-designed acrylic button rendering.

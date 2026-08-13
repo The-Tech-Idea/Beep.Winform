@@ -98,6 +98,30 @@ Two things confirmed before the change, not assumed:
 
 Sixteen painters remain at 91–97% similarity to the pre-migration original.
 
+### The parity matrix reaches zero (2026-08-13)
+
+```
+                          start of stage 05        now
+ShowCustomActionButton      33/37 dead        ->   0/37
+ShowThemeButton              1/37             ->   0/37
+ShowStyleButton              1/37             ->   0/37
+ShowProfileButton            0/37             ->   0/37
+ShowSearchBox                0/37             ->   0/37
+TOTAL                       35/185 dead       ->   0/185
+```
+
+**Every skin now honours every caption flag visibly.**
+
+The last two were Fluent's theme and style buttons: laid out, hit-tested, never drawn — the same
+defect iOS had with its traffic lights. They are delegated to the form's own `ThemeButton` and
+`StyleButton` regions rather than given glyphs in the painter, because those regions already draw
+themed icons and Fluent is deliberately the one skin that routes button art through shared code.
+
+Worth stating plainly: **this metric was 35/185 for the entire life of the codebase until this
+stage, and nothing reported it.** No exception, no log line, no visual review caught a property that
+did nothing in 33 of 37 skins. It took an instrument built specifically to ask "does toggling this
+change any pixel?" — and that instrument was written before the migration, not after.
+
 ### Why layout, specifically
 
 - **It is where the bugs were.** `ShowCustomActionButton` was dead in 33 of 37 skins and took four

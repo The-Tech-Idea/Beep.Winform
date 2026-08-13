@@ -144,6 +144,64 @@ code. This is the stale-binary trap recorded in `07-verification.md`, hit again 
 direction - a timeout that kills the shell does not kill the child process. Kill the process first,
 then rebuild, then trust the render.
 
+## Ground truth — all 38 painters audited with comments stripped (2026-08-13)
+
+Written after three wrong conclusions in a row, every one of them caused by grepping source that
+included **comments**. The audit script strips block comments, line comments and string literals
+before matching, and reports per painter. Numbers below replace every earlier count in this
+document and in my working notes.
+
+### There are two architectures, not one mess
+
+| | painters | lays out | caption height |
+|---|---|---|---|
+| **helper-based** | **12** — Linear, MacOS, Material, MaterialYou, Metro, Metro2, Minimal, Modern, NextJS, RadixUI, Shadcn, iOS | `FormPainterLayoutHelper` does the button row; the painter positions only the icon | `owner.Font.Height + <literal>` |
+| **hand-rolled** | **25** | all nine regions itself, in its own cascade | `Math.Max(metrics.CaptionHeight, Font.Height * metrics.FontHeightMultiplier)` |
+
+That split is the real shape of the folder, and it is cleaner than "38 near-duplicates" implies.
+The duplication is 25 copies of one cascade, not 38 copies of everything.
+
+### Corrections to claims made earlier in this work
+
+- **`PaintBuiltInCaptionElements` is called by 2 painters, not 25.** MacOS and NeoMorphism. The other
+  matches are the comment `// NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) here because we
+  paint custom beveled buttons`. This single miscount produced three failed fixes for
+  `ShowCustomActionButton` before the parity harness forced the issue.
+- **Stage 04's caption-height figures were right; a later audit of mine was wrong.** The 21 painters
+  recorded there as metrics-driven use
+  `Math.Max(metrics.CaptionHeight, Font.Height * metrics.FontHeightMultiplier)` — both terms scale,
+  so they are the best-behaved group. A stricter regex in the new audit failed to match the
+  `Math.Max` form and briefly suggested only one painter used metrics. It does not; **stage 04
+  stands unamended.**
+- **"Laid out but never painted" is an artefact of the detector, not a defect.** The audit counts a
+  region as painted only when a painter invokes `X?.OnPaint`. Close, Maximize, Minimize, Theme,
+  Style, Search and Icon show `painted 0` because painters draw those with their own code
+  (`PaintTileFlipButton` and friends) rather than through the region. They render correctly. Only
+  Profile and CustomAction are drawn *through* regions, which is why those two are the ones that
+  could silently go missing.
+
+### The remaining two dead skins, precisely
+
+`GNOME` and `Custom` lay out **every** region except `CustomAction` — visible directly in the audit,
+where their laid-out list is the only pair missing it. Both now invoke the region, so they draw into
+an empty rect. Neither uses the shared helper, so there is no single place to fix it: each needs the
+slot added to its own cascade, between Theme and Profile, exactly as the other 23 hand-rolled
+painters already do it.
+
+### What this means for the pipeline
+
+The migration target should be **the hand-rolled cascade**, not the painters wholesale. 25 painters
+repeat the same ordered sequence — close, maximize, minimize, style, theme, custom action, profile,
+search — each with its own `if (owner.ShowX)` and its own `buttonX -= buttonWidth`. That sequence is
+already expressed once, correctly, in `FormPainterLayoutHelper`, and 12 painters use it. Migrating
+the other 25 to the same helper is a smaller, better-defined job than inventing a `FormChromePipeline`,
+and it would have made `ShowCustomActionButton` a one-line fix instead of a 35-file one.
+
+**Revised recommendation:** the first migration step is to move the 25 hand-rolled painters onto
+`FormPainterLayoutHelper` for *layout only*, leaving every painter's drawing untouched. Layout is
+where the flags live, so parity is measurable by the existing per-flag differential, and no skin's
+appearance should change — which the contact sheet can prove.
+
 ## Verification
 
 - **Contact sheet of all 38 skins** (the ListBoxs instrument, reused): every skin × {active,

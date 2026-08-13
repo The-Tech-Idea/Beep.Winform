@@ -301,14 +301,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            var captionHeight = owner.Font.Height + 16;
+
+            // Only the literals are scaled. searchBoxWidth/Padding come from metrics, which are
+            // already DPI-scaled since stage 04 - scaling them here would apply the factor twice,
+            // the exact defect the double-scale fence exists to prevent.
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            var captionHeight = owner.Font.Height + DpiScalingHelper.ScaleValue(16, dpiScale);
             int searchBoxWidth = metrics.SearchBoxWidth;
             int searchBoxPadding = metrics.SearchBoxPadding;
 
             if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
                 owner,
                 captionHeight,
-                46,
+                DpiScalingHelper.ScaleValue(46, dpiScale),
                 searchBoxWidth,
                 searchBoxPadding,
                 // true: the helper already gates this on owner.ShowCustomActionButton, so passing
@@ -321,8 +326,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 return;
             }
             
-            var iconSize = 16;
-            var iconPadding = 12;
+            var iconSize = DpiScalingHelper.ScaleValue(16, dpiScale);
+            var iconPadding = DpiScalingHelper.ScaleValue(12, dpiScale);
             layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             

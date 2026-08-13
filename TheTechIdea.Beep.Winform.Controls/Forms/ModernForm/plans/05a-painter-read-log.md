@@ -207,6 +207,26 @@ pattern still present in 31 files — it was matching the replacement *comment*,
 it replaced. Comment-stripped, the true residue was 7, and those 7 turned out to be the legitimate
 cases. Grepping source that includes comments has now produced four wrong readings in one session.
 
+## DPI sweep, bounded by what has been read (2026-08-13)
+
+Of the ten painters that use `TryBuildStandardRightAlignedCaptionLayout`, **four pass raw literals**
+and never touch `DpiScalingHelper`: Material, Metro, Metro2, Minimal. The other six scale.
+
+**Only Material and Metro were fixed** — the two of the four that have been read end to end. Metro2
+and Minimal are left for stage 05a-2, because this sweep cannot be done blind:
+
+> Metro passes `metrics.SearchBoxWidth` and `metrics.SearchBoxPadding` straight into the helper.
+> Those come from metrics, which have been DPI-scaled since stage 04. Wrapping them in `ScaleValue`
+> alongside the literals would apply the factor **twice** — precisely the defect the double-scale
+> fence exists to catch, introduced by the fix meant to prevent it.
+
+Distinguishing "this painter's own constant" from "a value that arrived pre-scaled" requires knowing
+which is which, and that requires reading the file. A regex over the four would have double-scaled
+Metro's search box.
+
+Verified: probe green, dead combinations still 4/185, caption heights byte-identical across all 37
+styles — the change is inert at this machine's DPI by construction and now follows the monitor.
+
 ## Exit criteria
 
 All 38 files read end to end and recorded here; findings triaged into fix batches; the parity harness

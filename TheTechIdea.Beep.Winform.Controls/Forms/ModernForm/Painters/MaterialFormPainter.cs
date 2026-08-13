@@ -410,14 +410,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             FormPainterMetrics metrics = owner.MetricsFor(FormStyle.Material);
             
             // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
-            int captionHeight = owner.Font.Height + 32;
+            // These four were raw literals while Modern, Linear and MaterialYou scaled the same
+            // values - one helper-based painter scaling its button row and its neighbour not.
+            // Scaled once here: they are this painter's own constants, not values arriving
+            // pre-scaled from metrics (IconSize and IconLeftPadding below do come from metrics and
+            // are therefore left alone, or they would scale twice).
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            int captionHeight = owner.Font.Height + DpiScalingHelper.ScaleValue(32, dpiScale);
 
             if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
                 owner,
                 captionHeight,
-                32,
-                200,
-                8,
+                DpiScalingHelper.ScaleValue(32, dpiScale),
+                DpiScalingHelper.ScaleValue(200, dpiScale),
+                DpiScalingHelper.ScaleValue(8, dpiScale),
                 includeCustomAction: true,
                 out var layout,
                 out var titleRightBoundary))

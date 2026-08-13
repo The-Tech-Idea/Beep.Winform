@@ -508,6 +508,24 @@ Not fixed here: adding two visible buttons to a skin is an appearance change, an
 painter that routes through the shared button renderer, so the right fix is to extend that call — a
 change better made as part of the shared-layout extraction than as a one-off.
 
+### Read in full during the migration pass
+
+| painter | lines | notes |
+|---|---|---|
+| **Solarized** | 485 | Diamond buttons. Mixed `_hits.Register` and `_hits.RegisterHitArea` in one method — equivalent calls, the kind of drift that survives only in copies. |
+| **GruvBox** | 503 | Win95 beveled buttons via `ControlPaint.DrawBorder3D`, Raised/Sunken on hover — the most distinctive drawing of any skin read. Warm grain texture is a `DrawLine` every 3px (~233 calls/paint): the same uncached-texture shape as Cartoon's halftone, two orders of magnitude cheaper, and fixable with Fluent's cached `TextureBrush` if it ever matters. |
+| **OneDark** | 511 | Octagon buttons, and it **does** draw its theme and style octagons — unlike Fluent, every button its layout allocates is painted. Gutter grid is a nested loop of 1×1 `DrawRectangle` every 40px (~425 calls/paint), same family as the above. |
+
+All three carried the identical layout cascade and were migrated in the same pass. Twenty of
+thirty-eight painters read end to end.
+
+**One instrument question raised and resolved while reading OneDark.** The per-flag differential
+detects *"the render changed"*, and enabling a button also shifts its neighbours — so a painter could
+in principle fail to draw the new button and still pass. It does not apply here: the cascade
+allocates **right to left**, so enabling theme or style only moves items further left, and with
+profile and search off nothing else moves. The two Fluent results are therefore genuine, and the
+check is sound as written.
+
 ## Measured: 17 painters share one layout method (2026-08-13)
 
 ArcLinux's `CalculateLayoutAndHitAreas` looked identical to Brutalist's, so it was **measured rather

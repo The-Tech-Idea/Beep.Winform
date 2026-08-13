@@ -56,7 +56,7 @@ only the icon; 25 hand-roll the whole cascade.
 | stage | painters | status |
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
-| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 2/7 read (Minimal, Shadcn); Metro2 partial (260–426) |
+| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 3/7 read (Minimal, Shadcn, RadixUI); Metro2 partial (260–426) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
@@ -275,12 +275,34 @@ find the legitimate cases too (alpha veils, gradients, state layers). It needs t
 stage is doing. Three of the seven read so far — Modern, Linear, Shadcn — ignore metrics for their
 caption fill; four honour them.
 
+### RadixUI (419 lines, helper-based) — read in full
+
+| # | finding | severity |
+|---|---|---|
+| R1 | **The "focus ring" is a hover ring.** The class doc sells this skin as "accessible, high-contrast" with "clear focus states" and "prominent focus rings on buttons". The ring is drawn at `focusAlpha = isHovered ? 60 : 30` — always painted, varying only with the mouse. Nothing in the file consults keyboard focus; `KeyboardFocusedCaptionArea` (added in stage 03) is never read. A keyboard user gets no focus indication from this skin's buttons at all. | **bug** |
+| R2 | Metrics fetched and discarded in `PaintBackground` and `PaintBorders`; only `CaptionTextColor` is honoured. Same as Shadcn — fourth painter whose metrics are decorative. | record |
+| R3 | `buttonSize = 20` hardcoded in the paint path — eighth occurrence. | **bug** |
+| R4 | `GetCornerRadius` hardcoded to `6`. | **bug** |
+| R5 | The dead `padding` parameter — sixth occurrence. | tidy |
+| R6 | `ShiftLuminance` for the hover colour, which the standing colour rule excludes. | record |
+| R7 | Own copies of `CreateRoundedRectanglePath` and the four HSL helpers. | debt |
+
+**R1 is worth separating from the pile.** The form *does* paint a real keyboard focus indicator
+centrally (`PaintKeyboardCaptionFocusIndicator`, confirmed by the stage 03 renders), so keyboard
+focus is not invisible overall. But this skin advertises focus rings as its distinguishing feature
+and ships a hover effect wearing that name. Anyone choosing RadixUI *for* its accessibility gets
+the same focus story as every other skin, plus a decorative ring that misleads a reader of the code.
+
+Whether to make it real — read `KeyboardFocusedCaptionArea` and key the ring off it — or to rename
+it honestly is a design call, recorded rather than taken.
+
 ## Stage 05a-2 progress — 7 of 38 read
 
 | painter | scales layout | honours metrics for caption fill | distinct defect |
 |---|---|---|---|
 | Minimal | now yes | n/a (draws no fill) | clip wrapping a no-op |
 | Shadcn | yes | **no** | metrics fetched and discarded, twice |
+| RadixUI | yes | **no** | its advertised "focus ring" keys off hover, never focus |
 | Metro2 | now yes | *(not fully read)* | *(pending)* |
 
 ## DPI sweep, bounded by what has been read (2026-08-13)

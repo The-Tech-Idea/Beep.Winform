@@ -184,7 +184,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         g.DrawLine(iconPen, cx - size/2, cy + size/2, cx + size/2, cy + size/2);
                         break;
                     case FormHitAreaNames.Style: // Brush/Palette
-                         g.FillRectangle(isHovered ? Brushes.White : new SolidBrush(iconColor), cx - size/2, cy - size/2, size, size);
+                        // The ternary allocated `new SolidBrush(iconColor)` in its false branch and
+                        // never disposed it - a GDI handle leaked on every paint whenever the style
+                        // button was visible and NOT hovered, which is the common case. Brushes.White
+                        // is a shared stock object and must not be disposed, so the two cannot share
+                        // a `using`; the brush is created only on the branch that owns one.
+                        if (isHovered)
+                        {
+                            g.FillRectangle(Brushes.White, cx - size/2, cy - size/2, size, size);
+                        }
+                        else
+                        {
+                            using var styleBrush = new SolidBrush(iconColor);
+                            g.FillRectangle(styleBrush, cx - size/2, cy - size/2, size, size);
+                        }
                         break;
                     case FormHitAreaNames.Theme: // Layers
                          g.DrawRectangle(iconPen, cx - size/2, cy - size/2, size, size);

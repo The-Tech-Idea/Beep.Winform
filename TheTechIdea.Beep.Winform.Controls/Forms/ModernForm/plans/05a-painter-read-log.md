@@ -57,7 +57,7 @@ only the icon; 25 hand-roll the whole cascade.
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☑ **6/7 read** (Minimal, Shadcn, RadixUI, NextJS, iOS, MacOS); Metro2 partial (260–426) |
-| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 1/6 read (Cartoon) |
+| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 2/6 read (Cartoon, Brutalist) |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ◐ 1/6 read (Fluent, taken early) |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
 | **05a-6** hand-rolled, O–S | OneDark, Paper, Retro, Solarized | ☐ |
@@ -426,6 +426,25 @@ yellow caption, comic buttons and halftone all look as before.
 correct implementation was already in the folder, written by whoever did the `SA-02` cleanup, and it
 had simply never reached the painter that needed it. That is what a shared pipeline buys — not
 elegance, but *propagation*.
+
+### Brutalist (429 lines, hand-rolled) — read in full
+
+| # | finding | severity |
+|---|---|---|
+| Br1 ☑ | **A `SolidBrush` allocated inside a ternary and never disposed.** `g.FillRectangle(isHovered ? Brushes.White : new SolidBrush(iconColor), …)` — the false branch leaks a GDI handle on **every paint whenever the style button is visible and not hovered**, which is the common case. `Brushes.White` is a stock object that must *not* be disposed, so the two cannot share a `using`; the branches are now separated. A repo-wide scan found no second site. | **bug** |
+| Br2 | **The most metrics-respecting painter read so far.** `BackgroundColor`, `CaptionColor`, `BorderColor`, `CaptionTextColor`, `ButtonWidth`, `IconSize`, `IconLeftPadding`, `TitleLeftPadding`, `ButtonSpacing`, `SearchBoxWidth`/`Padding` — all read from metrics, none hardcoded. | **good** |
+| Br3 | `captionHeight = Math.Max(metrics.CaptionHeight, Font.Height * FontHeightMultiplier)` — both terms scale, so it is DPI-correct without ever calling `DpiScalingHelper`. | good |
+| Br4 | `buttonSize = 20` and `padding` are dead locals; `PaintBrutalistButton` takes neither. Eighth dead `padding`. | tidy |
+| Br5 | `PaintBorders` uses hardcoded `8`/`17` insets for its inner accent rectangle — unscaled. | tidy |
+
+**Br2 and Br3 are the clearest evidence yet that the two architectures differ in quality, not just
+in shape.** Of the helper-based painters read, **six of nine discard their metrics** and paint
+literals. Of the hand-rolled painters read, Brutalist reads *everything* from metrics and Cartoon
+reads most. The group that hand-rolls its layout is the group that respects the metrics system.
+
+That inverts the assumption behind stage 05's plan, which treats the hand-rolled 25 as the debt and
+the helper-based 12 as the healthy example to migrate toward. On this evidence the reverse is closer
+to true: the helper-based painters delegate their *layout* and then ignore everything else.
 
 ## The traffic-light pair fixed together (2026-08-13)
 

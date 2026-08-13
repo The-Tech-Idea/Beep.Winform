@@ -126,21 +126,23 @@ change any pixel?" — and that instrument was written before the migration, not
 
 | source | count | painters |
 |---|---|---|
-| **shared right-aligned helper** | **27** | ArcLinux, Brutalist, Cyberpunk, Dracula, Glassmorphism, GruvBox, KDE, Linear, Material, MaterialYou, Metro, Metro2, Minimal, Modern, NeoMorphism, Neon, NextJS, Nord, Nordic, OneDark, Paper, RadixUI, Retro, Shadcn, Solarized, Terminal, Tokyo |
+| **shared right-aligned helper** | **31** | ArcLinux, Brutalist, Cyberpunk, Dracula, Glassmorphism, GruvBox, KDE, Linear, Material, MaterialYou, Metro, Metro2, Minimal, Modern, NeoMorphism, Neon, NextJS, Nord, Nordic, OneDark, Paper, RadixUI, Retro, Shadcn, Solarized, Terminal, Tokyo |
 | **shared traffic-light helper** | **2** | MacOS, iOS |
-| still hand-rolled | **7** | Holographic, Ubuntu, Cartoon, Glass, ChatBubble, Fluent, GNOME |
+| still hand-rolled | **3** | Holographic, Ubuntu, Cartoon — all three do corner-safe work after the cascade |
 
-**29 of 36 painters now share a layout.** The seven that do not split into two groups, and neither is
+**33 of 36 painters now share a layout.** The seven that do not split into two groups, and neither is
 blocked on anything difficult:
 
 - **Holographic, Ubuntu, Cartoon** (89–91 lines) — these do corner-safe icon placement
   (`GetCaptionLeftSafeX`) and set `SafeContentInsets`. The shared helper does **not** need extending
   for them: that work happens *after* the button cascade, exactly as NextJS and MaterialYou already
   do it while calling the helper. They can migrate the cascade and keep their corner code.
-- **Glass, ChatBubble, Fluent, GNOME** (78–79 lines) — plain cascades that failed the migration
-  check only because they use literals (`Font.Height + 16`, `new Size(32, captionHeight)`) where the
-  seventeen used metrics. The helper takes caption height and button width as **parameters**, so
-  each can pass its own literals and migrate with **no appearance change at all**.
+- ~~**Glass, ChatBubble, Fluent, GNOME**~~ — **migrated.** They failed the automated pass only for
+  using literals where the seventeen used metrics; the helper takes caption height and button width
+  as *parameters*, so each passes its own values (`Font.Height + 16`/`+ 20`, button `32`/`44`/
+  `metrics.ButtonWidth`) and the geometry is unchanged. Their cascades went 66/66/66/63 lines → 18/19/19/19.
+  Only the cascade was spliced out; each painter's icon, title and content-rect code is untouched,
+  and `buttonX` in that tail was rewritten to the helper's `titleRightBoundary`.
 
 Neither group needs a design decision or a helper change — only a read of each file first, which is
 the standing rule and the thing that caught Metro2's pre-scaled `SearchBoxWidth` and Cartoon's

@@ -312,6 +312,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         internal FormRegion MinimizeButton => _minimizeButton;
         internal FormRegion MaximizeButton => _maximizeButton;
         internal FormRegion CloseButton => _closeButton;
+        /// <summary>The caption's custom action region.</summary>
+        /// <remarks>
+        /// This accessor already existed and nothing used it. 35 painters draw their own button
+        /// row and invoke ProfileButton?.OnPaint directly - only two route through
+        /// PaintBuiltInCaptionElements - and not one of them invoked this region. That, not the
+        /// visibility gate and not the glyph, is why ShowCustomActionButton changed nothing in
+        /// 33 of 37 skins.
+        /// </remarks>
         internal FormRegion CustomActionButton => _customActionButton;
         internal FormRegion ThemeButton => _themeButton;
         internal FormRegion StyleButton => _styleButton;

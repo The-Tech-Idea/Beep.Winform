@@ -113,6 +113,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
             }
 
+            // The custom action slot, drawn on the same terms as its neighbours. Painters that
+            // draw their own button row must draw this one too: only two painters route through
+            // PaintBuiltInCaptionElements, and not one painter invoked this region, so the slot
+            // was laid out and hit-tested but never painted in 33 of 37 skins.
+            if (owner.ShowCustomActionButton && owner.CurrentLayout.CustomActionButtonRect.Width > 0)
+            {
+                owner.CustomActionButton?.OnPaint?.Invoke(g, owner.CurrentLayout.CustomActionButtonRect);
+            }
+
             if (owner.ShowProfileButton && owner.CurrentLayout.ProfileButtonRect.Width > 0)
             {
                 owner.ProfileButton?.OnPaint?.Invoke(g, owner.CurrentLayout.ProfileButtonRect);

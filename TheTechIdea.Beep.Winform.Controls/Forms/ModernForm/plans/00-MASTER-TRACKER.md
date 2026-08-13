@@ -54,8 +54,8 @@ Worth stating, because a plan that lists only faults invites replacing working m
 | [02](02-geometry-and-invalidate.md) | One geometry authority; invalidate that cannot drop a frame | **bug** | ☑ **done** — items 1–4; live-resize (item 5) deferred, see 02 |
 | [03](03-caption-accessibility.md) | Caption: real UIA children, tooltips, snap layouts | **bug** | ☑ **done** — items 1–4; system-menu parity not verified, see 03 |
 | [04](04-dpi.md) | Per-monitor DPI v2; close the painter-side scaling hole | **bug** | ☐ open |
-| [05](05-painter-architecture.md) | 38 painters onto one chrome pipeline; parity enforced | refactor | ◐ harness + audit; custom action fixed (33 dead skins → 2); migration target revised to the 25 hand-rolled layouts |
-| [05a](05a-painter-read-log.md) | Read all 38 painters in full, in stages | evidence | ◐ 1/38 read (Modern — 6 findings, 3 bugs no existing check would catch) |
+| [05](05-painter-architecture.md) | 38 painters onto one chrome pipeline; parity enforced | refactor | ◐ harness + 15 full reads; custom action **0/37 dead**; migration target rewritten from evidence — extract layout, leave drawing |
+| [05a](05a-painter-read-log.md) | Read all 38 painters in full, in stages | evidence | ◐ 15/38 read in full (+1 partial); 8 bugs fixed; 2/185 dead combinations |
 | [06](06-backdrop-effects.md) | One backdrop API — drop DWM backdrops, keep a real painted effect | **bug** | ☐ open |
 | [07](07-verification.md) | `FormProbe` — the harness every stage reports through | verification | ◐ live — stages 01/02/02b/03/04 green (37 checks), 17 breaks recorded, 1 check unproven |
 | [08](08-theme-and-reporting.md) | 28 silent catches → `BeepLog`; ~30 non-skin literals → slots | **rule 1** (+4, scoped) | ☐ open |

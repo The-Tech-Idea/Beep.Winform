@@ -16,21 +16,71 @@ Consequences:
 - The earlier session's swallow-sweeps and font fixes already touched these painters
   individually; each sweep was O(38).
 
-## The work — skins describe, the pipeline draws
+## ~~The work — skins describe, the pipeline draws~~ SUPERSEDED
 
-1. **`FormChromePipeline`** (internal): owns the paint *sequence* — backdrop → caption →
-   buttons → title/search → borders → overlays — with layout coming from stage 02's geometry and
-   metrics from stage 04. It draws through the theme; it contains **no skin-specific branches**.
-2. **A skin becomes a description**: corner radii, border weight/style, caption height class,
-   button glyph set, gradient/texture hooks, font choices — a `FormSkin` record plus optional
-   override points (`DrawCaptionBackground`, `DrawButtonGlyph`, …) for the genuinely bespoke skins
-   (Cartoon, ChatBubble, Holographic keep their character through overrides, not forks).
-3. **Migrate incrementally, alphabetically, recording each** — the ListBoxs lesson, applied from
-   the start: one tracker line per painter (what it overrides, what it lost, render before/after).
-   The old painter is deleted the day its skin passes parity; no legacy path is kept beside the
-   new one (rule 3).
-4. **Parity gate:** a painter migrates only when its before/after renders are eyeballed and its
-   differential is understood (deliberate simplifications listed, accidental losses fixed).
+> **This section proposed moving the *drawing* into a shared `FormChromePipeline`, with skins reduced
+> to a `FormSkin` description. Fifteen full painter reads say that is the wrong half.** Superseded by
+> the section below; the original wording is kept because "the plan said X" gets repeated downstream.
+>
+> The original proposal: a `FormChromePipeline` owning the paint sequence, skins becoming records of
+> radii, weights and glyph sets, with override points for the bespoke ones, migrated alphabetically
+> behind a parity gate.
+
+## The work — extract the layout, leave the drawing alone
+
+Written from `05a-painter-read-log.md` — fifteen painters read end to end and one measurement.
+
+**The drawing is genuinely different and is the product.** Arc hexagons, Brutalist blocks, macOS and
+iOS traffic lights, Cartoon's outlined circles with offset shadows, Minimal's Zen enso rings, Metro's
+3D tiles. Collapsing that into a pipeline with override hooks would either flatten the skins or
+recreate them as overrides — the same code in a different file.
+
+**The layout is not different at all.** Measured, comment-stripped, line by line:
+`CalculateLayoutAndHitAreas` is **91–97% identical across 17 painters** — ArcLinux and Brutalist
+differ by a single redundant `GetMetrics` call. That is ~1,300 lines that are one ~79-line method,
+each copy carrying its own `Show*` checks, its own `buttonX -= buttonWidth` cascade, its own hit-area
+registrations.
+
+1. **Extend `FormPainterLayoutHelper`** to cover the hand-rolled cascade (it already covers the
+   right-aligned and traffic-light variants used by 12 painters).
+2. **Migrate the 17 measured duplicates first**, then the remainder, one per commit, `CalculateLayoutAndHitAreas`
+   only. **No painter's drawing code is touched.**
+3. **Position from the layout, never from literals.** This is the single decision most worth
+   centralising — see below.
+4. **Delete each painter's copy** as it migrates; no legacy path kept beside the new one.
+
+### Why layout, specifically
+
+- **It is where the bugs were.** `ShowCustomActionButton` was dead in 33 of 37 skins and took four
+  separate fixes, because 25 painters each had to remember it and four different things went wrong in
+  four different places. GNOME and Custom stayed broken longest simply by omitting one block.
+- **It is where DPI lives.** Four helper-based painters passed raw literals; MacOS and iOS scaled
+  nothing. Every one of those was a separate fix.
+- **It is where corner-safety lives.** Only NextJS, iOS, MacOS, MaterialYou and Cartoon keep the icon
+  clear of the corner arc or set `SafeContentInsets`. The other ten read do not.
+- **Parity is already measurable.** The `Show*` flags live in layout, so the existing per-flag pixel
+  differential *is* the gate — 2/185 dead today, and it must stay there.
+
+### The one drawing rule worth centralising
+
+Where a drawn button's position comes from has three different answers in this folder:
+
+| source | painters |
+|---|---|
+| the layout rect | MacOS, iOS *(after this session)* |
+| half layout, half recomputed | ArcLinux |
+| local literals | Cartoon, Brutalist, Modern, Linear, Shadcn, RadixUI, NextJS, Minimal, … |
+
+Only the first survives DPI scaling. The third made iOS's buttons **invisible but clickable**, and
+would have desynchronised them again had the layout been scaled before the paint path was converted.
+Painters keep their drawing; they should not keep their *positions*.
+
+### What is explicitly not proposed
+
+- No `FormSkin` record, no description-driven rendering, no override hooks.
+- No change to any painter's colours — the painter-colour exemption stands, and six painters that
+  discard their metrics entirely are recorded as findings, not as migration targets.
+- No skin retired. That remains a product decision requiring sign-off.
 
 ## Progress — ◐ the parity harness exists and has been run; no skin migrated yet
 

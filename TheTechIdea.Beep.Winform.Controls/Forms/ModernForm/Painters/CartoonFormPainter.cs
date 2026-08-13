@@ -24,6 +24,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     /// </summary>
     internal sealed class CartoonFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
+        // Cached halftone tile + brush, so the comic texture costs one fill per paint.
+        private const int HalftoneSpacing = 8;
+        private static Bitmap _halftoneTile;
+        private static TextureBrush _halftoneBrush;
+        private static readonly object _halftoneLock = new object();
+
+        private static TextureBrush GetHalftoneBrush()
+        {
+            if (_halftoneBrush != null) return _halftoneBrush;
+            lock (_halftoneLock)
+            {
+                if (_halftoneBrush == null)
+                {
+                    // One dot per HalftoneSpacing square, at the same 8px pitch and the same
+                    // ARGB(20,0,0,0) ink the loop used, so the texture is unchanged.
+                    var tile = new Bitmap(HalftoneSpacing, HalftoneSpacing);
+                    using (var tg = Graphics.FromImage(tile))
+                    {
+                        tg.Clear(Color.Transparent);
+                        using var dot = new SolidBrush(Color.FromArgb(20, 0, 0, 0));
+                        tg.FillRectangle(dot, 0, 0, 1, 1);
+                    }
+                    _halftoneTile = tile;
+                    _halftoneBrush = new TextureBrush(tile) { WrapMode = WrapMode.Tile };
+                }
+            }
+            return _halftoneBrush;
+        }
+
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
             return owner.MetricsFor(FormStyle.Cartoon);
@@ -47,17 +76,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
 
-            // Subtle halftone dots for comic page texture
-            using var dotBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0));
-            int spacing = 8;
-            var r = owner.ClientRectangle;
-            for (int y = r.Top; y < r.Bottom; y += spacing)
-            {
-                for (int x = r.Left; x < r.Right; x += spacing)
-                {
-                    g.FillEllipse(dotBrush, x, y, 1, 1);
-                }
-            }
+            // Subtle halftone dots for comic page texture, drawn as one tiled fill.
+            //
+            // This was a nested loop over the whole client area calling FillEllipse(x, y, 1, 1)
+            // every 8px - about 11,000 GDI+ calls per repaint on a 1000x700 form, and a 1x1
+            // FillEllipse costs far more than a pixel write. FluentFormPainter already solved
+            // exactly this for its acrylic noise: build the tile once, cache a TextureBrush, fill
+            // in a single call. The pattern is copied from there rather than reinvented.
+            g.FillRectangle(GetHalftoneBrush(), owner.ClientRectangle);
             
             // Restore original compositing mode
             g.CompositingMode = previousCompositing;

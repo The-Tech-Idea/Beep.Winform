@@ -358,7 +358,7 @@ it is the next action rather than a guess.
 
 | # | finding | severity |
 |---|---|---|
-| Ca1 | **The halftone texture is a per-paint performance bug.** `PaintBackground` runs a nested loop over the whole client area at 8px spacing, calling `g.FillEllipse(dotBrush, x, y, 1, 1)` for each. On a 1000×700 form that is **~11,000 FillEllipse calls on every repaint** — and a 1×1 `FillEllipse` costs far more than a pixel write. Nothing caches it. | **bug — performance** |
+| Ca1 ☑ | **FIXED** — one tiled fill, using Fluent's cached-`TextureBrush` pattern. **The halftone texture is a per-paint performance bug.** `PaintBackground` runs a nested loop over the whole client area at 8px spacing, calling `g.FillEllipse(dotBrush, x, y, 1, 1)` for each. On a 1000×700 form that is **~11,000 FillEllipse calls on every repaint** — and a 1×1 `FillEllipse` costs far more than a pixel write. Nothing caches it. | **bug — performance** |
 | Ca2 | **`PaintBackgroundEffects` is an empty no-op**, so Cartoon belongs in the "dead clip" group, not the seven I classified as doing real work. **Second misclassification confirmed** (Minimal was the first). | **corrects my own sweep** |
 | Ca3 | `buttonSize = 24` and `padding` in `PaintCartoonButtons` are **dead locals** — `PaintCartoonButton` takes neither and hardcodes `size = 20`. So the caller computes a size the drawing ignores. | tidy |
 | Ca4 | Corner-safe icon placement **and** `SafeContentInsets` — the fifth painter to do this, and the first hand-rolled one. | good |
@@ -408,6 +408,24 @@ exist, in this folder, and have not spread. A pipeline is how they spread.
 | Minimal, Cartoon | real work | **no-op** ✗ ✗ |
 
 ChatBubble and Glass remain unchecked.
+
+## Cartoon's halftone fixed with Fluent's own pattern (2026-08-13)
+
+The first fix in this stage that came from **another painter** rather than from first principles.
+
+`CartoonFormPainter.PaintBackground` now builds an 8×8 tile carrying one `ARGB(20,0,0,0)` dot,
+caches it and a `TextureBrush { WrapMode = Tile }` behind a double-checked lock, and fills the client
+rectangle in a single call — the identical shape of `FluentFormPainter.DrawAcrylicNoise`. Same pitch,
+same ink, so the texture is unchanged; ~11,000 `FillEllipse` calls per repaint become one
+`FillRectangle`.
+
+Verified: probe green, dead combinations 4/185, contact sheet re-rendered and eyeballed — Cartoon's
+yellow caption, comic buttons and halftone all look as before.
+
+**Worth noting for the pipeline design:** this fix needed no invention and no design decision. The
+correct implementation was already in the folder, written by whoever did the `SA-02` cleanup, and it
+had simply never reached the painter that needed it. That is what a shared pipeline buys — not
+elegance, but *propagation*.
 
 ## The traffic-light pair fixed together (2026-08-13)
 

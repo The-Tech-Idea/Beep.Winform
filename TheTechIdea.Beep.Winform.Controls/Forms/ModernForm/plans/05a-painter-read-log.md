@@ -57,7 +57,7 @@ only the icon; 25 hand-roll the whole cascade.
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☑ **6/7 read** (Minimal, Shadcn, RadixUI, NextJS, iOS, MacOS); Metro2 partial (260–426) |
-| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 2/6 read (Cartoon, Brutalist) |
+| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 2/6 read (Cartoon, Brutalist); ArcLinux partial (1–379) |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ◐ 1/6 read (Fluent, taken early) |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
 | **05a-6** hand-rolled, O–S | OneDark, Paper, Retro, Solarized | ☐ |
@@ -445,6 +445,35 @@ reads most. The group that hand-rolls its layout is the group that respects the 
 That inverts the assumption behind stage 05's plan, which treats the hand-rolled 25 as the debt and
 the helper-based 12 as the healthy example to migrate toward. On this evidence the reverse is closer
 to true: the helper-based painters delegate their *layout* and then ignore everything else.
+
+### ArcLinux — **NOT fully read** (lines 1–379 of 515)
+
+Recorded as incomplete, per the rule. `CalculateLayoutAndHitAreas` and `PaintNonClientBorder` are
+unread, so no claim is made about its layout or flag handling.
+
+From what was read:
+
+| # | finding | severity |
+|---|---|---|
+| Ar1 | **Half from the layout, half from its own arithmetic.** Horizontal centres come from the layout (`closeRect.X + closeRect.Width / 2`), but the vertical position is recomputed locally as `hexY = (captionRect.Height - hexSize) / 2`. This sits between MacOS (everything from the layout) and iOS (everything from literals) — a third variant of the same decision, in the same folder. | record |
+| Ar2 | Reads `BackgroundColor`, `CaptionColor` and `CaptionTextColor` from metrics — consistent with Brutalist and the hand-rolled group generally. | good |
+| Ar3 | `hexSize = 20`, `iconSize = 7`, `sqSize = 6` hardcoded in the paint path. | **bug** |
+| Ar4 | The `PaintArcHexButtons` doc comment is duplicated verbatim, twice in a row — the same defect as Linear's L5, in an unrelated file. | tidy |
+| Ar5 | `Color.FromArgb(Math.Max(0, metrics.BorderColor.A - 50), metrics.BorderColor)` — an alpha veil over a resolved slot, which the standing colour rules permit. | ok |
+
+**Ar1 completes a set worth naming.** Across the painters read, "where does a button's drawn position
+come from?" has three different answers:
+
+| answer | painters |
+|---|---|
+| entirely from the layout | MacOS, iOS *(after this session's fix)* |
+| horizontal from layout, vertical recomputed | ArcLinux |
+| entirely from local literals | iOS *(before)*, Cartoon, Brutalist, Modern, Linear, … |
+
+Only the first is safe under DPI scaling. The third is what made iOS's buttons invisible and what
+would have desynchronised them again had the layout been scaled first. **This single decision — and
+nothing about colour, style or line count — is the strongest candidate for what a pipeline should
+take away from painters.**
 
 ## The traffic-light pair fixed together (2026-08-13)
 

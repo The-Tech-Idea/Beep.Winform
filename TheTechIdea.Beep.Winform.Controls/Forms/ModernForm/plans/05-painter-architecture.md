@@ -49,6 +49,28 @@ registrations.
    centralising — see below.
 4. **Delete each painter's copy** as it migrates; no legacy path kept beside the new one.
 
+### Migration log
+
+| # | painter | layout lines | verified |
+|---|---|---|---|
+| 1 | **Brutalist** | 85 → 37 | parity 2/185 unchanged, caption heights byte-identical across 37 styles, drawing untouched |
+
+**Brutalist is the reference migration.** Its `CalculateLayoutAndHitAreas` now calls
+`TryBuildStandardRightAlignedCaptionLayout` — the helper twelve painters already use — and keeps only
+what is genuinely its own: caption height from `Math.Max(metrics.CaptionHeight, Font.Height ×
+FontHeightMultiplier)`, the caption drag region, the icon, the title.
+
+Two things confirmed before the change, not assumed:
+
+- **The helper's cascade is order-for-order identical** to the hand-rolled one — Close, MinMax,
+  Style, Theme, CustomAction, Profile, Search — with the same rect construction and the same hit-area
+  registrations.
+- **Registration order is not load-bearing.** `HitTest` selects the **smallest** containing area, not
+  the first, so registering the caption drag region after the buttons cannot swallow their clicks.
+  Had it been first-match, this migration would have made every Brutalist button unclickable.
+
+Sixteen painters remain at 91–97% similarity to the pre-migration original.
+
 ### Why layout, specifically
 
 - **It is where the bugs were.** `ShowCustomActionButton` was dead in 33 of 37 skins and took four

@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
@@ -1174,6 +1176,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         [System.ComponentModel.Category("Beep Caption")]
         [System.ComponentModel.DefaultValue(false)]
         [System.ComponentModel.Description("Show custom action button in caption bar")]
+        private string _customActionImagePath = string.Empty;
+
+        /// <summary>
+        /// The icon drawn in the custom action slot. Empty draws the default gear.
+        /// </summary>
+        /// <remarks>
+        /// ShowCustomActionButton reserves a slot in the caption's button row for a caller-supplied
+        /// action - but it was the ONLY public member the feature had. The glyph was a hardcoded
+        /// gear, there was no click event, and the default click handler opened a MessageBox
+        /// telling you to override it. A slot for your button that gives you no way to say what
+        /// the button is cannot be used, however correctly it is drawn.
+        /// </remarks>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue("")]
+        [System.ComponentModel.Description("Icon for the custom action button in the caption bar. Empty draws a gear.")]
+        public string CustomActionImagePath
+        {
+            get => _customActionImagePath;
+            set
+            {
+                if (_customActionImagePath == value) return;
+                _customActionImagePath = value ?? string.Empty;
+                if (IsHandleCreated) Invalidate();
+            }
+        }
+
+        /// <summary>Raised when the caption's custom action button is activated.</summary>
+        /// <remarks>
+        /// By mouse, by Enter on the focused region, and by automation through the accessible
+        /// child's DoDefaultAction - all three funnel through OnRegionClicked, so they cannot
+        /// diverge.
+        /// </remarks>
+        public event EventHandler CustomActionClick;
+
         public bool ShowCustomActionButton
         {
             get => _showCustomActionButton;
@@ -1720,9 +1756,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         protected virtual void OnCustomActionClicked()
         {
-            // Override in derived class or subscribe to RegionClick event
-            MessageBox.Show("Custom action button clicked! Override OnCustomActionClicked or subscribe to RegionClick event.", 
-                "BeepiFormPro", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // This opened a MessageBox reading "Custom action button clicked! Override
+            // OnCustomActionClicked or subscribe to RegionClick event." - developer scaffolding
+            // that shipped, and that any end user of a form with this button enabled would see.
+            //
+            // A control does not interrupt the user to talk to the programmer. Raise the event;
+            // if nobody is listening, say so once in the log, where it belongs.
+            if (CustomActionClick != null)
+            {
+                CustomActionClick(this, EventArgs.Empty);
+                return;
+            }
+
+            // Info, not an ...Once form: this is a click, not a paint or timer tick, so it
+            // cannot repeat 25x a second and each occurrence is a real user action.
+            BeepLog.Info(this,
+                "activate the caption's custom action button",
+                "The caption's custom action button was clicked but nothing handles it - "
+                + "subscribe to CustomActionClick or override OnCustomActionClicked.");
         }
 
 

@@ -105,7 +105,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
 
-            int buttonSize = 20;
+            // The layout scales buttonWidth through DpiScalingHelper; this drew a fixed 20px
+            // bevel inside it, so at 150% the hit rect grew and the visible button did not.
+            // Scaling the literal once here is correct - it is this painter's own constant, not a
+            // value that arrived pre-scaled from metrics.
+            int buttonSize = DpiScalingHelper.ScaleValue(20, DpiScalingHelper.GetDpiScaleFactor(owner));
             int padding = (captionRect.Height - buttonSize) / 2;
 
             // Check hover states
@@ -262,7 +266,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public CornerRadius GetCornerRadius(BeepiFormPro owner)
         {
-            return new CornerRadius(8);
+            // Was a hardcoded CornerRadius(8), so the radius stage 04 scales for DPI never reached
+            // this skin's corners - and neither did the style's own BorderRadius. Modern's metrics
+            // define 8 at 96 DPI, so this is identical there and now follows the monitor.
+            return new CornerRadius(GetMetrics(owner).BorderRadius);
         }
 
         public AntiAliasMode GetAntiAliasMode(BeepiFormPro owner)
@@ -285,11 +292,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            // Use BorderShape for clipping region
-            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
-            g.Clip = new Region(path);
-            g.Clip = originalClip;
-
+            // A `g.Clip = new Region(owner.BorderShape); g.Clip = originalClip;` pair stood here.
+            // The second line discarded the first before anything was drawn under it, so the clip
+            // never took effect - and the Region was never disposed, leaking a GDI handle on every
+            // single paint. Removed rather than "fixed" by clipping: nothing between the two lines
+            // needed clipping, so there is no behaviour to preserve.
             PaintBorders(g, owner);
             if (owner.ShowCaptionBar)
             {

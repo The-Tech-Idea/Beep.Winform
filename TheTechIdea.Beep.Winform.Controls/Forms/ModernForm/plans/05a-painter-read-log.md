@@ -74,15 +74,22 @@ the helper".
 
 | # | finding | severity |
 |---|---|---|
-| M1 | **`PaintWithEffects` leaks a GDI `Region` every paint.** Lines 289–291 build `new Region(path)`, assign it to `g.Clip`, then immediately restore `originalClip`. The assignment has no effect and the Region is never disposed. | **bug** |
-| M2 | **`GetCornerRadius` returns a hardcoded `new CornerRadius(8)`** and never reads `metrics.BorderRadius`, so the DPI-scaled radius from stage 04 never reaches this skin's corners — and neither does any theme or style setting. | **bug** |
-| M3 | **Bevel geometry is unscaled while its layout is scaled.** `CalculateLayoutAndHitAreas` scales `buttonWidth` through `DpiScalingHelper`, but `PaintModernBeveledButtons` hardcodes `buttonSize = 20` and derives padding from it. At 150% the hit rect grows and the drawn button does not. | **bug** |
+| M1 ☑ | **FIXED.** **`PaintWithEffects` leaks a GDI `Region` every paint.** Lines 289–291 build `new Region(path)`, assign it to `g.Clip`, then immediately restore `originalClip`. The assignment has no effect and the Region is never disposed. | **bug** |
+| M2 ☑ | **FIXED** — now `GetMetrics(owner).BorderRadius`. **`GetCornerRadius` returns a hardcoded `new CornerRadius(8)`** and never reads `metrics.BorderRadius`, so the DPI-scaled radius from stage 04 never reaches this skin's corners — and neither does any theme or style setting. | **bug** |
+| M3 ☑ | **FIXED** — the 20px literal is scaled once, painter-side, which is correct for its own constant. **Bevel geometry is unscaled while its layout is scaled.** `CalculateLayoutAndHitAreas` scales `buttonWidth` through `DpiScalingHelper`, but `PaintModernBeveledButtons` hardcodes `buttonSize = 20` and derives padding from it. At 150% the hit rect grows and the drawn button does not. | **bug** |
 | M4 | **`PaintCaption` never reads `metrics.CaptionColor`** — it paints `FromArgb(250,250,250)`→`(245,245,245)` with a `(230,230,230)` divider. Permitted by the painter-colour exemption, but it explains why Modern looked identical before and after the "skin wins" change: its metrics are decorative. | record |
 | M5 | **`ShiftLuminance` used for hover and border states** (lines 152, 178, 185), which the standing colour rule excludes. | record |
 | M6 | Local copies of `CreateRoundedRectanglePath`, `ShiftLuminance`, `ColorToHsl`, `ColorFromHsl`, `Hue2Rgb` — ~70 lines duplicated per painter. | debt |
 
 Nothing in M1–M3 is visible to the parity harness, which compares caption-band pixels between flag
 states. They would not have been found by any check written so far — only by reading.
+
+**M1–M3 fixed and verified (2026-08-13).** Full probe green (parity guards, stages 01–04, dead
+combinations still 4/185), and caption height captured for all 37 styles before and after is
+byte-identical — so the corner-radius change is inert at this machine's DPI, as intended, and now
+follows the monitor. M4 (metrics ignored for caption colour) and M5 (`ShiftLuminance`) are left
+recorded, not fixed: both are colour decisions covered by the painter exemption and should be taken
+across all 38 skins at once, not one file at a time.
 
 ## Exit criteria
 

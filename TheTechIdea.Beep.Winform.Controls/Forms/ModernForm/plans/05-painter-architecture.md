@@ -55,8 +55,9 @@ registrations.
 |---|---|---|---|
 | 1 | **Brutalist** | 85 → 37 | parity 2/185 unchanged, caption heights byte-identical across 37 styles, drawing untouched |
 | 2 | **ArcLinux** | 86 → 32 | same three gates green; hexagon drawing untouched |
+| 3 | **Solarized** | 87 → 33 | same three gates green; diamond drawing untouched |
 
-**171 lines of layout have become 69, and no pixel moved.**
+**258 lines of layout have become 102, and no pixel moved.**
 
 Both migrated painters were read end to end first. The remaining fifteen of the seventeen have
 **not** been read, and the rule stands: measured similarity of 91–97% is enough to *predict* the

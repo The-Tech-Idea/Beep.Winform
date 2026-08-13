@@ -119,3 +119,15 @@ it will "prove" the chrome is missing.
 
 Probe green end-to-end on a clean build; every stage's checks present with their break-ledger
 rows filled; runtime under 3 minutes so it stays in the loop rather than getting skipped.
+
+## The contact sheet now names its own skins (2026-08-13)
+
+Every band rendered the caption text "BeepiFormPro", so a single render said nothing about which
+painter drew it — you had to trust the label the sheet builder printed underneath. `Capture` now sets
+`f.Text = style.ToString()`, so each band identifies itself and a screenshot of one band is evidence
+on its own.
+
+It paid for itself immediately: with real titles in place, **Cartoon, GNOME and iOS centre their
+title text while the other 34 skins left-align it.** That difference was invisible for the whole
+session because every title was the same word in the same place.
+

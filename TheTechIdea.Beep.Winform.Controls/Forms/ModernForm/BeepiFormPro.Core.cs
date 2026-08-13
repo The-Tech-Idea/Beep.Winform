@@ -11,6 +11,9 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 
 using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Icons;
+
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
@@ -1369,9 +1372,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
                     // Draw icon (⚙ gear/settings icon)
                     var fg = m.ForegroundColor;
-                    Font font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme?.BodyMedium) ?? SystemFonts.DefaultFont;
-                    TextRenderer.DrawText(g, "⚙", font, r, fg,
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    // Default icon: an SVG from the shipped set, not a text codepoint.
+                    //
+                    // This drew "⚙" through TextRenderer with a theme font. Whether that
+                    // renders at all depends on the font carrying U+2699 - and this library's
+                    // themes name families that are frequently absent, so the button could be
+                    // drawn and invisible. An embedded SVG has no such dependency, and it is what
+                    // the icon rule asks for: every icon goes through the image pipeline.
+                    try
+                    {
+                        StyledImagePainter.PaintWithTint(g, r, SvgsUI.Settings, fg);
+                    }
+                    catch (Exception ex)
+                    {
+                        BeepLog.FailureOnce("form.customaction.defaulticon", this,
+                            "render the default caption custom action icon", ex);
+                    }
                 }
             };
 

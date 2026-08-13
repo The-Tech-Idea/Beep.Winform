@@ -56,7 +56,7 @@ only the icon; 25 hand-roll the whole cascade.
 | stage | painters | status |
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
-| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 1/7 read (Minimal); Metro2 partial (260–426) |
+| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 2/7 read (Minimal, Shadcn); Metro2 partial (260–426) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
@@ -248,6 +248,40 @@ the same duplicated HSL block, both seen in the part that was read.
 
 **All four unscaled helper-based painters are now fixed** (Material, Metro, Minimal, Metro2), so of
 the ten painters using the shared caption layout, **ten scale their own literals**.
+
+### Shadcn (359 lines, helper-based) — read in full
+
+| # | finding | severity |
+|---|---|---|
+| S1 | **Metrics are fetched and thrown away.** `PaintBackground` and `PaintBorders` both open with `var metrics = GetMetrics(owner);` and then never use it — they paint `FromArgb(250,250,250)`, `FromArgb(255,255,255)` and `FromArgb(229,229,229)` literals. `PaintNonClientBorder` does the same without even fetching. The only metric this skin honours anywhere is `metrics.CaptionTextColor` for the title. | **record — and see below** |
+| S2 | `buttonSize = 18` hardcoded in the paint path — seventh occurrence. | **bug** |
+| S3 | `GetCornerRadius` hardcoded to `8`. | **bug** |
+| S4 | The dead `padding` parameter — fifth occurrence. | tidy |
+| S5 | Its own copy of `CreateRoundedRectanglePath`. | debt |
+| S6 | Does scale its layout literals. | ok |
+
+**S1 explains something that has been puzzling this work all session.** When the skin palettes were
+made reachable ("skin wins"), the contact sheet showed ten skins gaining their real identity — and
+several others, Shadcn and Modern among them, not changing at all. The reason is not that the
+palette failed to apply: it applied, and the painter ignores it. Shadcn asks for its metrics twice
+and discards the answer both times.
+
+So there is a **third colour source** beyond metrics and the theme: painter literals that override
+everything. The painter-colour exemption permits them, but their consequence is that for these
+skins, `FormPainterMetrics`, `UseThemeColors` and the skin palettes are all decorative.
+
+**How many painters do this is not yet known and must not be guessed** — a grep for `FromArgb` will
+find the legitimate cases too (alpha veils, gradients, state layers). It needs the per-file read this
+stage is doing. Three of the seven read so far — Modern, Linear, Shadcn — ignore metrics for their
+caption fill; four honour them.
+
+## Stage 05a-2 progress — 7 of 38 read
+
+| painter | scales layout | honours metrics for caption fill | distinct defect |
+|---|---|---|---|
+| Minimal | now yes | n/a (draws no fill) | clip wrapping a no-op |
+| Shadcn | yes | **no** | metrics fetched and discarded, twice |
+| Metro2 | now yes | *(not fully read)* | *(pending)* |
 
 ## DPI sweep, bounded by what has been read (2026-08-13)
 

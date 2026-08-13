@@ -54,6 +54,16 @@ registrations.
 | # | painter | layout lines | verified |
 |---|---|---|---|
 | 1 | **Brutalist** | 85 → 37 | parity 2/185 unchanged, caption heights byte-identical across 37 styles, drawing untouched |
+| 2 | **ArcLinux** | 86 → 32 | same three gates green; hexagon drawing untouched |
+
+**171 lines of layout have become 69, and no pixel moved.**
+
+Both migrated painters were read end to end first. The remaining fifteen of the seventeen have
+**not** been read, and the rule stands: measured similarity of 91–97% is enough to *predict* the
+migration is mechanical, not enough to perform it. Each needs its read first — Metro2 already showed
+why (`metrics.SearchBoxWidth` arriving pre-scaled, where a regex would have double-scaled it), and
+Cartoon showed a hand-rolled painter that is **not** in the seventeen at all, because it does
+corner-safe icon placement and sets `SafeContentInsets`.
 
 **Brutalist is the reference migration.** Its `CalculateLayoutAndHitAreas` now calls
 `TryBuildStandardRightAlignedCaptionLayout` — the helper twelve painters already use — and keeps only

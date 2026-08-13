@@ -617,6 +617,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
 
+            // Custom action slot. This block was missing here and present in 23 sibling
+            // painters, which is the whole reason ShowCustomActionButton drew nothing in this
+            // skin: the flag was honoured everywhere except the one place that allocates the
+            // rect, so the paint call had an empty rectangle to draw into.
+            if (owner.ShowCustomActionButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea(FormHitAreaNames.CustomAction, layout.CustomActionButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
+
             if (owner.ShowProfileButton)
             {
                 layout.ProfileButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);

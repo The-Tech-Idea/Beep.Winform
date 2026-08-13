@@ -472,6 +472,42 @@ would have desynchronised them again had the layout been scaled first. **This si
 nothing about colour, style or line count — is the strongest candidate for what a pipeline should
 take away from painters.**
 
+## ShowCustomActionButton reaches zero (2026-08-13)
+
+```
+ShowCustomActionButton   33/37 skins dead  ->  0/37
+TOTAL dead skin-feature combinations   35/185  ->  2/185
+```
+
+GNOME and Custom were the last two. Both honour `ShowCustomActionButton` in their *paint* path — the
+sweep added that — and neither allocated a rect for it, so the paint call had an empty rectangle to
+draw into. The block was missing from their layout cascade and present in 23 siblings, between the
+Theme and Profile blocks. Added in the identical form.
+
+**This is the fourth distinct cause found for one property not working**, and worth listing because
+each masked the next:
+
+1. No painter invoked the region at all (the accessor existed, unused) — 35 painters fixed.
+2. The form's paint gate keyed off `!ShowThemeButton && !ShowStyleButton`, never its own flag.
+3. Metro and Metro2 passed `includeCustomAction: false` — a second gate that let a painter veto the
+   user's setting.
+4. GNOME and Custom never allocated the slot.
+
+Only the parity harness could show that (1) had not fixed it, that (2) changed nothing on its own,
+and that (3) left exactly two skins behind. **Three of my four proposed fixes were wrong about the
+cause, and the measurement caught each one.**
+
+### The last two dead combinations, explained
+
+Both are Fluent: `ShowThemeButton` and `ShowStyleButton`. From the full read of that file,
+`PaintFluentAcrylicButtons` calls `FormPainterRenderHelper.DrawSystemButton` for **close, maximize
+and minimize only** — it never draws the theme or style buttons, although its layout allocates and
+registers them. The same shape as the iOS defect: laid out, hit-tested, never painted.
+
+Not fixed here: adding two visible buttons to a skin is an appearance change, and Fluent is the one
+painter that routes through the shared button renderer, so the right fix is to extend that call — a
+change better made as part of the shared-layout extraction than as a one-off.
+
 ## Measured: 17 painters share one layout method (2026-08-13)
 
 ArcLinux's `CalculateLayoutAndHitAreas` looked identical to Brutalist's, so it was **measured rather

@@ -131,3 +131,20 @@ It paid for itself immediately: with real titles in place, **Cartoon, GNOME and 
 title text while the other 34 skins left-align it.** That difference was invisible for the whole
 session because every title was the same word in the same place.
 
+## Guard: the skin under test is the skin being rendered (2026-08-13)
+
+Setting a skin is one line — `new BeepiFormPro { FormStyle = style }` — and that is exactly what the
+probe does. But every per-skin finding in the read log assumes the render came from the painter named
+beside it, and that assumption had never been checked. If `FormStyle` failed to reach
+`PaintersFactory`, or if some styles quietly fell back to one default painter, findings would be
+attached to the wrong files.
+
+Now asked directly: for each of the 37 styles, the form is constructed, shown, and its
+`ActivePainter.GetType().Name` compared against `<Style>FormPainter`.
+
+```
+PASS  guard: each FormStyle selects its own painter: all 37 styles map to their own <Style>FormPainter
+```
+
+One check, run once, and every render in this stage is now attributable.
+

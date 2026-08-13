@@ -56,7 +56,7 @@ only the icon; 25 hand-roll the whole cascade.
 | stage | painters | status |
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
-| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 5/7 read (Minimal, Shadcn, RadixUI, NextJS, iOS); Metro2 partial (260–426) |
+| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☑ **6/7 read** (Minimal, Shadcn, RadixUI, NextJS, iOS, MacOS); Metro2 partial (260–426) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
@@ -331,6 +331,40 @@ a bare centred title and no buttons — and it was not recognised as a defect fo
 sheet was read as "iOS is minimal by design" because the code said so in a comment. **A render
 showing an absence only becomes a finding once you know what should have been there.** Confirmed
 fixed by re-rendering: the traffic lights are now present.
+
+### MacOS (468 lines, helper-based) — read in full  **[stage 05a-2 complete]**
+
+The most carefully written painter of the eleven read, and the one that shows what the others should
+look like.
+
+| # | finding | severity |
+|---|---|---|
+| Ma1 | **Draws its buttons from the layout, not from literals.** `DrawTrafficLights` reads `layout.CloseButtonRect` etc. and `DrawTrafficLightInRect` centres each circle inside the *registered hit rect*, with a comment saying exactly why: "to stay consistent with registered hit areas". This is the direct fix for the class of bug iOS had — iOS recomputed `startX = 10, buttonSize = 12` in its paint path and only coincidentally matched its own layout. | **good — the reference pattern** |
+| Ma2 | Corner-safe on **both** sides (`safeLeftX`, `safeRightX`), icon placed after `leftBoundary`, plus `SafeContentInsets`. The most thorough corner handling of any painter read. | good |
+| Ma3 | One of only **two** painters that call `PaintBuiltInCaptionElements`, and it documents the ordering (icon before title so the text is not painted under it). | good |
+| Ma4 | **No DPI scaling** — `Font.Height + 16`, `buttonSize = 12`, `buttonSpacing = 8`, `iconSize = 16`, `iconPadding = 8`, though it does take `AuxiliaryButtonWidth`, `SearchBoxWidth` and `SearchBoxPadding` from metrics. | **bug** |
+| Ma5 | `PaintBackgroundEffects` does real work (translucent overlay + gradient), which **confirms** MacOS genuinely belongs in the seven-painter "clip does real work" group. One of the five unverified classifications is now verified by reading. | confirms |
+| Ma6 | A stale comment: the layout says "avoid the rounded corner arc (radius=10 for macOS)" while `GetCornerRadius` returns `14`. | tidy |
+| Ma7 | `Hue2Rgb` spelling, against iOS's `HueToRgb` — the drifted copies again. | debt |
+
+**Ma4 corrects a claim I made two commits ago.** I wrote that "all four unscaled helper-based
+painters are now fixed" and "ten of ten now scale their own literals". That scan only looked at
+painters calling `TryBuildStandardRightAlignedCaptionLayout`. **MacOS and iOS use
+`TryBuildTrafficLightCaptionLayout` instead**, and neither scales — so the correct figure is ten of
+**twelve**, with two still unscaled. Both have now been read in full, so fixing them is unblocked;
+it is the next action rather than a guess.
+
+## Stage 05a-2 complete — 11 of 38 read (Metro2 partial)
+
+The eleven divide cleanly by care taken, which no metric in the audit script captured:
+
+- **Careful:** MacOS (draws from layout, corner-safe both sides), NextJS, iOS and MaterialYou (corner-safe, insets).
+- **Careless:** the rest — fixed literals in paint paths, metrics fetched and discarded, corner arcs ignored.
+
+And the two extremes are adjacent: **iOS and MacOS are both traffic-light skins**, one drawing from
+the layout and one from hardcoded offsets, one shipping visible buttons and one shipping invisible
+ones. Same problem, same helper, opposite outcomes — which is the whole argument for a pipeline in a
+single example.
 
 ## Stage 05a-2 progress — 9 of 38 read
 

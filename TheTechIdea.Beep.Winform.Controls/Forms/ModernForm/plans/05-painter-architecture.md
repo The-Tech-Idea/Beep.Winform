@@ -122,6 +122,30 @@ stage, and nothing reported it.** No exception, no log line, no visual review ca
 did nothing in 33 of 37 skins. It took an instrument built specifically to ask "does toggling this
 change any pixel?" — and that instrument was written before the migration, not after.
 
+### Where every painter's layout now comes from (measured 2026-08-13)
+
+| source | count | painters |
+|---|---|---|
+| **shared right-aligned helper** | **27** | ArcLinux, Brutalist, Cyberpunk, Dracula, Glassmorphism, GruvBox, KDE, Linear, Material, MaterialYou, Metro, Metro2, Minimal, Modern, NeoMorphism, Neon, NextJS, Nord, Nordic, OneDark, Paper, RadixUI, Retro, Shadcn, Solarized, Terminal, Tokyo |
+| **shared traffic-light helper** | **2** | MacOS, iOS |
+| still hand-rolled | **7** | Holographic, Ubuntu, Cartoon, Glass, ChatBubble, Fluent, GNOME |
+
+**29 of 36 painters now share a layout.** The seven that do not split into two groups, and neither is
+blocked on anything difficult:
+
+- **Holographic, Ubuntu, Cartoon** (89–91 lines) — these do corner-safe icon placement
+  (`GetCaptionLeftSafeX`) and set `SafeContentInsets`. The shared helper does **not** need extending
+  for them: that work happens *after* the button cascade, exactly as NextJS and MaterialYou already
+  do it while calling the helper. They can migrate the cascade and keep their corner code.
+- **Glass, ChatBubble, Fluent, GNOME** (78–79 lines) — plain cascades that failed the migration
+  check only because they use literals (`Font.Height + 16`, `new Size(32, captionHeight)`) where the
+  seventeen used metrics. The helper takes caption height and button width as **parameters**, so
+  each can pass its own literals and migrate with **no appearance change at all**.
+
+Neither group needs a design decision or a helper change — only a read of each file first, which is
+the standing rule and the thing that caught Metro2's pre-scaled `SearchBoxWidth` and Cartoon's
+corner-safe icon.
+
 ### Why layout, specifically
 
 - **It is where the bugs were.** `ShowCustomActionButton` was dead in 33 of 37 skins and took four

@@ -56,7 +56,7 @@ only the icon; 25 hand-roll the whole cascade.
 | stage | painters | status |
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
-| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 3/7 read (Minimal, Shadcn, RadixUI); Metro2 partial (260–426) |
+| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 4/7 read (Minimal, Shadcn, RadixUI, NextJS); Metro2 partial (260–426) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
@@ -295,6 +295,39 @@ the same focus story as every other skin, plus a decorative ring that misleads a
 
 Whether to make it real — read `KeyboardFocusedCaptionArea` and key the ring off it — or to rename
 it honestly is a design call, recorded rather than taken.
+
+### NextJS (471 lines, helper-based) — read in full
+
+The most careful painter read so far, and the first with findings that are *good*.
+
+| # | finding | severity |
+|---|---|---|
+| N1 | **Keeps the icon clear of the corner arc.** Uses `FormPainterMetrics.GetCaptionLeftSafeX` to push the icon inward when the top-left radius would clip it. No other painter read so far does this — the other eight place the icon at a fixed padding and let the arc cut it. | good / **bug elsewhere** |
+| N2 | **Sets `layout.SafeContentInsets`** — second of nine to do so, after MaterialYou. Seven do not, so child controls can overlap the rounded corners in those skins. | good / **bug elsewhere** |
+| N3 | **The duplicated HSL helpers have drifted.** NextJS names it `HueToRgb` and writes `1.0f / 3.0f`; Modern, Metro and RadixUI name it `Hue2Rgb` with `1f / 3f`. Same algorithm, divergent copies — proof that the duplication is not merely wasteful but already inconsistent. | debt |
+| N4 | Metrics fetched and discarded in `PaintBackground` and `PaintBorders`; only `CaptionTextColor` honoured. **Fifth** painter. | record |
+| N5 | `buttonSize = 20` hardcoded in the paint path — ninth occurrence. | **bug** |
+| N6 | `GetCornerRadius` hardcoded to `10`. | **bug** |
+| N7 | The dead `padding` parameter — seventh occurrence. | tidy |
+| N8 | `ShiftLuminance` for hover. | record |
+
+**N1 and N2 invert the usual finding.** Everywhere else the pattern has been "this painter is missing
+something the others have". Here two painters (NextJS, MaterialYou) do corner-safety work the other
+seven omit — so the defect is in the majority, and it is only visible because a careful minority
+exists to compare against. Reading the careful ones is what makes the careless ones legible.
+
+## Stage 05a-2 progress — 9 of 38 read
+
+| painter | scales layout | metrics honoured for fill | corner-safe | distinct finding |
+|---|---|---|---|---|
+| Minimal | now yes | draws no fill | no | clip wrapping a no-op |
+| Shadcn | yes | **no** | no | metrics fetched and discarded twice |
+| RadixUI | yes | **no** | no | "focus ring" keys off hover, never focus |
+| NextJS | yes | **no** | **yes** | icon kept clear of the corner arc; HSL copies have drifted |
+| Metro2 | now yes | *(unread)* | *(unread)* | *(lines 1–259 unread)* |
+
+Five of nine painters read now fetch metrics and discard them. That is no longer an oddity; it is the
+majority behaviour among the helper-based skins.
 
 ## Stage 05a-2 progress — 7 of 38 read
 

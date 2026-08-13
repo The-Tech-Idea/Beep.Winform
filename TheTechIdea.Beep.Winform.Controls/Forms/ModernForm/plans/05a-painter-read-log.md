@@ -56,7 +56,7 @@ only the icon; 25 hand-roll the whole cascade.
 | stage | painters | status |
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
-| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☐ |
+| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 1/7 read (Minimal) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
@@ -206,6 +206,30 @@ across all 37 styles.
 pattern still present in 31 files — it was matching the replacement *comment*, which quotes the code
 it replaced. Comment-stripped, the true residue was 7, and those 7 turned out to be the legitimate
 cases. Grepping source that includes comments has now produced four wrong readings in one session.
+
+### Minimal (400 lines, helper-based) — read in full  [stage 05a-2 begins]
+
+| # | finding | severity |
+|---|---|---|
+| Mi1 ☑ | No DPI scaling — `Font.Height + 16`, button `32`, `iconSize = 16`, `iconPadding = 8`. Fixed now that the file has been read; `searchBoxWidth`/`Padding` come from metrics and were deliberately left alone. | **bug** |
+| Mi2 | **`PaintBackgroundEffects` is an empty no-op**, and `PaintWithEffects` builds a path, a `Region` and a clip purely to call it. The whole clip block wraps nothing. | **corrects an earlier claim — see below** |
+| Mi3 | `PaintCaption` never fills a caption background; it draws only a 2px underline, so the caption shows whatever `PaintBackground` left. Deliberate for this skin and consistent with the contact sheet. | record |
+| Mi4 | `buttonSize = 18` hardcoded in the paint path — sixth occurrence of the pattern. | **bug** |
+| Mi5 | `padding` computed, passed to `PaintZenButton`, unused there — fourth occurrence. | tidy |
+| Mi6 | `PaintBorders` computes `var radius = GetCornerRadius(owner);` and never uses it — same as Material's Mt5. | tidy |
+| Mi7 | `GetCornerRadius` hardcoded to `6`. | **bug** |
+
+**Mi2 corrects something I wrote two commits ago.** The GDI-leak sweep split 31 painters into "24
+dead clips, removed" and "7 where the clip does real work, so fix ownership instead". Minimal was
+put in the second group on the strength of its structure — `using var clipRegion`, then
+`PaintBackgroundEffects`, then reset. Reading the file shows `PaintBackgroundEffects` is
+`// No-op for Minimal Style` and nothing else. **Minimal belongs in the first group**; its clip
+wraps a method that does nothing.
+
+The `using` I added is still correct — it leaks nothing either way — so no harm was done, but the
+classification was reached by pattern and not by reading, which is the mistake this whole stage
+exists to stop making. The other six in that group have not been re-checked; each needs its
+`PaintBackgroundEffects` read before its classification is trusted.
 
 ## DPI sweep, bounded by what has been read (2026-08-13)
 

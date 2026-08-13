@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
@@ -347,14 +349,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
             var searchMetrics = GetMetrics(owner);
+
+            // searchBoxWidth/Padding come from metrics and have been DPI-scaled since stage 04 -
+            // scaling them again here would apply the factor twice. Only this painter's own
+            // literals are scaled.
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
             int searchBoxWidth = searchMetrics.SearchBoxWidth;
             int searchBoxPadding = searchMetrics.SearchBoxPadding;
-            int captionHeight = owner.Font.Height + 16;
+            int captionHeight = owner.Font.Height + DpiScalingHelper.ScaleValue(16, dpiScale);
 
             if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
                 owner,
                 captionHeight,
-                32,
+                DpiScalingHelper.ScaleValue(32, dpiScale),
                 searchBoxWidth,
                 searchBoxPadding,
                 includeCustomAction: true,
@@ -366,8 +373,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Icon and title areas (left side of caption)
-            var iconSize = 16;
-            var iconPadding = 8;
+            var iconSize = DpiScalingHelper.ScaleValue(16, dpiScale);
+            var iconPadding = DpiScalingHelper.ScaleValue(8, dpiScale);
             layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             

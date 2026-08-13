@@ -122,7 +122,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, centeredRect, metrics.CaptionTextColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            // iOS uses navigation bar style — no window buttons. System buttons painted below.
+            // Draw the traffic lights.
+            //
+            // PaintiOSButtons has always existed and was never called - not from here, not from
+            // PaintWithEffects. Meanwhile CalculateLayoutAndHitAreas lays the three buttons out
+            // through TryBuildTrafficLightCaptionLayout and registers their hit areas, so this skin
+            // shipped with close, minimize and maximize INVISIBLE BUT CLICKABLE. The stage 05
+            // contact sheet shows it: iOS was the one skin with a bare centred title and no
+            // buttons at all.
+            //
+            // The comment that stood here said "no window buttons. System buttons painted below",
+            // and nothing below painted them.
+            PaintiOSButtons(g, owner, captionRect);
+
 
             // Paint search box if visible (using FormRegion for consistency)
             if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)

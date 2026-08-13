@@ -56,7 +56,7 @@ only the icon; 25 hand-roll the whole cascade.
 | stage | painters | status |
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
-| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 4/7 read (Minimal, Shadcn, RadixUI, NextJS); Metro2 partial (260–426) |
+| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 5/7 read (Minimal, Shadcn, RadixUI, NextJS, iOS); Metro2 partial (260–426) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
@@ -315,6 +315,22 @@ The most careful painter read so far, and the first with findings that are *good
 something the others have". Here two painters (NextJS, MaterialYou) do corner-safety work the other
 seven omit — so the defect is in the majority, and it is only visible because a careful minority
 exists to compare against. Reading the careful ones is what makes the careless ones legible.
+
+### iOS (461 lines, helper-based) — read in full
+
+| # | finding | severity |
+|---|---|---|
+| I1 ☑ | **The window buttons were invisible but clickable.** `PaintiOSButtons` draws the red/yellow/green traffic lights and was **never called** — not from `PaintCaption`, not from `PaintWithEffects`. Meanwhile `CalculateLayoutAndHitAreas` lays all three out through `TryBuildTrafficLightCaptionLayout` and registers their hit areas. So close, minimize and maximize responded to clicks while rendering nothing. Fixed by calling it. | **bug — user-visible** |
+| I2 | The comment where the call belonged read *"iOS uses navigation bar style — no window buttons. System buttons painted below."* Nothing below painted them. The comment described an intention the code did not carry out, and it is why the gap survived review. | record |
+| I3 | Corner-safe icon placement **and** `SafeContentInsets` — the second painter after NextJS to do both. | good |
+| I4 | `HueToRgb` naming, matching NextJS and differing from Modern/Metro/RadixUI's `Hue2Rgb` — the drifted-copy finding again. | debt |
+| I5 | `buttonSize = 12`, `buttonSpacing = 8`, `startX = 10` hardcoded in the paint path — tenth occurrence. They happen to match the layout's own literals, so the drawn lights land on their hit areas; nothing enforces that they stay matched. | **bug** |
+
+**I1 was visible in the stage 05 contact sheet from the very first run** — iOS was the one skin with
+a bare centred title and no buttons — and it was not recognised as a defect for six commits. The
+sheet was read as "iOS is minimal by design" because the code said so in a comment. **A render
+showing an absence only becomes a finding once you know what should have been there.** Confirmed
+fixed by re-rendering: the traffic lights are now present.
 
 ## Stage 05a-2 progress — 9 of 38 read
 

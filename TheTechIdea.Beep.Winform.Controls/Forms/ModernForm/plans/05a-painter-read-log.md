@@ -56,7 +56,7 @@ only the icon; 25 hand-roll the whole cascade.
 | stage | painters | status |
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
-| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 1/7 read (Minimal) |
+| **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ◐ 1/7 read (Minimal); Metro2 partial (260–426) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
@@ -230,6 +230,24 @@ The `using` I added is still correct — it leaks nothing either way — so no h
 classification was reached by pattern and not by reading, which is the mistake this whole stage
 exists to stop making. The other six in that group have not been re-checked; each needs its
 `PaintBackgroundEffects` read before its classification is trusted.
+
+### Metro2 — **NOT fully read** (lines 260–426 only)
+
+Recorded as incomplete rather than filed as a finding, because the log's rule is that nothing is a
+finding unless the file was read end to end. Lines 1–259 are unread.
+
+What *was* read includes `CalculateLayoutAndHitAreas` in full, and on that basis alone the queued
+DPI fix was applied — `Font.Height + 20`, button `48`, `iconSize = 18`, `iconPadding = 12` are now
+scaled, while `searchBoxWidth`/`Padding` are left alone because they come from metrics. The method
+is visible in its entirety, so the "which value arrived pre-scaled" question that blocked this fix
+is answered for this file.
+
+**Still owed for Metro2:** lines 1–259 — `PaintBackground`, `PaintCaption`, the tile-button drawing,
+and whatever `DrawShadow` at 260 belongs to. Its `GetCornerRadius` is hardcoded to `0` and it carries
+the same duplicated HSL block, both seen in the part that was read.
+
+**All four unscaled helper-based painters are now fixed** (Material, Metro, Minimal, Metro2), so of
+the ten painters using the shared caption layout, **ten scale their own literals**.
 
 ## DPI sweep, bounded by what has been read (2026-08-13)
 

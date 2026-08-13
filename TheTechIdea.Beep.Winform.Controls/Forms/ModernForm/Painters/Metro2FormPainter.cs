@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
@@ -372,7 +374,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
-            var captionHeight = owner.Font.Height + 20;
+            // searchBoxWidth/Padding come from metrics and have been DPI-scaled since stage 04 -
+            // scaling them again here would apply the factor twice. Only this painter's own
+            // literals are scaled.
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            var captionHeight = owner.Font.Height + DpiScalingHelper.ScaleValue(20, dpiScale);
             var searchMetrics = GetMetrics(owner);
             int searchBoxWidth = searchMetrics.SearchBoxWidth;
             int searchBoxPadding = searchMetrics.SearchBoxPadding;
@@ -380,7 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
                 owner,
                 captionHeight,
-                48,
+                DpiScalingHelper.ScaleValue(48, dpiScale),
                 searchBoxWidth,
                 searchBoxPadding,
                 // true: the helper already gates this on owner.ShowCustomActionButton, so passing
@@ -393,8 +399,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 return;
             }
             
-            var iconSize = 18;
-            var iconPadding = 12;
+            var iconSize = DpiScalingHelper.ScaleValue(18, dpiScale);
+            var iconPadding = DpiScalingHelper.ScaleValue(12, dpiScale);
             layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             

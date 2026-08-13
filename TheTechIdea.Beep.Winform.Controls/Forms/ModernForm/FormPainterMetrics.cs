@@ -756,9 +756,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         break;
                  
                 }
-            }else
+            }
+
+            // SKIN WINS.
+            //
+            // This switch used to be the `else` of the theme branch above, so with
+            // UseThemeColors defaulting to true it was UNREACHABLE in the default configuration -
+            // roughly 370 lines of per-skin palettes that never ran. Every dark skin's case in the
+            // reachable branch is a comment and a `break`, so ArcLinux, Dracula, Solarized,
+            // OneDark, GruvBox, Nord, Tokyo, Paper, Neon and Holographic all inherited the theme's
+            // caption colour and rendered as the same generic blue. Measured on the stage 05
+            // contact sheet: ten skins indistinguishable apart from glyph shape.
+            //
+            // The ruling is that a named skin imposes its own palette: a "Dracula" skin that looks
+            // like every other skin is not a skin. Theme colours above are the baseline; the skin
+            // overrides them.
+            //
+            // Custom is the exception, and the only one - it exists to follow the theme, so it
+            // keeps deferring rather than imposing the grey its case would otherwise apply.
+            if (style != FormStyle.Custom)
             {
-                // do another switch on Style to set some default colors
                 switch (style)
                 {
                     case FormStyle.Minimal:

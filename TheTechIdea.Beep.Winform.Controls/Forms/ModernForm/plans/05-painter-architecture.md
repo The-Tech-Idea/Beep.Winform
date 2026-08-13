@@ -107,6 +107,43 @@ work. `FormPainterLayoutHelper` adoption is **12 / 38** — the other 25 hand-ro
 right-aligned caption layout including their own copies of every flag check, which is where the
 drift will be.
 
+
+### Ruling applied — skin wins (2026-08-13)
+
+The user's call: a named skin imposes its own palette. Implemented by lifting the per-skin colour
+switch out of the `else` of `if (theme != null && theme != m.beepTheme && UseThemeColors)` so it
+runs unconditionally, after the theme colours are taken as the baseline. `FormStyle.Custom` is the
+single exception and keeps deferring - it exists to follow the theme, and its case would otherwise
+impose a fixed grey.
+
+~370 lines that had never executed in the default configuration now do.
+
+**This deliberately changes how most skins look**, which is the point of the ruling. Contact sheets
+before and after are archived (`05-contact-sheet-BEFORE.png`, `05-contact-sheet.png`) and were
+eyeballed side by side. The ten skins that were one skin are now ten skins: Dracula dark purple,
+Solarized cream, GruvBox brown, Nord slate, OneDark charcoal, Tokyo navy, ArcLinux dark slate,
+Neon black-on-magenta, Holographic a rainbow gradient, Paper light. Retro turned dark purple,
+Cyberpunk gained its cyan scanlines, Brutalist its heavy black frame, and **Terminal is now black
+with green text** instead of a blue caption.
+
+One shift worth flagging for review rather than burying: **Metro2 went from amber to blue**. Blue is
+Metro2's own palette, so it is correct under this ruling, but it is the largest single change to a
+skin that already looked deliberate.
+
+All 37 skins still render; both blindness guards and every stage 01-04 check stayed green.
+
+**Unchanged by this ruling:** `ShowCustomActionButton` is still dead in 33 of 37 skins - that is a
+layout defect, not a palette one, and belongs to the migration.
+
+### A process note, paid for twice
+
+The first run after this change produced a contact sheet **identical to the before sheet**, and the
+change looked inert. It was not: two `FormProbe` processes from an earlier timed-out run were still
+alive and holding the binary, so the rebuild could not overwrite it and the probe re-ran the old
+code. This is the stale-binary trap recorded in `07-verification.md`, hit again from a different
+direction - a timeout that kills the shell does not kill the child process. Kill the process first,
+then rebuild, then trust the render.
+
 ## Verification
 
 - **Contact sheet of all 38 skins** (the ListBoxs instrument, reused): every skin × {active,

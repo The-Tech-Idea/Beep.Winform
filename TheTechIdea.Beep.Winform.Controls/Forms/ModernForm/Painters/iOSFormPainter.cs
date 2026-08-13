@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
@@ -172,17 +174,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         
         private void PaintiOSButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
-            // iOS: Circular colored buttons (red, yellow, green) - UNIQUE to iOS!
-            int buttonSize = 12;
-            int buttonY = (captionRect.Height - buttonSize) / 2;
-            int buttonSpacing = 8;
-            int startX = 10;
-            
+            // Positions come from the layout, not from literals repeated here.
+            //
+            // This recomputed startX = 10, buttonSize = 12, buttonSpacing = 8 - the same numbers
+            // CalculateLayoutAndHitAreas passes to the traffic-light helper. They agreed only by
+            // coincidence, and scaling the layout for DPI would have broken that agreement: the
+            // circles would drift away from the hit areas they represent. MacOS already solves
+            // this by centring each light inside its registered rect; this now does the same.
+            var layout = owner.CurrentLayout;
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            
+
             // Close button (red circle)
             bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            var closeRect = new Rectangle(startX, buttonY, buttonSize, buttonSize);
+            var closeRect = CenterCircleIn(layout.CloseButtonRect);
             Color closeColor = closeHovered ? ShiftLuminance(Color.FromArgb(255, 95, 86), 0.15f) : Color.FromArgb(255, 95, 86);
             using (var closeBrush = new SolidBrush(closeColor))
             {
@@ -198,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Minimize button (yellow circle)
             bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            var minRect = new Rectangle(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize);
+            var minRect = CenterCircleIn(layout.MinimizeButtonRect);
             Color minColor = minHovered ? ShiftLuminance(Color.FromArgb(255, 189, 46), 0.15f) : Color.FromArgb(255, 189, 46);
             using (var minBrush = new SolidBrush(minColor))
             {
@@ -214,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Maximize button (green circle)
             bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            var maxRect = new Rectangle(startX + (buttonSize + buttonSpacing) * 2, buttonY, buttonSize, buttonSize);
+            var maxRect = CenterCircleIn(layout.MaximizeButtonRect);
             Color maxColor = maxHovered ? ShiftLuminance(Color.FromArgb(39, 201, 63), 0.15f) : Color.FromArgb(39, 201, 63);
             using (var maxBrush = new SolidBrush(maxColor))
             {
@@ -227,6 +232,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.DrawEllipse(hoverPen, maxRect);
                 }
             }
+        }
+
+        /// <summary>A square circle-bounds centred inside a registered hit rect.</summary>
+        private static Rectangle CenterCircleIn(Rectangle hitRect)
+        {
+            if (hitRect.IsEmpty) return Rectangle.Empty;
+            int size = Math.Min(hitRect.Width, hitRect.Height);
+            return new Rectangle(hitRect.X + (hitRect.Width - size) / 2,
+                                 hitRect.Y + (hitRect.Height - size) / 2, size, size);
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
@@ -343,8 +357,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
 
             // iOS: Traffic light buttons on LEFT (red, yellow, green circles)
-            int buttonSize = 12; // Small circular buttons
-            int buttonSpacing = 8;
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            int buttonSize = DpiScalingHelper.ScaleValue(12, dpiScale); // Small circular buttons
+            int buttonSpacing = DpiScalingHelper.ScaleValue(8, dpiScale);
 
             // RIGHT side: Theme/Style buttons (standard Windows-Style placement)
             int buttonWidth = metrics.AuxiliaryButtonWidth;
@@ -357,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 captionHeight,
                 buttonSize,
                 buttonSpacing,
-                leftStartX: 10,
+                leftStartX: DpiScalingHelper.ScaleValue(10, dpiScale),
                 rightButtonWidth: buttonWidth,
                 rightInset: 0,
                 searchBoxWidth,

@@ -2,6 +2,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
@@ -392,19 +394,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
 
             // Calculate caption height based on font and padding (macOS uses standard padding)
-            var captionHeight = owner.Font.Height + 16; // 8px padding top and bottom
+            // Metrics-derived values below (AuxiliaryButtonWidth, SearchBoxWidth/Padding) are
+            // already DPI-scaled; only this painter's own literals are scaled here.
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            var captionHeight = owner.Font.Height + DpiScalingHelper.ScaleValue(16, dpiScale);
 
             // macOS: Traffic light buttons positioned on the LEFT
-            var buttonSize   = 12; // macOS traffic lights are small circles
+            var buttonSize   = DpiScalingHelper.ScaleValue(12, dpiScale);
             var buttonHalf   = buttonSize / 2;
-            var buttonSpacing = 8;
+            var buttonSpacing = DpiScalingHelper.ScaleValue(8, dpiScale);
 
             // Compute safe left start to avoid the rounded corner arc (radius=10 for macOS)
             var cornerRadius = GetCornerRadius(owner);
             var buttonY      = (captionHeight - buttonSize) / 2;
             int safeLeftX = FormPainterMetrics.GetCaptionLeftSafeX(
                 cornerRadius.TopLeft, buttonY + buttonHalf, buttonHalf) + 2; // +2 visual gap
-            safeLeftX = Math.Max(safeLeftX, 12); // Minimum 12px from edge
+            safeLeftX = Math.Max(safeLeftX, DpiScalingHelper.ScaleValue(12, dpiScale)); // min edge gap
 
             // RIGHT side: Theme/Style buttons (standard Windows-style placement)
             // Also keep right-side elements away from the top-right corner arc
@@ -434,8 +439,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Icon and title areas: start after traffic lights, end before right-side buttons
-            var iconSize    = 16;
-            var iconPadding = 8;
+            var iconSize    = DpiScalingHelper.ScaleValue(16, dpiScale);
+            var iconPadding = DpiScalingHelper.ScaleValue(8, dpiScale);
             var iconStartX  = leftBoundary + 4; // Small gap after last traffic light
 
             layout.IconRect = new Rectangle(iconStartX, (captionHeight - iconSize) / 2, iconSize, iconSize);

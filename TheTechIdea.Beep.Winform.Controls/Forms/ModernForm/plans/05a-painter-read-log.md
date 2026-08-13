@@ -354,6 +354,29 @@ painters calling `TryBuildStandardRightAlignedCaptionLayout`. **MacOS and iOS us
 **twelve**, with two still unscaled. Both have now been read in full, so fixing them is unblocked;
 it is the next action rather than a guess.
 
+## The traffic-light pair fixed together (2026-08-13)
+
+Both are now read in full, so the DPI gap `Ma4` identified was unblocked — but scaling iOS's layout
+**alone would have re-broken it**, in a subtler way than before.
+
+`PaintiOSButtons` drew at its own `startX = 10, buttonSize = 12, buttonSpacing = 8` — the same
+numbers `CalculateLayoutAndHitAreas` hands the traffic-light helper. They agreed **by coincidence**.
+Scaling the layout would have moved the hit areas while the circles stayed put: buttons drifting
+away from what they respond to, at 150% only, invisible at the DPI anyone would test at.
+
+So iOS was converted to the MacOS pattern first — `CenterCircleIn(layout.CloseButtonRect)` and so on
+— and only then scaled. MacOS already drew from its layout and needed the scaling alone.
+
+Both verified: probe green, dead combinations 4/185, caption heights byte-identical across 37 styles,
+and the contact sheet re-rendered and eyeballed — iOS and MacOS both still show their traffic lights.
+
+**Twelve of twelve helper-based painters now scale their own literals**, and the two that draw
+circular buttons both draw them from the layout.
+
+**This is the second time in this stage that the safe-looking half of a fix would have caused the
+damage** — the first was Metro's `metrics.SearchBoxWidth`, which a regex would have double-scaled.
+Both were only visible from having read the file.
+
 ## Stage 05a-2 complete — 11 of 38 read (Metro2 partial)
 
 The eleven divide cleanly by care taken, which no metric in the audit script captured:

@@ -57,7 +57,7 @@ only the icon; 25 hand-roll the whole cascade.
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☑ **6/7 read** (Minimal, Shadcn, RadixUI, NextJS, iOS, MacOS); Metro2 partial (260–426) |
-| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 2/6 read (Cartoon, Brutalist); ArcLinux partial (1–379) |
+| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 3/6 read (ArcLinux, Brutalist, Cartoon) |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ◐ 1/6 read (Fluent, taken early) |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
 | **05a-6** hand-rolled, O–S | OneDark, Paper, Retro, Solarized | ☐ |
@@ -446,12 +446,9 @@ That inverts the assumption behind stage 05's plan, which treats the hand-rolled
 the helper-based 12 as the healthy example to migrate toward. On this evidence the reverse is closer
 to true: the helper-based painters delegate their *layout* and then ignore everything else.
 
-### ArcLinux — **NOT fully read** (lines 1–379 of 515)
+### ArcLinux (517 lines, hand-rolled) — read in full
 
-Recorded as incomplete, per the rule. `CalculateLayoutAndHitAreas` and `PaintNonClientBorder` are
-unread, so no claim is made about its layout or flag handling.
-
-From what was read:
+*(Read in two passes; the earlier note recording it as incomplete is superseded.)*
 
 | # | finding | severity |
 |---|---|---|
@@ -474,6 +471,50 @@ Only the first is safe under DPI scaling. The third is what made iOS's buttons i
 would have desynchronised them again had the layout been scaled first. **This single decision — and
 nothing about colour, style or line count — is the strongest candidate for what a pipeline should
 take away from painters.**
+
+## Measured: 17 painters share one layout method (2026-08-13)
+
+ArcLinux's `CalculateLayoutAndHitAreas` looked identical to Brutalist's, so it was **measured rather
+than asserted** — comment-stripped, whitespace-normalised, compared line by line:
+
+```
+ArcLinux layout: 80 lines, Brutalist layout: 79 lines, similarity 96.9%
+the only difference:
+   A-  var searchMetrics = GetMetrics(owner);            <- a second, redundant metrics fetch
+   A-  int searchBoxWidth = searchMetrics.SearchBoxWidth;
+   B+  int searchBoxWidth = metrics.SearchBoxWidth;
+```
+
+**One line.** Extending the comparison across the folder:
+
+| similarity to Brutalist's layout | painters |
+|---|---|
+| 96.9% | ArcLinux, Cyberpunk, Dracula, Glassmorphism, GruvBox, NeoMorphism, OneDark, Terminal |
+| 93.1% | KDE, Neon, Retro, Solarized, Tokyo |
+| 91.8% | Nord, Nordic, Paper |
+
+**17 painters — Brutalist plus 16 — carry the same ~79-line method, 91–97% identical.** Roughly
+**1,300 lines that are one method.** Each contains its own copy of every `Show*` check, its own
+`buttonX -= buttonWidth` cascade, its own hit-area registrations.
+
+### This settles the migration target
+
+The drawing in these painters is *genuinely different* — hexagons, blocks, circles, tiles, Zen rings.
+That variety is the product. **The layout is not different at all.** So:
+
+> **Extract the shared layout, leave every painter's drawing untouched.**
+
+- It is measurable: 91–97% identical today, one method after.
+- It is safe: layout is where the `Show*` flags live, so the existing per-flag differential is
+  already the parity gate, and no skin's appearance should change — the contact sheet proves it.
+- It is where the bugs were. `ShowCustomActionButton` was dead in 33 skins because 25 painters each
+  had to remember it. GNOME and Custom are *still* dead for exactly that reason.
+- It removes the ×N tax on everything that follows: corner-safe placement (7 painters lack it),
+  `SafeContentInsets` (missing in most), DPI scaling.
+
+This replaces the `FormChromePipeline` sketch in `05-painter-architecture.md`, which proposed moving
+*drawing* into a shared pipeline. On the evidence, drawing is the part that should stay in the
+painters.
 
 ## The traffic-light pair fixed together (2026-08-13)
 

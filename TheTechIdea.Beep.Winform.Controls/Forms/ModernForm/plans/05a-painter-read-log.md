@@ -58,7 +58,7 @@ only the icon; 25 hand-roll the whole cascade.
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☑ **6/7 read** (Minimal, Shadcn, RadixUI, NextJS, iOS, MacOS); Metro2 partial (260–426) |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 1/6 read (Cartoon) |
-| **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
+| **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ◐ 1/6 read (Fluent, taken early) |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
 | **05a-6** hand-rolled, O–S | OneDark, Paper, Retro, Solarized | ☐ |
 | **05a-7** hand-rolled, T–U | Terminal, Tokyo, Ubuntu | ☐ |
@@ -383,6 +383,31 @@ and Glass remain unchecked.
 **Cartoon is the first hand-rolled painter read**, and it does honour every `Show*` flag in its own
 cascade, exactly as the earlier grep correction predicted. Its failure profile is different from the
 helper-based group: no metrics-discarding, but a real performance problem instead.
+
+### Fluent (464 lines, hand-rolled) — read in full  *(read out of batch order; shortest of the three unverified clip classifications)*
+
+| # | finding | severity |
+|---|---|---|
+| Fl1 | **Cartoon's performance fix already exists here.** `DrawAcrylicNoise` builds a 64×64 noise bitmap **once**, behind a double-checked lock with a seeded `Random`, wraps it in a `TextureBrush { WrapMode = Tile }` and caches both statically — then fills the whole client rect in a single call. Cartoon's halftone does the same *kind* of texture with ~11,000 `FillEllipse` calls **per paint**. The solution is one file away and was never copied. | **the duplication finding, at its sharpest** |
+| Fl2 | `PaintBackgroundEffects` does real work (noise + gradient), so Fluent's clip classification was **correct**. Third of seven verified. | confirms |
+| Fl3 | **The only painter of thirteen that draws its caption buttons through shared code** — `FormPainterRenderHelper.DrawSystemButton`, with metrics colours for normal and hover. Comments (`SA-02: Removed over-designed acrylic button rendering`) show a deliberate earlier cleanup did this. | **good — the target state** |
+| Fl4 | That cleanup left the method named `PaintFluentAcrylicButtons` and the class doc still advertising "Acrylic background with noise texture" and "Fluent reveal highlight effects" for buttons that are now plain. The name and doc outlived the code. | tidy |
+| Fl5 | `PaintBackground` fetches metrics and paints a literal `FromArgb(240,243,249,253)`. Sixth painter to discard its metrics. | record |
+| Fl6 | No DPI scaling; no corner-safe icon; no `SafeContentInsets`. | **bug** |
+
+**Fl1 and Fl3 together are the argument for stage 05.** Not "these files are similar", but: *one
+painter already solved the texture-caching problem and another repaints 11,000 ellipses; one painter
+already draws through the shared button helper and twelve hand-roll it.* The good implementations
+exist, in this folder, and have not spread. A pipeline is how they spread.
+
+**Clip classification scoreboard — 5 of 7 checked:**
+
+| painter | classified | actually |
+|---|---|---|
+| Material, MacOS, Fluent | real work | **real work** ✓ ✓ ✓ |
+| Minimal, Cartoon | real work | **no-op** ✗ ✗ |
+
+ChatBubble and Glass remain unchecked.
 
 ## The traffic-light pair fixed together (2026-08-13)
 

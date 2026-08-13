@@ -57,7 +57,7 @@ only the icon; 25 hand-roll the whole cascade.
 |---|---|---|
 | **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ☑ **5/5 read**; leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☑ **6/7 read** (Minimal, Shadcn, RadixUI, NextJS, iOS, MacOS); Metro2 partial (260–426) |
-| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
+| **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ◐ 1/6 read (Cartoon) |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
 | **05a-5** hand-rolled, H–N | Holographic, KDE, NeoMorphism, Neon, Nord, Nordic | ☐ |
 | **05a-6** hand-rolled, O–S | OneDark, Paper, Retro, Solarized | ☐ |
@@ -353,6 +353,36 @@ painters calling `TryBuildStandardRightAlignedCaptionLayout`. **MacOS and iOS us
 `TryBuildTrafficLightCaptionLayout` instead**, and neither scales — so the correct figure is ten of
 **twelve**, with two still unscaled. Both have now been read in full, so fixing them is unblocked;
 it is the next action rather than a guess.
+
+### Cartoon (514 lines, hand-rolled) — read in full  **[stage 05a-3 begins]**
+
+| # | finding | severity |
+|---|---|---|
+| Ca1 | **The halftone texture is a per-paint performance bug.** `PaintBackground` runs a nested loop over the whole client area at 8px spacing, calling `g.FillEllipse(dotBrush, x, y, 1, 1)` for each. On a 1000×700 form that is **~11,000 FillEllipse calls on every repaint** — and a 1×1 `FillEllipse` costs far more than a pixel write. Nothing caches it. | **bug — performance** |
+| Ca2 | **`PaintBackgroundEffects` is an empty no-op**, so Cartoon belongs in the "dead clip" group, not the seven I classified as doing real work. **Second misclassification confirmed** (Minimal was the first). | **corrects my own sweep** |
+| Ca3 | `buttonSize = 24` and `padding` in `PaintCartoonButtons` are **dead locals** — `PaintCartoonButton` takes neither and hardcodes `size = 20`. So the caller computes a size the drawing ignores. | tidy |
+| Ca4 | Corner-safe icon placement **and** `SafeContentInsets` — the fifth painter to do this, and the first hand-rolled one. | good |
+| Ca5 | No DPI scaling (`Font.Height + 20`, button `32`, `iconSize = 16`), though the search box comes from metrics. | **bug** |
+| Ca6 | `new Random(123)` allocated per paint in `DrawComicSpeedLines` (seeded, so the pattern is at least stable). | tidy |
+| Ca7 | The caption is drawn with `DrawRectangle`/`FillRectangle` — square corners — while `GetCornerRadius` returns `20`. The caption's corners do not match the form's. | record |
+
+**Ca2 matters more than it looks.** My GDI-leak sweep split 31 painters into 24 "dead clip, removed"
+and 7 "clip does real work, ownership fixed". Reading has now checked four of those seven:
+
+| painter | classified | actually |
+|---|---|---|
+| Material | real work | **real work** ✓ |
+| MacOS | real work | **real work** ✓ |
+| Minimal | real work | **no-op** ✗ |
+| Cartoon | real work | **no-op** ✗ |
+
+**Half wrong so far.** No harm was done — a `using` on a Region that wraps nothing still leaks
+nothing — but the classification was pattern-matching, and it is running at 50%. ChatBubble, Fluent
+and Glass remain unchecked.
+
+**Cartoon is the first hand-rolled painter read**, and it does honour every `Show*` flag in its own
+cascade, exactly as the earlier grep correction predicted. Its failure profile is different from the
+helper-based group: no metrics-discarding, but a real performance problem instead.
 
 ## The traffic-light pair fixed together (2026-08-13)
 

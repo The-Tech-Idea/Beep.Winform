@@ -55,7 +55,7 @@ only the icon; 25 hand-roll the whole cascade.
 
 | stage | painters | status |
 |---|---|---|
-| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ◐ Modern done |
+| **05a-1** helper-based, part 1 | Modern, Linear, Material, MaterialYou, Metro | ◐ Modern + Linear read; leak swept across all 38 |
 | **05a-2** helper-based, part 2 | Metro2, Minimal, NextJS, RadixUI, Shadcn, iOS, MacOS | ☐ |
 | **05a-3** hand-rolled, A–C | ArcLinux, Brutalist, Cartoon, ChatBubble, Custom, Cyberpunk | ☐ |
 | **05a-4** hand-rolled, D–G | Dracula, Fluent, GNOME, Glass, Glassmorphism, GruvBox | ☐ |
@@ -90,6 +90,48 @@ byte-identical — so the corner-radius change is inert at this machine's DPI, a
 follows the monitor. M4 (metrics ignored for caption colour) and M5 (`ShiftLuminance`) are left
 recorded, not fixed: both are colour decisions covered by the painter exemption and should be taken
 across all 38 skins at once, not one file at a time.
+
+### Linear (438 lines, helper-based) — read in full
+
+Linear carries **all three of Modern's bugs, identically**. That is the finding: M1–M3 are not
+Modern's, they are the folder's.
+
+| # | finding | severity |
+|---|---|---|
+| L1 ☑ | Same leaked `Region` + dead clip pair as M1. | **bug** |
+| L2 | `GetCornerRadius` hardcoded to `new CornerRadius(4)`, same shape as M2. | **bug** |
+| L3 | `buttonSize = 16` unscaled while its own layout scales through `DpiScalingHelper`, same as M3. | **bug** |
+| L4 | `var metrics = GetMetrics(owner);` assigned and unused in `PaintBackground` and `PaintBorders` — both paint literals instead. | record |
+| L5 | The `PaintLinearButtons` doc comment is duplicated verbatim, twice in a row. | tidy |
+| L6 | Colours branch on `owner.CurrentTheme.IsDarkTheme` with literal light/dark pairs — a **third** colour source alongside metrics and the skin palette. | record |
+
+### Swept across all 38 (2026-08-13)
+
+Once Linear showed M1 was systemic, the leak was measured rather than assumed:
+
+- **31 painters** carried a `g.Clip = new Region(path); g.Clip = originalClip;` pair — a GDI handle
+  leaked on **every paint**, in almost every skin.
+- **24** had the dead form, where the second line discards the first before anything draws under it.
+  The clip never took effect, so those lines were removed outright.
+- **7** — Cartoon, ChatBubble, Fluent, Glass, MacOS, Material, Minimal — are genuinely different:
+  the clip is set, `PaintBackgroundEffects` draws under it, then the clip is reset. There the fix is
+  ownership, not removal: `using var clipRegion = new Region(path);`. `Graphics.Clip` copies the
+  region, so the caller owns the original.
+
+**A blanket regex would have deleted the clip in those 7 and broken their rendering.** The pattern
+only looked uniform; reading two files and then checking the residue is what separated them.
+
+- **35 painters hardcode `GetCornerRadius`**; exactly one now reads `metrics.BorderRadius` (Modern).
+  Not swept: unlike the leak, changing a painter's radius literal to its style's metric **can change
+  appearance** wherever the two disagree, so it needs a per-style comparison first. Recorded, not done.
+
+Verified after the sweep: probe green, dead combinations still 4/185, caption heights byte-identical
+across all 37 styles.
+
+**A fourth instrument error, same root cause as the other three.** The post-sweep check reported the
+pattern still present in 31 files — it was matching the replacement *comment*, which quotes the code
+it replaced. Comment-stripped, the true residue was 7, and those 7 turned out to be the legitimate
+cases. Grepping source that includes comments has now produced four wrong readings in one session.
 
 ## Exit criteria
 

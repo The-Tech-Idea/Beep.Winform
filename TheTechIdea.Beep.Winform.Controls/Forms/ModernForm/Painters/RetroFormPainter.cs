@@ -350,8 +350,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             PaintBackground(g, owner);
 
             using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            g.Clip = new Region(path);
-            g.Clip = originalClip;
+            // A `g.Clip = new Region(path); g.Clip = originalClip;` pair stood here. The
+            // second line discarded the first before anything drew under it, so the clip
+            // never took effect - and the Region was never disposed, leaking a GDI handle
+            // on every paint. 31 painters carried the identical pair.
 
             PaintBorders(g, owner);
             if (owner.ShowCaptionBar)

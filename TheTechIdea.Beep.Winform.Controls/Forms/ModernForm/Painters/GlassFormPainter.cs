@@ -433,7 +433,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // 3) Background effects with clipping (exclude content unless overridden)
             using var path = CreateRoundedRectanglePath(rect, radius);
             // Always paint over entire form background since this runs in OnPaintBackground
-            g.Clip = new Region(path);
+            // Graphics.Clip COPIES the region, so this one is ours to dispose. These seven
+            // painters differ from the other 24: here the clip does real work - painting
+            // happens under it before it is reset - so the fix is ownership, not removal.
+            using var clipRegion = new Region(path);
+            g.Clip = clipRegion;
 
             PaintBackgroundEffects(g, owner, rect);
 

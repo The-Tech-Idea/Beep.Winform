@@ -575,6 +575,26 @@ file, and only reading the file found it.** The build was clean, every check was
 comment would have misled the next reader indefinitely. Three files got that same templated comment;
 the other two were in the literals group, so it is accurate there — checked individually, not assumed.
 
+### ChatBubble (544 lines) — read in full
+
+| # | finding | severity |
+|---|---|---|
+| Cb1 | **`PaintBackgroundEffects` is an empty no-op**, so ChatBubble belongs in the dead-clip group, not the seven I classified as doing real work. **Third misclassification.** | corrects my own sweep |
+| Cb2 | The splice I made left `var metrics = GetMetrics(owner);` mis-indented under a stale "Set caption rectangle" comment, and the templated migration note was vague about which literals held it back. Both corrected. | mine |
+| Cb3 | `AddRoundedRect` **is** called — from `CreateSpeechBubblePath` at line 411. Not dead. A name-only scan would have flagged it. | — |
+| Cb4 | `PaintBackground` draws diagonal stripes with a loop from `r.Top - r.Width` to `r.Bottom` stepping 24 — for a 740×200 caption-band capture that is ~39 `DrawLine` calls, but the loop is bounded by **width**, so it scales with the wider dimension regardless of height. | record |
+
+**Clip classification scoreboard — 6 of 7 checked:**
+
+| painter | classified | actually |
+|---|---|---|
+| Material, MacOS, Fluent | real work | **real work** ✓ ✓ ✓ |
+| Minimal, Cartoon, ChatBubble | real work | **no-op** ✗ ✗ ✗ |
+
+**Three right, three wrong.** Only Glass remains unchecked. The `using var clipRegion` stays in all
+of them — it leaks nothing either way — but as a piece of classification it was a coin flip, which is
+what pattern-matching buys.
+
 ## Measured: 17 painters share one layout method (2026-08-13)
 
 ArcLinux's `CalculateLayoutAndHitAreas` looked identical to Brutalist's, so it was **measured rather

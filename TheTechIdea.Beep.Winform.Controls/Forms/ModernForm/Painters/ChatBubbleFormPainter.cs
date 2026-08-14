@@ -505,12 +505,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Calculate caption height based on font and padding (Chat bubble uses rounded padding)
             var captionHeight = owner.Font.Height + 20; // 10px padding top and bottom for chat bubble Style
             
-            // Set caption rectangle
-                        var metrics = GetMetrics(owner);
-            // Migrated to the shared cascade (stage 05). This painter's own caption height and
-            // button width are passed straight through as parameters, so the geometry is
-            // unchanged - it failed the earlier automated pass only because it used literals where
-            // the other seventeen used metrics. The icon and title placement below is untouched.
+            var metrics = GetMetrics(owner);
+
+            // Migrated to the shared cascade (stage 05). This painter's own caption height
+            // (Font.Height + 20) and button width (32) are passed straight through as parameters,
+            // so the geometry is unchanged - it was held back from the first automated pass only
+            // because it used those literals where the other seventeen used metrics. The icon and
+            // title placement below is untouched.
 
             if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
                 owner,

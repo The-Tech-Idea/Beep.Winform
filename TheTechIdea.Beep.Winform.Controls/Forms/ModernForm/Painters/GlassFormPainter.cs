@@ -318,11 +318,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Calculate caption height based on font and padding
             var captionHeight = owner.Font.Height + 16; // 8px padding top and bottom
             
-            // Set caption rectangle
-                        // Migrated to the shared cascade (stage 05). This painter's own caption height and
-            // button width are passed straight through as parameters, so the geometry is
-            // unchanged - it failed the earlier automated pass only because it used literals where
-            // the other seventeen used metrics. The icon and title placement below is untouched.
+            // Migrated to the shared cascade (stage 05). Caption height (Font.Height + 16) and
+            // metrics.ButtonWidth are passed straight through, so the geometry is unchanged - this
+            // painter was held back from the first automated pass only by its literal caption
+            // height. The icon and title placement below is untouched.
 
             if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
                 owner,
@@ -503,9 +502,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var random = new Random(42); // Fixed seed for consistent noise
             using var noiseBrush = new SolidBrush(Color.FromArgb((int)(intensity * 255), 255, 255, 255));
-            
+
+            // The dot count scales with the form's AREA, and the bound was recomputed on every
+            // iteration of the loop that consumes it. At the default 0.02 intensity a 1200x800 form
+            // costs ~1,920 FillRectangle calls per paint and a maximized 2560x1440 one ~7,372 -
+            // for a texture that is identical every time, because the seed is fixed.
+            //
+            // Hoisted out of the condition. The real fix is Fluent's cached TextureBrush (see
+            // DrawAcrylicNoise there, and Cartoon's halftone which was converted to it), which
+            // makes this one tiled fill regardless of form size - recorded in the read log rather
+            // than done here, because it changes how the noise lands and wants its own render check.
+            int dotCount = (int)(rect.Width * rect.Height * intensity * 0.1f);
+
             // Draw random noise dots for frosted effect
-            for (int i = 0; i < rect.Width * rect.Height * intensity * 0.1f; i++)
+            for (int i = 0; i < dotCount; i++)
             {
                 int x = rect.Left + random.Next(rect.Width);
                 int y = rect.Top + random.Next(rect.Height);

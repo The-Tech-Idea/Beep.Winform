@@ -595,6 +595,46 @@ the other two were in the literals group, so it is accurate there — checked in
 of them — it leaks nothing either way — but as a piece of classification it was a coin flip, which is
 what pattern-matching buys.
 
+### Glass (528 lines) — read in full  **[closes the clip scoreboard]**
+
+| # | finding | severity |
+|---|---|---|
+| Gl1 ☑ | **`AddNoiseTexture` scales with the form's AREA**, and recomputed its loop bound on every iteration. At the default `0.02` intensity a 1200×800 form costs **~1,920** `FillRectangle` calls per paint; a maximized 2560×1440 one **~7,372** — for a texture that is byte-identical every time, because the seed is fixed at 42. Bound hoisted out of the condition. | **bug — performance** |
+| Gl2 | `PaintBackgroundEffects` does real work (mica gradient + noise), so Glass's clip classification was **correct**. | confirms |
+| Gl3 | The migration splice I made left the same mis-indented comment as ChatBubble, and claimed the wrong reason again. Corrected and made specific. | mine |
+
+**The full fix for Gl1 is Fluent's cached `TextureBrush`** — one tiled fill regardless of form size,
+the same conversion already applied to Cartoon's halftone. Recorded rather than done, because it
+changes how the noise lands and deserves its own before/after render.
+
+## Clip classification — final, all seven checked by reading
+
+| painter | I classified | actually |
+|---|---|---|
+| Material, MacOS, Fluent, **Glass** | real work | **real work** ✓ ✓ ✓ ✓ |
+| Minimal, Cartoon, ChatBubble | real work | **no-op** ✗ ✗ ✗ |
+
+**Four right, three wrong.** The classification was made by pattern during the GDI-leak sweep and it
+ran at 57% — barely better than a coin flip. Nothing was harmed, because a `using` on a Region that
+wraps nothing still leaks nothing, but as a piece of *knowledge* it was worthless until each file was
+read. That is the whole case for reading, in one table.
+
+### The uncached-texture family, complete
+
+Five painters generate texture procedurally on every paint. Only one caches:
+
+| painter | texture | cost per paint | cached? |
+|---|---|---|---|
+| **Fluent** | acrylic noise | **1 fill** | **yes** — 64×64 tile + `TextureBrush` |
+| Cartoon | halftone dots | 1 fill *(was ~11,000)* | **yes** — converted this stage |
+| Glass | frosted noise | ~1,920 at 1200×800, area-scaled | no |
+| Paper | grain + fibers | ~250 per five-button caption | no |
+| GruvBox | warm grain | ~233 | no |
+| OneDark | gutter grid | ~425 | no |
+
+Fluent solved this once and the solution never spread — which is the same finding as the layout
+duplication, in a different dimension.
+
 ## Measured: 17 painters share one layout method (2026-08-13)
 
 ArcLinux's `CalculateLayoutAndHitAreas` looked identical to Brutalist's, so it was **measured rather

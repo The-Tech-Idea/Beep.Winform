@@ -50,16 +50,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
             
-            // Add warm retro grain texture (horizontal scan-like pattern)
-            // Use GruvBox orange accent (#FE8019) with low alpha for warm grain
-            using (var grainPen = new Pen(Color.FromArgb(5, 254, 128, 25), 1))
-            {
-                g.SmoothingMode = SmoothingMode.None; // Sharp pixels for retro feel
-                for (int y = 0; y < owner.ClientRectangle.Height; y += 3)
-                {
-                    g.DrawLine(grainPen, 0, y, owner.ClientRectangle.Width, y);
-                }
-            }
+            // Warm retro grain, one tiled fill instead of a DrawLine per third row. At the probe's
+            // 420px height that loop ran ~140 times every paint, and the pattern it drew is exactly
+            // periodic: a single scan line every 3 rows. A 1x3 tile with the line in row 0 and two
+            // transparent rows below reproduces it exactly when tiled from the origin, which is
+            // where the loop started. Same approach as Fluent's cached acrylic noise.
+            g.SmoothingMode = SmoothingMode.None; // Sharp pixels for retro feel
+            g.FillRectangle(GetGrainBrush(), owner.ClientRectangle);
             
             // Add subtle warm glow at top using GruvBox yellow (#FABD2F)
             using (var glowBrush = new LinearGradientBrush(
@@ -284,8 +281,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            var radius = GetCornerRadius(owner);
-            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro 
+            // No GetCornerRadius call: the radius was fetched here and never read. The border follows
+            // owner.BorderShape, which already carries this skin's corners.
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             // GruvBox: muted border (GruvBox border color #504945) with subtle orange tint
             // Thicker for retro feel
             using var pen = new Pen(Color.FromArgb(100, 254, 128, 25), 2); // Semi-transparent orange over border
@@ -435,5 +433,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }
+
+        // The grain tile, built once. See PaintBackground for why a 1x3 tile is exact rather than
+        // approximate. Static because the pattern depends on nothing per-form.
+        private static Bitmap _grainTile;
+        private static TextureBrush _grainBrush;
+        private static readonly object _grainLock = new object();
+
+        private static TextureBrush GetGrainBrush()
+        {
+            if (_grainBrush == null)
+            {
+                lock (_grainLock)
+                {
+                    if (_grainBrush == null)
+                    {
+                        var tile = new Bitmap(1, 3);
+                        // Row 2, not row 0. The DrawLine loop stepped from y=0 but GDI+ rasterised
+                        // each 1px line one row up, so the grain actually landed on y = 2, 5, 8...
+                        // Measured against the render baseline rather than assumed: with the pixel
+                        // in row 0 every grain row was off by one and 15,960 pixels differed.
+                        tile.SetPixel(0, 2, Color.FromArgb(5, 254, 128, 25)); // GruvBox orange, rows 0-1 stay clear
+                        _grainTile = tile;
+                        _grainBrush = new TextureBrush(tile) { WrapMode = WrapMode.Tile };
+                    }
+                }
+            }
+            return _grainBrush;
+        }
+
     }
 }

@@ -1251,3 +1251,29 @@ rather than editing on a pattern, which is why a wrong match produced zero edits
 **Verified:** `0 of 37` tiles differ from `painter-render-baseline.png`, rects unchanged across all
 37, both stray checks pass, dead flags 0 of 185, build clean. The render baseline earned its keep
 immediately — this is a 25-file deletion proven not to change a pixel.
+
+### GruvBox — read end to end (447 lines)
+
+**The uncached texture is now cached, and the baseline caught the version that looked right.**
+`PaintBackground` drew the warm grain as a `DrawLine` per third row — about **140 calls per paint** at
+the probe's 420px height, every one of them redrawing an exactly periodic pattern. Replaced with a
+`1×3` tile and a single tiled `FillRectangle`, the same shape as Fluent's cached acrylic noise.
+
+The first version put the grain pixel in **row 0**, which is where the loop starts (`y = 0; y += 3`).
+That looked obviously equivalent and was not: **15,960 pixels differed** in GruvBox's tile. Sampling a
+column showed why — identical colour `(57,46,40)`, identical 3-row spacing, **shifted by exactly one
+row**. The loop steps from `y = 0` but GDI+ rasterises each 1px line one row up, so the grain actually
+lands on `y = 2, 5, 8…`. Moving the pixel to row 2 makes it **pixel-identical across all 37 tiles**.
+
+Nothing about this was visible by reading the code, and no reviewer would have questioned "tile starts
+where the loop starts". The render baseline is what turned a plausible optimisation into a verified
+one — and it is exactly the class of change that would otherwise ship a one-pixel drift into a skin.
+
+**Dead code:** `PaintBorders` fetched `GetCornerRadius` and never read it. Removed — the border follows
+`owner.BorderShape`, which already carries the corners.
+
+**Noted, not changed:** `PaintBorders` draws the same path twice, an orange veil over a base pen. That
+is deliberate layering, not duplication.
+
+**Remaining uncached textures:** Glass (~1,920 area-scaled draws), OneDark (~425), Paper (~250). Paper
+is now seed-stable but still procedural. Each needs the same treatment and the same verification.

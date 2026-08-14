@@ -303,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            var originalClip = g.Clip;
+            using var originalClip = g.Clip;
             var shadow = GetShadowEffect(owner);
             var radius = GetCornerRadius(owner);
 

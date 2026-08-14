@@ -288,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var radius = GetCornerRadius(owner);
 
             // Save original clip
-            var originalClip = g.Clip;
+            using var originalClip = g.Clip;
 
             // 1) Shadow
             if (!shadow.Inner)
@@ -403,7 +403,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Use helper for gradient (fill path instead of rectangle for clipping)
             using (var region = new Region(path))
             {
-                var oldClip = g.Clip;
+                using var oldClip = g.Clip;
                 g.Clip = region;
                 FormPainterRenderHelper.PaintGradientBackground(g, rect,
                     Color.FromArgb(10, 0, 0, 0),

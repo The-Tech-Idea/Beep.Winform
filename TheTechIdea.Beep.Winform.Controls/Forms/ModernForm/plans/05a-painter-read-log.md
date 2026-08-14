@@ -1149,3 +1149,28 @@ exemption, so this is an appearance decision like Metro2's caption, not a rule v
 **Confirmed leftover:** `:193` `owner.Font.Height + 16`, one of the 16 unscaled literals.
 
 **Re-verified after:** both stray checks pass, dead flags 0 of 185, build clean.
+
+### The clip copy leaked in 32 painters, not one
+
+Fluent's leak turned out to be the whole family. The clip statements of **all 35 enclosing methods**
+were read — every `originalClip` / `oldClip` site, its restore, and whether anything disposed it.
+The result is uniform: **every one takes a copy from the `g.Clip` getter, assigns it back at the end,
+and never disposes it.** Fluent was the only exception, and only because it had just been fixed.
+
+`using var` on the capture, 34 sites in 32 painters (Material and iOS have two each). Safe everywhere:
+the setter copies the region into the `Graphics`, so the local can be disposed after the final
+restore.
+
+**Verified:** both stray checks pass, the two-captures-agree guard passes, dead flags 0 of 185, and
+`FORMPROBE_RECTS` is unchanged across all 37 skins. Nothing about the rendering moved.
+
+**Not measured:** no instrument counted GDI handles before and after, so the *leak* is asserted from
+ownership semantics — the documented `Graphics.Clip` copy behaviour, the same rule that governed the
+31-painter clip fix earlier in this stage — not from a handle count. Recorded as reasoning, not
+measurement.
+
+**Left for per-method reading, not done here:** in 24 of these painters the comment records that a
+`g.Clip = new Region(path); g.Clip = originalClip;` pair was removed as a no-op. If nothing between
+the capture and the restore touches the clip, then the save/restore in those painters is pointless
+and should be deleted rather than disposed. Proving that needs each method read in full, so the
+uniform fix was applied first — it is correct whether or not the pair is redundant.

@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             using (var region = new Region(path))
             {
-                var oldClip = g.Clip;
+                using var oldClip = g.Clip;
                 g.Clip = region;
                 FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
                     topColor,
@@ -282,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            var originalClip = g.Clip;
+            using var originalClip = g.Clip;
             var shadow = GetShadowEffect(owner);
             var radius = GetCornerRadius(owner);
 

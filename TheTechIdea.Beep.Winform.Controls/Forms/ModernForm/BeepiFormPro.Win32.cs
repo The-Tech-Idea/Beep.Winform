@@ -3,6 +3,7 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -353,9 +354,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             {
                                 EnsureLayoutCalculated();
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                // Form not fully initialized yet, use default hit test
+                                // Form not fully initialized yet, use default hit test. WM_NCHITTEST
+                                // arrives on every mouse move, so this reports through the Once form:
+                                // a per-message report would bury the first occurrence under
+                                // thousands of duplicates.
+                                BeepLog.FallbackOnce("beepiformpro.nchittest.layout", this,
+                                    "calculate layout for WM_NCHITTEST (falling back to HTCLIENT)", ex);
                                 m.Result = (IntPtr)HTCLIENT;
                                 return;
                             }

@@ -792,3 +792,52 @@ All 38 files read end to end and recorded here; findings triaged into fix batche
 and contact sheet re-run after each batch; and this log's per-painter sections complete enough that
 the pipeline design in `05-painter-architecture.md` is written from evidence rather than from the
 shape the folder appears to have.
+
+## Custom — read to the end (lines 609–738)
+
+The tail is the standard button cascade, then icon/title, then `PaintNonClientBorder` and
+`CreateRoundedPath`. Nothing wrong in the drawing.
+
+**Custom was never migrated, and my stage-05 map did not say so.** It hand-rolled the cascade at
+609–685. The map claimed "36/36 painters share one layout" and Custom appeared in *none* of the three
+buckets — not shared, not traffic-light, not hand-rolled. The cause is in my own scan: it located the
+method with `s.find("public void CalculateLayoutAndHitAreas")`, and Custom declares it
+`public **virtual** void`. Every painter declaring it virtual was skipped silently rather than
+reported as unmatched — a scan that cannot say "I found nothing here" is the same failure the
+verification rules describe. **The map's real figure was 36 of 37.**
+
+Migrated now that it has been read end to end: 63 lines → 16, passing this painter's own `46`
+button width and `metrics.CaptionHeight` through, so the geometry is unchanged.
+`titleWidth` now comes from the helper's `titleRightBoundary` instead of the local `buttonX`.
+
+**Verified:** `FORMPROBE_RECTS` output is byte-identical to `painter-rects-baseline.txt` for all 37
+skins, Custom included (`CaptionRect=0,0,744,32`, `CustomActionButtonRect=468,0,46,32`,
+`IconRect=12,7,18,18`, `TitleRect=42,0,114,32`). Build clean.
+
+### The caption `Drag` hit area consumes nothing
+
+Migrating raised a fair worry — the replaced region began at `layout.CaptionRect = …`, so a caption
+drag registration on the following line would have been deleted invisibly, since the rect table still
+shows `CaptionRect` either way. It was not: `git show HEAD:` confirms the original registered no
+`HitAreaType.Drag` either.
+
+Chasing it settled a wider question. 17 painters register a full-caption `HitAreaType.Drag` area and
+19 do not, which looks like 19 skins that cannot be dragged. **They can.** Dragging never consults the
+hit-area table: `BeepiFormPro.Win32.cs:364` tests `CurrentLayout.CaptionRect.Contains(pos)` and
+`:399` returns `HTCAPTION` directly. `GetAccessibleCaptionRegions` excludes `caption` as well, so the
+registration has no consumer at all — 17 painters register an area nothing reads. Harmless, and
+**left alone**: deleting it is a separate change, and `HitTest` picks the smallest containing area, so
+it shadows no button.
+
+Not verified: whether any *host* application enumerates hit areas by name. That is why the inert
+registrations were not removed.
+
+### `BeepiFormPro.Win32.cs:356` — bare catch in the hit-test path (fixed)
+
+Found while reading the drag path. `EnsureLayoutCalculated` was wrapped in a `catch` that discarded
+the exception and returned `HTCLIENT`. A form that throws during layout would therefore report itself
+as pure client area — no caption, no buttons, no drag — with nothing said. Now reports through
+`BeepLog.FallbackOnce`, keyed `beepiformpro.nchittest.layout`: `WM_NCHITTEST` arrives on every mouse
+move, so the `Once` form is required, not preferred.
+
+**Next:** GNOME, the only other painter using `CaptionTextColorActive`, for the misuse Custom had.

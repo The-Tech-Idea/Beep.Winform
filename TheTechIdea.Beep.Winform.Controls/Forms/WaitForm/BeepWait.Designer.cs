@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.LeadingImagePath = "";
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
-            beepLabel1.Location = new Point(233, 427);
+            beepLabel1.Location = new Point(233, 428);
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
@@ -488,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphicsPath10.FillMode = FillMode.Alternate;
             Title.BorderPath = graphicsPath10;
             Title.BorderRadius = 0;
-            Title.BorderRect = new Rectangle(0, 0, 628, 49);
+            Title.BorderRect = new Rectangle(0, 0, 630, 49);
             Title.BorderStyle = BorderStyle.FixedSingle;
             Title.BorderThickness = 2;
             Title.BottomoffsetForDrawingRect = 0;
@@ -519,7 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.DisabledBorderColor = Color.Gray;
             Title.DisabledForeColor = Color.FromArgb(19, 27, 19);
             Title.Dock = DockStyle.Top;
-            Title.DrawingRect = new Rectangle(2, 2, 624, 45);
+            Title.DrawingRect = new Rectangle(2, 2, 626, 45);
             Title.Easing = EasingType.Linear;
             Title.EffectColor = Color.Empty;
             Title.EnableHighQualityRendering = true;
@@ -601,7 +601,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.LeadingImagePath = "";
             Title.LeftoffsetForDrawingRect = 0;
             Title.LinkedProperty = null;
-            Title.Location = new Point(3, 3);
+            Title.Location = new Point(2, 0);
             Title.Margin = new Padding(0);
             Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
@@ -638,7 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ShowRightBorder = false;
             Title.ShowShadow = false;
             Title.ShowTopBorder = false;
-            Title.Size = new Size(629, 50);
+            Title.Size = new Size(631, 50);
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.StyleProfile.AutoEllipsis = false;
@@ -811,7 +811,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.LeadingImagePath = "";
             _spinnerImage.LeftoffsetForDrawingRect = 0;
             _spinnerImage.LinkedProperty = null;
-            _spinnerImage.Location = new Point(233, 57);
+            _spinnerImage.Location = new Point(233, 56);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.MaxHitListDrawPerFrame = 0;
             _spinnerImage.MinimumSize = new Size(16, 16);
@@ -1098,7 +1098,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             FormStyle = FormStyle.Terminal;
             Margin = new Padding(2, 1, 2, 1);
             Name = "BeepWait";
-            Padding = new Padding(3);
+            Padding = new Padding(2, 0, 2, 2);
             ShowCaptionBar = false;
             ShowIcon = false;
             ShowInTaskbar = false;

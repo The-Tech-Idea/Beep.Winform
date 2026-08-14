@@ -159,98 +159,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
-            // Close button: Red iridescent chevron
-            int cx = closeRect.X + closeRect.Width / 2;
-            int cy = chevronY + chevronSize / 2;
-            
-            using (var chevronPath = CreateChevronPath(cx, cy, chevronSize))
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                int closeAlpha = closeHovered ? 255 : 200;
-                // Rainbow gradient fill
-                using (var gradBrush = new LinearGradientBrush(
-                    new Rectangle(cx - chevronSize/2, cy - chevronSize/2, chevronSize, chevronSize),
-                    Color.FromArgb(closeAlpha, 255, 100, 150),  // Pink
-                    Color.FromArgb(closeAlpha, 255, 200, 100),  // Orange
-                    LinearGradientMode.Horizontal))
+                // Close button: Red iridescent chevron
+                int cx = closeRect.X + closeRect.Width / 2;
+                int cy = chevronY + chevronSize / 2;
+            
+                using (var chevronPath = CreateChevronPath(cx, cy, chevronSize))
                 {
-                    g.FillPath(gradBrush, chevronPath);
-                }
+                    int closeAlpha = closeHovered ? 255 : 200;
+                    // Rainbow gradient fill
+                    using (var gradBrush = new LinearGradientBrush(
+                        new Rectangle(cx - chevronSize/2, cy - chevronSize/2, chevronSize, chevronSize),
+                        Color.FromArgb(closeAlpha, 255, 100, 150),  // Pink
+                        Color.FromArgb(closeAlpha, 255, 200, 100),  // Orange
+                        LinearGradientMode.Horizontal))
+                    {
+                        g.FillPath(gradBrush, chevronPath);
+                    }
                 
-                float closeOutlineWidth = closeHovered ? 2.5f : 1.5f;
-                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 255, 200), closeOutlineWidth))
+                    float closeOutlineWidth = closeHovered ? 2.5f : 1.5f;
+                    using (var outlinePen = new Pen(Color.FromArgb(255, 255, 255, 200), closeOutlineWidth))
+                    {
+                        g.DrawPath(outlinePen, chevronPath);
+                    }
+                }
+            
+                // X icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
                 {
-                    g.DrawPath(outlinePen, chevronPath);
+                    int iconSize = 6;
+                    g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                    g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
                 }
             }
-            
-            // X icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
+
+            if (owner.ShowMinMaxButtons)
             {
-                int iconSize = 6;
-                g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
-            }
+                // Maximize button: Cyan iridescent chevron
+                int mx = maxRect.X + maxRect.Width / 2;
+                int my = chevronY + chevronSize / 2;
             
-            // Maximize button: Cyan iridescent chevron
-            int mx = maxRect.X + maxRect.Width / 2;
-            int my = chevronY + chevronSize / 2;
-            
-            using (var chevronPath = CreateChevronPath(mx, my, chevronSize))
-            {
-                int maxAlpha = maxHovered ? 255 : 200;
-                using (var gradBrush = new LinearGradientBrush(
-                    new Rectangle(mx - chevronSize/2, my - chevronSize/2, chevronSize, chevronSize),
-                    Color.FromArgb(maxAlpha, 100, 200, 255),  // Cyan
-                    Color.FromArgb(maxAlpha, 100, 255, 200),  // Green
-                    LinearGradientMode.Horizontal))
+                using (var chevronPath = CreateChevronPath(mx, my, chevronSize))
                 {
-                    g.FillPath(gradBrush, chevronPath);
-                }
+                    int maxAlpha = maxHovered ? 255 : 200;
+                    using (var gradBrush = new LinearGradientBrush(
+                        new Rectangle(mx - chevronSize/2, my - chevronSize/2, chevronSize, chevronSize),
+                        Color.FromArgb(maxAlpha, 100, 200, 255),  // Cyan
+                        Color.FromArgb(maxAlpha, 100, 255, 200),  // Green
+                        LinearGradientMode.Horizontal))
+                    {
+                        g.FillPath(gradBrush, chevronPath);
+                    }
                 
-                float maxOutlineWidth = maxHovered ? 2.5f : 1.5f;
-                using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 255), maxOutlineWidth))
-                {
-                    g.DrawPath(outlinePen, chevronPath);
+                    float maxOutlineWidth = maxHovered ? 2.5f : 1.5f;
+                    using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 255), maxOutlineWidth))
+                    {
+                        g.DrawPath(outlinePen, chevronPath);
+                    }
                 }
-            }
             
-            // Square icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int sqSize = 6;
-                g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
-            }
-            
-            // Minimize button: Purple iridescent chevron
-            int mnx = minRect.X + minRect.Width / 2;
-            int mny = chevronY + chevronSize / 2;
-            
-            using (var chevronPath = CreateChevronPath(mnx, mny, chevronSize))
-            {
-                int minAlpha = minHovered ? 255 : 200;
-                using (var gradBrush = new LinearGradientBrush(
-                    new Rectangle(mnx - chevronSize/2, mny - chevronSize/2, chevronSize, chevronSize),
-                    Color.FromArgb(minAlpha, 200, 100, 255),  // Purple
-                    Color.FromArgb(minAlpha, 255, 100, 200),  // Magenta
-                    LinearGradientMode.Horizontal))
+                // Square icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
                 {
-                    g.FillPath(gradBrush, chevronPath);
+                    int sqSize = 6;
+                    g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
                 }
+            
+                // Minimize button: Purple iridescent chevron
+                int mnx = minRect.X + minRect.Width / 2;
+                int mny = chevronY + chevronSize / 2;
+            
+                using (var chevronPath = CreateChevronPath(mnx, mny, chevronSize))
+                {
+                    int minAlpha = minHovered ? 255 : 200;
+                    using (var gradBrush = new LinearGradientBrush(
+                        new Rectangle(mnx - chevronSize/2, mny - chevronSize/2, chevronSize, chevronSize),
+                        Color.FromArgb(minAlpha, 200, 100, 255),  // Purple
+                        Color.FromArgb(minAlpha, 255, 100, 200),  // Magenta
+                        LinearGradientMode.Horizontal))
+                    {
+                        g.FillPath(gradBrush, chevronPath);
+                    }
                 
-                float minOutlineWidth = minHovered ? 2.5f : 1.5f;
-                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 255), minOutlineWidth))
+                    float minOutlineWidth = minHovered ? 2.5f : 1.5f;
+                    using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 255), minOutlineWidth))
+                    {
+                        g.DrawPath(outlinePen, chevronPath);
+                    }
+                }
+            
+                // Line icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
                 {
-                    g.DrawPath(outlinePen, chevronPath);
+                    int lineSize = 7;
+                    g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
                 }
             }
-            
-            // Line icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int lineSize = 7;
-                g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
-            }
-            
+
             // Theme button: Blue-green iridescent chevron with palette icon
             if (!themeRect.IsEmpty)
             {

@@ -120,82 +120,90 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
             bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
             
-            // Close button: Red octagon with X
-            int cx = closeRect.X + closeRect.Width / 2;
-            using (var octPath = CreateOctagonPath(cx, octY + octSize/2, octSize/2))
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                Color closeColor = closeHovered ? Color.FromArgb(244, 128, 137) : Color.FromArgb(224, 108, 117);
-                using (var octBrush = new SolidBrush(closeColor))
+                // Close button: Red octagon with X
+                int cx = closeRect.X + closeRect.Width / 2;
+                using (var octPath = CreateOctagonPath(cx, octY + octSize/2, octSize/2))
                 {
-                    g.FillPath(octBrush, octPath);
-                }
-                
-                if (closeHovered)
-                {
-                    using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                    Color closeColor = closeHovered ? Color.FromArgb(244, 128, 137) : Color.FromArgb(224, 108, 117);
+                    using (var octBrush = new SolidBrush(closeColor))
                     {
-                        g.DrawPath(glowPen, octPath);
+                        g.FillPath(octBrush, octPath);
                     }
-                }
                 
-                using (var iconPen = new Pen(Color.White, 1.5f))
-                {
-                    int iconSize = 7;
-                    int cy = octY + octSize/2;
-                    g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                    g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
+                    if (closeHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, octPath);
+                        }
+                    }
+                
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int iconSize = 7;
+                        int cy = octY + octSize/2;
+                        g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                        g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
+                    }
                 }
             }
-            
-            // Maximize button: Dark octagon with square
-            int mx = maxRect.X + maxRect.Width / 2;
-            using (var octPath = CreateOctagonPath(mx, octY + octSize/2, octSize/2))
+
+            if (owner.ShowMinMaxButtons)
             {
-                Color maxColor = maxHovered ? Color.FromArgb(95, 95, 95) : Color.FromArgb(75, 75, 75);
-                using (var octBrush = new SolidBrush(maxColor))
+                // Maximize button: Dark octagon with square
+                int mx = maxRect.X + maxRect.Width / 2;
+                using (var octPath = CreateOctagonPath(mx, octY + octSize/2, octSize/2))
                 {
-                    g.FillPath(octBrush, octPath);
-                }
-                
-                if (maxHovered)
-                {
-                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1.5f))
+                    Color maxColor = maxHovered ? Color.FromArgb(95, 95, 95) : Color.FromArgb(75, 75, 75);
+                    using (var octBrush = new SolidBrush(maxColor))
                     {
-                        g.DrawPath(glowPen, octPath);
+                        g.FillPath(octBrush, octPath);
+                    }
+                
+                    if (maxHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1.5f))
+                        {
+                            g.DrawPath(glowPen, octPath);
+                        }
+                    }
+                
+                    using (var iconPen = new Pen(Color.White, 1.3f))
+                    {
+                        int sqSize = 6;
+                        int my = octY + octSize/2;
+                        g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
                     }
                 }
-                
-                using (var iconPen = new Pen(Color.White, 1.3f))
-                {
-                    int sqSize = 6;
-                    int my = octY + octSize/2;
-                    g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
-                }
-            }
             
-            // Minimize button: Dark octagon with line
-            int mnx = minRect.X + minRect.Width / 2;
-            using (var octPath = CreateOctagonPath(mnx, octY + octSize/2, octSize/2))
-            {
-                Color minColor = minHovered ? Color.FromArgb(95, 95, 95) : Color.FromArgb(75, 75, 75);
-                using (var octBrush = new SolidBrush(minColor))
+                // Minimize button: Dark octagon with line
+                int mnx = minRect.X + minRect.Width / 2;
+                using (var octPath = CreateOctagonPath(mnx, octY + octSize/2, octSize/2))
                 {
-                    g.FillPath(octBrush, octPath);
-                }
-                
-                if (minHovered)
-                {
-                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1.5f))
+                    Color minColor = minHovered ? Color.FromArgb(95, 95, 95) : Color.FromArgb(75, 75, 75);
+                    using (var octBrush = new SolidBrush(minColor))
                     {
-                        g.DrawPath(glowPen, octPath);
+                        g.FillPath(octBrush, octPath);
                     }
-                }
                 
-                using (var iconPen = new Pen(Color.White, 1.3f))
-                {
-                    int lineSize = 7;
-                    int mny = octY + octSize/2;
-                    g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+                    if (minHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1.5f))
+                        {
+                            g.DrawPath(glowPen, octPath);
+                        }
+                    }
+                
+                    using (var iconPen = new Pen(Color.White, 1.3f))
+                    {
+                        int lineSize = 7;
+                        int mny = octY + octSize/2;
+                        g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+                    }
                 }
             }
 

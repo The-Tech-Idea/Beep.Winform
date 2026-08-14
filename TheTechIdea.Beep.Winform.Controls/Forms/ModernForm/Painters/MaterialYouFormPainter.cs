@@ -145,15 +145,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
-            // Close button: Error color with state layer
-            PaintMaterialYouButton(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, FormHitAreaNames.Close, metrics, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Error color with state layer
+                PaintMaterialYouButton(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, FormHitAreaNames.Close, metrics, closeHovered);
+            }
+
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: On-surface variant with state layer
+                PaintMaterialYouButton(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Maximize, metrics, maxHovered);
             
-            // Maximize button: On-surface variant with state layer
-            PaintMaterialYouButton(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Maximize, metrics, maxHovered);
-            
-            // Minimize button: On-surface variant with state layer
-            PaintMaterialYouButton(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Minimize, metrics, minHovered);
-            
+                // Minimize button: On-surface variant with state layer
+                PaintMaterialYouButton(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Minimize, metrics, minHovered);
+            }
+
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {

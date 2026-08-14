@@ -139,14 +139,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button - minimal red
-            PaintLinearButton(g, closeRect, Color.FromArgb(239, 68, 68), padding, buttonSize, FormHitAreaNames.Close, owner, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button - minimal red
+                PaintLinearButton(g, closeRect, Color.FromArgb(239, 68, 68), padding, buttonSize, FormHitAreaNames.Close, owner, closeHovered);
+            }
 
-            // Maximize button - minimal green
-            PaintLinearButton(g, maxRect, Color.FromArgb(34, 197, 94), padding, buttonSize, FormHitAreaNames.Maximize, owner, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button - minimal green
+                PaintLinearButton(g, maxRect, Color.FromArgb(34, 197, 94), padding, buttonSize, FormHitAreaNames.Maximize, owner, maxHovered);
 
-            // Minimize button - minimal blue
-            PaintLinearButton(g, minRect, Color.FromArgb(59, 130, 246), padding, buttonSize, FormHitAreaNames.Minimize, owner, minHovered);
+                // Minimize button - minimal blue
+                PaintLinearButton(g, minRect, Color.FromArgb(59, 130, 246), padding, buttonSize, FormHitAreaNames.Minimize, owner, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

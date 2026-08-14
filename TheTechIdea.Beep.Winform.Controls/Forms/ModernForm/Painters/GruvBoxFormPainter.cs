@@ -151,75 +151,83 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
-            // Close button: Red 3D beveled rectangle (GruvBox Red #FB4934)
-            int cx = closeRect.X + (closeRect.Width - buttonSize) / 2;
-            var closeButtonRect = new Rectangle(cx, buttonY, buttonSize, buttonSize);
-            
-            // Hover: brighter fill color
-            Color closeColor = closeHovered ? Color.FromArgb(255, 103, 82) : Color.FromArgb(251, 73, 52);
-            using (var fillBrush = new SolidBrush(closeColor))
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                g.FillRectangle(fillBrush, closeButtonRect);
+                // Close button: Red 3D beveled rectangle (GruvBox Red #FB4934)
+                int cx = closeRect.X + (closeRect.Width - buttonSize) / 2;
+                var closeButtonRect = new Rectangle(cx, buttonY, buttonSize, buttonSize);
+            
+                // Hover: brighter fill color
+                Color closeColor = closeHovered ? Color.FromArgb(255, 103, 82) : Color.FromArgb(251, 73, 52);
+                using (var fillBrush = new SolidBrush(closeColor))
+                {
+                    g.FillRectangle(fillBrush, closeButtonRect);
+                }
+            
+                // Hover: sunken bevel effect (pressed appearance)
+                Border3DStyle closeStyle = closeHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+                ControlPaint.DrawBorder3D(g, closeButtonRect, closeStyle, Border3DSide.All);
+            
+                // X icon
+                using (var iconPen = new Pen(Color.White, 2f))
+                {
+                    int iconSize = 8;
+                    int icx = closeButtonRect.X + closeButtonRect.Width / 2;
+                    int icy = closeButtonRect.Y + closeButtonRect.Height / 2;
+                    g.DrawLine(iconPen, icx - iconSize/2, icy - iconSize/2, icx + iconSize/2, icy + iconSize/2);
+                    g.DrawLine(iconPen, icx + iconSize/2, icy - iconSize/2, icx - iconSize/2, icy + iconSize/2);
+                }
             }
-            
-            // Hover: sunken bevel effect (pressed appearance)
-            Border3DStyle closeStyle = closeHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
-            ControlPaint.DrawBorder3D(g, closeButtonRect, closeStyle, Border3DSide.All);
-            
-            // X icon
-            using (var iconPen = new Pen(Color.White, 2f))
+
+            if (owner.ShowMinMaxButtons)
             {
-                int iconSize = 8;
-                int icx = closeButtonRect.X + closeButtonRect.Width / 2;
-                int icy = closeButtonRect.Y + closeButtonRect.Height / 2;
-                g.DrawLine(iconPen, icx - iconSize/2, icy - iconSize/2, icx + iconSize/2, icy + iconSize/2);
-                g.DrawLine(iconPen, icx + iconSize/2, icy - iconSize/2, icx - iconSize/2, icy + iconSize/2);
+                // Maximize button: Gray 3D beveled rectangle (GruvBox gray #928374)
+                int mx = maxRect.X + (maxRect.Width - buttonSize) / 2;
+                var maxButtonRect = new Rectangle(mx, buttonY, buttonSize, buttonSize);
+            
+                Color maxColor = maxHovered ? Color.FromArgb(166, 151, 136) : Color.FromArgb(146, 131, 116);
+                using (var fillBrush = new SolidBrush(maxColor))
+                {
+                    g.FillRectangle(fillBrush, maxButtonRect);
+                }
+            
+                Border3DStyle maxStyle = maxHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+                ControlPaint.DrawBorder3D(g, maxButtonRect, maxStyle, Border3DSide.All);
+            
+                // Square icon
+                using (var iconPen = new Pen(Color.White, 2f))
+                {
+                    int sqSize = 7;
+                    int imx = maxButtonRect.X + maxButtonRect.Width / 2;
+                    int imy = maxButtonRect.Y + maxButtonRect.Height / 2;
+                    g.DrawRectangle(iconPen, imx - sqSize/2, imy - sqSize/2, sqSize, sqSize);
+                }
+            
+                // Minimize button: Gray 3D beveled rectangle (GruvBox gray #928374)
+                int mnx = minRect.X + (minRect.Width - buttonSize) / 2;
+                var minButtonRect = new Rectangle(mnx, buttonY, buttonSize, buttonSize);
+            
+                Color minColor = minHovered ? Color.FromArgb(166, 151, 136) : Color.FromArgb(146, 131, 116);
+                using (var fillBrush = new SolidBrush(minColor))
+                {
+                    g.FillRectangle(fillBrush, minButtonRect);
+                }
+            
+                Border3DStyle minStyle = minHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+                ControlPaint.DrawBorder3D(g, minButtonRect, minStyle, Border3DSide.All);
+            
+                // Line icon
+                using (var iconPen = new Pen(Color.White, 2f))
+                {
+                    int lineSize = 8;
+                    int imnx = minButtonRect.X + minButtonRect.Width / 2;
+                    int imny = minButtonRect.Y + minButtonRect.Height / 2;
+                    g.DrawLine(iconPen, imnx - lineSize/2, imny, imnx + lineSize/2, imny);
+                }
             }
-            
-            // Maximize button: Gray 3D beveled rectangle (GruvBox gray #928374)
-            int mx = maxRect.X + (maxRect.Width - buttonSize) / 2;
-            var maxButtonRect = new Rectangle(mx, buttonY, buttonSize, buttonSize);
-            
-            Color maxColor = maxHovered ? Color.FromArgb(166, 151, 136) : Color.FromArgb(146, 131, 116);
-            using (var fillBrush = new SolidBrush(maxColor))
-            {
-                g.FillRectangle(fillBrush, maxButtonRect);
-            }
-            
-            Border3DStyle maxStyle = maxHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
-            ControlPaint.DrawBorder3D(g, maxButtonRect, maxStyle, Border3DSide.All);
-            
-            // Square icon
-            using (var iconPen = new Pen(Color.White, 2f))
-            {
-                int sqSize = 7;
-                int imx = maxButtonRect.X + maxButtonRect.Width / 2;
-                int imy = maxButtonRect.Y + maxButtonRect.Height / 2;
-                g.DrawRectangle(iconPen, imx - sqSize/2, imy - sqSize/2, sqSize, sqSize);
-            }
-            
-            // Minimize button: Gray 3D beveled rectangle (GruvBox gray #928374)
-            int mnx = minRect.X + (minRect.Width - buttonSize) / 2;
-            var minButtonRect = new Rectangle(mnx, buttonY, buttonSize, buttonSize);
-            
-            Color minColor = minHovered ? Color.FromArgb(166, 151, 136) : Color.FromArgb(146, 131, 116);
-            using (var fillBrush = new SolidBrush(minColor))
-            {
-                g.FillRectangle(fillBrush, minButtonRect);
-            }
-            
-            Border3DStyle minStyle = minHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
-            ControlPaint.DrawBorder3D(g, minButtonRect, minStyle, Border3DSide.All);
-            
-            // Line icon
-            using (var iconPen = new Pen(Color.White, 2f))
-            {
-                int lineSize = 8;
-                int imnx = minButtonRect.X + minButtonRect.Width / 2;
-                int imny = minButtonRect.Y + minButtonRect.Height / 2;
-                g.DrawLine(iconPen, imnx - lineSize/2, imny, imnx + lineSize/2, imny);
-            }
-            
+
             // Theme button: Warm orange 3D beveled rectangle with palette icon (GruvBox orange #fe8019)
             if (!themeRect.IsEmpty)
             {

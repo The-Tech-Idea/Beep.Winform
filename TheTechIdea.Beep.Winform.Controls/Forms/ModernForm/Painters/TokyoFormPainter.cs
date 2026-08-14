@@ -139,104 +139,112 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int crossSize = 18; // Cross/plus size
             int crossY = (captionRect.Height - crossSize) / 2;
             
-            // Close button: Red cross with neon glow
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            int cx = closeRect.X + closeRect.Width / 2;
-            int cy = crossY + crossSize / 2;
-            
-            // Draw glow first (outer to inner for layering) - intensify on hover
-            int maxGlowLayers = closeHovered ? 4 : 3;
-            for (int i = maxGlowLayers; i > 0; i--)
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                int glowAlpha = closeHovered ? 30 * i : 20 * i;
-                using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 255, 100, 120), 2 * i))
+                // Close button: Red cross with neon glow
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                int cx = closeRect.X + closeRect.Width / 2;
+                int cy = crossY + crossSize / 2;
+            
+                // Draw glow first (outer to inner for layering) - intensify on hover
+                int maxGlowLayers = closeHovered ? 4 : 3;
+                for (int i = maxGlowLayers; i > 0; i--)
                 {
-                    // Horizontal bar of cross
-                    g.DrawLine(glowPen, cx - crossSize/2, cy, cx + crossSize/2, cy);
-                    // Vertical bar of cross
-                    g.DrawLine(glowPen, cx, cy - crossSize/2, cx, cy + crossSize/2);
+                    int glowAlpha = closeHovered ? 30 * i : 20 * i;
+                    using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 255, 100, 120), 2 * i))
+                    {
+                        // Horizontal bar of cross
+                        g.DrawLine(glowPen, cx - crossSize/2, cy, cx + crossSize/2, cy);
+                        // Vertical bar of cross
+                        g.DrawLine(glowPen, cx, cy - crossSize/2, cx, cy + crossSize/2);
+                    }
+                }
+            
+                // Draw solid cross (+ shape)
+                using (var crossPen = new Pen(Color.FromArgb(255, 180, 100), 3))
+                {
+                    // Horizontal bar
+                    g.DrawLine(crossPen, cx - crossSize/2, cy, cx + crossSize/2, cy);
+                    // Vertical bar
+                    g.DrawLine(crossPen, cx, cy - crossSize/2, cx, cy + crossSize/2);
+                }
+            
+                // X icon on cross center
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    int iconSize = 6;
+                    g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                    g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
                 }
             }
-            
-            // Draw solid cross (+ shape)
-            using (var crossPen = new Pen(Color.FromArgb(255, 180, 100), 3))
+
+            if (owner.ShowMinMaxButtons)
             {
-                // Horizontal bar
-                g.DrawLine(crossPen, cx - crossSize/2, cy, cx + crossSize/2, cy);
-                // Vertical bar
-                g.DrawLine(crossPen, cx, cy - crossSize/2, cx, cy + crossSize/2);
-            }
+                // Maximize button: Cyan cross with glow
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                int mx = maxRect.X + maxRect.Width / 2;
+                int my = crossY + crossSize / 2;
             
-            // X icon on cross center
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int iconSize = 6;
-                g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
-            }
-            
-            // Maximize button: Cyan cross with glow
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            int mx = maxRect.X + maxRect.Width / 2;
-            int my = crossY + crossSize / 2;
-            
-            // Draw cyan glow - intensify on hover
-            int maxGlowMax = maxHovered ? 4 : 3;
-            for (int i = maxGlowMax; i > 0; i--)
-            {
-                int glowAlpha = maxHovered ? 30 * i : 20 * i;
-                using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 125, 207, 255), 2 * i))
+                // Draw cyan glow - intensify on hover
+                int maxGlowMax = maxHovered ? 4 : 3;
+                for (int i = maxGlowMax; i > 0; i--)
                 {
-                    g.DrawLine(glowPen, mx - crossSize/2, my, mx + crossSize/2, my);
-                    g.DrawLine(glowPen, mx, my - crossSize/2, mx, my + crossSize/2);
+                    int glowAlpha = maxHovered ? 30 * i : 20 * i;
+                    using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 125, 207, 255), 2 * i))
+                    {
+                        g.DrawLine(glowPen, mx - crossSize/2, my, mx + crossSize/2, my);
+                        g.DrawLine(glowPen, mx, my - crossSize/2, mx, my + crossSize/2);
+                    }
+                }
+            
+                // Draw solid cross
+                using (var crossPen = new Pen(Color.FromArgb(150, 200, 255), 3))
+                {
+                    g.DrawLine(crossPen, mx - crossSize/2, my, mx + crossSize/2, my);
+                    g.DrawLine(crossPen, mx, my - crossSize/2, mx, my + crossSize/2);
+                }
+            
+                // Square icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    int sqSize = 6;
+                    g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
+                }
+            
+                // Minimize button: Purple cross with glow
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                int mnx = minRect.X + minRect.Width / 2;
+                int mny = crossY + crossSize / 2;
+            
+                // Draw purple glow - intensify on hover
+                int minGlowMax = minHovered ? 4 : 3;
+                for (int i = minGlowMax; i > 0; i--)
+                {
+                    int glowAlpha = minHovered ? 30 * i : 20 * i;
+                    using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 187, 154, 247), 2 * i))
+                    {
+                        g.DrawLine(glowPen, mnx - crossSize/2, mny, mnx + crossSize/2, mny);
+                        g.DrawLine(glowPen, mnx, mny - crossSize/2, mnx, mny + crossSize/2);
+                    }
+                }
+            
+                // Draw solid cross
+                using (var crossPen = new Pen(Color.FromArgb(200, 180, 255), 3))
+                {
+                    g.DrawLine(crossPen, mnx - crossSize/2, mny, mnx + crossSize/2, mny);
+                    g.DrawLine(crossPen, mnx, mny - crossSize/2, mnx, mny + crossSize/2);
+                }
+            
+                // Line icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    int lineSize = 7;
+                    g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
                 }
             }
-            
-            // Draw solid cross
-            using (var crossPen = new Pen(Color.FromArgb(150, 200, 255), 3))
-            {
-                g.DrawLine(crossPen, mx - crossSize/2, my, mx + crossSize/2, my);
-                g.DrawLine(crossPen, mx, my - crossSize/2, mx, my + crossSize/2);
-            }
-            
-            // Square icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int sqSize = 6;
-                g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
-            }
-            
-            // Minimize button: Purple cross with glow
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            int mnx = minRect.X + minRect.Width / 2;
-            int mny = crossY + crossSize / 2;
-            
-            // Draw purple glow - intensify on hover
-            int minGlowMax = minHovered ? 4 : 3;
-            for (int i = minGlowMax; i > 0; i--)
-            {
-                int glowAlpha = minHovered ? 30 * i : 20 * i;
-                using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 187, 154, 247), 2 * i))
-                {
-                    g.DrawLine(glowPen, mnx - crossSize/2, mny, mnx + crossSize/2, mny);
-                    g.DrawLine(glowPen, mnx, mny - crossSize/2, mnx, mny + crossSize/2);
-                }
-            }
-            
-            // Draw solid cross
-            using (var crossPen = new Pen(Color.FromArgb(200, 180, 255), 3))
-            {
-                g.DrawLine(crossPen, mnx - crossSize/2, mny, mnx + crossSize/2, mny);
-                g.DrawLine(crossPen, mnx, mny - crossSize/2, mnx, mny + crossSize/2);
-            }
-            
-            // Line icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int lineSize = 7;
-                g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
-            }
-            
+
             // Theme button: Green cross with glow and palette icon (Tokyo Night green #9ece6a)
             if (!themeRect.IsEmpty)
             {

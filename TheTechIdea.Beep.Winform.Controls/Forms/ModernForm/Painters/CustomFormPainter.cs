@@ -204,17 +204,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Close button: Red with user-selected shape
-            PaintShapedButton(g, closeRect, Color.FromArgb(ButtonFillOpacity, 232, 17, 35), 
-                metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red with user-selected shape
+                PaintShapedButton(g, closeRect, Color.FromArgb(ButtonFillOpacity, 232, 17, 35), 
+                    metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Green with user-selected shape
-            PaintShapedButton(g, maxRect, Color.FromArgb(ButtonFillOpacity, 80, 160, 80), 
-                metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green with user-selected shape
+                PaintShapedButton(g, maxRect, Color.FromArgb(ButtonFillOpacity, 80, 160, 80), 
+                    metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Blue with user-selected shape
-            PaintShapedButton(g, minRect, Color.FromArgb(ButtonFillOpacity, 80, 140, 200), 
-                metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Blue with user-selected shape
+                PaintShapedButton(g, minRect, Color.FromArgb(ButtonFillOpacity, 80, 140, 200), 
+                    metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons
             if (owner.ShowStyleButton)

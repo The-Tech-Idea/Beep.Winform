@@ -122,23 +122,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button - gradient red
-            PaintNextJSButton(g, closeRect, 
-                Color.FromArgb(239, 68, 68), 
-                Color.FromArgb(220, 38, 38), 
-                padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button - gradient red
+                PaintNextJSButton(g, closeRect, 
+                    Color.FromArgb(239, 68, 68), 
+                    Color.FromArgb(220, 38, 38), 
+                    padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button - gradient green
-            PaintNextJSButton(g, maxRect, 
-                Color.FromArgb(34, 197, 94), 
-                Color.FromArgb(22, 163, 74), 
-                padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button - gradient green
+                PaintNextJSButton(g, maxRect, 
+                    Color.FromArgb(34, 197, 94), 
+                    Color.FromArgb(22, 163, 74), 
+                    padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button - gradient blue (Vercel blue)
-            PaintNextJSButton(g, minRect, 
-                Color.FromArgb(59, 130, 246), 
-                Color.FromArgb(37, 99, 235), 
-                padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button - gradient blue (Vercel blue)
+                PaintNextJSButton(g, minRect, 
+                    Color.FromArgb(59, 130, 246), 
+                    Color.FromArgb(37, 99, 235), 
+                    padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

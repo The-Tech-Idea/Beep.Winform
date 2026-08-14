@@ -115,14 +115,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button - high contrast red
-            PaintRadixUIButton(g, closeRect, Color.FromArgb(220, 38, 38), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button - high contrast red
+                PaintRadixUIButton(g, closeRect, Color.FromArgb(220, 38, 38), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button - high contrast green
-            PaintRadixUIButton(g, maxRect, Color.FromArgb(22, 163, 74), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button - high contrast green
+                PaintRadixUIButton(g, maxRect, Color.FromArgb(22, 163, 74), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button - high contrast blue
-            PaintRadixUIButton(g, minRect, Color.FromArgb(37, 99, 235), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button - high contrast blue
+                PaintRadixUIButton(g, minRect, Color.FromArgb(37, 99, 235), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

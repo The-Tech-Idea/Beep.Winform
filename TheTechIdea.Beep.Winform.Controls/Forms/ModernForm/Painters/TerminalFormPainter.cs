@@ -154,17 +154,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 18;
             int padding = (captionRect.Height - buttonSize) / 2;
 
-            // Close button: Red ASCII [X]
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            PaintTerminalButton(g, closeRect, Color.FromArgb(255, 80, 80), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red ASCII [X]
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                PaintTerminalButton(g, closeRect, Color.FromArgb(255, 80, 80), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Green ASCII [□]
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            PaintTerminalButton(g, maxRect, Color.FromArgb(80, 255, 80), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green ASCII [□]
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                PaintTerminalButton(g, maxRect, Color.FromArgb(80, 255, 80), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Yellow ASCII [-]
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            PaintTerminalButton(g, minRect, Color.FromArgb(255, 255, 80), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Yellow ASCII [-]
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                PaintTerminalButton(g, minRect, Color.FromArgb(255, 255, 80), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

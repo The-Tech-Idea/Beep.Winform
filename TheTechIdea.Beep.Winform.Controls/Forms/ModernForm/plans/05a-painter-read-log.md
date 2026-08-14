@@ -1000,3 +1000,32 @@ deterministic and the count means what it says.
 **Remaining: 14 real strays** — OneDark, GruvBox, Nord, Tokyo, Paper, Neon, Holographic, Shadcn,
 RadixUI, NextJS, Linear, MaterialYou, Custom, Terminal — plus **Metro, Brutalist and Retro**, which
 are in the failing list but are still not strays and still unexplained.
+
+### All 29 strays closed — 32 → 0
+
+The last fourteen, each mapped and read before the cut points were taken: **OneDark, GruvBox, Nord,
+Tokyo** (Nord orders Style before Theme, so its block boundary differs), **Paper, Neon, Holographic,
+Terminal**, and the single-call six **Shadcn, RadixUI, NextJS, Linear, MaterialYou, Custom**.
+
+**Verified:** the stray check is clean across all 35 covered skins; the dead-flag sweep still reports
+0 of 185; and `FORMPROBE_RECTS` is byte-identical to `painter-rects-baseline.txt` for all 37 skins, so
+29 painters gained a guard without a single rect moving.
+
+**Break-it-first, re-run after the classifier changed:** replacing Tokyo's `ShowMinMaxButtons` guard
+with `if (true)` produces `Tokyo 92 px, bbox 9×18 -> STRAY BLOB` and one failure; restoring it returns
+the run to zero. The earlier GNOME run proved the older form of the check; this proves the current one.
+
+### Metro, Brutalist and Retro: measured, not explained
+
+Their layouts were dumped in both states. **Everything is identical except `TitleRect.Width`**, which
+grows when the buttons are hidden (Metro 448→586, Brutalist 438→588, Retro 466→598) — and every
+title starts at x=36–40, at or beyond the band's right edge, so it cannot account for a pixel at
+`(5,5)`. All three crops were eyeballed: no glyph, nothing visible.
+
+They are now classified `not a blob` and reported under **UNEXPLAINED**, never folded into the pass:
+
+> `UNEXPLAINED (not a stray, not cleared either): Metro(86px), Brutalist(1px), Retro(5px)`
+
+Calling them strays would report the defect as unfixed forever; dropping them would hide a real
+pixel difference. **Stated limit of the classifier:** a stray under 20px would fall through it. The
+smallest genuine one measured was Holographic, 34px in a 5×8 box.

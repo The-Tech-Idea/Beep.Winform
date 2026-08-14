@@ -151,122 +151,130 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int starSize = 16;
             int starY = (captionRect.Height - starSize) / 2;
             
-            // Close button: Pink neon star with intense glow
-            int cx = closeRect.X + closeRect.Width / 2;
-            int cy = starY + starSize / 2;
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            int glowIntensity = closeHovered ? 25 : 15; // Intensify glow on hover
-            int glowLayers = closeHovered ? 7 : 5; // More layers on hover
-            
-            // Draw glow layers (multiple passes for intense neon effect)
-            for (int i = glowLayers; i > 0; i--)
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                // Adjusted alpha: Outer layers (larger i) should be fainter
-                using (var glowBrush = new SolidBrush(Color.FromArgb(glowIntensity * (glowLayers + 1 - i), 255, 0, 150)))
-                using (var starPath = CreateStarPath(cx, cy, starSize + i * 2))
+                // Close button: Pink neon star with intense glow
+                int cx = closeRect.X + closeRect.Width / 2;
+                int cy = starY + starSize / 2;
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                int glowIntensity = closeHovered ? 25 : 15; // Intensify glow on hover
+                int glowLayers = closeHovered ? 7 : 5; // More layers on hover
+            
+                // Draw glow layers (multiple passes for intense neon effect)
+                for (int i = glowLayers; i > 0; i--)
                 {
-                    g.FillPath(glowBrush, starPath);
+                    // Adjusted alpha: Outer layers (larger i) should be fainter
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(glowIntensity * (glowLayers + 1 - i), 255, 0, 150)))
+                    using (var starPath = CreateStarPath(cx, cy, starSize + i * 2))
+                    {
+                        g.FillPath(glowBrush, starPath);
+                    }
+                }
+            
+                // Solid star
+                using (var starBrush = new SolidBrush(Color.FromArgb(255, 255, 50, 180)))
+                using (var starPath = CreateStarPath(cx, cy, starSize))
+                {
+                    g.FillPath(starBrush, starPath);
+                }
+            
+                // Bright outline
+                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 255), 1.5f))
+                using (var starPath = CreateStarPath(cx, cy, starSize))
+                {
+                    g.DrawPath(outlinePen, starPath);
+                }
+            
+                // X icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    int iconSize = 5;
+                    g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                    g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
                 }
             }
-            
-            // Solid star
-            using (var starBrush = new SolidBrush(Color.FromArgb(255, 255, 50, 180)))
-            using (var starPath = CreateStarPath(cx, cy, starSize))
+
+            if (owner.ShowMinMaxButtons)
             {
-                g.FillPath(starBrush, starPath);
-            }
+                // Maximize button: Cyan neon star with glow
+                int mx = maxRect.X + maxRect.Width / 2;
+                int my = starY + starSize / 2;
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                int maxGlowIntensity = maxHovered ? 25 : 15;
+                int maxGlowLayers = maxHovered ? 7 : 5;
             
-            // Bright outline
-            using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 255), 1.5f))
-            using (var starPath = CreateStarPath(cx, cy, starSize))
-            {
-                g.DrawPath(outlinePen, starPath);
-            }
-            
-            // X icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int iconSize = 5;
-                g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
-            }
-            
-            // Maximize button: Cyan neon star with glow
-            int mx = maxRect.X + maxRect.Width / 2;
-            int my = starY + starSize / 2;
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            int maxGlowIntensity = maxHovered ? 25 : 15;
-            int maxGlowLayers = maxHovered ? 7 : 5;
-            
-            // Cyan glow layers
-            for (int i = maxGlowLayers; i > 0; i--)
-            {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(maxGlowIntensity * (maxGlowLayers + 1 - i), 0, 255, 255)))
-                using (var starPath = CreateStarPath(mx, my, starSize + i * 2))
+                // Cyan glow layers
+                for (int i = maxGlowLayers; i > 0; i--)
                 {
-                    g.FillPath(glowBrush, starPath);
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(maxGlowIntensity * (maxGlowLayers + 1 - i), 0, 255, 255)))
+                    using (var starPath = CreateStarPath(mx, my, starSize + i * 2))
+                    {
+                        g.FillPath(glowBrush, starPath);
+                    }
+                }
+            
+                // Solid star
+                using (var starBrush = new SolidBrush(Color.FromArgb(255, 50, 255, 255)))
+                using (var starPath = CreateStarPath(mx, my, starSize))
+                {
+                    g.FillPath(starBrush, starPath);
+                }
+            
+                // Outline
+                using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 255), 1.5f))
+                using (var starPath = CreateStarPath(mx, my, starSize))
+                {
+                    g.DrawPath(outlinePen, starPath);
+                }
+            
+                // Square icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    int sqSize = 5;
+                    g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
+                }
+            
+                // Minimize button: Green neon star with glow
+                int mnx = minRect.X + minRect.Width / 2;
+                int mny = starY + starSize / 2;
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                int minGlowIntensity = minHovered ? 25 : 15;
+                int minGlowLayers = minHovered ? 7 : 5;
+            
+                // Green glow layers
+                for (int i = minGlowLayers; i > 0; i--)
+                {
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(minGlowIntensity * (minGlowLayers + 1 - i), 0, 255, 100)))
+                    using (var starPath = CreateStarPath(mnx, mny, starSize + i * 2))
+                    {
+                        g.FillPath(glowBrush, starPath);
+                    }
+                }
+            
+                // Solid star
+                using (var starBrush = new SolidBrush(Color.FromArgb(255, 100, 255, 100)))
+                using (var starPath = CreateStarPath(mnx, mny, starSize))
+                {
+                    g.FillPath(starBrush, starPath);
+                }
+            
+                // Outline
+                using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 200), 1.5f))
+                using (var starPath = CreateStarPath(mnx, mny, starSize))
+                {
+                    g.DrawPath(outlinePen, starPath);
+                }
+            
+                // Line icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    int lineSize = 6;
+                    g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
                 }
             }
-            
-            // Solid star
-            using (var starBrush = new SolidBrush(Color.FromArgb(255, 50, 255, 255)))
-            using (var starPath = CreateStarPath(mx, my, starSize))
-            {
-                g.FillPath(starBrush, starPath);
-            }
-            
-            // Outline
-            using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 255), 1.5f))
-            using (var starPath = CreateStarPath(mx, my, starSize))
-            {
-                g.DrawPath(outlinePen, starPath);
-            }
-            
-            // Square icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int sqSize = 5;
-                g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
-            }
-            
-            // Minimize button: Green neon star with glow
-            int mnx = minRect.X + minRect.Width / 2;
-            int mny = starY + starSize / 2;
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            int minGlowIntensity = minHovered ? 25 : 15;
-            int minGlowLayers = minHovered ? 7 : 5;
-            
-            // Green glow layers
-            for (int i = minGlowLayers; i > 0; i--)
-            {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(minGlowIntensity * (minGlowLayers + 1 - i), 0, 255, 100)))
-                using (var starPath = CreateStarPath(mnx, mny, starSize + i * 2))
-                {
-                    g.FillPath(glowBrush, starPath);
-                }
-            }
-            
-            // Solid star
-            using (var starBrush = new SolidBrush(Color.FromArgb(255, 100, 255, 100)))
-            using (var starPath = CreateStarPath(mnx, mny, starSize))
-            {
-                g.FillPath(starBrush, starPath);
-            }
-            
-            // Outline
-            using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 200), 1.5f))
-            using (var starPath = CreateStarPath(mnx, mny, starSize))
-            {
-                g.DrawPath(outlinePen, starPath);
-            }
-            
-            // Line icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
-            {
-                int lineSize = 6;
-                g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
-            }
-            
+
             // Theme button: Purple neon star with glow and palette icon
             if (!themeRect.IsEmpty)
             {

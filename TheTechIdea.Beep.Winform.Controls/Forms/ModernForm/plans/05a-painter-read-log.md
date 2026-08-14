@@ -946,3 +946,38 @@ check cannot see must never look like a skin it cleared. Whether those two stray
 
 **Not yet fixed:** the 32. Each will be read before its guard is added — the same rule that found the
 defect in the first place.
+
+## Guarding the 32, one read at a time — first seven
+
+Read the button-painting method in each before touching it. All seven had the identical shape:
+Style and Theme guarded, close/maximize/minimize not.
+
+**Modern** (blue bevel — the blob in `05-stray-Modern.png`), **Minimal** (Zen circle — the faint ring),
+**Material**, **Cartoon**, **ChatBubble**, **Glass**, **NeoMorphism**. NeoMorphism has no Style or
+Theme buttons at all, so nothing in it was guarded; it also builds its rect as
+`closeRect.X + (closeRect.Width - btnSize) / 2`, which from `Rectangle.Empty` gives −12.
+
+**32 → 25 after the fix.** The seven dropped out; nobody else changed.
+
+### Metro did not drop out, and the check is why I know
+
+Metro was fixed in the same pass and **stayed in the list**. Its guards are correct — re-read to be
+sure — so the stray has another cause. Reporting only pass/fail would have left this looking like the
+fix had worked.
+
+The check now prints the differing-pixel count and bounding box, which separates causes that
+"something changed" cannot:
+
+| shape | skins | reading |
+|---|---|---|
+| blob at the corner, `x0..~10 y0..~10` | Glassmorphism, Nordic, KDE, Paper, Shadcn, RadixUI, NextJS, Linear, MaterialYou, Custom, Terminal, Cyberpunk | stray button, drawn from a centred Empty rect |
+| strip at `x0..8 y11..28` | Ubuntu, ArcLinux, Dracula, Solarized, OneDark, GruvBox, Nord, Tokyo, Neon, Holographic | also a stray — these derive Y from `padding`, so it lands at mid-caption instead of the top corner. `05-stray-Dracula.png` shows the glyph pushed out of the left edge |
+| **86 px scattered over the whole band** | **Metro** | **not a stray** — a different cause, unidentified |
+| **1 px at (5,5)** | **Brutalist** | **not a stray** |
+| **5 px at `x0..2 y0..2`** | **Retro** | **not a stray** |
+
+Dracula's crop was eyeballed to confirm the second row really is the same defect and not something
+that merely correlates with it.
+
+**Metro, Brutalist and Retro are recorded as unexplained.** They are not being counted as fixed, and
+they are not being lumped in with the strays on the grounds that they showed up in the same list.

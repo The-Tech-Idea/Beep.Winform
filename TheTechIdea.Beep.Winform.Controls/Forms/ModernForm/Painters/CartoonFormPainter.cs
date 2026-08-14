@@ -159,14 +159,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
-            // Close button: Red, wiggly/offset
-            PaintCartoonButton(g, closeRect, Color.FromArgb(255, 99, 71), FormHitAreaNames.Close, closeHovered);
-            
-            // Maximize button: Green/Blue
-            PaintCartoonButton(g, maxRect, Color.FromArgb(50, 205, 50), FormHitAreaNames.Maximize, maxHovered);
-            
-            // Minimize button: Blue/Yellow
-            PaintCartoonButton(g, minRect, Color.FromArgb(30, 144, 255), FormHitAreaNames.Minimize, minHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red, wiggly/offset
+                PaintCartoonButton(g, closeRect, Color.FromArgb(255, 99, 71), FormHitAreaNames.Close, closeHovered);
+            }
+
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green/Blue
+                PaintCartoonButton(g, maxRect, Color.FromArgb(50, 205, 50), FormHitAreaNames.Maximize, maxHovered);
+
+                // Minimize button: Blue/Yellow
+                PaintCartoonButton(g, minRect, Color.FromArgb(30, 144, 255), FormHitAreaNames.Minimize, minHovered);
+            }
             
             // Theme/Style buttons
             if (owner.ShowStyleButton)

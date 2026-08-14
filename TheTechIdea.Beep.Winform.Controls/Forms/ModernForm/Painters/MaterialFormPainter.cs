@@ -115,17 +115,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Close button: Error color with state layer
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            PaintMaterial3Button(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, FormHitAreaNames.Close, metrics, closeHovered);
-            
-            // Maximize button: On-surface variant with state layer
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            PaintMaterial3Button(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Maximize, metrics, maxHovered);
-            
-            // Minimize button: On-surface variant with state layer
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            PaintMaterial3Button(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Minimize, metrics, minHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Error color with state layer
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                PaintMaterial3Button(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, FormHitAreaNames.Close, metrics, closeHovered);
+            }
+
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: On-surface variant with state layer
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                PaintMaterial3Button(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Maximize, metrics, maxHovered);
+
+                // Minimize button: On-surface variant with state layer
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                PaintMaterial3Button(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Minimize, metrics, minHovered);
+            }
             
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

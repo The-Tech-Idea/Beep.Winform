@@ -149,17 +149,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
             bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
             
-            // Close button: Embossed soft rectangle
-            var closeBtn = new Rectangle(closeRect.X + (closeRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
-            PaintEmbossedButton(g, closeBtn, metrics.BackgroundColor, Color.FromArgb(200, 80, 80), "X", closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Embossed soft rectangle
+                var closeBtn = new Rectangle(closeRect.X + (closeRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
+                PaintEmbossedButton(g, closeBtn, metrics.BackgroundColor, Color.FromArgb(200, 80, 80), "X", closeHovered);
+            }
             
-            // Maximize button: Embossed soft rectangle
-            var maxBtn = new Rectangle(maxRect.X + (maxRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
-            PaintEmbossedButton(g, maxBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "□", maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Embossed soft rectangle
+                var maxBtn = new Rectangle(maxRect.X + (maxRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
+                PaintEmbossedButton(g, maxBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "□", maxHovered);
             
-            // Minimize button: Embossed soft rectangle
-            var minBtn = new Rectangle(minRect.X + (minRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
-            PaintEmbossedButton(g, minBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "─", minHovered);
+                // Minimize button: Embossed soft rectangle
+                var minBtn = new Rectangle(minRect.X + (minRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
+                PaintEmbossedButton(g, minBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "─", minHovered);
+            }
         }
         
         /// <summary>

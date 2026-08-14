@@ -94,17 +94,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 22;
             int padding = (captionRect.Height - buttonSize) / 2;
 
-            // Close button: Red 3D tile
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            Paint3DTileButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red 3D tile
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                Paint3DTileButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Green 3D tile
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            Paint3DTileButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green 3D tile
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                Paint3DTileButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Blue 3D tile
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            Paint3DTileButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Blue 3D tile
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                Paint3DTileButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

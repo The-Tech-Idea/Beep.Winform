@@ -119,14 +119,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button - red with beveled edge
-            PaintBeveledButton(g, closeRect, Color.FromArgb(230, 90, 90), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses. Unguarded, a hidden button's Rectangle.Empty
+            // rect centred on (0,0) and drew into the caption's top-left corner -- this painter's
+            // blue minimize bevel is the blob visible in 05-stray-Modern.png.
+            if (owner.ShowCloseButton)
+            {
+                // Close button - red with beveled edge
+                PaintBeveledButton(g, closeRect, Color.FromArgb(230, 90, 90), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button - green with beveled edge
-            PaintBeveledButton(g, maxRect, Color.FromArgb(100, 200, 100), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button - green with beveled edge
+                PaintBeveledButton(g, maxRect, Color.FromArgb(100, 200, 100), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button - blue with beveled edge
-            PaintBeveledButton(g, minRect, Color.FromArgb(100, 150, 230), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button - blue with beveled edge
+                PaintBeveledButton(g, minRect, Color.FromArgb(100, 150, 230), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

@@ -117,17 +117,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
 
-            // Close button - red glass with refraction
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            PaintGlassButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button - red glass with refraction
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                PaintGlassButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button - green glass with refraction
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            PaintGlassButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button - green glass with refraction
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                PaintGlassButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button - blue glass with refraction
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            PaintGlassButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button - blue glass with refraction
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                PaintGlassButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

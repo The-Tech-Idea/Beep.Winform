@@ -133,15 +133,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
             // Shared styling for chat buttons
-            // Close: Red bubble
-            PaintChatBubbleButton(g, closeRect, Color.FromArgb(255, 90, 90), FormHitAreaNames.Close, closeHovered);
-            
-            // Maximize: Gray/Blue bubble
-            PaintChatBubbleButton(g, maxRect, Color.FromArgb(100, 149, 237), FormHitAreaNames.Maximize, maxHovered);
-            
-            // Minimize: Gray/Blue bubble
-            PaintChatBubbleButton(g, minRect, Color.FromArgb(100, 149, 237), FormHitAreaNames.Minimize, minHovered);
+            if (owner.ShowCloseButton)
+            {
+                // Close: Red bubble
+                PaintChatBubbleButton(g, closeRect, Color.FromArgb(255, 90, 90), FormHitAreaNames.Close, closeHovered);
+            }
+
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize: Gray/Blue bubble
+                PaintChatBubbleButton(g, maxRect, Color.FromArgb(100, 149, 237), FormHitAreaNames.Maximize, maxHovered);
+
+                // Minimize: Gray/Blue bubble
+                PaintChatBubbleButton(g, minRect, Color.FromArgb(100, 149, 237), FormHitAreaNames.Minimize, minHovered);
+            }
             
             // Theme/Style buttons
             if (owner.ShowStyleButton)

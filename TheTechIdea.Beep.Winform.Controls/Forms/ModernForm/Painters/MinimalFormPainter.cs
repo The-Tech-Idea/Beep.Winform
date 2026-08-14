@@ -117,17 +117,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 18;
             int padding = (captionRect.Height - buttonSize) / 2;
 
-            // Close button: Red Zen circle
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            PaintZenButton(g, closeRect, Color.FromArgb(200, 80, 80), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red Zen circle
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                PaintZenButton(g, closeRect, Color.FromArgb(200, 80, 80), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Green Zen circle
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            PaintZenButton(g, maxRect, Color.FromArgb(100, 160, 100), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green Zen circle
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                PaintZenButton(g, maxRect, Color.FromArgb(100, 160, 100), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Blue Zen circle
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            PaintZenButton(g, minRect, Color.FromArgb(100, 140, 180), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Blue Zen circle
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                PaintZenButton(g, minRect, Color.FromArgb(100, 140, 180), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

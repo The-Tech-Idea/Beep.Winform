@@ -635,6 +635,26 @@ Five painters generate texture procedurally on every paint. Only one caches:
 Fluent solved this once and the solution never spread — which is the same finding as the layout
 duplication, in a different dimension.
 
+### Custom — **partial read** (lines 1–200 of ~707), one real bug fixed
+
+| # | finding | severity |
+|---|---|---|
+| Cu1 ☑ | **`PaintCaption` filled the caption background with `metrics.CaptionTextColorActive`** — a *text* colour slot, and one this style never sets, so it fell through to that property's default of `ARGB(240,240,240)`. Custom's own metrics define `CaptionColor = ARGB(220,220,220)`. Fixed to use `CaptionColor`. | **bug** |
+| Cu2 | `GetMetrics` uses `Color.Empty` guards (`if (metrics.BackgroundColor == Color.Empty) …`), which the standing rules forbid. Recorded, not changed — it is the documented extension point for derived painters and deserves its own decision. | record |
+
+**Why Cu1 survived.** The two colours are 20 values apart on each channel, so the caption rendered
+near-white instead of light grey and looked entirely plausible. Nothing could have flagged it: the
+build is clean, the parity harness compares flag toggles, and the rect baseline compares geometry.
+Only reading the line and then checking what the two slots actually contain showed that a *text*
+colour was filling a *background*, and that **no theme setting `CaptionColor` could affect this skin
+at all**.
+
+`CaptionTextColorActive` is used by exactly one other painter, **GNOME** — unread, and worth
+checking for the same misuse when its turn comes.
+
+**Custom is not finished:** lines 200–707 are unread, including `PaintConfigurableButtons` and its
+nine shape modes. Recorded as partial.
+
 ## Measured: 17 painters share one layout method (2026-08-13)
 
 ArcLinux's `CalculateLayoutAndHitAreas` looked identical to Brutalist's, so it was **measured rather

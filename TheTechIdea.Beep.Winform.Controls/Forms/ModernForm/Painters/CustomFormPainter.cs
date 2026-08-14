@@ -119,7 +119,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            using (var brush = new SolidBrush(metrics.CaptionTextColorActive))
+            // CaptionColor, not CaptionTextColorActive.
+            //
+            // This filled the caption BACKGROUND with a TEXT colour slot - and one this style never
+            // sets, so it fell through to that property's default of ARGB(240,240,240). Custom's own
+            // metrics define CaptionColor = ARGB(220,220,220). The two are close enough that the
+            // result looked plausible, which is why it survived: the caption was near-white instead
+            // of light grey, and no theme setting CaptionColor could affect it at all.
+            using (var brush = new SolidBrush(metrics.CaptionColor))
             {
                 var cornerRadius = GetCornerRadius(owner);
                 if (cornerRadius.TopLeft > 0 || cornerRadius.TopRight > 0)

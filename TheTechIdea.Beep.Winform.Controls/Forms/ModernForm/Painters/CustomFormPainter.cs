@@ -488,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var shadow = GetShadowEffect(owner);
             if (!shadow.Inner && shadow.Blur > 0)
             {
-                DrawShadow(g, rect, shadow);
+                DrawShadow(g, owner, rect, shadow);
             }
 
             PaintBackground(g, owner);
@@ -499,7 +499,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
         }
 
-        protected virtual void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow)
+        /// <summary>
+        /// Draws the form's drop shadow. Takes <paramref name="owner"/> because
+        /// <see cref="GetCornerRadius"/> is virtual and a derived painter may need it.
+        /// </summary>
+        /// <remarks>
+        /// This previously called <c>GetCornerRadius(null)</c>. The base implementation ignores its
+        /// argument, so it worked - but this class exists to be derived from ("users can extend
+        /// this class to create their own unique form styles"), and any override that reads the
+        /// owner would take a NullReferenceException from inside the base's own shadow path. The
+        /// owner is available at the only call site; it is now passed.
+        ///
+        /// Signature change to a protected virtual member, recorded in
+        /// plans/05a-painter-read-log.md.
+        /// </remarks>
+        protected virtual void DrawShadow(Graphics g, BeepiFormPro owner, Rectangle rect, ShadowEffect shadow)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
             var shadowRect = new Rectangle(
@@ -509,7 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 rect.Height + shadow.Blur * 2);
             if (shadowRect.Width <= 0 || shadowRect.Height <= 0) return;
 
-            var cornerRadius = GetCornerRadius(null);
+            var cornerRadius = GetCornerRadius(owner);
             if (cornerRadius.TopLeft > 0 || cornerRadius.TopRight > 0 || cornerRadius.BottomLeft > 0 || cornerRadius.BottomRight > 0)
             {
                 using var path = CreateRoundedPath(shadowRect, cornerRadius);

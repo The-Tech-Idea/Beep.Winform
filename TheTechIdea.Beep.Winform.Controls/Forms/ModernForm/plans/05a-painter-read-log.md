@@ -635,7 +635,7 @@ Five painters generate texture procedurally on every paint. Only one caches:
 Fluent solved this once and the solution never spread — which is the same finding as the layout
 duplication, in a different dimension.
 
-### Custom — **partial read** (lines 1–200 of ~707), one real bug fixed
+### Custom (read to line 609 of ~707) — two bugs fixed
 
 | # | finding | severity |
 |---|---|---|
@@ -652,8 +652,18 @@ at all**.
 `CaptionTextColorActive` is used by exactly one other painter, **GNOME** — unread, and worth
 checking for the same misuse when its turn comes.
 
-**Custom is not finished:** lines 200–707 are unread, including `PaintConfigurableButtons` and its
-nine shape modes. Recorded as partial.
+| Cu3 ☑ | **`DrawShadow` called `GetCornerRadius(null)`.** The base implementation ignores its argument so it worked — but this class exists to be derived from ("users can extend this class to create their own unique form styles"), and any override reading the owner takes a `NullReferenceException` from inside the base's own shadow path. The owner is available at the only call site and is now passed. | **bug — latent** |
+
+**Cu3 is a signature change to a `protected virtual` member** on a `public` class:
+`DrawShadow(Graphics, Rectangle, ShadowEffect)` → `DrawShadow(Graphics, BeepiFormPro, Rectangle, ShadowEffect)`.
+Recorded here as the rules require. Justified rather than avoided: an overload pair would leave the
+broken one reachable, which is exactly the legacy-path shape rule 3 forbids.
+
+`PaintConfigurableButtons` and its nine shape modes (Circle, Square, RoundedSquare, Diamond, Hexagon,
+Octagon, Star, Triangle, Chevron) were read and are sound — each builds its path from `centerX`,
+`centerY` and `size`, and the buttons take their position from the layout rects.
+
+**Still unread:** lines 609–707, the tail of `CalculateLayoutAndHitAreas` and `PaintNonClientBorder`.
 
 ## Measured: 17 painters share one layout method (2026-08-13)
 

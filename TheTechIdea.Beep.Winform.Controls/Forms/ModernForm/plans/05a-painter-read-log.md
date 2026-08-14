@@ -549,15 +549,31 @@ and all 37 skins' rects match the archived baseline exactly.
 
 **A method to note about how these were found.** A scan first flagged three candidates, and it was
 wrong about one of them in the way that matters: it could not tell a superseded implementation from a
-live one, nor from Ubuntu's `CreatePillPath`, which has not been read and is therefore **not**
-deleted. Only reading KDE showed `PaintKDEPlasmaButtons` is the live path; only reading Paper found
-the comment that justifies the deletion outright. Ubuntu stays untouched until its turn.
+live one, nor from Ubuntu's `CreatePillPath`. Only reading KDE showed `PaintKDEPlasmaButtons` is the live
+path; only reading Paper found the comment that justifies the deletion outright.
 
 **Also seen in Paper while reading, recorded not fixed:** three `new Random(...)` allocations per
 paint — `PaintBackground` (seeded on the client-rect hash), `DrawPaperTexture` and `DrawFiberPattern`
 (seeded on each button's rect hash) — and `DrawPaperTexture` issues 50 `DrawRectangle` calls **per
 button**, so a five-button caption costs ~250 plus fibers. Same uncached-texture family as Cartoon's
 halftone, and the same cached-`TextureBrush` fix applies.
+
+### Ubuntu (read in full) — a dead helper, and a comment of mine that was wrong
+
+`CreatePillPath` (19 lines) is never called: `PaintUbuntuButtons` draws circles with `FillEllipse`,
+and its own doc says **"(REDESIGNED - cleaner look)"** — the pill helper is the leftover from the
+design it replaced. Deleted, on the same basis as KDE's and Paper's.
+
+**Reading also caught a mistake I made.** The migration comment I templated into this file claimed it
+"failed the earlier automated pass only because it used literals where the other seventeen used
+metrics". That is false for Ubuntu: it already used `metrics.ButtonWidth` and the `Math.Max` caption
+height. It was held back for a different reason — corner-safe icon placement and `SafeContentInsets`.
+The comment came from the literals batch and was copied without being true here. Corrected.
+
+That is worth recording as its own finding: **a batched edit wrote a false statement into a source
+file, and only reading the file found it.** The build was clean, every check was green, and the
+comment would have misled the next reader indefinitely. Three files got that same templated comment;
+the other two were in the literals group, so it is accurate there — checked individually, not assumed.
 
 ## Measured: 17 painters share one layout method (2026-08-13)
 

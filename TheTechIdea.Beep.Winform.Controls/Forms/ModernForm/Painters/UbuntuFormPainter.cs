@@ -289,26 +289,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
         }
         
-        /// <summary>
-        /// Create pill-shaped path (rounded rectangle)
-        /// </summary>
-        private GraphicsPath CreatePillPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            if (rect.Width <= 0 || rect.Height <= 0)
-            {
-                path.AddRectangle(rect);
-                return path;
-            }
-            
-            int diameter = radius * 2;
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
+        // CreatePillPath was here and was never called. PaintUbuntuButtons draws circles with
+        // FillEllipse, and its own doc says "(REDESIGNED - cleaner look)" - the pill helper is the
+        // leftover from the design it replaced. Deleted rather than kept beside the live path.
+
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
@@ -436,10 +420,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
             
-                        // Migrated to the shared cascade (stage 05). This painter's own caption height and
-            // button width are passed straight through as parameters, so the geometry is
-            // unchanged - it failed the earlier automated pass only because it used literals where
-            // the other seventeen used metrics. The icon and title placement below is untouched.
+            // Migrated to the shared cascade (stage 05). Caption height and button width are
+            // passed straight through, so the geometry is unchanged. This painter was NOT in the
+            // literals group - it already used metrics.ButtonWidth; it was held back because it
+            // does corner-safe icon placement and SafeContentInsets, which live below and are
+            // untouched. (The previous wording here was copied from the literals batch and was
+            // simply wrong about this file.)
             if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
                 owner,
                 captionHeight,

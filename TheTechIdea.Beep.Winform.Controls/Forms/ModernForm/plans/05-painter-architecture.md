@@ -151,6 +151,31 @@ Neither group needs a design decision or a helper change — only a read of each
 the standing rule and the thing that caught Metro2's pre-scaled `SearchBoxWidth` and Cartoon's
 corner-safe icon.
 
+### The migration verified exactly — and it fixed a bug nobody knew about
+
+Caption height was the only geometry compared while migrating, and it cannot see a button that moved
+sideways or changed width. That gap is now closed properly: `FORMPROBE_RECTS=1` dumps **every**
+caption rectangle for **every** skin with all `Show*` flags on, and the table was taken before and
+after by checking the painters out at the pre-migration commit and rebuilding.
+
+```
+skins where ONLY ContentRect changed : 17
+   of those, ContentRect was EMPTY before : 17
+skins with any OTHER geometry change : 0
+```
+
+**Every button rect is identical across all 37 skins.** Close, maximize, minimize, theme, style,
+custom action, profile, search box, icon and title — byte for byte.
+
+**And the migration fixed a latent bug in 17 painters.** Each hand-rolled cascade set `CaptionRect`
+but left `ContentRect` at `0,0,0,0`; the shared helper sets both. `ContentRect` is the region below
+the caption that content is meant to occupy, so seventeen skins were reporting an empty content area.
+Nothing in the parity harness could have caught this — it compares painted pixels in the caption
+band, and `ContentRect` is a layout value consumed elsewhere.
+
+Found only because the verification was made exact rather than approximate. The table is archived as
+`painter-rects-baseline.txt` and is the reference for any future layout change.
+
 ### Why layout, specifically
 
 - **It is where the bugs were.** `ShowCustomActionButton` was dead in 33 of 37 skins and took four

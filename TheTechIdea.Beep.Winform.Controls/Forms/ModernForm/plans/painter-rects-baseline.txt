@@ -1,0 +1,101 @@
+-- stage 01: resize refresh --
+PASS  guard: the two sizes differ: {Width=600, Height=400} vs {Width=900, Height=650}
+PASS  runtime: the client area actually grew: client 584 -> 898
+PASS  runtime: the caption tracks the new width after a property resize: captionRight 584 -> 898, clientWidth 584 -> 898
+PASS  design-mode: the client area actually grew: client 572 -> 886
+PASS  design-mode: the caption tracks the new width after a property resize: captionRight 572 -> 886, clientWidth 572 -> 886
+
+-- stage 02: geometry + invalidate --
+PASS  guard: DebouncedInvalidate is reachable: found
+PASS  guard: an idle form does not invalidate itself: 0 invalidates in 150ms of silence
+PASS  the last invalidate of a burst is not dropped: the suppressed call was rescheduled and landed (1)
+PASS  guard: the derived form set a distinctive region: region hash 01011
+PASS  a derived form's own shape survives a resize: same Region instance
+PASS  a derived form's own shape survives a style change: same Region instance
+PASS  guard: the diamond really excludes the sample corner: managed region excludes (20,20)
+PASS  the window region follows the derived shape too: (20,20) is outside the window region, as the diamond requires
+
+-- stage 02b: shape backend --
+PASS  guard: the geometry API is reachable: found
+PASS  guard: this machine can round windows through DWM: Windows build 26200
+      (backend=Dwm, radius-driven; PreferSystemRoundedCorners=True)
+PASS  the default style selects the DWM backend on Win11: backend is Dwm
+PASS  the DWM backend sets no managed region: Region is null, as DWM rounding requires
+PASS  the DWM backend leaves no Win32 window region: no SetWindowRgn shape
+PASS  forcing PreferSystemRoundedCorners=false selects the region backend: backend is Region
+PASS  the two backends differ in whether a region clips the window: dwm backend region=False, region backend region=True
+
+-- stage 03: caption accessibility + snap --
+PASS  guard: the hit-area snapshot is reachable: found
+PASS  guard: the form registered some interactive caption regions: 3 region(s): close, maximize, minimize
+PASS  the caption exposes one accessible child per visible region: GetChildCount()=3, visible interactive regions=3
+PASS  every accessible child has a non-empty name: Caption close button | Caption maximize button | Caption minimize button
+PASS  the close child actually closes the form when invoked: FormClosing raised
+PASS  guard: keyboard caption focus is drivable: found
+PASS  the form's own accessible name survives caption focus: stayed 'My Application Window' across 3 regions
+PASS  toggling a caption button changes the child count by exactly one: 3 -> 4
+PASS  guard: both text sources are reachable: found
+PASS  every caption tooltip says what the screen reader says: identical for all 3 regions
+PASS  guard: the maximize button has a hit area: found
+PASS  hovering maximize reports HTMAXBUTTON so Win11 shows snap layouts: WM_NCHITTEST returned 9 (HTMAXBUTTON=9)
+PASS  clicking maximize still maximizes now that it is a non-client button: Normal -> Maximized
+
+-- stage 04: per-monitor DPI --
+RECTS Modern CaptionRect=0,0,744,32 CloseButtonRect=712,0,32,32 MaximizeButtonRect=680,0,32,32 MinimizeButtonRect=648,0,32,32 ThemeButtonRect=584,0,32,32 StyleButtonRect=616,0,32,32 CustomActionButtonRect=552,0,32,32 ProfileButtonRect=520,0,32,32 SearchBoxRect=280,4,200,24 IconRect=8,8,16,16 TitleRect=32,0,240,32 ContentRect=0,32,744,212
+RECTS Minimal CaptionRect=0,0,744,32 CloseButtonRect=712,0,32,32 MaximizeButtonRect=680,0,32,32 MinimizeButtonRect=648,0,32,32 ThemeButtonRect=584,0,32,32 StyleButtonRect=616,0,32,32 CustomActionButtonRect=552,0,32,32 ProfileButtonRect=520,0,32,32 SearchBoxRect=280,4,200,24 IconRect=8,8,16,16 TitleRect=32,0,240,32 ContentRect=0,32,744,212
+RECTS MacOS CaptionRect=0,0,744,32 CloseButtonRect=12,10,12,12 MaximizeButtonRect=52,10,12,12 MinimizeButtonRect=32,10,12,12 ThemeButtonRect=664,0,32,32 StyleButtonRect=696,0,32,32 CustomActionButtonRect=632,0,32,32 ProfileButtonRect=600,0,32,32 SearchBoxRect=360,4,200,24 IconRect=76,8,16,16 TitleRect=100,0,252,32 ContentRect=0,32,744,212
+RECTS Fluent CaptionRect=0,0,744,32 CloseButtonRect=712,0,32,32 MaximizeButtonRect=680,0,32,32 MinimizeButtonRect=648,0,32,32 ThemeButtonRect=584,0,32,32 StyleButtonRect=616,0,32,32 CustomActionButtonRect=552,0,32,32 ProfileButtonRect=520,0,32,32 SearchBoxRect=280,4,200,24 IconRect=8,8,16,16 TitleRect=32,0,240,32 ContentRect=0,32,744,212
+RECTS Material CaptionRect=0,0,742,48 CloseButtonRect=710,0,32,48 MaximizeButtonRect=678,0,32,48 MinimizeButtonRect=646,0,32,48 ThemeButtonRect=582,0,32,48 StyleButtonRect=614,0,32,48 CustomActionButtonRect=550,0,32,48 ProfileButtonRect=518,0,32,48 SearchBoxRect=278,4,200,40 IconRect=14,12,24,24 TitleRect=46,0,224,48 ContentRect=0,48,742,194
+RECTS Cartoon CaptionRect=0,0,740,36 CloseButtonRect=708,0,32,36 MaximizeButtonRect=676,0,32,36 MinimizeButtonRect=644,0,32,36 ThemeButtonRect=580,0,32,36 StyleButtonRect=612,0,32,36 CustomActionButtonRect=548,0,32,36 ProfileButtonRect=516,0,32,36 SearchBoxRect=276,4,200,28 IconRect=10,10,16,16 TitleRect=36,0,230,36 ContentRect=0,36,740,204
+RECTS ChatBubble CaptionRect=0,0,742,36 CloseButtonRect=710,0,32,36 MaximizeButtonRect=678,0,32,36 MinimizeButtonRect=646,0,32,36 ThemeButtonRect=582,0,32,36 StyleButtonRect=614,0,32,36 CustomActionButtonRect=550,0,32,36 ProfileButtonRect=518,0,32,36 SearchBoxRect=278,4,200,28 IconRect=12,10,16,16 TitleRect=40,0,226,36 ContentRect=0,36,742,206
+RECTS Glass CaptionRect=0,0,744,32 CloseButtonRect=712,0,32,32 MaximizeButtonRect=680,0,32,32 MinimizeButtonRect=648,0,32,32 ThemeButtonRect=584,0,32,32 StyleButtonRect=616,0,32,32 CustomActionButtonRect=552,0,32,32 ProfileButtonRect=520,0,32,32 SearchBoxRect=280,4,200,24 IconRect=8,8,16,16 TitleRect=32,0,240,32 ContentRect=0,32,744,212
+RECTS Metro CaptionRect=0,0,744,32 CloseButtonRect=698,0,46,32 MaximizeButtonRect=652,0,46,32 MinimizeButtonRect=606,0,46,32 ThemeButtonRect=514,0,46,32 StyleButtonRect=560,0,46,32 CustomActionButtonRect=468,0,46,32 ProfileButtonRect=422,0,46,32 SearchBoxRect=168,4,200,24 IconRect=12,8,16,16 TitleRect=40,0,116,32 ContentRect=0,32,744,212
+RECTS Metro2 CaptionRect=0,0,744,36 CloseButtonRect=696,0,48,36 MaximizeButtonRect=648,0,48,36 MinimizeButtonRect=600,0,48,36 ThemeButtonRect=504,0,48,36 StyleButtonRect=552,0,48,36 CustomActionButtonRect=456,0,48,36 ProfileButtonRect=408,0,48,36 SearchBoxRect=152,4,200,28 IconRect=12,9,18,18 TitleRect=42,0,98,36 ContentRect=0,36,744,208
+RECTS GNOME CaptionRect=0,0,744,36 CloseButtonRect=700,0,44,36 MaximizeButtonRect=656,0,44,36 MinimizeButtonRect=612,0,44,36 ThemeButtonRect=524,0,44,36 StyleButtonRect=568,0,44,36 CustomActionButtonRect=480,0,44,36 ProfileButtonRect=436,0,44,36 SearchBoxRect=184,4,200,28 IconRect=12,9,18,18 TitleRect=42,0,130,36 ContentRect=0,36,744,208
+RECTS NeoMorphism CaptionRect=0,0,744,40 CloseButtonRect=710,0,34,40 MaximizeButtonRect=676,0,34,40 MinimizeButtonRect=642,0,34,40 ThemeButtonRect=574,0,34,40 StyleButtonRect=608,0,34,40 CustomActionButtonRect=540,0,34,40 ProfileButtonRect=506,0,34,40 SearchBoxRect=264,4,200,32 IconRect=8,9,22,22 TitleRect=38,0,222,40 ContentRect=0,40,744,204
+RECTS Glassmorphism CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,240,40 ContentRect=0,40,744,204
+RECTS Brutalist CaptionRect=0,0,740,40 CloseButtonRect=690,0,50,40 MaximizeButtonRect=640,0,50,40 MinimizeButtonRect=590,0,50,40 ThemeButtonRect=490,0,50,40 StyleButtonRect=540,0,50,40 CustomActionButtonRect=440,0,50,40 ProfileButtonRect=390,0,50,40 SearchBoxRect=132,4,200,32 IconRect=8,9,22,22 TitleRect=38,0,90,40 ContentRect=0,40,740,200
+RECTS Retro CaptionRect=0,0,742,40 CloseButtonRect=698,0,44,40 MaximizeButtonRect=654,0,44,40 MinimizeButtonRect=610,0,44,40 ThemeButtonRect=522,0,44,40 StyleButtonRect=566,0,44,40 CustomActionButtonRect=478,0,44,40 ProfileButtonRect=434,0,44,40 SearchBoxRect=182,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,142,40 ContentRect=0,40,742,202
+RECTS Cyberpunk CaptionRect=0,0,742,40 CloseButtonRect=700,0,42,40 MaximizeButtonRect=658,0,42,40 MinimizeButtonRect=616,0,42,40 ThemeButtonRect=532,0,42,40 StyleButtonRect=574,0,42,40 CustomActionButtonRect=490,0,42,40 ProfileButtonRect=448,0,42,40 SearchBoxRect=198,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,158,40 ContentRect=0,40,742,202
+RECTS Nordic CaptionRect=0,0,744,40 CloseButtonRect=708,0,36,40 MaximizeButtonRect=672,0,36,40 MinimizeButtonRect=636,0,36,40 ThemeButtonRect=564,0,36,40 StyleButtonRect=600,0,36,40 CustomActionButtonRect=528,0,36,40 ProfileButtonRect=492,0,36,40 SearchBoxRect=248,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,208,40 ContentRect=0,40,744,204
+RECTS iOS CaptionRect=0,0,744,44 CloseButtonRect=10,16,12,12 MaximizeButtonRect=50,16,12,12 MinimizeButtonRect=30,16,12,12 ThemeButtonRect=680,0,32,44 StyleButtonRect=712,0,32,44 CustomActionButtonRect=648,0,32,44 ProfileButtonRect=616,0,32,44 SearchBoxRect=376,4,200,36 IconRect=78,11,22,22 TitleRect=108,0,264,44 ContentRect=0,44,744,200
+RECTS Ubuntu CaptionRect=0,0,744,40 CloseButtonRect=716,0,28,40 MaximizeButtonRect=688,0,28,40 MinimizeButtonRect=660,0,28,40 ThemeButtonRect=604,0,28,40 StyleButtonRect=632,0,28,40 CustomActionButtonRect=576,0,28,40 ProfileButtonRect=548,0,28,40 SearchBoxRect=312,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,272,40 ContentRect=0,40,744,204
+RECTS KDE CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,240,40 ContentRect=0,40,744,204
+RECTS ArcLinux CaptionRect=0,0,744,40 CloseButtonRect=714,0,30,40 MaximizeButtonRect=684,0,30,40 MinimizeButtonRect=654,0,30,40 ThemeButtonRect=594,0,30,40 StyleButtonRect=624,0,30,40 CustomActionButtonRect=564,0,30,40 ProfileButtonRect=534,0,30,40 SearchBoxRect=296,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,256,40 ContentRect=0,40,744,204
+RECTS Dracula CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,240,40 ContentRect=0,40,744,204
+RECTS Solarized CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,240,40 ContentRect=0,40,744,204
+RECTS OneDark CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,11,18,18 TitleRect=34,0,242,40 ContentRect=0,40,744,204
+RECTS GruvBox CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,11,18,18 TitleRect=34,0,242,40 ContentRect=0,40,744,204
+RECTS Nord CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,11,18,18 TitleRect=34,0,242,40 ContentRect=0,40,744,204
+RECTS Tokyo CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,11,18,18 TitleRect=34,0,242,40 ContentRect=0,40,744,204
+RECTS Paper CaptionRect=0,0,744,40 CloseButtonRect=712,0,32,40 MaximizeButtonRect=680,0,32,40 MinimizeButtonRect=648,0,32,40 ThemeButtonRect=584,0,32,40 StyleButtonRect=616,0,32,40 CustomActionButtonRect=552,0,32,40 ProfileButtonRect=520,0,32,40 SearchBoxRect=280,4,200,32 IconRect=8,9,22,22 TitleRect=38,0,238,40 ContentRect=0,40,744,204
+RECTS Neon CaptionRect=0,0,742,40 CloseButtonRect=700,0,42,40 MaximizeButtonRect=658,0,42,40 MinimizeButtonRect=616,0,42,40 ThemeButtonRect=532,0,42,40 StyleButtonRect=574,0,42,40 CustomActionButtonRect=490,0,42,40 ProfileButtonRect=448,0,42,40 SearchBoxRect=198,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,158,40 ContentRect=0,40,742,202
+RECTS Holographic CaptionRect=0,0,744,40 CloseButtonRect=702,0,42,40 MaximizeButtonRect=660,0,42,40 MinimizeButtonRect=618,0,42,40 ThemeButtonRect=534,0,42,40 StyleButtonRect=576,0,42,40 CustomActionButtonRect=492,0,42,40 ProfileButtonRect=450,0,42,40 SearchBoxRect=200,4,200,32 IconRect=8,10,20,20 TitleRect=36,0,160,40 ContentRect=0,40,744,204
+RECTS Shadcn CaptionRect=0,0,744,32 CloseButtonRect=712,0,32,32 MaximizeButtonRect=680,0,32,32 MinimizeButtonRect=648,0,32,32 ThemeButtonRect=584,0,32,32 StyleButtonRect=616,0,32,32 CustomActionButtonRect=552,0,32,32 ProfileButtonRect=520,0,32,32 SearchBoxRect=280,4,200,24 IconRect=8,8,16,16 TitleRect=32,0,240,32 ContentRect=0,32,744,212
+RECTS RadixUI CaptionRect=0,0,742,34 CloseButtonRect=706,0,36,34 MaximizeButtonRect=670,0,36,34 MinimizeButtonRect=634,0,36,34 ThemeButtonRect=562,0,36,34 StyleButtonRect=598,0,36,34 CustomActionButtonRect=526,0,36,34 ProfileButtonRect=490,0,36,34 SearchBoxRect=246,4,200,26 IconRect=10,8,18,18 TitleRect=38,0,198,34 ContentRect=0,34,742,208
+RECTS NextJS CaptionRect=0,0,744,33 CloseButtonRect=712,0,32,33 MaximizeButtonRect=680,0,32,33 MinimizeButtonRect=648,0,32,33 ThemeButtonRect=584,0,32,33 StyleButtonRect=616,0,32,33 CustomActionButtonRect=552,0,32,33 ProfileButtonRect=520,0,32,33 SearchBoxRect=280,4,200,25 IconRect=8,8,16,16 TitleRect=32,0,240,33 ContentRect=0,33,744,211
+RECTS Linear CaptionRect=0,0,744,30 CloseButtonRect=716,0,28,30 MaximizeButtonRect=688,0,28,30 MinimizeButtonRect=660,0,28,30 ThemeButtonRect=604,0,28,30 StyleButtonRect=632,0,28,30 CustomActionButtonRect=576,0,28,30 ProfileButtonRect=548,0,28,30 SearchBoxRect=312,4,200,22 IconRect=6,8,14,14 TitleRect=26,0,280,30 ContentRect=0,30,744,214
+RECTS MaterialYou CaptionRect=0,0,744,34 CloseButtonRect=704,0,40,34 MaximizeButtonRect=664,0,40,34 MinimizeButtonRect=624,0,40,34 ThemeButtonRect=544,0,40,34 StyleButtonRect=584,0,40,34 CustomActionButtonRect=504,0,40,34 ProfileButtonRect=464,0,40,34 SearchBoxRect=216,4,200,26 IconRect=16,5,24,24 TitleRect=56,0,144,34 ContentRect=0,34,744,210
+RECTS Custom CaptionRect=0,0,744,32 CloseButtonRect=698,0,46,32 MaximizeButtonRect=652,0,46,32 MinimizeButtonRect=606,0,46,32 ThemeButtonRect=514,0,46,32 StyleButtonRect=560,0,46,32 CustomActionButtonRect=468,0,46,32 ProfileButtonRect=422,0,46,32 SearchBoxRect=168,4,200,24 IconRect=12,7,18,18 TitleRect=42,0,114,32 ContentRect=0,32,744,212
+RECTS Terminal CaptionRect=0,0,742,40 CloseButtonRect=706,0,36,40 MaximizeButtonRect=670,0,36,40 MinimizeButtonRect=634,0,36,40 ThemeButtonRect=562,0,36,40 StyleButtonRect=598,0,36,40 CustomActionButtonRect=526,0,36,40 ProfileButtonRect=490,0,36,40 SearchBoxRect=246,4,200,32 IconRect=8,12,16,16 TitleRect=32,0,210,40 ContentRect=0,40,742,202
+
+-- stage 05: skin parity harness --
+      (37 skins)
+PASS  guard: each FormStyle selects its own painter: all 37 styles map to their own <Style>FormPainter
+PASS  guard: the same skin and flags render identically twice: two captures agree
+PASS  guard: two different skins render differently: Modern != Cartoon
+      [Modern] CustomActionButtonRect={X=616,Y=0,Width=32,Height=32}, hitAreas=[close,maximize,minimize,customAction,icon,title]
+      [Metro2] CustomActionButtonRect={X=552,Y=0,Width=48,Height=36}, hitAreas=[close,maximize,minimize,customAction,icon,title]
+      [Dracula] CustomActionButtonRect={X=616,Y=0,Width=32,Height=40}, hitAreas=[close,maximize,minimize,customAction,caption,icon]
+      dead flags per skin-feature:
+        ShowThemeButton          0/37 skins draw nothing different
+        ShowStyleButton          0/37 skins draw nothing different
+        ShowProfileButton        0/37 skins draw nothing different
+        ShowSearchBox            0/37 skins draw nothing different
+        ShowCustomActionButton   0/37 skins draw nothing different
+      TOTAL dead skin-feature combinations: 0 of 185
+      wrote 05-dead-flags.txt
+      wrote 05-contact-sheet.png  <- eyeball this
+
+failures: 0
+renders: C:\Users\f_ald\AppData\Local\Temp\FormProbe

@@ -333,92 +333,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
         }
         
-        /// <summary>
-        /// Paint Material Design Paper double-border circle buttons (ORIGINAL - KEPT FOR COMPATIBILITY)
-        /// Concentric ring buttons with material elevation shadows
-        /// </summary>
-        private void PaintPaperCircleButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
-        {
-            var closeRect = owner.CurrentLayout.CloseButtonRect;
-            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
-            var minRect = owner.CurrentLayout.MinimizeButtonRect;
-            
-            int circleDiameter = 22; // Circle button size
-            int circleY = (captionRect.Height - circleDiameter) / 2;
-            
-            // Close button: Red double-border circle with X
-            int cx = closeRect.X + closeRect.Width / 2;
-            int cy = circleY + circleDiameter / 2;
-            
-            // Outer ring (2px, darker red)
-            using (var outerPen = new Pen(Color.FromArgb(180, 50, 50), 2))
-            {
-                g.DrawEllipse(outerPen, cx - circleDiameter/2, cy - circleDiameter/2, circleDiameter, circleDiameter);
-            }
-            
-            // Inner ring (1px, lighter red, inset by 3px)
-            using (var innerPen = new Pen(Color.FromArgb(220, 80, 80), 1))
-            {
-                int innerSize = circleDiameter - 6;
-                g.DrawEllipse(innerPen, cx - innerSize/2, cy - innerSize/2, innerSize, innerSize);
-            }
-            
-            // X icon (8px, centered)
-            using (var iconPen = new Pen(Color.FromArgb(200, 255, 255, 255), 1.5f))
-            {
-                int iconSize = 8;
-                g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
-            }
-            
-            // Maximize button: Gray double-border circle with square
-            int mx = maxRect.X + maxRect.Width / 2;
-            int my = circleY + circleDiameter / 2;
-            
-            // Outer ring (2px, dark gray)
-            using (var outerPen = new Pen(Color.FromArgb(100, 100, 100), 2))
-            {
-                g.DrawEllipse(outerPen, mx - circleDiameter/2, my - circleDiameter/2, circleDiameter, circleDiameter);
-            }
-            
-            // Inner ring (1px, lighter gray)
-            using (var innerPen = new Pen(Color.FromArgb(140, 140, 140), 1))
-            {
-                int innerSize = circleDiameter - 6;
-                g.DrawEllipse(innerPen, mx - innerSize/2, my - innerSize/2, innerSize, innerSize);
-            }
-            
-            // Square icon (7px)
-            using (var iconPen = new Pen(Color.FromArgb(200, 255, 255, 255), 1.5f))
-            {
-                int sqSize = 7;
-                g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
-            }
-            
-            // Minimize button: Gray double-border circle with line
-            int mnx = minRect.X + minRect.Width / 2;
-            int mny = circleY + circleDiameter / 2;
-            
-            // Outer ring (2px, dark gray)
-            using (var outerPen = new Pen(Color.FromArgb(100, 100, 100), 2))
-            {
-                g.DrawEllipse(outerPen, mnx - circleDiameter/2, mny - circleDiameter/2, circleDiameter, circleDiameter);
-            }
-            
-            // Inner ring (1px, lighter gray)
-            using (var innerPen = new Pen(Color.FromArgb(140, 140, 140), 1))
-            {
-                int innerSize = circleDiameter - 6;
-                g.DrawEllipse(innerPen, mnx - innerSize/2, mny - innerSize/2, innerSize, innerSize);
-            }
-            
-            // Line icon (8px horizontal)
-            using (var iconPen = new Pen(Color.FromArgb(200, 255, 255, 255), 1.5f))
-            {
-                int lineSize = 8;
-                g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
-            }
-        }
+        // PaintPaperCircleButtons was here, documented as
+        // "(ORIGINAL - KEPT FOR COMPATIBILITY)" - the superseded predecessor of
+        // PaintPaperTexturedButtons, which is what PaintCaption actually calls.
+        //
+        // Deleted: it is a PRIVATE method, so nothing outside this file could ever have depended
+        // on it, and there is no back-compatibility burden on this library's internals. A second
+        // implementation kept beside the live one is the thing the no-legacy-paths rule exists to
+        // prevent - it compiles, it looks maintained, and it is never reached.
+
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {

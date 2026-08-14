@@ -322,83 +322,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             return path;
         }
         
-        /// <summary>
-        /// Paint KDE Breeze-Style minimal icon buttons (ORIGINAL - KEPT FOR COMPATIBILITY)
-        /// </summary>
-        private void PaintKDEButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
-        {
-            var closeRect = owner.CurrentLayout.CloseButtonRect;
-            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
-            var minRect = owner.CurrentLayout.MinimizeButtonRect;
-            
-            int buttonSize = 22; // Small square button area
-            int buttonY = (captionRect.Height - buttonSize) / 2;
-            
-            // Close button: Subtle rectangle with X icon
-            var closeBtn = new Rectangle(
-                closeRect.X + (closeRect.Width - buttonSize) / 2,
-                buttonY,
-                buttonSize,
-                buttonSize);
-            
-            // Hover state background (very subtle)
-            using (var btnBrush = new SolidBrush(Color.FromArgb(25, 255, 255, 255)))
-            {
-                g.FillRectangle(btnBrush, closeBtn);
-            }
-            
-            // X icon (thin lines, 9px)
-            using (var iconPen = new Pen(metrics.CaptionTextColor, 1.2f))
-            {
-                int iconSize = 9;
-                int cx = closeBtn.X + closeBtn.Width / 2;
-                int cy = closeBtn.Y + closeBtn.Height / 2;
-                g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
-            }
-            
-            // Maximize button: Subtle rectangle with square icon
-            var maxBtn = new Rectangle(
-                maxRect.X + (maxRect.Width - buttonSize) / 2,
-                buttonY,
-                buttonSize,
-                buttonSize);
-            
-            using (var btnBrush = new SolidBrush(Color.FromArgb(25, 255, 255, 255)))
-            {
-                g.FillRectangle(btnBrush, maxBtn);
-            }
-            
-            // Square icon (8px)
-            using (var iconPen = new Pen(metrics.CaptionTextColor, 1.2f))
-            {
-                int sqSize = 8;
-                int mx = maxBtn.X + maxBtn.Width / 2;
-                int my = maxBtn.Y + maxBtn.Height / 2;
-                g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
-            }
-            
-            // Minimize button: Subtle rectangle with horizontal line icon
-            var minBtn = new Rectangle(
-                minRect.X + (minRect.Width - buttonSize) / 2,
-                buttonY,
-                buttonSize,
-                buttonSize);
-            
-            using (var btnBrush = new SolidBrush(Color.FromArgb(25, 255, 255, 255)))
-            {
-                g.FillRectangle(btnBrush, minBtn);
-            }
-            
-            // Line icon (9px)
-            using (var iconPen = new Pen(metrics.CaptionTextColor, 1.2f))
-            {
-                int lineSize = 9;
-                int mnx = minBtn.X + minBtn.Width / 2;
-                int mny = minBtn.Y + minBtn.Height / 2;
-                g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
-            }
-        }
+        // PaintKDEButtons was declared here and never called - superseded by the method this
+        // painter actually uses, and left behind. Deleted per the no-legacy-paths rule
+        // rather than kept beside the live one.
+
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {

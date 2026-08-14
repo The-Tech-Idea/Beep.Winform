@@ -526,6 +526,39 @@ allocates **right to left**, so enabling theme or style only moves items further
 profile and search off nothing else moves. The two Fluent results are therefore genuine, and the
 check is sound as written.
 
+### KDE and Paper — dead button implementations, found by reading
+
+Both files carry a **second, superseded button-painting method that nothing calls**:
+
+| painter | live method | dead method | lines |
+|---|---|---|---|
+| KDE | `PaintKDEPlasmaButtons` | `PaintKDEButtons` | 67 |
+| Paper | `PaintPaperTexturedButtons` | `PaintPaperCircleButtons` | 73 |
+
+Paper's states the case itself, in its own doc comment:
+
+```
+/// Paint Material Design Paper double-border circle buttons (ORIGINAL - KEPT FOR COMPATIBILITY)
+```
+
+Both deleted. They are **private** methods, so nothing outside their file could ever have depended on
+them, and this library carries no back-compatibility burden on internals. A second implementation
+kept beside the live one is precisely what the no-legacy-paths rule exists to prevent: it compiles,
+it reads as maintained, and it is never reached. Verified after deletion — 0/185 dead combinations,
+and all 37 skins' rects match the archived baseline exactly.
+
+**A method to note about how these were found.** A scan first flagged three candidates, and it was
+wrong about one of them in the way that matters: it could not tell a superseded implementation from a
+live one, nor from Ubuntu's `CreatePillPath`, which has not been read and is therefore **not**
+deleted. Only reading KDE showed `PaintKDEPlasmaButtons` is the live path; only reading Paper found
+the comment that justifies the deletion outright. Ubuntu stays untouched until its turn.
+
+**Also seen in Paper while reading, recorded not fixed:** three `new Random(...)` allocations per
+paint — `PaintBackground` (seeded on the client-rect hash), `DrawPaperTexture` and `DrawFiberPattern`
+(seeded on each button's rect hash) — and `DrawPaperTexture` issues 50 `DrawRectangle` calls **per
+button**, so a five-button caption costs ~250 plus fibers. Same uncached-texture family as Cartoon's
+halftone, and the same cached-`TextureBrush` fix applies.
+
 ## Measured: 17 painters share one layout method (2026-08-13)
 
 ArcLinux's `CalculateLayoutAndHitAreas` looked identical to Brutalist's, so it was **measured rather

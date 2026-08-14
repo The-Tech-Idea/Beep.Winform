@@ -897,3 +897,52 @@ which is where the per-skin radius work is going.
 - `ShiftLuminance`/HSL helpers operate only on this skin's literal pill colours, which the painter
   colour exemption covers.
 - `:304` `owner.BorderShape` correctly not disposed, and says why.
+
+## Metro2 — read end to end (lines 1–259, the part that was outstanding)
+
+Same defect as GNOME, same shape: `PaintMetro2TileButtons` guarded `ShowStyleButton` and
+`ShowThemeButton` but painted close, maximize and minimize unconditionally. A hidden button's rect is
+`Rectangle.Empty`, so `PaintTileFlipButton` centred on `(0,0)` and drew a `20×20` tile at
+`(-10,-10)`. Guarded. Also removed a duplicated XML doc block above `PaintMetro2TileButtons`.
+
+**The caption fill is left alone, deliberately.** `PaintCaption` fills from `metrics.BorderColor`, not
+`CaptionColor` — the same class of slot mismatch as Custom and GNOME, but not the same severity. The
+palette gives Metro2 `BorderColor = (0,120,215)` and `CaptionTextColor` = black, and black on that
+blue measures **4.62:1**, which clears WCAG AA for normal text. It is legible, and an accent-coloured
+title bar is what Metro means. Changing it would be a design decision about this skin's appearance,
+not a defect fix, so it is recorded here for a ruling rather than changed.
+
+This is also the answer to "Metro2 going amber → blue": with the caption filled from `BorderColor`,
+and the skin-wins block pinning `BorderColor` to `(0,120,215)`, the caption stopped following
+`theme.AccentColor`. That is skin-wins working as ruled, not a regression.
+
+## The defect is not two painters — it is 32 of 37
+
+GNOME and Metro2 were found by reading. The question "who else?" is exactly the kind that a grep
+answers wrongly, so it was given to the probe instead.
+
+**New check in stage 05** — differential, so it needs no per-skin expectations. The system buttons are
+right-aligned in every covered skin, so hiding `ShowCloseButton` and `ShowMinMaxButtons` may change
+the caption's right-hand band and **must not change its left-hand corner**.
+
+**32 skins fail it:** Modern, Minimal, Material, Cartoon, ChatBubble, Glass, Metro, NeoMorphism,
+Glassmorphism, Brutalist, Retro, Cyberpunk, Nordic, Ubuntu, KDE, ArcLinux, Dracula, Solarized,
+OneDark, GruvBox, Nord, Tokyo, Paper, Neon, Holographic, Shadcn, RadixUI, NextJS, Linear, MaterialYou,
+Custom, Terminal.
+
+The verdict was not taken on trust — the check writes `05-stray-<skin>.png`, the left band from both
+renders stacked and magnified 8×, and these were **eyeballed**: Modern draws a blue rounded button
+into the top-left corner, Minimal a faint ring. My first reaction was that 32 of 37 had to mean a
+broken instrument; the evidence said otherwise.
+
+**Break-it-first, run:** GNOME's restored guard was replaced with `if (true)` and the probe rebuilt.
+GNOME reappeared in the stray list; with the guard back it is absent. The check fails for its own
+reason.
+
+**Coverage is stated, not assumed.** MacOS and iOS are traffic-light skins with left-aligned buttons,
+so "the right band changed" cannot hold for them and the corner this check watches is where their
+buttons legitimately belong. They are reported as **NOT COVERED** rather than passing: a skin the
+check cannot see must never look like a skin it cleared. Whether those two strays is unknown.
+
+**Not yet fixed:** the 32. Each will be read before its guard is added — the same rule that found the
+defect in the first place.

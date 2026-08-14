@@ -111,10 +111,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// Paint Metro2 tile flip buttons (ENHANCED UNIQUE SKIN)
         /// Features: tile flip perspective, accent line highlights, modern Metro aesthetic
         /// </summary>
-        /// <summary>
-        /// Paint Metro2 tile flip buttons (ENHANCED UNIQUE SKIN)
-        /// Features: tile flip perspective, accent line highlights, modern Metro aesthetic
-        /// </summary>
         private void PaintMetro2TileButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
             var closeRect = owner.CurrentLayout.CloseButtonRect;
@@ -131,14 +127,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button: Red tile
-            PaintTileFlipButton(g, closeRect, Color.FromArgb(232, 17, 35), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the same flags the layout uses, as in GNOME. Unguarded, a hidden button
+            // leaves its rect Rectangle.Empty, PaintTileFlipButton centres on (0,0), and a coloured
+            // tile is drawn at (-10,-10,20,20) over the caption's top-left corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red tile
+                PaintTileFlipButton(g, closeRect, Color.FromArgb(232, 17, 35), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Green tile
-            PaintTileFlipButton(g, maxRect, Color.FromArgb(16, 124, 16), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green tile
+                PaintTileFlipButton(g, maxRect, Color.FromArgb(16, 124, 16), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Blue tile
-            PaintTileFlipButton(g, minRect, Color.FromArgb(0, 120, 215), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Blue tile
+                PaintTileFlipButton(g, minRect, Color.FromArgb(0, 120, 215), metrics.BorderColor, padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

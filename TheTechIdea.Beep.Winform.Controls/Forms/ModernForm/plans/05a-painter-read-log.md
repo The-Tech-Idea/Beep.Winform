@@ -1215,3 +1215,39 @@ size and position and no longer varies with the process.
 in the harness only ever captured Modern, which is why this survived so long.
 
 `plans/painter-render-baseline.png` is the new baseline, reproducible across processes.
+
+### Solarized — read end to end (427 lines), and the clip trio removed in 25 painters
+
+Solarized carried the same dead trio as Brutalist: a captured clip, an unused rounded path, and a
+restore of a value nothing changed.
+
+**The delegate risk was checked before generalising.** Brutalist's A/B proved its own render
+unchanged, but its caption calls external `OnPaint` delegates (`SearchBox`, `_iconRegion`,
+`CustomActionButton`, `ProfileButton`) supplied by `BeepiFormPro.Core.cs` — if any of those set a
+clip, the restore would be load-bearing and deleting it would change behaviour outside the painter.
+**There is no clip mutation anywhere outside the `Painters` folder** — no `SetClip`, no `ResetClip`,
+no `.Clip =`. So within a painter, if the painter itself does not clip, nothing does.
+
+**Removed in 25 painters**, split by what they actually had:
+
+- **17** with a `using var path = CreateRoundedRectanglePath(...)` that nothing read — ArcLinux,
+  Cyberpunk, Dracula, Glassmorphism, GruvBox, Holographic, KDE, NeoMorphism, Neon, Nord, Nordic,
+  OneDark, Paper, Retro, Solarized, Tokyo, Ubuntu. Each was allocating and disposing a `GraphicsPath`
+  every paint for a clip that no longer existed.
+- **5** with `var path = owner.BorderShape;` — Linear, MaterialYou, NextJS, RadixUI, Shadcn. Not a
+  leak (the path is owned by the form) but a dead local.
+- **Modern and Terminal** had only the capture and restore; Terminal's even said "No clipping needed
+  for terminal Style".
+
+**8 painters keep theirs** because their clip does real work: Cartoon, ChatBubble, Fluent, Glass,
+MacOS, Material, Minimal, iOS. Those keep the `using var` from the previous commit.
+
+**The comment trap caught me again, and the assertion caught it.** The first pass matched 0 painters:
+it counted the substring `g.Clip = originalClip;`, which appears **twice** in these files — once as
+the real statement and once *inside the comment* documenting the removed pair. Matching whole
+stripped statements instead gave the right 17. The script asserted its own preconditions per file
+rather than editing on a pattern, which is why a wrong match produced zero edits instead of damage.
+
+**Verified:** `0 of 37` tiles differ from `painter-render-baseline.png`, rects unchanged across all
+37, both stray checks pass, dead flags 0 of 185, build clean. The render baseline earned its keep
+immediately — this is a 25-file deletion proven not to change a pixel.

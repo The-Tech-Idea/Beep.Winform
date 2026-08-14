@@ -406,7 +406,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            using var originalClip = g.Clip;
             var shadow = GetShadowEffect(owner);
             var radius = GetCornerRadius(owner);
 
@@ -417,19 +416,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            // A `g.Clip = new Region(path); g.Clip = originalClip;` pair stood here. The
-            // second line discarded the first before anything drew under it, so the clip
-            // never took effect - and the Region was never disposed, leaking a GDI handle
-            // on every paint. 31 painters carried the identical pair.
-
             PaintBorders(g, owner);
             if (owner.ShowCaptionBar)
             {
                 PaintCaption(g, owner, owner.CurrentLayout.CaptionRect);
             }
 
-            g.Clip = originalClip;
         }
 
         private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow, CornerRadius radius)

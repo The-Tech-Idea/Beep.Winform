@@ -290,7 +290,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            using var originalClip = g.Clip;
+            // No clip is saved or restored here. Nothing in this method changes it: the
+            // painters set no clip, and no OnPaint delegate outside this folder touches one
+            // either -- checked. The pair that stood here saved and restored an unchanged
+            // value and leaked the copy the getter returned on every paint.
             var shadow = GetShadowEffect(owner);
             var radius = GetCornerRadius(owner);
 
@@ -301,18 +304,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            // A `g.Clip = new Region(owner.BorderShape); g.Clip = originalClip;` pair stood here.
-            // The second line discarded the first before anything was drawn under it, so the clip
-            // never took effect - and the Region was never disposed, leaking a GDI handle on every
-            // single paint. Removed rather than "fixed" by clipping: nothing between the two lines
-            // needed clipping, so there is no behaviour to preserve.
             PaintBorders(g, owner);
             if (owner.ShowCaptionBar)
             {
                 PaintCaption(g, owner, owner.CurrentLayout.CaptionRect);
             }
 
-            g.Clip = originalClip;
         }
 
         private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow, CornerRadius radius)

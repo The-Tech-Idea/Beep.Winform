@@ -352,12 +352,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            using var originalClip = g.Clip;
+            // No clip is saved or restored here. Nothing in this method changes it: the
+            // painters set no clip, and no OnPaint delegate outside this folder touches one
+            // either -- checked. The pair that stood here saved and restored an unchanged
+            // value and leaked the copy the getter returned on every paint.
             
             // Terminal: No shadow, just direct painting
             PaintBackground(g, owner);
 
-            // No clipping needed for terminal Style (sharp edges)
             
             PaintBorders(g, owner);
             if (owner.ShowCaptionBar)
@@ -365,7 +367,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 PaintCaption(g, owner, owner.CurrentLayout.CaptionRect);
             }
 
-            g.Clip = originalClip;
         }
 
         private GraphicsPath CreateRoundedRectanglePath(Rectangle rect, CornerRadius radius)

@@ -223,7 +223,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
             FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
-              
+
+            // Set the mode rather than inheriting it. This method set none, so the border was drawn
+            // with whatever the previous call left behind: Paint3DTileButton sets SmoothingMode.None
+            // for Metro's sharp edges, so hiding the system buttons skipped that assignment and the
+            // border came out anti-aliased instead -- a one-level difference along the top and left
+            // edges that made this skin fail the stray check without drawing a stray. None is what
+            // this skin wants; the only change is that it no longer depends on a button being drawn.
+            g.SmoothingMode = SmoothingMode.None;
             g.DrawPath(pen, path);
         }
 

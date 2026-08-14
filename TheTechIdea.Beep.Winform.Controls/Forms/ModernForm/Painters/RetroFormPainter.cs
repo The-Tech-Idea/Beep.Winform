@@ -144,14 +144,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Retro gray base (Classic Win95 gray: 192, 192, 192)
             Color retroGray = Color.FromArgb(192, 192, 192);
 
-            // Close button: X
-            PaintRetroButton(g, closeRect, retroGray, FormHitAreaNames.Close, closeHovered);
-            
-            // Maximize button: Square
-            PaintRetroButton(g, maxRect, retroGray, FormHitAreaNames.Maximize, maxHovered);
-            
-            // Minimize button: Underline
-            PaintRetroButton(g, minRect, retroGray, FormHitAreaNames.Minimize, minHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect draws into the caption's corner. Only five pixels of it
+            // showed, which is why the size filter classified this skin as 'not a blob'.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: X
+                PaintRetroButton(g, closeRect, retroGray, FormHitAreaNames.Close, closeHovered);
+            }
+
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Square
+                PaintRetroButton(g, maxRect, retroGray, FormHitAreaNames.Maximize, maxHovered);
+
+                // Minimize button: Underline
+                PaintRetroButton(g, minRect, retroGray, FormHitAreaNames.Minimize, minHovered);
+            }
             
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

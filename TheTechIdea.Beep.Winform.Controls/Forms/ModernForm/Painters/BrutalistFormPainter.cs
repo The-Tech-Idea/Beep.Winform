@@ -114,14 +114,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Shared pen for borders
             using (var borderPen = new Pen(metrics.BorderColor, 2))
             {
-                // Close button: Red block on hover, X icon
-                PaintBrutalistButton(g, closeRect, Color.FromArgb(255, 60, 60), borderPen, FormHitAreaNames.Close, closeHovered);
-                
-                // Maximize button: Block on hover, Square icon
-                PaintBrutalistButton(g, maxRect, metrics.BorderColor, borderPen, FormHitAreaNames.Maximize, maxHovered);
-                
-                // Minimize button: Block on hover, Line icon
-                PaintBrutalistButton(g, minRect, metrics.BorderColor, borderPen, FormHitAreaNames.Minimize, minHovered);
+                // Guarded on the flags the layout uses: unguarded, a hidden button's
+                // Rectangle.Empty rect draws into the caption's corner. This skin's glyph is
+                // dark, so the stray was only a handful of pixels and slipped the size filter.
+                if (owner.ShowCloseButton)
+                {
+                    // Close button: Red block on hover, X icon
+                    PaintBrutalistButton(g, closeRect, Color.FromArgb(255, 60, 60), borderPen, FormHitAreaNames.Close, closeHovered);
+                }
+
+                if (owner.ShowMinMaxButtons)
+                {
+                    // Maximize button: Block on hover, Square icon
+                    PaintBrutalistButton(g, maxRect, metrics.BorderColor, borderPen, FormHitAreaNames.Maximize, maxHovered);
+
+                    // Minimize button: Block on hover, Line icon
+                    PaintBrutalistButton(g, minRect, metrics.BorderColor, borderPen, FormHitAreaNames.Minimize, minHovered);
+                }
                 
                 // Theme/Style buttons
                 if (owner.ShowStyleButton)

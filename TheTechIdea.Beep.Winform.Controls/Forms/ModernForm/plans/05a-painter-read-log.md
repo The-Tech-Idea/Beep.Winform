@@ -1029,3 +1029,49 @@ They are now classified `not a blob` and reported under **UNEXPLAINED**, never f
 Calling them strays would report the defect as unfixed forever; dropping them would hide a real
 pixel difference. **Stated limit of the classifier:** a stray under 20px would fall through it. The
 smallest genuine one measured was Holographic, 34px in a 5×8 box.
+
+## The three "unexplained" skins were two more strays and a state leak
+
+Chasing them settled all three, and the first thing it settled was that **my classifier was wrong**.
+
+### The experiments, in order
+
+1. **Was it the title?** `TitleRect.Width` is the only layout value that changes, so the comparison
+   was repeated with `Text` emptied. All three still differed by exactly the same pixel counts —
+   **not the title**.
+2. **Was it non-determinism?** The existing determinism guard only ever captured **Modern**, so it
+   said nothing about these skins. Capturing each twice with *identical* flags gave 0 px difference —
+   **deterministic**, so the flags really were the cause.
+3. **What colour changed?** Printing the coordinates and both colours answered it in one line:
+   - Brutalist `(5,5)` — shown white, **hidden black**
+   - Retro `(0,0)`,`(1,1)`,`(2,1)`,`(1,2)`,`(2,2)` — shown purple, **hidden black**
+
+### Brutalist and Retro were the same defect all along
+
+Black glyphs on a dark corner. **Both were in the original 32 and neither was ever guarded** — I
+classified them out by pixel count, and the count was small precisely because the glyph was dark.
+Read, then guarded like the rest.
+
+**The size filter is deleted.** `n >= 20 && bw <= 24 && bh <= 32` hid two instances of exactly what
+the check existed to find. Any difference in the corner now fails. A filter that suppresses the
+quiet cases of a defect is worse than no filter, because it reports them as clean.
+
+### Metro: the border inherited its anti-aliasing from a button
+
+Metro's 86 pixels were one-level differences (`180,180,180` → `179,179,179`) along the top edge, and
+its guard was already correct. Cause: **`PaintBorders` sets no `SmoothingMode`** and draws
+`owner.BorderShape` with whatever the previous call left behind. `Paint3DTileButton` sets
+`SmoothingMode.None` for Metro's sharp edges — so with the system buttons shown the border came out
+hard-edged, and with them hidden that assignment never ran and the border was anti-aliased.
+
+The border's appearance depended on whether a button happened to be drawn first. `PaintBorders` now
+sets `SmoothingMode.None` itself, which is what this skin wants regardless.
+
+### Final state
+
+- **31 of 31 strays guarded** (29 + Brutalist + Retro), plus GNOME and Metro2 found by reading.
+- Stray check **strict** — any pixel difference fails — and **clean across all 35 covered skins**.
+- Dead-flag sweep still 0 of 185; `FORMPROBE_RECTS` byte-identical to baseline across all 37 skins.
+- **MacOS and iOS remain NOT COVERED**, and cannot be covered by this check: their buttons are
+  left-aligned, so a stray at `(0,0)` lands where their buttons legitimately are. Whether those two
+  stray is still unknown.

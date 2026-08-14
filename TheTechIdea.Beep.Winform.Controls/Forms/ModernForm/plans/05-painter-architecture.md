@@ -126,17 +126,20 @@ change any pixel?" — and that instrument was written before the migration, not
 
 | source | count | painters |
 |---|---|---|
-| **shared right-aligned helper** | **31** | ArcLinux, Brutalist, Cyberpunk, Dracula, Glassmorphism, GruvBox, KDE, Linear, Material, MaterialYou, Metro, Metro2, Minimal, Modern, NeoMorphism, Neon, NextJS, Nord, Nordic, OneDark, Paper, RadixUI, Retro, Shadcn, Solarized, Terminal, Tokyo |
+| **shared right-aligned helper** | **34** | ArcLinux, Brutalist, Cyberpunk, Dracula, Glassmorphism, GruvBox, KDE, Linear, Material, MaterialYou, Metro, Metro2, Minimal, Modern, NeoMorphism, Neon, NextJS, Nord, Nordic, OneDark, Paper, RadixUI, Retro, Shadcn, Solarized, Terminal, Tokyo |
 | **shared traffic-light helper** | **2** | MacOS, iOS |
-| still hand-rolled | **3** | Holographic, Ubuntu, Cartoon — all three do corner-safe work after the cascade |
+| still hand-rolled | **0** | — |
 
-**33 of 36 painters now share a layout.** The seven that do not split into two groups, and neither is
+**All 36 painters share a layout.** The extraction is complete.
+
+Holographic, Ubuntu and Cartoon were the last three. Their corner-safe icon placement and
+`SafeContentInsets` were verified to sit **after** the cascade, not inside it, so the splice took the
+cascade and left that work exactly where it was — the same arrangement NextJS and MaterialYou had
+been using all along. Cascades 61/62/66 lines → 17/17/18. The seven that do not split into two groups, and neither is
 blocked on anything difficult:
 
-- **Holographic, Ubuntu, Cartoon** (89–91 lines) — these do corner-safe icon placement
-  (`GetCaptionLeftSafeX`) and set `SafeContentInsets`. The shared helper does **not** need extending
-  for them: that work happens *after* the button cascade, exactly as NextJS and MaterialYou already
-  do it while calling the helper. They can migrate the cascade and keep their corner code.
+- ~~**Holographic, Ubuntu, Cartoon**~~ — **migrated.** Their corner-safe work was confirmed to live
+  in the tail, so no helper change was needed after all.
 - ~~**Glass, ChatBubble, Fluent, GNOME**~~ — **migrated.** They failed the automated pass only for
   using literals where the seventeen used metrics; the helper takes caption height and button width
   as *parameters*, so each passes its own values (`Font.Height + 16`/`+ 20`, button `32`/`44`/

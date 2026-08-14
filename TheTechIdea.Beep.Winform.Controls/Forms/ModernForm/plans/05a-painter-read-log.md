@@ -1277,3 +1277,33 @@ is deliberate layering, not duplication.
 
 **Remaining uncached textures:** Glass (~1,920 area-scaled draws), OneDark (~425), Paper (~250). Paper
 is now seed-stable but still procedural. Each needs the same treatment and the same verification.
+
+### OneDark — read end to end (452 lines)
+
+**The grid was NOT cached, and the reason is the finding.** Its gutter dots are a nested loop, ~160
+`DrawRectangle` calls per paint for an exactly periodic pattern — the same shape GruvBox's grain had,
+and it converted cleanly. This one did not, and the render baseline said so: a tile built the obvious
+way differed by **143 px along the first dot row**.
+
+Sampling the row showed why. The baseline dot covers **four columns with soft edges**; the tiled one
+covers three with hard edges. `PaintBackground` **sets no `SmoothingMode`**, so each dot is rasterised
+with whatever the previous call left behind — and `PaintCaption` sets `AntiAlias`. A dot drawn after
+a caption paint is soft and wide; the same dot drawn first is hard and narrow.
+
+**This is the Metro state-leak class, not a caching problem.** Metro's border inherited its
+anti-aliasing from whether a button was drawn; OneDark's grid inherits its from whether a caption was
+drawn. Caching bakes in one of the two appearances, so there is no correct pattern to cache until
+somebody decides what the dot should look like. That is a design call for this skin, so the loop was
+**restored and the reason recorded in the code**, rather than shipping a silent change to how the
+skin looks.
+
+Note the asymmetry with GruvBox: its grain loop sets `SmoothingMode.None` explicitly on the line
+before, which is exactly why its tile could be made pixel-identical.
+
+**Dead code removed:** `PaintBorders` fetched `GetCornerRadius` and never read it — same as GruvBox.
+
+**Verified:** 0 of 37 tiles differ from the baseline, failures 0, build clean.
+
+**Open, and now better specified:** the "uncached textures" item is not one job. GruvBox is done.
+Glass (~1,920 area-scaled draws) and Paper (~250) each need their inherited-state question answered
+first — if they draw without setting `SmoothingMode`, they have OneDark's problem, not GruvBox's.

@@ -45,7 +45,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
             
-            // Subtle grid pattern (like code editor gutter) - 1px dots every 40px
+            // Subtle grid pattern (like code editor gutter) - 1px dots every 40px.
+            //
+            // NOT converted to a cached tile, deliberately. The nested loop is ~160 DrawRectangle
+            // calls per paint and looks like an obvious candidate, but this method sets no
+            // SmoothingMode, so each dot is rasterised with whatever the previous call left behind:
+            // PaintCaption sets AntiAlias, so a dot drawn after a caption paint spreads across four
+            // columns with soft edges, and the same dot drawn first is hard-edged and narrower.
+            // Caching it bakes in one of those two, and a tile built with the default state differed
+            // from the baseline by 143 px along the first dot row -- measured, not assumed.
+            //
+            // The defect here is the inherited state, not the loop. Deciding what this dot should
+            // look like is a design call for this skin, and until it is made there is no correct
+            // pattern to cache. Left alone and recorded.
             using (var gridPen = new Pen(Color.FromArgb(8, 255, 255, 255)))
             {
                 for (int x = 40; x < owner.ClientRectangle.Width; x += 40)
@@ -295,8 +307,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            var radius = GetCornerRadius(owner);
-           var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
+            // No GetCornerRadius call: it was fetched here and never read. The border follows
+            // owner.BorderShape, which already carries this skin's corners.
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             using var pen = new Pen(Color.FromArgb(Math.Max(0, metrics.BorderColor.A - 50), metrics.BorderColor), 1);
             FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -440,5 +453,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }
+
+
     }
 }

@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// </summary>
         private void DrawWoodGrain(Graphics g, Rectangle rect, Color baseColor)
         {
-            var random = new Random(rect.GetHashCode());
+            var random = new Random(StableSeed(rect));
             
             // Draw horizontal grain lines
             using (var grainPen = new Pen(Color.FromArgb(15, 80, 60, 40), 1))
@@ -489,5 +489,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }
+
+        // Rectangle.GetHashCode() routes through System.HashCode, whose seed is randomised ONCE PER
+        // PROCESS. Seeding a texture from it is stable within a run and different on every launch,
+        // so this skin drew a different grain each time the application started, and two renders of
+        // it could never be compared. Combined from the rect's own values instead, which is what
+        // "consistent seed" was always meant to mean: the pattern still varies with size and
+        // position, and no longer varies with the process.
+        private static int StableSeed(Rectangle r, int salt = 0)
+        {
+            unchecked
+            {
+                int h = 17;
+                h = h * 31 + r.X;
+                h = h * 31 + r.Y;
+                h = h * 31 + r.Width;
+                h = h * 31 + r.Height;
+                return h + salt;
+            }
+        }
+
     }
 }

@@ -265,7 +265,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            using var originalClip = g.Clip;
+            // The clip save/restore is gone, not merely disposed. Once the
+            // `g.Clip = new Region(path); g.Clip = originalClip;` pair was removed as a no-op,
+            // nothing between the capture and the restore touched the clip -- PaintBackground,
+            // DrawShadow, PaintBorders and PaintCaption (and the button painters below it) all
+            // leave it alone in this skin, each checked. So the pair saved and restored a value
+            // that never changed, and the copy it took from the getter was a Region leaked every
+            // paint. The rounded path built for that clip went with it: it was still being
+            // allocated and disposed on every paint with nothing reading it.
             var shadow = GetShadowEffect(owner);
             var radius = GetCornerRadius(owner);
 
@@ -276,19 +283,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            // A `g.Clip = new Region(path); g.Clip = originalClip;` pair stood here. The
-            // second line discarded the first before anything drew under it, so the clip
-            // never took effect - and the Region was never disposed, leaking a GDI handle
-            // on every paint. 31 painters carried the identical pair.
-
             PaintBorders(g, owner);
             if (owner.ShowCaptionBar)
             {
                 PaintCaption(g, owner, owner.CurrentLayout.CaptionRect);
             }
-
-            g.Clip = originalClip;
         }
 
         private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow, CornerRadius radius)
@@ -384,7 +383,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 Alignment = PenAlignment.Inset
             };
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            // None, not AntiAlias. This was the one method in the skin that smoothed: the class
+            // declares GetAntiAliasMode() => AntiAliasMode.None, its corner radius is 0, and every
+            // other method here sets None with a comment about sharp pixels. The path is an
+            // axis-aligned rectangle, so this changes no pixel; it stops the file contradicting
+            // itself about what Brutalist is.
+            g.SmoothingMode = SmoothingMode.None;
             g.DrawPath(pen, path);
         }
     }

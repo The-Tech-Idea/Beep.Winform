@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.CompositingMode = CompositingMode.SourceOver;
             
             // Add subtle material texture (noise pattern)
-            Random rand = new Random(owner.ClientRectangle.GetHashCode());
+            Random rand = new Random(StableSeed(owner.ClientRectangle));
             using (var textureBrush = new SolidBrush(Color.FromArgb(3, 255, 255, 255)))
             {
                 for (int i = 0; i < 50; i++)
@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// </summary>
         private void DrawPaperTexture(Graphics g, Rectangle rect)
         {
-            var random = new Random(rect.GetHashCode());
+            var random = new Random(StableSeed(rect));
             using (var noisePen = new Pen(Color.FromArgb(8, 100, 80, 60), 1))
             {
                 for (int i = 0; i < 50; i++)
@@ -323,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// </summary>
         private void DrawFiberPattern(Graphics g, Rectangle rect)
         {
-            var random = new Random(rect.GetHashCode() + 1);
+            var random = new Random(StableSeed(rect, 1));
             using (var fiberPen = new Pen(Color.FromArgb(40, 255, 255, 255), 1))
             {
                 for (int i = 0; i < 12; i++)
@@ -556,5 +556,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }
+
+        // Rectangle.GetHashCode() routes through System.HashCode, whose seed is randomised ONCE PER
+        // PROCESS. Seeding a texture from it is stable within a run and different on every launch,
+        // so this skin drew a different grain each time the application started, and two renders of
+        // it could never be compared. Combined from the rect's own values instead, which is what
+        // "consistent seed" was always meant to mean: the pattern still varies with size and
+        // position, and no longer varies with the process.
+        private static int StableSeed(Rectangle r, int salt = 0)
+        {
+            unchecked
+            {
+                int h = 17;
+                h = h * 31 + r.X;
+                h = h * 31 + r.Y;
+                h = h * 31 + r.Width;
+                h = h * 31 + r.Height;
+                return h + salt;
+            }
+        }
+
     }
 }

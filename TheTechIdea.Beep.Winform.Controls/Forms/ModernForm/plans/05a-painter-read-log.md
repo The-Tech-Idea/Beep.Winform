@@ -1174,3 +1174,44 @@ measurement.
 the capture and the restore touches the clip, then the save/restore in those painters is pointless
 and should be deleted rather than disposed. Proving that needs each method read in full, so the
 uniform fix was applied first — it is correct whether or not the pair is redundant.
+
+### Brutalist — read end to end (391 lines)
+
+**The clip pair was not just leaking, it was pointless.** With the
+`g.Clip = new Region(path); g.Clip = originalClip;` pair already removed as a no-op, nothing between
+the capture and the restore touched the clip — `PaintBackground`, `DrawShadow`, `PaintBorders`,
+`PaintCaption` and both button painters were each checked. So the save/restore preserved a value that
+never changed, and **the rounded path built for that clip was still being allocated and disposed on
+every paint with nothing reading it.** All three lines deleted rather than disposed.
+
+**`PaintNonClientBorder` set `SmoothingMode.AntiAlias`** — the one method in a skin that declares
+`GetAntiAliasMode() => None`, uses corner radius 0, and sets `None` everywhere else with comments
+about sharp pixels. Now `None`.
+
+**Confirmed leftovers:** `PaintBorders` insets by literal 8/17, and the hover shadow is a 4×4 block —
+all unscaled.
+
+### A render baseline exists now, and getting one found two more bugs
+
+Verifying "the Brutalist deletion changed nothing" needed a render comparison, and that exposed the
+verification itself as broken twice over.
+
+**First: the archived contact sheet was not a baseline.** Comparing against it showed **37 of 37
+tiles differing**, most by ~54,000 px of a 54,720 px tile. It predated the skin-name captions. It was
+deleted, not worked around.
+
+**Second: two skins were non-deterministic.** A proper A/B — stash the change, render, restore,
+render — showed **Brutalist's own tile pixel-identical**, confirming the deletion, but **Nordic and
+Paper differed although neither was touched**. Running the *same binary* twice reproduced it, so it
+was not the change: those two rendered differently on every launch.
+
+Cause, in four places: `new Random(rect.GetHashCode())`. **`Rectangle.GetHashCode()` routes through
+`System.HashCode`, whose seed is randomised once per process.** The comment in Paper even reads
+"Consistent seed for stable jitter" — it was consistent within a run and different on every launch.
+Replaced with a `StableSeed` helper combining the rect's own values, so the pattern still varies with
+size and position and no longer varies with the process.
+
+**Verified:** two separate probe runs now produce **0 of 37 differing tiles**. The determinism guard
+in the harness only ever captured Modern, which is why this survived so long.
+
+`plans/painter-render-baseline.png` is the new baseline, reproducible across processes.

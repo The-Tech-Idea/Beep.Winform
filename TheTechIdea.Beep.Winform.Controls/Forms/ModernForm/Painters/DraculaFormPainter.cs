@@ -142,69 +142,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int fangHeight = 18; // Fang triangle height
             int fangY = (captionRect.Height - fangHeight) / 2;
             
-            // Close button: Red fang with X
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            int cx = closeRect.X + closeRect.Width / 2;
-            using (var fangPath = CreateFangPath(cx, fangY, fangHeight))
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                int alpha = closeHovered ? 255 : 200;
-                using (var fangBrush = new SolidBrush(Color.FromArgb(alpha, 80, 80)))
+                // Close button: Red fang with X
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                int cx = closeRect.X + closeRect.Width / 2;
+                using (var fangPath = CreateFangPath(cx, fangY, fangHeight))
                 {
-                    g.FillPath(fangBrush, fangPath);
-                }
+                    int alpha = closeHovered ? 255 : 200;
+                    using (var fangBrush = new SolidBrush(Color.FromArgb(alpha, 80, 80)))
+                    {
+                        g.FillPath(fangBrush, fangPath);
+                    }
                 
-                // X icon (7px, white)
-                using (var iconPen = new Pen(Color.White, 1.5f))
-                {
-                    int iconSize = 7;
-                    int cy = fangY + fangHeight / 2;
-                    g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, 
-                                       cx + iconSize/2, cy + iconSize/2);
-                    g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, 
-                                       cx - iconSize/2, cy + iconSize/2);
+                    // X icon (7px, white)
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int iconSize = 7;
+                        int cy = fangY + fangHeight / 2;
+                        g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, 
+                                           cx + iconSize/2, cy + iconSize/2);
+                        g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, 
+                                           cx - iconSize/2, cy + iconSize/2);
+                    }
                 }
             }
-            
-            // Maximize button: Dark fang with square
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            int mx = maxRect.X + maxRect.Width / 2;
-            using (var fangPath = CreateFangPath(mx, fangY, fangHeight))
+
+            if (owner.ShowMinMaxButtons)
             {
-                int grayVal = maxHovered ? 120 : 90;
-                using (var fangBrush = new SolidBrush(Color.FromArgb(grayVal, grayVal, grayVal)))
+                // Maximize button: Dark fang with square
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                int mx = maxRect.X + maxRect.Width / 2;
+                using (var fangPath = CreateFangPath(mx, fangY, fangHeight))
                 {
-                    g.FillPath(fangBrush, fangPath);
-                }
+                    int grayVal = maxHovered ? 120 : 90;
+                    using (var fangBrush = new SolidBrush(Color.FromArgb(grayVal, grayVal, grayVal)))
+                    {
+                        g.FillPath(fangBrush, fangPath);
+                    }
                 
-                // Square icon (6px)
-                using (var iconPen = new Pen(Color.White, 1.5f))
+                    // Square icon (6px)
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int sqSize = 6;
+                        int my = fangY + fangHeight / 2;
+                        g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
+                    }
+                }
+            
+                // Minimize button: Dark fang with line
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                int mnx = minRect.X + minRect.Width / 2;
+                using (var fangPath = CreateFangPath(mnx, fangY, fangHeight))
                 {
-                    int sqSize = 6;
-                    int my = fangY + fangHeight / 2;
-                    g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
+                    int grayVal = minHovered ? 120 : 90;
+                    using (var fangBrush = new SolidBrush(Color.FromArgb(grayVal, grayVal, grayVal)))
+                    {
+                        g.FillPath(fangBrush, fangPath);
+                    }
+                
+                    // Line icon (7px)
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int lineSize = 7;
+                        int mny = fangY + fangHeight / 2;
+                        g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+                    }
                 }
             }
-            
-            // Minimize button: Dark fang with line
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            int mnx = minRect.X + minRect.Width / 2;
-            using (var fangPath = CreateFangPath(mnx, fangY, fangHeight))
-            {
-                int grayVal = minHovered ? 120 : 90;
-                using (var fangBrush = new SolidBrush(Color.FromArgb(grayVal, grayVal, grayVal)))
-                {
-                    g.FillPath(fangBrush, fangPath);
-                }
-                
-                // Line icon (7px)
-                using (var iconPen = new Pen(Color.White, 1.5f))
-                {
-                    int lineSize = 7;
-                    int mny = fangY + fangHeight / 2;
-                    g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
-                }
-            }
-            
+
             // Theme button: Purple fang with palette icon (Dracula purple #bd93f9)
             if (!themeRect.IsEmpty)
             {

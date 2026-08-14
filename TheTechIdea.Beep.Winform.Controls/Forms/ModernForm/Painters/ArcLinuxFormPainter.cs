@@ -120,89 +120,97 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
-            // Close button: Red hexagon with X
-            int cx = closeRect.X + closeRect.Width / 2;
-            using (var hexPath = CreateHexagonPath(cx, hexY + hexSize/2, hexSize/2))
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                // Hover: brighter fill
-                Color closeColor = closeHovered ? Color.FromArgb(230, 80, 80) : Color.FromArgb(200, 60, 60);
-                using (var hexBrush = new SolidBrush(closeColor))
+                // Close button: Red hexagon with X
+                int cx = closeRect.X + closeRect.Width / 2;
+                using (var hexPath = CreateHexagonPath(cx, hexY + hexSize/2, hexSize/2))
                 {
-                    g.FillPath(hexBrush, hexPath);
-                }
-                
-                // Hover: glow outline
-                if (closeHovered)
-                {
-                    using (var glowPen = new Pen(Color.FromArgb(100, 255, 255, 255), 2f))
+                    // Hover: brighter fill
+                    Color closeColor = closeHovered ? Color.FromArgb(230, 80, 80) : Color.FromArgb(200, 60, 60);
+                    using (var hexBrush = new SolidBrush(closeColor))
                     {
-                        g.DrawPath(glowPen, hexPath);
+                        g.FillPath(hexBrush, hexPath);
                     }
-                }
                 
-                // X icon (7px, white)
-                using (var iconPen = new Pen(Color.White, 1.5f))
-                {
-                    int iconSize = 7;
-                    g.DrawLine(iconPen, cx - iconSize/2, hexY + hexSize/2 - iconSize/2, 
-                                       cx + iconSize/2, hexY + hexSize/2 + iconSize/2);
-                    g.DrawLine(iconPen, cx + iconSize/2, hexY + hexSize/2 - iconSize/2, 
-                                       cx - iconSize/2, hexY + hexSize/2 + iconSize/2);
+                    // Hover: glow outline
+                    if (closeHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(100, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, hexPath);
+                        }
+                    }
+                
+                    // X icon (7px, white)
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int iconSize = 7;
+                        g.DrawLine(iconPen, cx - iconSize/2, hexY + hexSize/2 - iconSize/2, 
+                                           cx + iconSize/2, hexY + hexSize/2 + iconSize/2);
+                        g.DrawLine(iconPen, cx + iconSize/2, hexY + hexSize/2 - iconSize/2, 
+                                           cx - iconSize/2, hexY + hexSize/2 + iconSize/2);
+                    }
                 }
             }
-            
-            // Maximize button: Dark hexagon with square
-            int mx = maxRect.X + maxRect.Width / 2;
-            using (var hexPath = CreateHexagonPath(mx, hexY + hexSize/2, hexSize/2))
+
+            if (owner.ShowMinMaxButtons)
             {
-                // Hover: lighter gray fill
-                Color maxColor = maxHovered ? Color.FromArgb(110, 110, 110) : Color.FromArgb(80, 80, 80);
-                using (var hexBrush = new SolidBrush(maxColor))
+                // Maximize button: Dark hexagon with square
+                int mx = maxRect.X + maxRect.Width / 2;
+                using (var hexPath = CreateHexagonPath(mx, hexY + hexSize/2, hexSize/2))
                 {
-                    g.FillPath(hexBrush, hexPath);
-                }
-                
-                if (maxHovered)
-                {
-                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2f))
+                    // Hover: lighter gray fill
+                    Color maxColor = maxHovered ? Color.FromArgb(110, 110, 110) : Color.FromArgb(80, 80, 80);
+                    using (var hexBrush = new SolidBrush(maxColor))
                     {
-                        g.DrawPath(glowPen, hexPath);
+                        g.FillPath(hexBrush, hexPath);
+                    }
+                
+                    if (maxHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, hexPath);
+                        }
+                    }
+                
+                    // Square icon (6px)
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int sqSize = 6;
+                        g.DrawRectangle(iconPen, mx - sqSize/2, hexY + hexSize/2 - sqSize/2, sqSize, sqSize);
                     }
                 }
-                
-                // Square icon (6px)
-                using (var iconPen = new Pen(Color.White, 1.5f))
-                {
-                    int sqSize = 6;
-                    g.DrawRectangle(iconPen, mx - sqSize/2, hexY + hexSize/2 - sqSize/2, sqSize, sqSize);
-                }
-            }
             
-            // Minimize button: Dark hexagon with line
-            int mnx = minRect.X + minRect.Width / 2;
-            using (var hexPath = CreateHexagonPath(mnx, hexY + hexSize/2, hexSize/2))
-            {
-                // Hover: lighter gray fill
-                Color minColor = minHovered ? Color.FromArgb(110, 110, 110) : Color.FromArgb(80, 80, 80);
-                using (var hexBrush = new SolidBrush(minColor))
+                // Minimize button: Dark hexagon with line
+                int mnx = minRect.X + minRect.Width / 2;
+                using (var hexPath = CreateHexagonPath(mnx, hexY + hexSize/2, hexSize/2))
                 {
-                    g.FillPath(hexBrush, hexPath);
-                }
-                
-                if (minHovered)
-                {
-                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2f))
+                    // Hover: lighter gray fill
+                    Color minColor = minHovered ? Color.FromArgb(110, 110, 110) : Color.FromArgb(80, 80, 80);
+                    using (var hexBrush = new SolidBrush(minColor))
                     {
-                        g.DrawPath(glowPen, hexPath);
+                        g.FillPath(hexBrush, hexPath);
                     }
-                }
                 
-                // Line icon (7px)
-                using (var iconPen = new Pen(Color.White, 1.5f))
-                {
-                    int lineSize = 7;
-                    g.DrawLine(iconPen, mnx - lineSize/2, hexY + hexSize/2, 
-                                       mnx + lineSize/2, hexY + hexSize/2);
+                    if (minHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, hexPath);
+                        }
+                    }
+                
+                    // Line icon (7px)
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int lineSize = 7;
+                        g.DrawLine(iconPen, mnx - lineSize/2, hexY + hexSize/2, 
+                                           mnx + lineSize/2, hexY + hexSize/2);
+                    }
                 }
             }
 

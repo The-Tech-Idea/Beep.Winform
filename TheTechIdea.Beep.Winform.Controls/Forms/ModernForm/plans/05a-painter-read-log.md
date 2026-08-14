@@ -981,3 +981,22 @@ that merely correlates with it.
 
 **Metro, Brutalist and Retro are recorded as unexplained.** They are not being counted as fixed, and
 they are not being lumped in with the strays on the grounds that they showed up in the same list.
+
+### Eight more, read then guarded — 25 → 17
+
+**Glassmorphism, Cyberpunk, Nordic, KDE** were single-call painters like the first seven.
+Glassmorphism already guarded Theme and Style with `!rect.IsEmpty`; the flags were used instead so
+all 32 fixes read the same way and key off the same thing the layout does.
+
+**Ubuntu, ArcLinux, Dracula, Solarized** draw their buttons as long inline blocks rather than calls,
+so each method was read in full and the cut points confirmed before the surgery. All four have the
+same structure — close block, maximize block, minimize block, then a guarded theme and style — and
+all four compute the glyph position as `rect.X + (rect.Width - size) / 2`, which from
+`Rectangle.Empty` is negative.
+
+**Verified after:** 25 → 17, and the two-captures-agree guard still passes, so the renders remain
+deterministic and the count means what it says.
+
+**Remaining: 14 real strays** — OneDark, GruvBox, Nord, Tokyo, Paper, Neon, Holographic, Shadcn,
+RadixUI, NextJS, Linear, MaterialYou, Custom, Terminal — plus **Metro, Brutalist and Retro**, which
+are in the failing list but are still not strays and still unexplained.

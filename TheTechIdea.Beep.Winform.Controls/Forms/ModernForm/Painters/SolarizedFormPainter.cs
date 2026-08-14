@@ -117,92 +117,100 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
-            // Close button: Red diamond with X
-            int cx = closeRect.X + closeRect.Width / 2;
-            using (var diamondPath = CreateDiamondPath(cx, diamondY + diamondSize/2, diamondSize/2))
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                // Hover: brighter fill
-                Color closeColor = closeHovered ? Color.FromArgb(240, 70, 67) : Color.FromArgb(220, 50, 47);
-                using (var diamondBrush = new SolidBrush(closeColor))
+                // Close button: Red diamond with X
+                int cx = closeRect.X + closeRect.Width / 2;
+                using (var diamondPath = CreateDiamondPath(cx, diamondY + diamondSize/2, diamondSize/2))
                 {
-                    g.FillPath(diamondBrush, diamondPath);
-                }
-                
-                // Hover: subtle glow outline
-                if (closeHovered)
-                {
-                    using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                    // Hover: brighter fill
+                    Color closeColor = closeHovered ? Color.FromArgb(240, 70, 67) : Color.FromArgb(220, 50, 47);
+                    using (var diamondBrush = new SolidBrush(closeColor))
                     {
-                        g.DrawPath(glowPen, diamondPath);
+                        g.FillPath(diamondBrush, diamondPath);
+                    }
+                
+                    // Hover: subtle glow outline
+                    if (closeHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, diamondPath);
+                        }
+                    }
+                
+                    // X icon (6px)
+                    using (var iconPen = new Pen(Color.White, 1.5f))
+                    {
+                        int iconSize = 6;
+                        int cy = diamondY + diamondSize/2;
+                        g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                        g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
                     }
                 }
-                
-                // X icon (6px)
-                using (var iconPen = new Pen(Color.White, 1.5f))
-                {
-                    int iconSize = 6;
-                    int cy = diamondY + diamondSize/2;
-                    g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                    g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
-                }
             }
-            
-            // Maximize button: Outline diamond with square
-            int mx = maxRect.X + maxRect.Width / 2;
-            using (var diamondPath = CreateDiamondPath(mx, diamondY + diamondSize/2, diamondSize/2))
+
+            if (owner.ShowMinMaxButtons)
             {
-                // Hover: subtle fill
-                if (maxHovered)
+                // Maximize button: Outline diamond with square
+                int mx = maxRect.X + maxRect.Width / 2;
+                using (var diamondPath = CreateDiamondPath(mx, diamondY + diamondSize/2, diamondSize/2))
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(40, metrics.CaptionTextColor)))
+                    // Hover: subtle fill
+                    if (maxHovered)
                     {
-                        g.FillPath(hoverBrush, diamondPath);
+                        using (var hoverBrush = new SolidBrush(Color.FromArgb(40, metrics.CaptionTextColor)))
+                        {
+                            g.FillPath(hoverBrush, diamondPath);
+                        }
+                    }
+                
+                    float outlineWidth = maxHovered ? 2f : 1.5f;
+                    using (var outlinePen = new Pen(metrics.CaptionTextColor, outlineWidth))
+                    {
+                        g.DrawPath(outlinePen, diamondPath);
+                    }
+                
+                    // Square icon (5px)
+                    using (var iconPen = new Pen(metrics.CaptionTextColor, 1.2f))
+                    {
+                        int sqSize = 5;
+                        int my = diamondY + diamondSize/2;
+                        g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
                     }
                 }
-                
-                float outlineWidth = maxHovered ? 2f : 1.5f;
-                using (var outlinePen = new Pen(metrics.CaptionTextColor, outlineWidth))
-                {
-                    g.DrawPath(outlinePen, diamondPath);
-                }
-                
-                // Square icon (5px)
-                using (var iconPen = new Pen(metrics.CaptionTextColor, 1.2f))
-                {
-                    int sqSize = 5;
-                    int my = diamondY + diamondSize/2;
-                    g.DrawRectangle(iconPen, mx - sqSize/2, my - sqSize/2, sqSize, sqSize);
-                }
-            }
             
-            // Minimize button: Outline diamond with line
-            int mnx = minRect.X + minRect.Width / 2;
-            using (var diamondPath = CreateDiamondPath(mnx, diamondY + diamondSize/2, diamondSize/2))
-            {
-                // Hover: subtle fill
-                if (minHovered)
+                // Minimize button: Outline diamond with line
+                int mnx = minRect.X + minRect.Width / 2;
+                using (var diamondPath = CreateDiamondPath(mnx, diamondY + diamondSize/2, diamondSize/2))
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(40, metrics.CaptionTextColor)))
+                    // Hover: subtle fill
+                    if (minHovered)
                     {
-                        g.FillPath(hoverBrush, diamondPath);
+                        using (var hoverBrush = new SolidBrush(Color.FromArgb(40, metrics.CaptionTextColor)))
+                        {
+                            g.FillPath(hoverBrush, diamondPath);
+                        }
+                    }
+                
+                    float outlineWidth = minHovered ? 2f : 1.5f;
+                    using (var outlinePen = new Pen(metrics.CaptionTextColor, outlineWidth))
+                    {
+                        g.DrawPath(outlinePen, diamondPath);
+                    }
+                
+                    // Line icon (6px)
+                    using (var iconPen = new Pen(metrics.CaptionTextColor, 1.2f))
+                    {
+                        int lineSize = 6;
+                        int mny = diamondY + diamondSize/2;
+                        g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
                     }
                 }
-                
-                float outlineWidth = minHovered ? 2f : 1.5f;
-                using (var outlinePen = new Pen(metrics.CaptionTextColor, outlineWidth))
-                {
-                    g.DrawPath(outlinePen, diamondPath);
-                }
-                
-                // Line icon (6px)
-                using (var iconPen = new Pen(metrics.CaptionTextColor, 1.2f))
-                {
-                    int lineSize = 6;
-                    int mny = diamondY + diamondSize/2;
-                    g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
-                }
             }
-            
+
             // Theme button: Blue diamond with palette icon (Solarized blue #268bd2)
             if (!themeRect.IsEmpty)
             {

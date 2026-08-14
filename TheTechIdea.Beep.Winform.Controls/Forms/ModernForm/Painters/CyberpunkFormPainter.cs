@@ -135,17 +135,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Close button: Red neon hexagon
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
-            PaintNeonHexagonButton(g, closeRect, Color.FromArgb(255, 0, 100), FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red neon hexagon
+                bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+                PaintNeonHexagonButton(g, closeRect, Color.FromArgb(255, 0, 100), FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Cyan neon hexagon
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
-            PaintNeonHexagonButton(g, maxRect, Color.FromArgb(0, 255, 255), FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Cyan neon hexagon
+                bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+                PaintNeonHexagonButton(g, maxRect, Color.FromArgb(0, 255, 255), FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Magenta neon hexagon
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
-            PaintNeonHexagonButton(g, minRect, Color.FromArgb(255, 0, 255), FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Magenta neon hexagon
+                bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+                PaintNeonHexagonButton(g, minRect, Color.FromArgb(255, 0, 255), FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme button (if shown)
             if (owner.ShowThemeButton)

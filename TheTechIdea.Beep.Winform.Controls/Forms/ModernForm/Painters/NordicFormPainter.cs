@@ -113,14 +113,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button: Red with rune pattern
-            PaintRuneButton(g, closeRect, Color.FromArgb(180, 50, 50), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red with rune pattern
+                PaintRuneButton(g, closeRect, Color.FromArgb(180, 50, 50), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Green with rune pattern
-            PaintRuneButton(g, maxRect, Color.FromArgb(80, 140, 90), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green with rune pattern
+                PaintRuneButton(g, maxRect, Color.FromArgb(80, 140, 90), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Blue with rune pattern
-            PaintRuneButton(g, minRect, Color.FromArgb(70, 110, 140), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Blue with rune pattern
+                PaintRuneButton(g, minRect, Color.FromArgb(70, 110, 140), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

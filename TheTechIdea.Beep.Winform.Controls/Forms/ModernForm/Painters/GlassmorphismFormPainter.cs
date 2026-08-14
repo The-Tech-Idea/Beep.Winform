@@ -170,14 +170,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Close button: Frosted translucent red circle
-            PaintGlassButton(g, closeRect, Color.FromArgb(220, 80, 80), circleSize, FormHitAreaNames.Close, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Frosted translucent red circle
+                PaintGlassButton(g, closeRect, Color.FromArgb(220, 80, 80), circleSize, FormHitAreaNames.Close, closeHovered);
+            }
             
-            // Maximize button: Frosted translucent circle
-            PaintGlassButton(g, maxRect, Color.FromArgb(200, 200, 200), circleSize, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Frosted translucent circle
+                PaintGlassButton(g, maxRect, Color.FromArgb(200, 200, 200), circleSize, FormHitAreaNames.Maximize, maxHovered);
             
-            // Minimize button: Frosted translucent circle
-            PaintGlassButton(g, minRect, Color.FromArgb(200, 200, 200), circleSize, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Frosted translucent circle
+                PaintGlassButton(g, minRect, Color.FromArgb(200, 200, 200), circleSize, FormHitAreaNames.Minimize, minHovered);
+            }
             
             // Theme button: Frosted cyan/blue circle with palette icon
             if (!themeRect.IsEmpty)

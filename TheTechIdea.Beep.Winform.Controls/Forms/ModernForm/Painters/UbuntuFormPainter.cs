@@ -127,97 +127,105 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button: Ubuntu orange circle with X
-            int closeX = closeRect.X + (closeRect.Width - buttonSize) / 2;
-            var closeCircle = new Rectangle(closeX, buttonY, buttonSize, buttonSize);
-            
-            // Gradient for depth - brighter on hover
-            Color closeTop = closeHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
-            Color closeBottom = closeHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
-            
-            using (var orangeGrad = new LinearGradientBrush(
-                closeCircle,
-                closeTop,
-                closeBottom,
-                LinearGradientMode.Vertical))
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect yields a bogus X and the glyph lands in the caption corner.
+            if (owner.ShowCloseButton)
             {
-                g.FillEllipse(orangeGrad, closeCircle);
+                // Close button: Ubuntu orange circle with X
+                int closeX = closeRect.X + (closeRect.Width - buttonSize) / 2;
+                var closeCircle = new Rectangle(closeX, buttonY, buttonSize, buttonSize);
+            
+                // Gradient for depth - brighter on hover
+                Color closeTop = closeHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
+                Color closeBottom = closeHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
+            
+                using (var orangeGrad = new LinearGradientBrush(
+                    closeCircle,
+                    closeTop,
+                    closeBottom,
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillEllipse(orangeGrad, closeCircle);
+                }
+            
+                // Subtle border
+                using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
+                {
+                    g.DrawEllipse(borderPen, closeCircle);
+                }
+            
+                // White X symbol
+                using (var xPen = new Pen(Color.White, 2f))
+                {
+                    int xSize = 6;
+                    int cx = closeCircle.X + closeCircle.Width / 2;
+                    int cy = closeCircle.Y + closeCircle.Height / 2;
+                    g.DrawLine(xPen, cx - xSize/2, cy - xSize/2, cx + xSize/2, cy + xSize/2);
+                    g.DrawLine(xPen, cx + xSize/2, cy - xSize/2, cx - xSize/2, cy + xSize/2);
+                }
             }
-            
-            // Subtle border
-            using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
-            {
-                g.DrawEllipse(borderPen, closeCircle);
-            }
-            
-            // White X symbol
-            using (var xPen = new Pen(Color.White, 2f))
-            {
-                int xSize = 6;
-                int cx = closeCircle.X + closeCircle.Width / 2;
-                int cy = closeCircle.Y + closeCircle.Height / 2;
-                g.DrawLine(xPen, cx - xSize/2, cy - xSize/2, cx + xSize/2, cy + xSize/2);
-                g.DrawLine(xPen, cx + xSize/2, cy - xSize/2, cx - xSize/2, cy + xSize/2);
-            }
-            
-            // Maximize button: Ubuntu orange circle with square
-            int maxX = maxRect.X + (maxRect.Width - buttonSize) / 2;
-            var maxCircle = new Rectangle(maxX, buttonY, buttonSize, buttonSize);
-            
-            Color maxTop = maxHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
-            Color maxBottom = maxHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
 
-            using (var orangeGrad = new LinearGradientBrush(
-                maxCircle,
-                maxTop,
-                maxBottom,
-                LinearGradientMode.Vertical))
+            if (owner.ShowMinMaxButtons)
             {
-                g.FillEllipse(orangeGrad, maxCircle);
-            }
+                // Maximize button: Ubuntu orange circle with square
+                int maxX = maxRect.X + (maxRect.Width - buttonSize) / 2;
+                var maxCircle = new Rectangle(maxX, buttonY, buttonSize, buttonSize);
             
-            using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
-            {
-                g.DrawEllipse(borderPen, maxCircle);
-            }
-            
-            // White square symbol
-            using (var squarePen = new Pen(Color.White, 1.5f))
-            {
-                int sSize = 6;
-                int mx = maxCircle.X + maxCircle.Width / 2;
-                int my = maxCircle.Y + maxCircle.Height / 2;
-                g.DrawRectangle(squarePen, mx - sSize/2, my - sSize/2, sSize, sSize);
-            }
-            
-            // Minimize button: Ubuntu orange circle with line
-            int minX = minRect.X + (minRect.Width - buttonSize) / 2;
-            var minCircle = new Rectangle(minX, buttonY, buttonSize, buttonSize);
-            
-            Color minTop = minHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
-            Color minBottom = minHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
+                Color maxTop = maxHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
+                Color maxBottom = maxHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
 
-            using (var orangeGrad = new LinearGradientBrush(
-                minCircle,
-                minTop,
-                minBottom,
-                LinearGradientMode.Vertical))
-            {
-                g.FillEllipse(orangeGrad, minCircle);
-            }
+                using (var orangeGrad = new LinearGradientBrush(
+                    maxCircle,
+                    maxTop,
+                    maxBottom,
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillEllipse(orangeGrad, maxCircle);
+                }
             
-            using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
-            {
-                g.DrawEllipse(borderPen, minCircle);
-            }
+                using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
+                {
+                    g.DrawEllipse(borderPen, maxCircle);
+                }
             
-            // White line symbol
-            using (var linePen = new Pen(Color.White, 1.5f))
-            {
-                int lSize = 6;
-                int mnx = minCircle.X + minCircle.Width / 2;
-                int mny = minCircle.Y + minCircle.Height / 2;
-                g.DrawLine(linePen, mnx - lSize/2, mny, mnx + lSize/2, mny);
+                // White square symbol
+                using (var squarePen = new Pen(Color.White, 1.5f))
+                {
+                    int sSize = 6;
+                    int mx = maxCircle.X + maxCircle.Width / 2;
+                    int my = maxCircle.Y + maxCircle.Height / 2;
+                    g.DrawRectangle(squarePen, mx - sSize/2, my - sSize/2, sSize, sSize);
+                }
+            
+                // Minimize button: Ubuntu orange circle with line
+                int minX = minRect.X + (minRect.Width - buttonSize) / 2;
+                var minCircle = new Rectangle(minX, buttonY, buttonSize, buttonSize);
+            
+                Color minTop = minHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
+                Color minBottom = minHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
+
+                using (var orangeGrad = new LinearGradientBrush(
+                    minCircle,
+                    minTop,
+                    minBottom,
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillEllipse(orangeGrad, minCircle);
+                }
+            
+                using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
+                {
+                    g.DrawEllipse(borderPen, minCircle);
+                }
+            
+                // White line symbol
+                using (var linePen = new Pen(Color.White, 1.5f))
+                {
+                    int lSize = 6;
+                    int mnx = minCircle.X + minCircle.Width / 2;
+                    int mny = minCircle.Y + minCircle.Height / 2;
+                    g.DrawLine(linePen, mnx - lSize/2, mny, mnx + lSize/2, mny);
+                }
             }
 
             // Theme button (if shown) - Ubuntu purple circle

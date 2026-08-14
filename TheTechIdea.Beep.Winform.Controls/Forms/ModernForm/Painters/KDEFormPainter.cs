@@ -126,14 +126,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
             
-            // Close button: Red with plasma wave
-            PaintPlasmaButton(g, closeRect, Color.FromArgb(237, 21, 21), padding, buttonSize, FormHitAreaNames.Close, metrics, closeHovered);
+            // Guarded on the flags the layout uses: unguarded, a hidden button's
+            // Rectangle.Empty rect centres on (0,0) and draws into the caption's corner.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red with plasma wave
+                PaintPlasmaButton(g, closeRect, Color.FromArgb(237, 21, 21), padding, buttonSize, FormHitAreaNames.Close, metrics, closeHovered);
+            }
             
-            // Maximize button: Green with plasma wave
-            PaintPlasmaButton(g, maxRect, Color.FromArgb(24, 218, 24), padding, buttonSize, FormHitAreaNames.Maximize, metrics, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green with plasma wave
+                PaintPlasmaButton(g, maxRect, Color.FromArgb(24, 218, 24), padding, buttonSize, FormHitAreaNames.Maximize, metrics, maxHovered);
             
-            // Minimize button: Blue with plasma wave
-            PaintPlasmaButton(g, minRect, Color.FromArgb(61, 174, 233), padding, buttonSize, FormHitAreaNames.Minimize, metrics, minHovered);
+                // Minimize button: Blue with plasma wave
+                PaintPlasmaButton(g, minRect, Color.FromArgb(61, 174, 233), padding, buttonSize, FormHitAreaNames.Minimize, metrics, minHovered);
+            }
             
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)

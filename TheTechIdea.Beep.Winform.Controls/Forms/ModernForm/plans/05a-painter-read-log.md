@@ -1075,3 +1075,37 @@ sets `SmoothingMode.None` itself, which is what this skin wants regardless.
 - **MacOS and iOS remain NOT COVERED**, and cannot be covered by this check: their buttons are
   left-aligned, so a stray at `(0,0)` lands where their buttons legitimately are. Whether those two
   stray is still unknown.
+
+## Generalising Metro's bug into a check that covers all 37
+
+Metro's border inherited its anti-aliasing from whether a button had been drawn. The 40px corner
+caught that by luck — the leak happened to touch the top-left. A leak anywhere else in the caption
+would have gone unseen.
+
+**New check:** with the title emptied (because `TitleRect.Width` legitimately changes), the caption
+**left of the button zone** must be pixel-identical whether or not the system buttons are drawn.
+Anything there means the output depends on the buttons having been painted.
+
+**It covers MacOS and iOS, which the corner check cannot.** The region is mirrored for them: their
+buttons are on the left, so the side that must not change is the right. Comparing the same region for
+every skin flagged both — 634px and 722px — for doing nothing wrong, which is what led to mirroring
+it rather than excluding them.
+
+**Break-it-first, run:** removing the `SmoothingMode` line from Metro's `PaintBorders` fails the check
+at `Metro(550px)` — roughly ten times what the corner check saw, which is the point of the wider
+region. Restoring it returns the run to zero failures.
+
+**Result: PASS across all 37 skins.** No painter's caption output depends on whether its system
+buttons were drawn.
+
+### Where the stray work now stands
+
+| check | result |
+|---|---|
+| no stray glyph in the caption corner (strict — any pixel) | PASS, 35 covered skins |
+| caption independent of buttons being drawn | PASS, **37 of 37** |
+| dead skin-feature combinations | 0 of 185 |
+| `FORMPROBE_RECTS` vs baseline | identical, 37 skins |
+
+Still true, and still recorded: a stray drawn *at* a traffic-light skin's own button position remains
+undetectable by the corner check, because that is where its buttons legitimately are.

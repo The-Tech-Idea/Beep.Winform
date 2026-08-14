@@ -1109,3 +1109,43 @@ buttons were drawn.
 
 Still true, and still recorded: a stray drawn *at* a traffic-light skin's own button position remains
 undetectable by the corner check, because that is where its buttons legitimately are.
+
+## Stage 05a-3 — reading the remaining 23, one at a time
+
+Confirmed read end to end before this stage: **14 of 37** — Modern, Linear, Material, Metro,
+MaterialYou, Minimal, Shadcn, RadixUI, NextJS, MacOS, iOS, Metro2, Custom, GNOME. The guard sweep
+read every painter's *button method*, which is not the same thing and is not counted here.
+
+### Fluent — read end to end (425 lines)
+
+**The cached-texture reference is sound.** `DrawAcrylicNoise` builds a 64×64 noise bitmap with a
+fixed seed once, under a double-checked lock, keeps a static `TextureBrush` with `WrapMode.Tile`, and
+paints one `FillRectangle`. Citing it as the model for Glass, Paper, GruvBox and OneDark is correct.
+
+**Why Fluent never appeared in the stray list — and it is not luck.** Fluent calls
+`DrawSystemButton` for close, maximize and minimize *unconditionally*, exactly like the 31 painters
+that strayed. It does not stray because `FormPainterRenderHelper.DrawSystemButton:140` opens with
+`if (bounds.Width <= 0 || bounds.Height <= 0) return;`.
+
+> Every painter that hand-rolled its own button art had the stray defect. The one skin that routes
+> through the shared helper did not. The helper had the guard the whole time.
+
+That is the strongest evidence so far for the shared-pipeline argument, and it arrived from reading
+rather than from the sweep.
+
+**Defect: a `Region` leaked on every paint.** `PaintWithEffects` did `var originalClip = g.Clip;`.
+The getter **copies** the region, so that instance belongs to the painter — the same trap as the clip
+leak fixed across 31 painters, on the other side of the assignment. The file even documents the copy
+semantics for the *other* clip four lines below. Now `using var`; assigning it back copies it into
+the `Graphics`, so disposing afterwards is safe.
+
+**Dead code: `PaintBackground` fetched metrics and never read them.** Removed.
+
+**Recorded for a ruling, not changed:** Fluent fills its base from the literal
+`Color.FromArgb(240, 243, 249, 253)` rather than `metrics.BackgroundColor`, so neither the theme nor
+the skin-wins palette can reach this skin's background. Colour literals are covered by the painter
+exemption, so this is an appearance decision like Metro2's caption, not a rule violation.
+
+**Confirmed leftover:** `:193` `owner.Font.Height + 16`, one of the 16 unscaled literals.
+
+**Re-verified after:** both stray checks pass, dead flags 0 of 185, build clean.

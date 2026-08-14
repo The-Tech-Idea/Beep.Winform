@@ -33,7 +33,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
-            var metrics = GetMetrics(owner);
+            // No GetMetrics call here: it was fetched and never read. This skin fills from its own
+            // literal below rather than metrics.BackgroundColor, which means no theme and no skin
+            // palette can reach Fluent's base fill. That divergence is recorded in the read log for
+            // a ruling; the dead local is simply gone.
 
             // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
             // This prevents semi-transparent overlays from accumulating on repaint
@@ -235,8 +238,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var shadow = GetShadowEffect(owner);
             var radius = GetCornerRadius(owner);
 
-            // Save original clip
-            var originalClip = g.Clip;
+            // Save original clip. The getter COPIES the region, so this instance is ours and leaked
+            // one Region per paint until it was disposed. Assigning it back below copies it into the
+            // Graphics again, so disposing ours afterwards is safe. Same trap as the clip leak fixed
+            // across 31 painters, on the other side of the assignment.
+            using var originalClip = g.Clip;
 
             // 1) Optional shadow
             if (!shadow.Inner)

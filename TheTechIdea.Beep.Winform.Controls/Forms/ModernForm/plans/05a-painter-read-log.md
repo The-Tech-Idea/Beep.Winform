@@ -841,3 +841,59 @@ as pure client area — no caption, no buttons, no drag — with nothing said. N
 move, so the `Once` form is required, not preferred.
 
 **Next:** GNOME, the only other painter using `CaptionTextColorActive`, for the misuse Custom had.
+
+## GNOME — read end to end (508 lines)
+
+The read log predicted this one: GNOME was the only other painter touching `CaptionTextColorActive`.
+The misuse was there, and worse than Custom's.
+
+### The headerbar was a white-to-black gradient (fixed)
+
+`PaintCaption` filled the headerbar with a `LinearGradientBrush` running between **two text slots**:
+
+- top — `metrics.CaptionTextColorActive`. **Nothing in `FormPainterMetrics` ever assigns this slot**,
+  for any skin, so it held its declared default of `(240,240,240)`.
+- bottom — `Color.FromArgb(250, CaptionTextColor…)`, and GNOME's palette sets `CaptionTextColor` to
+  **pure black**. So the lower half of the caption was near-opaque black.
+
+Line 101 then drew the title in that same `CaptionTextColor`. The result was black title text
+centred over a band fading to black beneath it. Meanwhile GNOME's own
+`CaptionColor = (245,245,245)` — the correct Adwaita headerbar, set right there in the palette —
+was never read by the painter at all.
+
+Now a flat `SolidBrush(metrics.CaptionColor)`. Flat is also what Adwaita headerbars actually are,
+so the fix and the correct look are the same change.
+
+**Eyeballed, not just counted** — `05-contact-sheet.png` tile 10 against the archived BEFORE sheet:
+the gradient-to-black band with the unreadable title is gone, replaced by a light bar with legible
+black text. Pills unchanged.
+
+### Close/min/max pills drew at (-14,-11) when their flags were off (fixed)
+
+`PaintAdwaitaPillButtons` guarded `ShowStyleButton` and `ShowThemeButton` but painted close, maximize
+and minimize **unconditionally**. The layout only allocates those rects when the flag is set
+(`FormPainterLayoutHelper` :38, :45), so with `ShowCloseButton = false` the rect stayed
+`Rectangle.Empty`, `PaintPillButton` centred on `(0,0)`, and a red pill was drawn at
+`(-14, -11, 28, 22)` — hanging off the caption's top-left corner, over the icon.
+
+**Stage 05's dead-flag probe could not have caught this.** It sweeps `ShowThemeButton`,
+`ShowStyleButton`, `ShowProfileButton`, `ShowSearchBox` and `ShowCustomActionButton` — 5 flags × 37
+skins = the 185 combinations it reports. `ShowCloseButton` and `ShowMinMaxButtons` are not among
+them. That gap is now recorded; whether other painters share the defect is **unverified** and needs
+reading, not a grep.
+
+### `DrawShadow(…, GetCornerRadius(null))` — same shape as Custom (fixed)
+
+Threaded `owner` through. GNOME's `GetCornerRadius` ignores its argument and returns a constant 8, so
+null was harmless *here, today*; it stops being harmless as soon as the radius derives from the form,
+which is where the per-skin radius work is going.
+
+### Confirmed leftovers, not changed
+
+- `:378` `var captionHeight = owner.Font.Height + 20;` — an unscaled literal, and it ignores
+  `metrics.CaptionHeight` (36). One of the 16 the probe still reports.
+- `:388` passes a hardcoded `44` button width while `metrics.ButtonWidth` is 32 and
+  `VisualButtonWidth` is 28. Deliberate at migration time to hold geometry; still owed a decision.
+- `ShiftLuminance`/HSL helpers operate only on this skin's literal pill colours, which the painter
+  colour exemption covers.
+- `:304` `owner.BorderShape` correctly not disposed, and says why.

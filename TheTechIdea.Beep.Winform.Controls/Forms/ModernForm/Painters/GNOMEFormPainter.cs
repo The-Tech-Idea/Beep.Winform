@@ -54,12 +54,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // GNOME-Style gradient headerbar
-            using (var brush = new LinearGradientBrush(
-                captionRect,
-                metrics.CaptionTextColorActive,
-                Color.FromArgb(250, metrics.CaptionTextColor.R, metrics.CaptionTextColor.G, metrics.CaptionTextColor.B),
-                LinearGradientMode.Vertical))
+            // Adwaita headerbar, filled from the caption slot. This was a vertical gradient between
+            // two *text* slots: CaptionTextColorActive, which nothing in FormPainterMetrics ever
+            // assigns and so held its (240,240,240) default, down to CaptionTextColor, which this
+            // skin sets to pure black. The headerbar therefore faded to black across its lower half
+            // while the title -- drawn below in that same CaptionTextColor -- was black on black.
+            // GNOME's own CaptionColor (245,245,245) was sitting unused. Adwaita headerbars are
+            // flat, so a flat fill is both the fix and the correct look.
+            using (var brush = new SolidBrush(metrics.CaptionColor))
             {
                 var cornerRadius = GetCornerRadius(owner);
                 using var path = CreateRoundedPath(new Rectangle(0, 0, owner.ClientSize.Width, captionRect.Height + cornerRadius.TopLeft), cornerRadius);
@@ -127,14 +129,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
             bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
 
-            // Close button: Red pill
-            PaintPillButton(g, closeRect, Color.FromArgb(246, 97, 81), padding, buttonWidth, buttonHeight, FormHitAreaNames.Close, closeHovered);
+            // These three were painted unconditionally while Style and Theme below were guarded.
+            // The layout only allocates a rect when the flag is set, so with ShowCloseButton or
+            // ShowMinMaxButtons off the rect stayed Rectangle.Empty, PaintPillButton centred on
+            // (0,0), and a coloured pill was drawn at (-14,-11) hanging off the caption's top-left
+            // corner. Guarded on the same flags the layout uses.
+            if (owner.ShowCloseButton)
+            {
+                // Close button: Red pill
+                PaintPillButton(g, closeRect, Color.FromArgb(246, 97, 81), padding, buttonWidth, buttonHeight, FormHitAreaNames.Close, closeHovered);
+            }
 
-            // Maximize button: Green pill
-            PaintPillButton(g, maxRect, Color.FromArgb(51, 209, 122), padding, buttonWidth, buttonHeight, FormHitAreaNames.Maximize, maxHovered);
+            if (owner.ShowMinMaxButtons)
+            {
+                // Maximize button: Green pill
+                PaintPillButton(g, maxRect, Color.FromArgb(51, 209, 122), padding, buttonWidth, buttonHeight, FormHitAreaNames.Maximize, maxHovered);
 
-            // Minimize button: Blue pill
-            PaintPillButton(g, minRect, Color.FromArgb(53, 132, 228), padding, buttonWidth, buttonHeight, FormHitAreaNames.Minimize, minHovered);
+                // Minimize button: Blue pill
+                PaintPillButton(g, minRect, Color.FromArgb(53, 132, 228), padding, buttonWidth, buttonHeight, FormHitAreaNames.Minimize, minHovered);
+            }
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
@@ -333,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var shadow = GetShadowEffect(owner);
             if (!shadow.Inner)
             {
-                DrawShadow(g, rect, shadow);
+                DrawShadow(g, owner, rect, shadow);
             }
 
             PaintBackground(g, owner);
@@ -344,7 +357,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
         }
 
-        private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow)
+        // Takes the owner rather than passing null to GetCornerRadius. This skin's GetCornerRadius
+        // ignores its argument and returns a constant 8, so null was harmless here today -- it stops
+        // being harmless the moment the radius is derived from the form, which is the direction the
+        // per-skin radius work is heading.
+        private void DrawShadow(Graphics g, BeepiFormPro owner, Rectangle rect, ShadowEffect shadow)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
             var shadowRect = new Rectangle(
@@ -354,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 rect.Height + shadow.Blur * 2);
             if (shadowRect.Width <= 0 || shadowRect.Height <= 0) return;
             
-            var cornerRadius = GetCornerRadius(null);
+            var cornerRadius = GetCornerRadius(owner);
             using var path = CreateRoundedPath(shadowRect, cornerRadius);
             using var brush = new SolidBrush(shadow.Color);
             g.SmoothingMode = SmoothingMode.AntiAlias;

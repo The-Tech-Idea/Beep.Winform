@@ -365,6 +365,45 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
+        [Browsable(true)]
+        [Category("Filtering")]
+        [DefaultValue(true)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        [Description("Shows a DevExpress-style active-filter chips row below the column headers while at least one filter criterion is active.")]
+        public bool ShowActiveFilterBar
+        {
+            get => Layout.ShowActiveFilterBar;
+            set
+            {
+                if (Layout.ShowActiveFilterBar != value)
+                {
+                    Layout.ShowActiveFilterBar = value;
+                    Layout.Recalculate();
+                    if (!DesignMode) SafeInvalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Filtering")]
+        [DefaultValue(BeepLayoutMetrics.GridActiveFilterBarHeight)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        [Description("Height in pixels of the active-filter chips row shown below the column headers.")]
+        public int ActiveFilterBarHeight
+        {
+            get => Layout.ActiveFilterBarHeight;
+            set
+            {
+                int clamped = System.Math.Max(BeepLayoutMetrics.GridActiveFilterBarHeight, value);
+                if (Layout.ActiveFilterBarHeight != clamped)
+                {
+                    Layout.ActiveFilterBarHeight = clamped;
+                    Layout.Recalculate();
+                    if (!DesignMode) SafeInvalidate();
+                }
+            }
+        }
+
         // Owner-drawn navigator footer like BeepSimpleGrid (not a child control)
         private bool _showNavigator = true;
         [Browsable(true)]
@@ -468,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
-        private bool _showFilterButton = true;
+        private bool _showFilterButton = false;
         /// <summary>
         /// Show the standalone quick Filter button in the toolbar
         /// (in addition to the Advanced multi-criteria button).  Off
@@ -480,7 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         [Browsable(true)]
         [Category("Filtering")]
-        [DefaultValue(true)]
+        [DefaultValue(false)]
         [Description("Show the standalone quick Filter button in the toolbar (the Advanced multi-criteria button is always shown).")]
         public bool ShowFilterButton
         {

@@ -302,103 +302,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
         }
         
-        private void ScrollBar_Scroll(object sender, ScrollEventArgs e)
+        private void InternalScrollBarValueChanged(object sender, EventArgs e)
         {
-            _scrollOffset = e.NewValue;
+            _scrollOffset = _scrollBar.Value;
             Invalidate();
         }
 
-        private void InternalScrollBarValueChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                if (sender is VScrollBar v)
-                {
-                    _scrollOffset = v.Value;
-                }
-                else
-                {
-                    var valProp = sender.GetType().GetProperty("Value");
-                    if (valProp != null)
-                    {
-                        var vObj = valProp.GetValue(sender);
-                        if (vObj is int vi) _scrollOffset = vi;
-                    }
-                }
-            }
-            catch { }
-            Invalidate();
-        }
-        
         private void BeepContextMenu_MouseWheel(object sender, MouseEventArgs e)
         {
             if (!_needsScrolling) return;
-            
-            // Calculate new scroll position
+
             int delta = e.Delta / 120; // Standard mouse wheel delta
-            int smallChange = GetScrollBarSmallChange();
-            int scrollAmount = delta * smallChange;
-            int newValue = GetScrollBarValue() - scrollAmount;
-          
-            // Clamp to valid range
-            newValue = Math.Max(GetScrollBarMinimum(), Math.Min(newValue, GetScrollBarMaximum() - GetScrollBarLargeChange() + 1));
-            
-            if (newValue != GetScrollBarValue())
+            int scrollAmount = delta * _scrollBar.SmallChange;
+            int newValue = _scrollBar.Value - scrollAmount;
+
+            // Clamp to valid range.
+            newValue = Math.Max(_scrollBar.Minimum, Math.Min(newValue, _scrollBar.Maximum - _scrollBar.LargeChange + 1));
+
+            if (newValue != _scrollBar.Value)
             {
-                SetScrollBarValue(newValue);
+                _scrollBar.Value = newValue;
                 _scrollOffset = newValue;
                 Invalidate();
             }
-        }
-
-        private int GetScrollBarValue()
-        {
-            if (_scrollBar is VScrollBar v) return v.Value;
-            var prop = _scrollBar.GetType().GetProperty("Value");
-            if (prop == null) return 0;
-            return (int)(prop.GetValue(_scrollBar) ?? 0);
-        }
-
-        private void SetScrollBarValue(int newValue)
-        {
-            if (_scrollBar is VScrollBar v) v.Value = newValue;
-            else
-            {
-                var prop = _scrollBar.GetType().GetProperty("Value");
-                if (prop != null) prop.SetValue(_scrollBar, newValue);
-            }
-        }
-
-        private int GetScrollBarMinimum()
-        {
-            if (_scrollBar is VScrollBar v) return v.Minimum;
-            var prop = _scrollBar.GetType().GetProperty("Minimum");
-            if (prop == null) return 0;
-            return (int)(prop.GetValue(_scrollBar) ?? 0);
-        }
-
-        private int GetScrollBarMaximum()
-        {
-            if (_scrollBar is VScrollBar v) return v.Maximum;
-            var prop = _scrollBar.GetType().GetProperty("Maximum");
-            if (prop == null) return 0;
-            return (int)(prop.GetValue(_scrollBar) ?? 0);
-        }
-
-        private int GetScrollBarLargeChange()
-        {
-            if (_scrollBar is VScrollBar v) return v.LargeChange;
-            var prop = _scrollBar.GetType().GetProperty("LargeChange");
-            if (prop == null) return 1;
-            return (int)(prop.GetValue(_scrollBar) ?? 1);
-        }
-
-        private int GetScrollBarSmallChange()
-        {
-            if (_scrollBar is VScrollBar v) return v.SmallChange;
-            var prop = _scrollBar.GetType().GetProperty("SmallChange");
-            if (prop == null) return PreferredItemHeight;
-            return (int)(prop.GetValue(_scrollBar) ?? PreferredItemHeight);
         }
         
         #endregion

@@ -31,16 +31,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle silhouetteRect;
         
         // Hover states
-        private string hoveredArea = null;
+        private string? hoveredArea;
 
         private string _titleText = "Views";
         private string _metricValue = "31";
         private string _deltaValue = "+3 last day";
-        private Image _iconImage;              // For the top-right icon
-        private Image _backgroundSilhouette;   // For the semi-transparent center image
+        private Image? _backgroundSilhouette;   // For the semi-transparent center image
 
-        private string _iconImagepath;              // For the top-right icon
-        private string _backgroundSilhouettepath;   // For the semi-transparent center image
+        private string _iconImagepath = string.Empty;              // For the top-right icon
+        private string _backgroundSilhouettepath = string.Empty;   // For the semi-transparent center image
         private bool _isApplyingTheme = false; // Prevent re-entrancy during theme application
         private bool _autoGenerateTooltip = true;
 
@@ -97,7 +96,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set 
             { 
                 _iconImagepath = MetricTileIconHelpers.ResolveIconPath(value, MetricTileIconHelpers.GetRecommendedMetricIcon(_titleText));
-                _iconImage = (Image)ImageListHelper.GetImageFromName(_iconImagepath);
                 Recompose();
             }
         }
@@ -110,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set 
             { 
                 _backgroundSilhouettepath = MetricTileIconHelpers.ResolveIconPath(value, MetricTileIconHelpers.GetRecommendedSilhouetteIcon(_titleText));
-                _backgroundSilhouette = (Image)ImageListHelper.GetImageFromName(_backgroundSilhouettepath);
+                _backgroundSilhouette = ImageListHelper.GetImageFromName(_backgroundSilhouettepath) as Image;
                 Recompose();
             }
         }
@@ -230,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateTooltip();
         }
 
-        public void SetMetricTileTooltip(string text, string title = null, ToolTipType type = ToolTipType.Info)
+        public void SetMetricTileTooltip(string text, string? title = null, ToolTipType type = ToolTipType.Info)
         {
             TooltipText = text;
             if (!string.IsNullOrEmpty(title))
@@ -246,8 +244,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Events
-        public event EventHandler TileClick;
-        public event EventHandler IconClick;
+        public event EventHandler? TileClick;
+        public event EventHandler? IconClick;
 
         protected virtual void OnTileClick()
         {
@@ -287,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             
-            string newHoveredArea = null;
+            string? newHoveredArea = null;
             if (HitTest(e.Location, out var hitTest))
             {
                 newHoveredArea = hitTest.Name;

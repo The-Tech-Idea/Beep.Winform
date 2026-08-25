@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             BadgeDiameter = 20;
             ShowBorder = true;
             Anchor = BadgeAnchor.TopRight;
+            AccessibleRole = AccessibleRole.Alert;
             ApplyState(_state);
         }
 
@@ -36,8 +37,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             set
             {
                 _message = value ?? string.Empty;
+                AccessibleName = DescribeBadge();
             }
         }
+
+        /// <summary>Announce the message when there is one, else the state.</summary>
+        protected override string DescribeBadge() =>
+            string.IsNullOrWhiteSpace(_message) ? _state.ToString() : _message;
 
         public BeepValidationBadge SetState(ValidationState state)
         {

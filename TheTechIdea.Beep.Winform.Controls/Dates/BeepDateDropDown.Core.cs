@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -49,7 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             {
                 _calendarIconPath = TheTechIdea.Beep.Icons.Svgs.fi_tr_calendar;
             }
-            catch { _calendarIconPath = string.Empty; }
+            catch (Exception ex)
+            {
+                _calendarIconPath = string.Empty;
+                BeepLog.Fallback(this, "resolve the default calendar icon; showing no icon", ex);
+            }
             
             // Configure text box for date input
             InitializeDateTextBox();
@@ -108,13 +113,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                     if (_currentTheme.CalendarBorderColor != Color.Empty) BorderColor = _currentTheme.CalendarBorderColor;
 
                     // Fonts
-                    try 
-                    { 
-                        TextFont = BeepThemesManager.ToFont(_currentTheme.DateFont); 
-                    } 
-                    catch 
-                    { 
-                        // Use default font
+                    try
+                    {
+                        TextFont = BeepThemesManager.ToFont(_currentTheme.DateFont);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Falls back to the control's existing font.
+                        BeepLog.Fallback(this, "apply the date font; keeping current font", ex);
                     }
 
                     // Placeholder color
@@ -126,7 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                     // Invalidate icon cache to ensure theme colors are applied
                     if (!string.IsNullOrEmpty(_calendarIconPath))
                     {
-                        try { StyledImagePainter.InvalidateCaches(_calendarIconPath); } catch { }
+                        try { StyledImagePainter.InvalidateCaches(_calendarIconPath); }
+                        catch (Exception ex) { BeepLog.Fallback(this, "invalidate calendar icon cache", ex); }
 
                         // Pre-render in background to avoid UI jank
                         Color iconColor = _currentTheme.CalendarTitleForColor != Color.Empty 
@@ -138,17 +145,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                         {
                             foreach (var s in sizes)
                             {
-                                try 
-                                { 
-                                    StyledImagePainter.PreRenderTintedToCache(_calendarIconPath, iconColor, 1f, new Size(s, s)); 
-                                } 
-                                catch { }
+                                try
+                                {
+                                    StyledImagePainter.PreRenderTintedToCache(_calendarIconPath, iconColor, 1f, new Size(s, s));
+                                }
+                                catch (Exception ex)
+                                {
+                                    BeepLog.FallbackOnce($"prerender-calendar-icon-{s}", this, "pre-render tinted calendar icon", ex);
+                                }
                             }
                         });
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Best-effort theme propagation; the control stays usable with its previous styling.
+                BeepLog.Fallback(this, "apply calendar theme tokens", ex);
+            }
 
             Invalidate();
         }
@@ -194,9 +208,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             };
             
             // Apply mode and constraints
-            try { _calendarView.Mode = _mode; } catch { }
-            if (_minDate.HasValue) { try { _calendarView.MinDate = _minDate.Value; } catch { } }
-            if (_maxDate.HasValue) { try { _calendarView.MaxDate = _maxDate.Value; } catch { } }
+            try { _calendarView.Mode = _mode; }
+            catch (Exception ex) { BeepLog.Fallback(this, "apply mode to the popup calendar", ex); }
+            if (_minDate.HasValue) { try { _calendarView.MinDate = _minDate.Value; } catch (Exception ex) { BeepLog.Fallback(this, "apply MinDate to the popup calendar", ex); } }
+            if (_maxDate.HasValue) { try { _calendarView.MaxDate = _maxDate.Value; } catch (Exception ex) { BeepLog.Fallback(this, "apply MaxDate to the popup calendar", ex); } }
             
             // Sync dropdown state TO calendar using DateTimePickerProperties
             SyncToCalendar();
@@ -204,7 +219,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             // Push initial selection (legacy support)
             if (_selectedDateTime.HasValue && _selectedDateTime.Value != DateTime.MinValue)
             {
-                try { _calendarView.SelectedDate = _selectedDateTime.Value; } catch { }
+                try { _calendarView.SelectedDate = _selectedDateTime.Value; }
+                catch (Exception ex) { BeepLog.Fallback(this, "apply initial selection to the popup calendar", ex); }
             }
 
             // Subscribe to events - use enhanced handler with sync

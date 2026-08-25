@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers;
 using TheTechIdea.Beep.Winform.Controls.AccordionMenus.Painters;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
@@ -22,34 +23,25 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
     {
         #region Private Fields
         private bool isCollapsed = false;
-        private const int DefaultExpandedWidth = 200;
-        private const int DefaultCollapsedWidth = 64;
         private int animationStep = 20;
         private int animationDelay = 15;
 
-        private List<SimpleItem> menuItems = new List<SimpleItem>();
-        private int itemHeight = 40;
-        private int childItemHeight = 30;
+        private int itemHeight = AccordionStyleHelpers.GetRecommendedItemHeight(AccordionStyle.Material3);
+        private int childItemHeight = AccordionStyleHelpers.GetRecommendedChildItemHeight(AccordionStyle.Material3);
         private bool isInitialized = false;
         private Timer animationTimer;
         private bool isAnimating = false;
-        private SimpleItem _hoveredItem;
-        private SimpleItem _selectedItem;
-        private SimpleItem _focusedItem;
-        private int headerHeight = 40;
-        private int spacing = 1;
+        private SimpleItem _selectedItem = null!;
+        private SimpleItem _focusedItem = null!;
+        private int headerHeight = AccordionStyleHelpers.GetRecommendedHeaderHeight(AccordionStyle.Material3);
+        private int spacing = AccordionStyleHelpers.GetRecommendedSpacing(AccordionStyle.Material3);
         private Rectangle _toggleButtonRect;
         private Dictionary<SimpleItem, bool> expandedState = new Dictionary<SimpleItem, bool>();
-        private int indentationWidth = 20;
+        private int indentationWidth = AccordionStyleHelpers.GetRecommendedIndentation(AccordionStyle.Material3);
 
         // Painter system
-        private IAccordionPainter _painter;
+        private IAccordionPainter _accordionPainter;
         private AccordionStyle _accordionStyle = AccordionStyle.Material3;
-
-        // Panel and logo/toggle references kept for compatibility
-        private Panel itemsPanel;
-        private BeepLabel logo;
-        private BeepButton toggleButton;
         #endregion
 
         #region Constructor
@@ -67,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             ShowAllBorders = false;
 
             // Initialize painter
-            _painter = AccordionPainterFactory.GetPainter(_accordionStyle);
+            _accordionPainter = AccordionPainterFactory.GetPainter(_accordionStyle);
 
             animationTimer = new Timer { Interval = 10 };
             animationTimer.Tick += AnimationTimer_Tick;
@@ -76,10 +68,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
 
         #region Properties
         [Category("Behavior")]
-        public int ExpandedWidth { get; set; } = DefaultExpandedWidth;
+        public int ExpandedWidth { get; set; } = BeepLayoutMetrics.SideMenu.Width;
 
         [Category("Behavior")]
-        public int CollapsedWidth { get; set; } = DefaultCollapsedWidth;
+        public int CollapsedWidth { get; set; } = BeepLayoutMetrics.CollapsedRailWidth;
 
         [Category("Animation")]
         public int AnimationStep
@@ -161,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
                 if (_accordionStyle != value)
                 {
                     _accordionStyle = value;
-                    _painter = AccordionPainterFactory.GetPainter(_accordionStyle);
+                    _accordionPainter = AccordionPainterFactory.GetPainter(_accordionStyle);
                     Invalidate();
                 }
             }
@@ -175,10 +167,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             set
             {
                 _title = value;
-                if (logo != null)
-                    logo.Text = value;
-                if (toggleButton != null)
-                    toggleButton.Text = value;
                 Invalidate();
             }
         }
@@ -216,14 +204,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             }
         }
 
-        protected override Size DefaultSize => new Size(DefaultExpandedWidth, 200);
+        protected override Size DefaultSize => BeepLayoutMetrics.SideMenu;
         #endregion
 
         #region Events
-        public event EventHandler<BeepMouseEventArgs> ItemClick;
-        public event EventHandler<BeepMouseEventArgs> ToggleClicked;
-        public event EventHandler<BeepMouseEventArgs> HeaderExpandedChanged;
-        public event EventHandler<AccordionItemIconEventArgs> ItemIconNeeded;
+        public event EventHandler<BeepMouseEventArgs>? ItemClick;
+        public event EventHandler<BeepMouseEventArgs>? ToggleClicked;
+        public event EventHandler<BeepMouseEventArgs>? HeaderExpandedChanged;
+        public event EventHandler<AccordionItemIconEventArgs>? ItemIconNeeded;
         #endregion
 
         public virtual void OnItemIconNeeded(SimpleItem item, AccordionItemIconEventArgs e)

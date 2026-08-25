@@ -312,7 +312,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                     state.IsFilterActive ? (Theme?.AccentColor ?? Color.DodgerBlue) : null);
             }
             DrawCenteredTintedIcon(g, state, state.AdvancedButtonRect,
-                SvgsUIcons.Common.Settings, 0.6f);
+                SvgsUIcons.Common.Filter, 0.6f);
 
             if (state.IsFilterActive)
             {

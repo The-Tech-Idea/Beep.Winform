@@ -27,10 +27,13 @@ Instead `IconAlignment` — which had **zero readers** — is now an `[Obsolete]
 `Presentation`: `Left` ↔ `TitleBar`, `Top` ↔ `Centred`, `None` ↔ `ShowIcon = false`. The icon and the
 text therefore cannot disagree, which is exactly the half-implementation this stage warned about.
 
-### Not built: control work, not dialog work
+### Built 2026-08-19: the icon treatments
 
-- **Icon treatments** (`Bare`, `CircleOutline`, `CircleFilled`, `Oversized`). A circular container
-  around a glyph is drawing, and this folder does not draw — `BeepImage` would own it.
+`DialogIconTreatment { Bare, CircleOutline, CircleFilled, Oversized }` is on `DialogConfig`
+(`IconTreatment`, nullable — resolved from the presentation when unset), and `BeepImage` now draws it:
+`Severity` + `IconTreatment` make the control draw the circle container (outline or filled) behind the
+glyph and tint the glyph from the severity accent (contrast on a filled circle), following a theme
+switch. The dialog manager hands both off in `ApplySeverity`, so the dialog folder still draws nothing.
 - **Inline emphasis.** Bolding one run inside `Message` needs a label that can render runs. That is
   `BeepLabel`'s to provide; a dialog cannot fake it without painting text itself.
 

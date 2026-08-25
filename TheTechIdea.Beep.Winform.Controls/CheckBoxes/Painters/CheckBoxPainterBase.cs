@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
@@ -131,28 +132,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 
         private static Color ShiftLuminance(Color color, float shift)
         {
-            float r = color.R / 255f;
-            float g = color.G / 255f;
-            float b = color.B / 255f;
-            float max = Math.Max(r, Math.Max(g, b));
-            float min = Math.Min(r, Math.Min(g, b));
-            float l = (max + min) / 2f;
-
-            float delta = shift;
-            if (l > 0.5f)
-            {
-                delta = -shift;
-            }
-
-            r = Math.Clamp(r + delta, 0f, 1f);
-            g = Math.Clamp(g + delta, 0f, 1f);
-            b = Math.Clamp(b + delta, 0f, 1f);
-
-            return Color.FromArgb(
-                color.A,
-                (int)(r * 255),
-                (int)(g * 255),
-                (int)(b * 255));
+            // One owner for lightness math (ColorUtils). Preserve the input alpha because an
+            // unchecked glyph may use a transparent fallback background.
+            return Color.FromArgb(color.A, ColorUtils.ShiftLuminance(color, shift));
         }
 
         protected Rectangle GetFocusRingBounds(Rectangle bounds)

@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
@@ -83,9 +85,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                         StyledImagePainter.Paint(g, itemRect, path);
                         drawn = true;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        try { _imagePainter.DrawImage(g, ctx.CustomImagePaths[i], itemRect); drawn = true; } catch { }
+                        BeepLog.FallbackOnce(path, this, "render gallery item", ex);
+                        try { _imagePainter.DrawImage(g, ctx.CustomImagePaths[i], itemRect); drawn = true; }
+                        catch (Exception ex2)
+                        {
+                            BeepLog.FallbackOnce($"galleryFallback:{path}", this, "render gallery item fallback", ex2);
+                        }
                     }
                 }
                 if (!drawn)

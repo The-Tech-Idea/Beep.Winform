@@ -13,6 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Models
         public Rectangle IconBounds { get; set; }
         public Rectangle TitleGapBounds { get; set; }
         public Rectangle TitleLineBounds { get; set; }
+        public Rectangle TitleLineBoundsRight { get; set; }
+        public Rectangle BadgeBounds { get; set; }
         public int TitleLineStartX { get; set; }
         public Rectangle HeaderBounds { get; set; }
         public Rectangle ContentBounds { get; set; }

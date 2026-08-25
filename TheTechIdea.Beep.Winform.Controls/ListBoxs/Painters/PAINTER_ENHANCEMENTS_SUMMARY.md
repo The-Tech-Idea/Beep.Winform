@@ -10,6 +10,18 @@ All painters have been enhanced with distinct visual features including:
 
 ---
 
+## Recent Fixes (2026-08)
+
+- **Swallowed exceptions now report** — the two bare `catch { }` sites in `BaseListBoxPainter`
+  (`DrawItemImage` image fallback and the hover-progress probe in `DrawItemBackgroundEx`) now
+  capture the exception and report through `BeepLog.FallbackOnce`, keyed for the per-paint path.
+- **Duplicate colour math removed** — `NeumorphicListBoxPainter` and
+  `GradientCardListBoxPainter` had private `LightenColor`/`DarkenColor` helpers duplicating
+  `ColorUtils`. They now call `ColorUtils.GetLighterColor`/`GetDarkerColor`, and the private
+  copies (plus `NeumorphicListBoxPainter`'s unused `GetLuminance`) are deleted.
+
+---
+
 ## Enhanced Painters
 
 ### 1. **StandardListBoxPainter**

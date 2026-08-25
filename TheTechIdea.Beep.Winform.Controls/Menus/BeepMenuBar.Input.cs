@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -69,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Debug.WriteLine($"BeepMenuBar: toggle-close on {item?.Text} (index {i})");
                     try { ContextMenuManager.CloseAllMenus(); }
-                    catch { /* non-fatal */ }
+                    catch (Exception ex) { BeepLog.Fallback(this, "CloseAllMenus", ex); }
                     _openTopLevelIndex = -1;
                     if (Activation == MenubarActivation.ActiveWithPopup)
                     {
@@ -193,9 +194,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ShowMenuItemPopupNonBlocking(target, targetIndex);
             }
-            catch
+            catch (Exception ex)
             {
                 // Defensive — don't let a swap failure poison the menubar.
+                BeepLog.Fallback(this, "ShowMenuItemPopupNonBlocking", ex);
             }
         }
 

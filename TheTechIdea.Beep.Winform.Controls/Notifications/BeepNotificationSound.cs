@@ -208,8 +208,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 var v = _mgrDndProp.GetValue(inst);
                 return v as bool?;
             }
-            catch
+            catch (Exception ex)
             {
+                // DND is best-effort and must fail open: a reflection failure (e.g. the
+                // property was renamed) falls back to "not in DND". Report the degradation.
+                BeepLog.Fallback(typeof(FieldAccess), "read DoNotDisturbMode via reflection", ex);
                 return null;
             }
         }

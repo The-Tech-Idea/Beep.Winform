@@ -117,10 +117,8 @@ Filtering/
     └── ...
 
 GridX/Filtering/                # Grid-specific filter UI components
-├── BeepFilterRow.cs            # Filter row control (uses BeepControls)
 ├── BeepDateRangePicker.cs      # Date range picker
-├── BeepAdvancedFilterDialog.cs # Advanced filter dialog (uses BeepiFormPro)
-├── BeepQuickFilterBar.cs       # Excel-like quick filter bar
+├── FilterEditorHelper.cs       # On-demand toolbar search editor
 └── README.md
 ```
 

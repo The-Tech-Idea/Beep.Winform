@@ -563,22 +563,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             }
 
             // Global help URL fallback
-            if (!string.IsNullOrEmpty(_instance.Config.HelpUrl))
-            {
-                try
-                {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = _instance.Config.HelpUrl,
-                        UseShellExecute = true
-                    });
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(this, $"Unable to open help URL: {ex.Message}", "Help Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
+            WizardHelpers.OpenHelpUrl(this, _instance.Config.HelpUrl);
         }
 
         private void StepContent_ValidationStateChanged(object sender, StepValidationEventArgs e)

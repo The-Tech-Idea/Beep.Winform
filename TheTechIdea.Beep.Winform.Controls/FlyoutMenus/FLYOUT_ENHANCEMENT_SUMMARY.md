@@ -72,6 +72,45 @@ This document summarizes the enhancements made to the FlyoutMenus directory. The
 - `_menu` is a `BeepListBox` used as the popup content
 - Theme propagation via `_menu.Theme = Theme`
 
+## FlyoutManager Refactor
+
+`BeepFlyoutMenu` no longer reparents its `BeepListBox` into the parent form to show the popup.
+That mechanism was replaced by the reusable `FlyoutManager`.
+
+### New files
+
+| File | Purpose |
+|------|---------|
+| `IFlyoutManager.cs` | Contract: `Show(content, anchor, position, size)`, `Close()`, `IsOpen`. Hosts any `Control`. |
+| `FlyoutManager.cs` | `Component` implementation. One flyout at a time; detaches the caller's content before disposing the transient host; raises `Closed`. |
+| `FlyoutHostForm.cs` | Internal `BeepPopupForm` subclass that docks/hosts the content with animation disabled for deterministic close. |
+
+### Why a manager, not DialogManager
+
+- `IDialogManager` is modal and returns `DialogResult`; flyouts are non-modal and dismiss on outside-click.
+- `IDialogManager` lives in `Vis.Modules`, which has no WinForms reference, so a `Control`-hosting contract must live in the Controls project.
+
+### What changed in `BeepFlyoutMenu`
+
+- Removed the manual `parentForm.Controls.Add(_menu)` / `Controls.Remove(_menu)` reparenting and the
+  screen-coordinate `UpdateMenuPosition` (the root cause of the mispositioned popup).
+- `_menu` is no longer a child of the control; it is created once, hosted by `FlyoutManager` on open,
+  and detached (not disposed) on close.
+- Proxy properties (`ShowSearch`, `ShowCheckBox`, `ShowItemIcons`, `MultiSelect`) now persist to
+  backing fields instead of being applied to `_menu` only when it exists (accepted-then-ignored fix).
+- `FlyoutManager.Closed` resets `IsExpanded`/`IsPopupOpen`, updates the arrow icon, and raises `PopupClosed`
+  — so outside-click dismissal is now correctly reflected in control state.
+- `OnResize` now delegates fully to `UpdateControlLayout` (the old path forced the button to the right
+  edge even when `LabelPosition.Right`).
+- Added `Dispose(bool)` to release the manager and the detached `_menu`.
+
+### `BeepPopupForm` fix
+
+`ShowPopup(Point, position)` and `ShowPopupAsync(Point, position)` previously forwarded a `null` trigger
+into an overload that threw `ArgumentNullException`, so point-anchored popups never worked. The trigger
+overloads now tolerate a null trigger (point-anchored popups dismiss via the popup's own mouse-leave
+cascade rather than a trigger control).
+
 ## Next Steps (Optional Future Enhancements)
 
 1. **Animation Enhancements**: Add smooth slide/fade animations when opening/closing

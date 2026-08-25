@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using ControlsHelpers = TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -571,7 +572,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.WriteLine($"ApplyTheme Error: {ex.Message}");
+                BeepLog.Failure(this, "ApplyTheme", ex);
             }
         }
 

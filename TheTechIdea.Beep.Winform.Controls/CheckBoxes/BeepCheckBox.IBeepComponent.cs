@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 {
@@ -48,9 +49,14 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                         System.Globalization.CultureInfo.InvariantCulture);
                     CurrentValue = (T)converted;
                 }
-                catch (InvalidCastException) { }
-                catch (FormatException) { }
-                catch (OverflowException) { }
+                catch (Exception ex) when (ex is InvalidCastException or FormatException or OverflowException)
+                {
+                    // Best-effort coercion failed (e.g. a non-numeric string bound to a bool
+                    // checkbox). Report through the library's single failure sink and leave
+                    // CurrentValue unchanged rather than fabricating a value. Continuing is
+                    // safe: the control keeps its previous state.
+                    BeepLog.Fallback(this, $"coerce '{value}' to {typeof(T).Name}", ex);
+                }
             }
             finally
             {

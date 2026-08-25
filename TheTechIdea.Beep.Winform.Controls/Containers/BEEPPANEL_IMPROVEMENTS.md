@@ -1,7 +1,65 @@
 # BeepPanel Modern UI/UX Improvements
 
+> **Note (2026-08-21):** A cleanup pass followed the work described below. The dead
+> inline border pipeline (`PaintBorder`, `GetShapePath`, `CreateGroupBoxBorderPath`,
+> `BeepPanelPainter.BuildGroupBoxBorderPath`, `GetTitleArea`, `DrawGroupBoxTitle`) was
+> removed — border painting is handled by the BaseControl `BorderPainter` pipeline. The
+> inert "Phase 1 UX" surface (`Elevation`, `ElevationOnHover`, `StickyHeader`, `State`,
+> `EmptyStateMessage`, and the `PanelState`/`TitlePosition` enums) was deleted. The broken
+> hand-rolled `VScrollBar`/`HScrollBar` scroll system (which never moved children) was
+> removed in favor of the framework `ScrollableControl.AutoScroll`. `UseThemeFont` now
+> actually drives the title font, and `_textFont` is no longer disposed (it may be a
+> shared/theme-cached/user-owned font).
+
 ## Overview
 Revised BeepPanel drawing and title rendering to follow **Material Design 3** and modern UI/UX best practices.
+
+## CSS-style corner radius via Region (2026-08-21)
+
+`BeepPanel` clips its children through a Windows Forms `Region`, so the panel can
+simulate web/CSS shapes. In addition to the existing `PanelShape` (`Rectangle`,
+`RoundedRectangle`, `Ellipse`, `Custom`) and `CustomShapePath` (a CSS `clip-path`
+equivalent), the panel now supports **per-corner radius** — CSS `border-radius: a b c d`.
+
+- `CornerRadius` (`Forms.ModernForm.Painters.CornerRadius`) exposes `TopLeft`, `TopRight`,
+  `BottomLeft`, `BottomRight`.
+- When **not** set explicitly, each corner follows the inherited `BorderRadius`
+  (the theme/uniform value), preserving existing behaviour.
+- Setting any corner makes `CornerRadius` authoritative; the clip region is built with
+  `GraphicsExtensions.CreateRoundedRectanglePath(bounds, CornerRadius)`.
+- Helpers: `SetCornerRadius(int all)` (uniform, also syncs `BorderRadius`) and
+  `SetCornerRadius(int topLeft, int topRight, int bottomRight, int bottomLeft)` (CSS order).
+
+Example — web-style asymmetric rounding:
+
+```csharp
+panel.SetCornerRadius(topLeft: 24, topRight: 24, bottomRight: 4, bottomLeft: 4);
+```
+
+Note: the border *painter* and theme sync use the uniform `BorderRadius`; an asymmetric
+`CornerRadius` primarily reshapes the clip region (and therefore the visible
+background/content edge).
+
+## Web/CSS shapes & tab-header title (2026-08-21)
+
+**Shapes** — `PanelShape` gained `Pill` (stadium, CSS `border-radius: 9999px`) and
+`Squircle` (iOS/SwiftUI superellipse). Both are applied through the clip `Region`.
+
+**Title styles** — `PanelTitleStyle` gained:
+
+- `Divider` — title centered with horizontal rules on both sides (CSS "heading with rules").
+- `Badge` — title inside a pill chip (CSS chip/badge).
+- `TopHeader` — a proper **tab-header** band: a solid, full-width header across the top.
+  The title and icon are vertically centered with padding (DPI-scaled from `TitleGap`),
+  respect `TitleAlignment` (left/center/right), and use a contrast color against the band.
+  When `ShowTitleLine` is on, a full-width divider is drawn at the band's bottom edge.
+  The band color is the existing accent (`TitleLineColor` / theme `CardTitleForeColor`).
+
+```csharp
+panel.TitleStyle   = PanelTitleStyle.TopHeader;
+panel.ShowTitleLine = true;   // divider under the tab header
+panel.TitleLineColor = Color.FromArgb(220, 38, 38); // e.g. "URGENT" red band
+```
 
 ## Key Changes
 

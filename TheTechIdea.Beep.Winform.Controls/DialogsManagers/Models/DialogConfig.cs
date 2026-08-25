@@ -57,6 +57,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public int IconSize { get; set; } = 48;
         public DialogIconSizePreset IconSizePreset { get; set; } = DialogIconSizePreset.Medium;
+
+        /// <summary>
+        /// How the icon glyph is presented (circle outline / filled / bare). When
+        /// null, resolves from <see cref="Presentation"/> — TitleBar outlines,
+        /// Centred and HeroBand fill, Flat oversizes.
+        /// </summary>
+        public DialogIconTreatment? IconTreatment { get; set; }
         /// <summary>
         /// Obsolete alias for <see cref="Presentation"/>.
         /// </summary>
@@ -549,7 +556,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public bool RememberSizeAndPosition { get; set; } = false;
         public bool EnableRecentInputMemory { get; set; } = false;
         public int RecentInputCapacity { get; set; } = 5;
-        public bool EnableUndoForDestructiveActions { get; set; } = true;
 
         #endregion
 

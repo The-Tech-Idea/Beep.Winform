@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
@@ -881,10 +882,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                         activePainter.Paint(g, rect, _currentTheme, this, ActivePainterParameters);
                     }
                 }
-                catch (ArgumentException)
+                catch (ArgumentException ex)
                 {
                     // Safety in designer when GDI receives invalid params
                     if (LicenseManager.UsageMode != LicenseUsageMode.Designtime) throw;
+                    BeepLog.FallbackOnce("progressbar-paint-invalid-args", this, "Paint", ex);
                     return;
                 }
 
@@ -944,9 +946,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                         }
                     }
                 }
-                catch (ArgumentException)
+                catch (ArgumentException ex)
                 {
                     if (LicenseManager.UsageMode != LicenseUsageMode.Designtime) throw;
+                    BeepLog.FallbackOnce("progressbar-hitarea-invalid-args", this, "UpdateHitAreas", ex);
                 }
                 return;
             }

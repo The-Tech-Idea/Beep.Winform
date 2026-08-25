@@ -63,26 +63,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         }
 
         /// <summary>
-        /// Gets or sets whether to use theme colors instead of custom colors
-        /// </summary>
-        [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color")]
-        [Browsable(true)]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                if (_useThemeColors != value)
-                {
-                    _useThemeColors = value;
-                    Invalidate();
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the FormStyle for visual appearance (maps to ContextMenuType)
         /// </summary>
         [Category("Beep")]
@@ -95,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         }
 
         /// <summary>
-        /// Gets or sets the border color
+        /// Gets the border color (derived from the active theme)
         /// </summary>
         [Category("Appearance")]
         [Description("The border color of the context menu")]
@@ -103,7 +83,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         public Color BorderColor
         {
             get => _currentTheme?.BorderColor ?? Color.FromArgb(200, 200, 200);
-            set { /* Read-only - derived from theme */ }
         }
 
         /// <summary>
@@ -667,7 +646,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _maxHeight;
             set
             {
-                if (_maxHeight != value && value >= _minHeight)
+                if (_maxHeight != value && value >= 0)
                 {
                     _maxHeightSetExplicitly = true;
                     _maxHeight = value;
@@ -776,25 +755,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         }
 
         /// <summary>
-        /// Duration of animations in milliseconds (fade-in/fade-out, item selection)
-        /// </summary>
-        [Browsable(true)]
-        [Category("Behavior")]
-        [Description("Duration of animations in milliseconds (fade-in/fade-out, item selection).")]
-        [DefaultValue(200)]
-        public int AnimationDuration
-        {
-            get => _animationDuration;
-            set
-            {
-                if (_animationDuration != value && value >= 0)
-                {
-                    _animationDuration = value;
-                }
-            }
-        }
-
-        /// <summary>
         /// Whether animations are enabled
         /// </summary>
         [Browsable(true)]
@@ -834,25 +794,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_fadeInDuration != value && value >= 0)
                 {
                     _fadeInDuration = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Duration of fade-out animation in milliseconds
-        /// </summary>
-        [Browsable(true)]
-        [Category("Behavior")]
-        [Description("Duration of fade-out animation in milliseconds.")]
-        [DefaultValue(100)]
-        public int FadeOutDuration
-        {
-            get => _fadeOutDuration;
-            set
-            {
-                if (_fadeOutDuration != value && value >= 0)
-                {
-                    _fadeOutDuration = value;
                 }
             }
         }

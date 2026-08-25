@@ -152,25 +152,16 @@ BeepWebHeaderAppBar (Main Control)
 
 ### Color Schemes
 
-#### WebHeader1: Purple Minimal
-```csharp
-header.HeaderStyle = WebHeaderStyle.WebHeader1;
-// Colors: Purple background, Yellow indicators
-// Best for: Professional applications, modern SaaS
-```
+The header ships 15 painter-driven styles selected via `WebHeaderStyle` — ShoppyStore1/2,
+TrendModern, StudiofokMinimal, EcommerceDark, SaaSProfessional, CreativeAgency,
+CorporateMinimal, MobileFirst, MaterialDesign3, MinimalClean, MultiRowCompact,
+StartupHero, PortfolioMinimal and EcommerceModern. Each painter supplies its own layout,
+colours and accents; see `StylePainters/` and `WebHeaderStyle.cs`.
 
-#### WebHeader2: Yellow Vibrant
 ```csharp
-header.HeaderStyle = WebHeaderStyle.WebHeader2;
-// Colors: Gold background, Purple indicators
-// Best for: Bold, energetic brands
-```
-
-#### WebHeader3: Dark Professional
-```csharp
-header.HeaderStyle = WebHeaderStyle.WebHeader3;
-// Colors: Dark background, Orange indicators
-// Best for: E-commerce, sleek modern sites
+header.HeaderStyle = WebHeaderStyle.MaterialDesign3;
+header.HeaderStyle = WebHeaderStyle.StartupHero;
+header.HeaderStyle = WebHeaderStyle.EcommerceModern;
 ```
 
 ### Usage

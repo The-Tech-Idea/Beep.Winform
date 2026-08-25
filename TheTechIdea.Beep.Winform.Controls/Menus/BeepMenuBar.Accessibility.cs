@@ -20,6 +20,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -46,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (itemIndex < 0) return;
             try { AccessibilityNotifyClients(accEvent, itemIndex); }
-            catch { /* never let an AT subscriber error break the menubar */ }
+            catch (Exception ex) { BeepLog.FallbackOnce("menubar-accessible-notify", this, "RaiseAccessibleEvent", ex); }
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -216,7 +217,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var item = Item;
                 if (item == null) return;
-                try { _owner.HandleMenuItemClick(item, _index); } catch { }
+                try { _owner.HandleMenuItemClick(item, _index); }
+                catch (Exception ex) { BeepLog.Fallback(_owner, "HandleMenuItemClick", ex); }
             }
 
             public override void Select(AccessibleSelection flags)

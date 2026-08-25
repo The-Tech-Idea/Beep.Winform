@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -113,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!_dismissedSubscribed) return;
             try { ContextMenuManager.MenuDismissed -= OnContextMenuDismissed; }
-            catch { /* non-fatal */ }
+            catch (Exception ex) { BeepLog.Fallback(this, "UnsubscribeMenuDismissed", ex); }
             _dismissedSubscribed = false;
         }
 
@@ -227,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 selectedItem = base.ShowContextMenu(item.Children.ToList(), screenLocation, multiSelect: false);
             }
-            catch
+            catch (Exception ex)
             {
                 _openTopLevelIndex = -1;
                 // Defensive: if Show throws we never received MenuDismissed
@@ -236,6 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     SetActivation(MenubarActivation.ActiveNoPopup);
                 }
+                BeepLog.Failure(this, "ShowMenuItemPopup", ex);
                 throw;
             }
 
@@ -333,13 +335,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     });
             }
-            catch
+            catch (Exception ex)
             {
                 _openTopLevelIndex = -1;
                 if (Activation == MenubarActivation.ActiveWithPopup)
                 {
                     SetActivation(MenubarActivation.ActiveNoPopup);
                 }
+                BeepLog.Failure(this, "ShowMenuItemPopupNonBlocking", ex);
                 throw;
             }
         }
@@ -358,7 +361,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _nonBlockingPopupHandle = null;
             if (handle == null) return;
             try { handle.Dispose(); }
-            catch { /* non-fatal */ }
+            catch (Exception ex) { BeepLog.Fallback(this, "DisposePopupHandle", ex); }
         }
 
         /// <summary>

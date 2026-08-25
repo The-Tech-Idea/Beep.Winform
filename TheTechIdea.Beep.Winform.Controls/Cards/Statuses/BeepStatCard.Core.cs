@@ -26,22 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
         private string trendDownSvgPath = "trenddown.svg";
         private string cardiconSvgPath = "simpleinfoapps.svg";
         #endregion
-        private bool _useThemeColors = true;
         private bool _isApplyingTheme = false; // Prevent re-entrancy during theme application
         private bool _autoGenerateTooltip = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                _useThemeColors = value;
-                Invalidate();
-            }
-        }
         private BeepControlStyle _style = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
@@ -332,7 +318,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
         /// <summary>
         /// Set stat card tooltip with custom text, title, and type
         /// </summary>
-        public void SetStatCardTooltip(string text, string title = null, ToolTipType type = ToolTipType.Info)
+        public void SetStatCardTooltip(string text, string? title = null, ToolTipType type = ToolTipType.Info)
         {
             TooltipText = text;
             if (!string.IsNullOrEmpty(title))
@@ -356,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
         /// <summary>
         /// Event raised when the card is clicked
         /// </summary>
-        public event EventHandler CardClick;
+        public event EventHandler? CardClick;
 
         /// <summary>
         /// Raises the CardClick event

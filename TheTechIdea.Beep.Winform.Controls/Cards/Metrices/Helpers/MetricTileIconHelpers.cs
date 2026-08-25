@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
         /// <summary>
         /// Get recommended metric icon path based on metric type
         /// </summary>
-        public static string GetRecommendedMetricIcon(string metricType = null)
+        public static string GetRecommendedMetricIcon(string? metricType = null)
         {
             if (!string.IsNullOrEmpty(metricType))
             {
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
         /// <summary>
         /// Get recommended silhouette icon path based on metric type
         /// </summary>
-        public static string GetRecommendedSilhouetteIcon(string metricType = null)
+        public static string GetRecommendedSilhouetteIcon(string? metricType = null)
         {
             if (!string.IsNullOrEmpty(metricType))
             {

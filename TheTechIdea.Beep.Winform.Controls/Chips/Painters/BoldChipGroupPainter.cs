@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             var font = GetFont(options, scale);
-            var (bgColor, fgColor, accentColor) = GetColors(state, options);
+            var (_, fgColor, accentColor) = GetColors(state, options);
 
             int cornerRadius = DpiScalingHelper.ScaleValue(10, scale);
             using var path = CreateRoundedPath(bounds, cornerRadius);

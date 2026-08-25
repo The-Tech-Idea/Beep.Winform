@@ -2,7 +2,7 @@
 
 ## ✅ Overview
 
-Comprehensive collection of **27 specialized border painter classes** that handle all border rendering, accent bars, focus indicators, and outline effects for Beep controls. Each painter implements the `IBorderPainter` interface and provides unique border styling for specific design systems.
+Comprehensive collection of **60+ specialized border painter classes** that handle all border rendering, accent bars, focus indicators, and outline effects for Beep controls. Each painter implements the `IBorderPainter` interface (via a thin `BorderPainterWrapperBase` adapter in `BorderPainterFactory`) and provides unique border styling for specific design systems.
 
 ## 📁 Structure
 

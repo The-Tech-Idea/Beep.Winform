@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 using TheTechIdea.Beep.Winform.Controls.Dates.Painters;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -289,30 +290,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         #endregion
 
-        #region Time Scrolling Methods (Appointment Mode)
-
-        /// <summary>
-        /// Scroll the time list up (used by AppointmentHitHandler)
-        /// </summary>
-        public void ScrollTimeListUp()
-        {
-            // This would typically adjust a scroll offset in the painter
-            // For now, just trigger a repaint
-            Invalidate();
-        }
-
-        /// <summary>
-        /// Scroll the time list down (used by AppointmentHitHandler)
-        /// </summary>
-        public void ScrollTimeListDown()
-        {
-            // This would typically adjust a scroll offset in the painter
-            // For now, just trigger a repaint
-            Invalidate();
-        }
-
-        #endregion
-
         #region Theme Support
         public override void ApplyTheme()
         {
@@ -329,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"BeepDateTimePicker.ApplyTheme: Failed to apply theme font: {ex.Message}");
+                BeepLog.Fallback(this, "apply the date font; keeping current font", ex);
             }
             _textFont ??= BeepFontManager.DefaultFont ?? new Font("Segoe UI", 9.75f);
 

@@ -1,6 +1,4 @@
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Vis.Modules;
@@ -9,10 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Lovs.Helpers
 {
     /// <summary>
     /// Helper class for managing fonts and typography in LOV controls.
-    /// Prefer the theme-aware overloads (<see cref="GetLovFontFromTheme"/>,
-    /// <see cref="GetBadgeFontFromTheme"/>) which delegate to
-    /// <see cref="BeepThemesManager.ToFont"/> with DPI scaling.
-    /// The legacy <c>BeepFontManager</c> overloads remain as fallbacks.
+    /// Both overloads delegate to <see cref="BeepThemesManager.ToFont"/> with DPI scaling.
     /// </summary>
     public static class LovFontHelpers
     {
@@ -49,35 +44,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Lovs.Helpers
             };
             return BeepThemesManager.ToFont(boldStyle, applyDpiScaling: true);
         }
-
-        // ── Legacy / fallback ─────────────────────────────────────────────
-
-        /// <summary>
-        /// Gets the font for LOV text (key and value textboxes).
-        /// Prefer <see cref="GetLovFontFromTheme"/> when a live theme instance is available.
-        /// </summary>
-        public static Font GetLovFont(BeepControlStyle controlStyle)
-        {
-            float     baseSize  = StyleTypography.GetFontSize(controlStyle);
-            string    family    = StyleTypography.GetFontFamily(controlStyle).Split(',')[0].Trim();
-            return BeepFontManager.GetFont(family, baseSize, FontStyle.Regular);
-        }
-
-        /// <summary>
-        /// Gets the font for button icons/text at 85 % of the base control size.
-        /// </summary>
-        public static Font GetButtonFont(BeepControlStyle controlStyle)
-        {
-            float  baseSize   = StyleTypography.GetFontSize(controlStyle);
-            string family     = StyleTypography.GetFontFamily(controlStyle).Split(',')[0].Trim();
-            return BeepFontManager.GetFont(family, baseSize * 0.85f, FontStyle.Regular);
-        }
-
-        /// <summary>
-        /// No-op kept for binary compatibility. Call
-        /// <see cref="GetLovFontFromTheme"/> instead.
-        /// </summary>
-        [System.Obsolete("Use GetLovFontFromTheme(theme) and cache the returned Font on the control.")]
-        public static void ApplyFontTheme(BeepControlStyle controlStyle) { }
     }
 }

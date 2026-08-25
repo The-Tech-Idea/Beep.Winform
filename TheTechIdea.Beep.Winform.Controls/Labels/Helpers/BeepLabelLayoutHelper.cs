@@ -125,6 +125,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
                 return;
             }
 
+            // Gap between image and text (the label's icon-text spacing).
+            int gap = DpiScalingHelper.ScaleValue(4, owner);
+
             switch (state.TextImageRelation)
             {
                 case TextImageRelation.Overlay:
@@ -133,19 +136,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
                     break;
                 case TextImageRelation.ImageBeforeText:
                     imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, state.ImageAlign);
-                    textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width, contentRect.Top, contentRect.Width - imageSize.Width, contentRect.Height), textSize, state.TextAlign);
+                    textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width + gap, contentRect.Top, contentRect.Width - imageSize.Width - gap, contentRect.Height), textSize, state.TextAlign);
                     break;
                 case TextImageRelation.TextBeforeImage:
                     textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, textSize.Width, contentRect.Height), textSize, state.TextAlign);
-                    imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width, contentRect.Top, contentRect.Width - textSize.Width, contentRect.Height), imageSize, state.ImageAlign);
+                    imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width + gap, contentRect.Top, contentRect.Width - textSize.Width - gap, contentRect.Height), imageSize, state.ImageAlign);
                     break;
                 case TextImageRelation.ImageAboveText:
                     imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, imageSize.Height), imageSize, state.ImageAlign);
-                    textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height, contentRect.Width, contentRect.Height - imageSize.Height), textSize, state.TextAlign);
+                    textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height + gap, contentRect.Width, contentRect.Height - imageSize.Height - gap), textSize, state.TextAlign);
                     break;
                 case TextImageRelation.TextAboveImage:
                     textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, state.TextAlign);
-                    imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height, contentRect.Width, contentRect.Height - textSize.Height), imageSize, state.ImageAlign);
+                    imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height + gap, contentRect.Width, contentRect.Height - textSize.Height - gap), imageSize, state.ImageAlign);
                     break;
             }
         }

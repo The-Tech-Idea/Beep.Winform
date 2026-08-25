@@ -173,112 +173,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
         #region WCAG Compliance
 
         /// <summary>
-        /// Calculate contrast ratio between two colors (WCAG formula)
+        /// Calculate contrast ratio between two colors (WCAG formula).
+        /// Delegates to <see cref="ColorUtils"/> — the single owner of colour math.
         /// </summary>
         public static double CalculateContrastRatio(Color color1, Color color2)
-        {
-            var l1 = GetRelativeLuminance(color1);
-            var l2 = GetRelativeLuminance(color2);
-
-            var lighter = Math.Max(l1, l2);
-            var darker = Math.Min(l1, l2);
-
-            if (darker == 0)
-                return lighter > 0 ? double.MaxValue : 1.0;
-
-            return (lighter + 0.05) / (darker + 0.05);
-        }
+            => ColorUtils.ContrastRatio(color1, color2);
 
         /// <summary>
-        /// Get relative luminance of a color (WCAG formula)
+        /// Get relative luminance of a color (WCAG formula).
+        /// Delegates to <see cref="ColorUtils"/>.
         /// </summary>
         public static double GetRelativeLuminance(Color color)
-        {
-            double r = GetColorComponent(color.R);
-            double g = GetColorComponent(color.G);
-            double b = GetColorComponent(color.B);
-
-            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        }
-
-        /// <summary>
-        /// Convert color component to linear RGB space
-        /// </summary>
-        private static double GetColorComponent(byte component)
-        {
-            double c = component / 255.0;
-            return c <= 0.03928 ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4);
-        }
+            => ColorUtils.RelativeLuminance(color);
 
         /// <summary>
         /// Ensure contrast ratio meets WCAG standards
         /// WCAG AA: 4.5:1 for normal text, 3:1 for large text
         /// </summary>
         public static bool EnsureContrastRatio(Color foreColor, Color backColor, double minRatio = 4.5)
-        {
-            var ratio = CalculateContrastRatio(foreColor, backColor);
-            return ratio >= minRatio;
-        }
+            => ColorUtils.ContrastRatio(foreColor, backColor) >= minRatio;
 
         /// <summary>
-        /// Adjust color to meet minimum contrast ratio
+        /// Adjust a color so it is legible on <paramref name="backColor"/>.
+        /// Delegates to <see cref="ColorUtils.EnsureReadable"/> — the single owner.
         /// </summary>
         public static Color AdjustForContrast(Color foreColor, Color backColor, double minRatio = 4.5)
-        {
-            if (EnsureContrastRatio(foreColor, backColor, minRatio))
-            {
-                return foreColor; // Already meets requirement
-            }
-
-            // Try to darken or lighten foreground to meet contrast
-            var backLuminance = GetRelativeLuminance(backColor);
-            var foreLuminance = GetRelativeLuminance(foreColor);
-
-            // Determine if we need to lighten or darken
-            bool needLighter = backLuminance > 0.5; // Light background needs dark text
-            bool needDarker = backLuminance <= 0.5; // Dark background needs light text
-
-            // Adjust color
-            if (needLighter && foreLuminance < backLuminance)
-            {
-                // Need darker text for light background
-                return DarkenColor(foreColor, 0.7f);
-            }
-            else if (needDarker && foreLuminance > backLuminance)
-            {
-                // Need lighter text for dark background
-                return LightenColor(foreColor, 1.3f);
-            }
-
-            // Fallback: use black or white
-            return backLuminance > 0.5 ? Color.Black : Color.White;
-        }
-
-        /// <summary>
-        /// Darken a color by a factor
-        /// </summary>
-        private static Color DarkenColor(Color color, float factor)
-        {
-            return Color.FromArgb(
-                color.A,
-                Math.Max(0, (int)(color.R * factor)),
-                Math.Max(0, (int)(color.G * factor)),
-                Math.Max(0, (int)(color.B * factor))
-            );
-        }
-
-        /// <summary>
-        /// Lighten a color by a factor
-        /// </summary>
-        private static Color LightenColor(Color color, float factor)
-        {
-            return Color.FromArgb(
-                color.A,
-                Math.Min(255, (int)(color.R * factor)),
-                Math.Min(255, (int)(color.G * factor)),
-                Math.Min(255, (int)(color.B * factor))
-            );
-        }
+            => ColorUtils.EnsureReadable(foreColor, backColor, minRatio);
 
         #endregion
 

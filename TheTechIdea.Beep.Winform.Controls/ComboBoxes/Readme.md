@@ -216,3 +216,9 @@ have been removed. All popup content is now handled by BeepListBox with automati
 - **Deleted legacy popup content files** — DenseAvatarPopupContent, ChipHeaderPopupContent, MinimalCleanPopupContent, CardRowPopupContent, GroupedSectionsPopupContent, PillGridPopupContent, ComboBoxPopupContent, ComboBoxListBoxPopupContent, IPopupContentPanel
 - **Simplified architecture** — Single BeepComboBoxPopupForm handles all popup content via BeepListBox
 - **Fade animation** — Reduced to 100ms for faster popup open/close
+
+## Recent Fixes (2026-08)
+
+- **No more silent popup-handle leaks** — `CloseDropdown` and `OnManagerMenuDismissed` swallowed dispose failures (`catch { /* non-fatal */ }`); they now report through `BeepLog.Failure` so a leaked popup window is visible instead of silently ignored.
+- **Leading-icon fallback now reports** — `ComboBoxFieldPainterBase` had a bare `catch` that drew a placeholder icon; it now reports the failure once per image path through `BeepLog.FallbackOnce` before drawing the placeholder.
+- **Fixed a per-chip GDI leak** — multi-select chip rendering built two `GraphicsPath` objects per chip per paint and disposed neither; fill and stroke now share one path wrapped in `using`.

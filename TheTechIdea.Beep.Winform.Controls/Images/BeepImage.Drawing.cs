@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.Images.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Images
@@ -33,6 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            DrawIconTreatmentContainer(g, destRect);
 
             var originalTransform = g.Transform;
             var originalClip = g.Clip;
@@ -79,6 +83,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
                 g.Clip = originalClip;
                 g.Transform = originalTransform;
             }
+        }
+
+        /// <summary>
+        /// Draws the circle container behind the glyph when the icon treatment is
+        /// a circle (outline or filled), coloured by the severity accent. This is
+        /// the one piece of the dialog icon that is drawing rather than theming,
+        /// and it belongs here, in the control that owns the glyph.
+        /// </summary>
+        private void DrawIconTreatmentContainer(Graphics g, Rectangle destRect)
+        {
+            if (IconTreatment is not (DialogIconTreatment.CircleOutline or DialogIconTreatment.CircleFilled))
+                return;
+            if (Severity is not DialogSeverity value || value == DialogSeverity.Neutral)
+                return;
+            if (_currentTheme is null) return;
+
+            var accent = DialogStyleAdapter.GetSeverityAccent(value, _currentTheme);
+            if (accent.IsEmpty) return;
+
+            if (IconTreatment == DialogIconTreatment.CircleFilled)
+            {
+                using var fill = new SolidBrush(accent);
+                g.FillEllipse(fill, destRect);
+            }
+
+            using var pen = new Pen(accent, Math.Max(1.5f, destRect.Width * 0.04f));
+            g.DrawEllipse(pen, destRect);
         }
 
         /// <summary>

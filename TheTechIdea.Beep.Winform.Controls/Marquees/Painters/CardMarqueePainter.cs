@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Marquees.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Marquees.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
 {
@@ -50,6 +51,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
             float x    = cardRect.X + ctx.Padding;
             float cy   = cardRect.Y + cardRect.Height / 2f;
             var   font = ctx.ItemFont ?? SystemFonts.DefaultFont;
+
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                int isz = ctx.ImageSize;
+                var iconRect = new Rectangle((int)x, (int)(cy - isz / 2f), isz, isz);
+                StyledImagePainter.PaintWithTint(g, iconRect, item.ImagePath, fg);
+                x += isz + 6;
+            }
 
             float tRight = string.IsNullOrEmpty(item.BadgeText) ? cardRect.Right - ctx.Padding
                                                                  : cardRect.Right - 32;

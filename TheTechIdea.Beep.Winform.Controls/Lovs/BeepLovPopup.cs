@@ -1007,7 +1007,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Color borderColor = CurrentTheme?.BorderColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlDark);
+            Color borderColor = CurrentTheme.BorderColor;
             using var pen = new Pen(borderColor, BorderPx);
             e.Graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
         }

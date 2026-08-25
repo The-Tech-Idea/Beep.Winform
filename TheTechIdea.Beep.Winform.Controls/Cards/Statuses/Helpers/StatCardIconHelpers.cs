@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
         /// <summary>
         /// Get recommended card icon path
         /// </summary>
-        public static string GetRecommendedCardIcon(string cardType = null)
+        public static string GetRecommendedCardIcon(string? cardType = null)
         {
             if (!string.IsNullOrEmpty(cardType))
             {

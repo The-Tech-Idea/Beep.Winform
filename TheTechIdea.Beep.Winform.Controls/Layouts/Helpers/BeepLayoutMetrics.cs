@@ -109,9 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
         public static readonly Size Chart            = new(400, 300);
 
         // ── Filters / Query ──────────────────────────────────────────────
-        public static readonly Size FilterRow        = new(300, 32);
         public static readonly Size FilterBar        = new(400, 32);
-        public static readonly Size QuickFilterBar   = new(400, 32);
         public static readonly Size QueryAndFilter   = new(400, 36);
 
         // ── Navigation ──────────────────────────────────────────────────
@@ -122,6 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
         public static readonly Size Sidebar          = new(240, 400);
         public static readonly Size SideMenu         = new(240, 400);
         public static readonly Size AccordionItem    = new(240, 36);
+        public const int CollapsedRailWidth          = 64;   // collapsed nav/accordion rail width
         public static readonly Size Stepper          = new(320, 32);
         public static readonly Size StepperBreadcrumb = new(300, 36);
 
@@ -157,6 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
         // helpers so the layout tracks the host display scale.
         public const int GridRowHeight     = 25;   // default data-row height
         public const int GridHeaderHeight  = 28;   // default column-header height
+        public const int GridActiveFilterBarHeight = 28; // default active-filter chips row height
         public const int GridRowMinHeight  = 18;   // absolute floor during resize drag
         public const int GridHeaderMinH    = 22;   // absolute floor for header resize
         public const int GridColumnMinW    = 20;   // minimum column width — 17 call sites

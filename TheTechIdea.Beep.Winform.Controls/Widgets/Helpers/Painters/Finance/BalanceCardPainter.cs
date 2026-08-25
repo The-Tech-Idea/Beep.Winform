@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
@@ -209,7 +210,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         // Action handlers - invoked from BaseControl hit areas
         private void HandleLogoClick(WidgetContext ctx) { Owner?.Invalidate(); }
         private void HandleBalanceClick(WidgetContext ctx) { ctx.ShowBalanceHistory = !ctx.ShowBalanceHistory; Owner?.Invalidate(); }
-        private void HandleAccountClick(WidgetContext ctx) { string accountNumber = ctx.AccountNumber ?? "****1234"; try { System.Windows.Forms.Clipboard.SetText(accountNumber); ctx.ShowCopiedMessage = true; } catch { } Owner?.Invalidate(); }
+        private void HandleAccountClick(WidgetContext ctx)
+        {
+            string accountNumber = ctx.AccountNumber ?? "****1234";
+            try { System.Windows.Forms.Clipboard.SetText(accountNumber); ctx.ShowCopiedMessage = true; }
+            catch (Exception ex)
+            {
+                // Clipboard can be held by another process; copying is best-effort.
+                BeepLog.Fallback(Owner, "copy account number to clipboard", ex);
+            }
+            Owner?.Invalidate();
+        }
         private void HandleSecurityClick(WidgetContext ctx) { Owner?.Invalidate(); }
 
         public void Dispose() { _imagePainter?.Dispose(); }

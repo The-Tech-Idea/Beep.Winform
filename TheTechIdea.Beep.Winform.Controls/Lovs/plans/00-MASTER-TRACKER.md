@@ -276,3 +276,22 @@ all four.
 
 Verified by rendering the popup populated in both themes and eyeballing, plus 62 passing checks.
 The 5 failures are still the pre-existing composition ones recorded above.
+
+---
+
+## Batch: residual clean-ups (2026-08)
+
+Two stragglers from the theming batch, both now gone:
+
+- **Popup border still had a `SystemColors` fallback.** `OnPaint` read
+  `CurrentTheme?.BorderColor ?? MapSystemColor(SystemColors.ControlDark)` — but `CurrentTheme`
+  always resolves to a theme, so the `??` was dead code of exactly the kind the theming batch
+  removed from the field ("there is always a theme"). It is now `CurrentTheme.BorderColor`.
+- **`LovFontHelpers` carried dead legacy members.** `GetLovFont(style)`, `GetButtonFont(style)`
+  and the `[Obsolete]` no-op `ApplyFontTheme(style)` had no caller anywhere; only
+  `GetLovFontFromTheme` / `GetBadgeFontFromTheme` are live. All three removed (plus the two
+  now-unused usings), leaving the two theme-aware overloads as the whole class.
+
+Build green. The 5 composition checks remain the only failing checks, and remain deliberate —
+`BeepListofValuesBox.ValueArea.cs` documents the evidence for painting the value area rather than
+composing it from child controls.

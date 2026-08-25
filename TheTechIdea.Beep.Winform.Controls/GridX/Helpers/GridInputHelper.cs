@@ -117,7 +117,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseDown(MouseEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"=== GridInputHelper.HandleMouseDown ENTERED at {e.Location} ===");
             // Don't process mouse down while context menu is active
             
             
@@ -125,8 +124,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _pressedOnCheckbox = false;
             _pressedRow = _pressedCol = -1;
             _mouseDownHandledByTopFilterPanel = false;
-
-            System.Diagnostics.Debug.WriteLine($"=== After initializing fields ===");
 
             if (_grid.ShowTopFilterPanel)
             {
@@ -141,14 +138,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (e.Button == MouseButtons.Left && e.Clicks >= 2 && TryHandleColumnBorderDoubleClick(e.Location))
             {
-                System.Diagnostics.Debug.WriteLine("Double-click on column border handled");
                 return;
             }
 
             // Navigator
             if (_grid.ShowNavigator && HitTestNavigator(e.Location))
             {
-                System.Diagnostics.Debug.WriteLine("Navigator hit");
                 return;
             }
 
@@ -219,14 +214,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _mouseDownHandledByTopFilterPanel = true;
 
-                System.Diagnostics.Debug.WriteLine($">>> FILTER PANEL CLICKED at {e.Location} <<<");
                 int clearColIdx = HitHeaderIcon(_grid.Render.TopFilterClearIconRects, e.Location);
-                System.Diagnostics.Debug.WriteLine($">>> clearColIdx = {clearColIdx}, ClearAllKey={BaseFilterPanelPainter.ClearAllActionKey}, AdvancedKey={BaseFilterPanelPainter.AdvancedFilterActionKey}");
 
                 // Check for Clear All button (special key -1)
                 if (clearColIdx == BaseFilterPanelPainter.ClearAllActionKey)
                 {
-                    System.Diagnostics.Debug.WriteLine(">>> CLEAR ALL clicked");
                     _grid.SortFilter.ClearFilters();
                     if (_grid.IsFiltered)
                     {
@@ -246,7 +238,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Check for Advanced Filter button (special key -3)
                 if (clearColIdx == BaseFilterPanelPainter.AdvancedFilterActionKey)
                 {
-                    System.Diagnostics.Debug.WriteLine(">>> ADVANCED FILTER clicked");
                     _grid.ShowAdvancedFilterDialog();
                     return;
                 }
@@ -254,7 +245,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Check for column clear icons (positive indices)
                 if (clearColIdx >= 0 && clearColIdx < _grid.Data.Columns.Count)
                 {
-                    System.Diagnostics.Debug.WriteLine($">>> Column CLEAR clicked for col {clearColIdx}");
                     var clearColumn = _grid.Data.Columns[clearColIdx];
                     if (clearColumn != null && !string.IsNullOrWhiteSpace(clearColumn.ColumnName))
                     {
@@ -267,12 +257,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 int panelColIdx = HitHeaderIcon(_grid.Render.TopFilterCellRects, e.Location);
-                System.Diagnostics.Debug.WriteLine($">>> panelColIdx = {panelColIdx}, SearchKey={BaseFilterPanelPainter.SearchActionKey}");
 
                 // Check for Search button (special key -2)
                 if (panelColIdx == BaseFilterPanelPainter.SearchActionKey)
                 {
-                    System.Diagnostics.Debug.WriteLine(">>> SEARCH clicked");
                     _grid.ShowSearchDialog();
                     return;
                 }
@@ -280,7 +268,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Check for column filter chips (positive indices)
                 if (panelColIdx >= 0 && panelColIdx < _grid.Data.Columns.Count)
                 {
-                    System.Diagnostics.Debug.WriteLine($">>> Column FILTER clicked for col {panelColIdx}");
                     var panelColumn = _grid.Data.Columns[panelColIdx];
                     if (panelColumn != null && !string.IsNullOrWhiteSpace(panelColumn.ColumnName))
                     {
@@ -290,7 +277,35 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 // Any other click in the filter panel area (gaps, padding, etc.)
-                System.Diagnostics.Debug.WriteLine(">>> Empty panel area clicked - ignoring");
+                return;
+            }
+
+            // Active filter chips row — each chip's "x" removes that condition
+            // (an ActiveFilter criterion or a per-column SortFilter condition),
+            // and "Clear all" clears every condition.
+            if (!_grid.Layout.ActiveFilterBarRect.IsEmpty && _grid.Layout.ActiveFilterBarRect.Contains(e.Location))
+            {
+                int chipIndex = HitHeaderIcon(_grid.Render.ActiveFilterChipClearRects, e.Location);
+                if (chipIndex != int.MinValue)
+                {
+                    _grid.RemoveFilterCriterionAt(chipIndex);
+                    return;
+                }
+
+                string? sortColumn = HitSortFilterChip(_grid.Render.SortFilterChipClearRects, e.Location);
+                if (sortColumn != null)
+                {
+                    _grid.SortFilter.ClearColumnFilter(sortColumn);
+                    return;
+                }
+
+                if (_grid.Render.ActiveFilterClearAllRect.Contains(e.Location))
+                {
+                    _grid.ClearFilter();
+                    return;
+                }
+
+                // Anywhere else in the bar is inert — do not fall through to selection.
                 return;
             }
 
@@ -428,7 +443,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void HandleMouseUp(MouseEventArgs e)
         {
             HandleToolbarMouseUp();
-            System.Diagnostics.Debug.WriteLine($"HandleMouseUp at location: {e.Location}");
             // Don't process mouse up while context menu is active
             
             if (_mouseDownHandledByTopFilterPanel)
@@ -441,14 +455,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Handle column reorder completion first
             if (_grid.AllowColumnReorder && _grid.ColumnReorder.HandleMouseUp(e.Location))
             {
-                System.Diagnostics.Debug.WriteLine("Column reorder handled mouse up");
                 return; // Column was being dragged, reorder handled it
             }
 
             // Reset column resizing
             if (_resizingColumn)
             {
-                System.Diagnostics.Debug.WriteLine("Ending column resize");
                 _resizingColumn = false;
                 _resizingColIndex = -1;
                 _grid.Cursor = Cursors.Default;
@@ -458,7 +470,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Reset header row resizing
             if (_resizingHeaderRow)
             {
-                System.Diagnostics.Debug.WriteLine("Ending header row resize");
                 _resizingHeaderRow = false;
                 _grid.Cursor = Cursors.Default;
                 return;
@@ -467,7 +478,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Reset data row resizing
             if (_resizingDataRow)
             {
-                System.Diagnostics.Debug.WriteLine("Ending data row resize");
                 _resizingDataRow = false;
                 _resizingRowIndex = -1;
                 _grid.Cursor = Cursors.Default;
@@ -494,12 +504,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             var (r, c) = HitTestCell(e.Location);
-            System.Diagnostics.Debug.WriteLine($"HitTestCell returned: Row={r}, Col={c}");
 
             // If mouse-up is on the same checkbox we pressed, toggle now
             if (_pressedOnCheckbox)
             {
-                System.Diagnostics.Debug.WriteLine("Pressed on checkbox, handling checkbox toggle");
                 bool sameTarget = false;
                 if (_pressedCol == -1)
                 {
@@ -527,13 +535,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
 
             // Normal cell clicks (not on checkbox)
-            System.Diagnostics.Debug.WriteLine($"Normal cell click. ReadOnly={_grid.ReadOnly}, r={r}, c={c}");
             if (r >= 0 && c >= 0 && !_grid.ReadOnly)
             {
                 var cell = _grid.Data.Rows[r].Cells[c];
                 var col = _grid.Data.Columns[c];
                 bool isCheckCol = col.IsSelectionCheckBox;
-                System.Diagnostics.Debug.WriteLine($"Cell found. IsCheckboxCol={isCheckCol}, IsReadOnly={cell.IsReadOnly}, IsEditable={cell.IsEditable}");
 
                 // Select the cell first
                 bool ctrlDown = (Control.ModifierKeys & Keys.Control) == Keys.Control;
@@ -545,7 +551,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Handle checkbox clicks (should be handled above through press tracking). Guard here for safety.
                 if (isCheckCol)
                 {
-                    System.Diagnostics.Debug.WriteLine("IsCheckboxColumn, toggling row selection");
                     ToggleRowSelection(r);
                     return;
                 }
@@ -553,17 +558,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // For other editable cells, show dialog editor
                 if (!cell.IsReadOnly && cell.IsEditable)
                 {
-                    System.Diagnostics.Debug.WriteLine("Calling BeginEdit...");
                     _grid.Edit.BeginEdit();
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Cell is readonly or not editable, skipping BeginEdit");
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Not calling BeginEdit: r={r}, c={c}, ReadOnly={_grid.ReadOnly}");
             }
         }
 
@@ -976,6 +972,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return int.MinValue;
         }
 
+        private static string? HitSortFilterChip(System.Collections.Generic.Dictionary<string, Rectangle> iconRects, Point location)
+        {
+            foreach (var pair in iconRects)
+            {
+                if (!pair.Value.IsEmpty && pair.Value.Contains(location))
+                {
+                    return pair.Key;
+                }
+            }
+
+            return null;
+        }
+
         private bool TryHandleColumnBorderDoubleClick(Point location)
         {
             if (!_grid.AllowUserToResizeColumns) return false;
@@ -1023,9 +1032,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     return;
 
                 case BeepGridToolbarState.KeyFilter:
-                    // Filter button → Excel-style header filter dialog
-                    // (the "Filter" funnel opens the same popup that the
-                    // column-header filter icon opens).
+                    // Filter button → quick "Filter by Column" dialog.
                     state.SearchHasFocus = false;
                     _grid.ShowFilterDialog();
                     return;

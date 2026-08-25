@@ -14,25 +14,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     /// Minimal chrome, tight spacing, smaller cells for dropdown scenarios
     /// Visual styling follows BeepTheme
     /// </summary>
-    public class CompactDateTimePickerPainter : IDateTimePickerPainter
+    public class CompactDateTimePickerPainter : DateTimePickerPainterBase
     {
-        private readonly BeepDateTimePicker _owner;
-        private IBeepTheme _theme;
+        public override DatePickerMode Mode => DatePickerMode.Compact;
 
-        public DatePickerMode Mode => DatePickerMode.Compact;
+        public CompactDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme) : base(owner, theme) { }
 
-        public CompactDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme)
-        {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            _theme = theme;
-        }
-
-        public void UpdateTheme(IBeepTheme theme)
-        {
-            _theme = theme;
-        }
-
-        public void PaintCalendar(Graphics g, Rectangle bounds, DateTimePickerProperties properties, DateTime displayMonth, DateTimePickerHoverState hoverState)
+        public override void PaintCalendar(Graphics g, Rectangle bounds, DateTimePickerProperties properties, DateTime displayMonth, DateTimePickerHoverState hoverState)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -131,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
+        public override void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
         {
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
@@ -196,12 +184,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
+        public override void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
         {
             PaintCompactHeader(g, headerBounds, headerText, null);
         }
 
-        public void PaintNavigationButton(Graphics g, Rectangle buttonBounds, bool isNext, bool isHovered, bool isPressed)
+        public override void PaintNavigationButton(Graphics g, Rectangle buttonBounds, bool isNext, bool isHovered, bool isPressed)
         {
             var iconColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
@@ -237,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
+        public override void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
             var textColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(140, 140, 140);
 
@@ -325,17 +313,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         }
 
         // Stub implementations
-        public void PaintRangeSelection(Graphics g, Rectangle calendarBounds, DateTime? rangeStart, DateTime? rangeEnd, DateTime displayMonth) { }
-        public void PaintTimePicker(Graphics g, Rectangle timePickerBounds, TimeSpan? selectedTime, List<TimeSpan> timeSlots, bool isEnabled, DateTimePickerHoverState hoverState) { }
-        public void PaintTimeSlot(Graphics g, Rectangle slotBounds, TimeSpan time, bool isSelected, bool isHovered, bool isPressed) { }
-        public void PaintQuickSelectionButtons(Graphics g, Rectangle buttonAreaBounds, DateTimePickerProperties properties, DateTimePickerHoverState hoverState) { }
-        public void PaintQuickButton(Graphics g, Rectangle buttonBounds, string text, bool isHovered, bool isPressed) { }
-        public void PaintActionButtons(Graphics g, Rectangle actionAreaBounds, bool showApply, bool showCancel, DateTimePickerHoverState hoverState) { }
-        public void PaintActionButton(Graphics g, Rectangle buttonBounds, string text, bool isPrimary, bool isHovered, bool isPressed) { }
-        public void PaintWeekNumbers(Graphics g, Rectangle weekColumnBounds, DateTime displayMonth, DatePickerFirstDayOfWeek firstDayOfWeek, DateTimePickerHoverState hoverState) { }
-        public void PaintWeekNumber(Graphics g, Rectangle weekBounds, int weekNumber, bool isHovered) { }
+        public override void PaintRangeSelection(Graphics g, Rectangle calendarBounds, DateTime? rangeStart, DateTime? rangeEnd, DateTime displayMonth) { }
+        public override void PaintTimePicker(Graphics g, Rectangle timePickerBounds, TimeSpan? selectedTime, List<TimeSpan> timeSlots, bool isEnabled, DateTimePickerHoverState hoverState) { }
+        public override void PaintTimeSlot(Graphics g, Rectangle slotBounds, TimeSpan time, bool isSelected, bool isHovered, bool isPressed) { }
+        public override void PaintQuickSelectionButtons(Graphics g, Rectangle buttonAreaBounds, DateTimePickerProperties properties, DateTimePickerHoverState hoverState) { }
+        public override void PaintQuickButton(Graphics g, Rectangle buttonBounds, string text, bool isHovered, bool isPressed) { }
+        public override void PaintActionButtons(Graphics g, Rectangle actionAreaBounds, bool showApply, bool showCancel, DateTimePickerHoverState hoverState) { }
+        public override void PaintActionButton(Graphics g, Rectangle buttonBounds, string text, bool isPrimary, bool isHovered, bool isPressed) { }
+        public override void PaintWeekNumbers(Graphics g, Rectangle weekColumnBounds, DateTime displayMonth, DatePickerFirstDayOfWeek firstDayOfWeek, DateTimePickerHoverState hoverState) { }
+        public override void PaintWeekNumber(Graphics g, Rectangle weekBounds, int weekNumber, bool isHovered) { }
 
-        public DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
+        public override DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
         {
             var layout = new DateTimePickerLayout();
             // Treat bounds as content area; keep padding minimal to match container
@@ -412,7 +400,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return firstDayOfMonth.AddDays(dayOffset);
         }
 
-        public Size GetPreferredSize(DateTimePickerProperties properties)
+        public override Size GetPreferredSize(DateTimePickerProperties properties)
         {
             // Padding(6*2=12) + Header(28) + DayNames(22) + Grid(150) + TodayBtn(32) = 244px
             int width = 280;
@@ -426,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return new Size(width, height);
         }
 
-        public Size GetMinimumSize(DateTimePickerProperties properties)
+        public override Size GetMinimumSize(DateTimePickerProperties properties)
         {
             // Padding(6*2=12) + Header(28) + DayNames(22) + MinGrid(108) + TodayBtn(optional 32) = 202px
             // Using 180px for compact layout without today button
@@ -441,66 +429,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return new Size(Math.Max(minWidth, 240), Math.Max(minHeight, 180));
         }
 
-        private static Color ShiftLuminance(Color color, float amount)
-        {
-            float h, s, l;
-            ColorToHsl(color, out h, out s, out l);
-            l = Math.Max(0, Math.Min(1, l + amount));
-            return ColorFromHsl(h, s, l);
-        }
-
-        private static void ColorToHsl(Color color, out float h, out float s, out float l)
-        {
-            float r = color.R / 255.0f;
-            float g = color.G / 255.0f;
-            float b = color.B / 255.0f;
-            float min = Math.Min(r, Math.Min(g, b));
-            float max = Math.Max(r, Math.Max(g, b));
-            l = (max + min) / 2.0f;
-            if (max == min)
-            {
-                h = s = 0;
-            }
-            else
-            {
-                float d = max - min;
-                s = l > 0.5f ? d / (2.0f - max - min) : d / (max + min);
-                if (max == r) h = (g - b) / d + (g < b ? 6 : 0);
-                else if (max == g) h = (b - r) / d + 2;
-                else h = (r - g) / d + 4;
-                h /= 6.0f;
-            }
-        }
-
-        private static Color ColorFromHsl(float h, float s, float l)
-        {
-            float r, g, b;
-            if (s == 0)
-            {
-                r = g = b = l;
-            }
-            else
-            {
-                float q = l < 0.5f ? l * (1 + s) : l + s - l * s;
-                float p = 2 * l - q;
-                r = HueToRgb(p, q, h + 1.0f / 3.0f);
-                g = HueToRgb(p, q, h);
-                b = HueToRgb(p, q, h - 1.0f / 3.0f);
-            }
-            return Color.FromArgb(
-                Math.Max(0, Math.Min(255, (int)(r * 255 + 0.5f))),
-                Math.Max(0, Math.Min(255, (int)(g * 255 + 0.5f))),
-                Math.Max(0, Math.Min(255, (int)(b * 255 + 0.5f))));
-        }
-
-        private static float HueToRgb(float p, float q, float t)
-        {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1.0f / 6.0f) return p + (q - p) * 6 * t;
-            if (t < 1.0f / 2.0f) return q;
-            if (t < 2.0f / 3.0f) return p + (q - p) * (2.0f / 3.0f - t) * 6;
-            return p;
-        }
     }
 }

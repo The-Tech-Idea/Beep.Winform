@@ -49,10 +49,7 @@ The Advanced Filtering System provides modern, Excel-like filtering capabilities
 Filtering/
 ├── FilterOperator.cs              - Enum and extensions for all operators
 ├── FilterCriteria.cs              - Filter criterion and configuration models
-├── BeepFilterRow.cs               - UI row for building filter expressions
 ├── BeepDateRangePicker.cs         - Modern date range picker control
-├── BeepAdvancedFilterDialog.cs    - Multi-column filter dialog (BeepiFormPro)
-├── BeepQuickFilterBar.cs          - Excel-like quick filter bar
 ├── GridFilterEngine.cs            - Filter application engine
 └── README.md                      - This file
 ```
@@ -307,15 +304,6 @@ if (openDialog.ShowDialog() == DialogResult.OK)
 
 ## UI Components
 
-### BeepFilterRow
-
-Modern filter row control for building filter expressions:
-- Column selector dropdown
-- Operator selector with symbols and names
-- Value input fields (1 or 2 based on operator)
-- Remove button
-- Auto-updates operators based on column data type
-
 ### BeepDateRangePicker
 
 Date range selection control:
@@ -324,28 +312,6 @@ Date range selection control:
 - "to" label between dates
 - Preset ranges (Today, Last 7 Days, This Month, etc.)
 - Validation for valid date ranges
-
-### BeepAdvancedFilterDialog
-
-Full-featured filter dialog using BeepiFormPro:
-- Multi-row filter builder
-- Add/remove filter rows dynamically
-- AND/OR logic selector
-- Save/load configurations
-- Clear all filters
-- Apply/Cancel buttons
-- Modern styling with BeepiFormPro
-
-### BeepQuickFilterBar
-
-Excel-like quick filter bar:
-- Global search across columns
-- Column selector dropdown
-- Real-time filtering as you type
-- Filter count badge
-- Clear filter button
-- Advanced filter button
-- Modern BeepControl styling
 
 ## Events
 

@@ -8,36 +8,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
         protected override void DrawCellContent(Graphics g, Rectangle rect)
         {
             if (Event == null) return;
-            var theme = _currentTheme;
-            if (theme == null) return;
+            if (_currentTheme == null) return;
 
             var priority = Metadatum("Priority", "Medium");
             var accentColor = BeepCellTemplateHelpers.PriorityColor(priority);
 
-            int pad = 6;
-            int accentWidth = 4;
-            var content = new Rectangle(rect.X + pad + accentWidth, rect.Y + pad,
-                rect.Width - pad * 2 - accentWidth, rect.Height - pad * 2);
+            var content = CellContentRect(rect);
+            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, CellAccentWidth);
 
-            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, accentWidth);
-
-            var titleFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            var detailFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
-            var textColor = theme.PrimaryTextColor;
-            var secondaryColor = Color.FromArgb(180, textColor);
-
-            int lineH = 16;
             var drawY = content.Y;
 
             var ticketNumber = Metadatum("TicketNumber", "");
             var titleLine = string.IsNullOrEmpty(ticketNumber)
                 ? Event.Title
                 : $"{Event.Title} · #{ticketNumber}";
-            var titleRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            TextRenderer.DrawText(g, titleLine, titleFont, titleRect, textColor,
+            var titleRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            TextRenderer.DrawText(g, titleLine, TitleFont, titleRect, TextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-            drawY += lineH;
+            drawY += CellLineHeight;
 
             var techName = Metadatum("TechnicianName", "");
             var eta = Metadatum("ETAMinutes", "");
@@ -48,38 +37,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                     : $"{techName} · ETA {eta}m";
             if (!string.IsNullOrEmpty(techLine))
             {
-                var techRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, techRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Calendar, techLine, 10);
-                drawY += lineH;
+                var techRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, techRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Calendar, techLine, 10);
+                drawY += CellLineHeight;
             }
 
             var equipment = Metadatum("EquipmentType", "");
-            var hasSpace = content.Y + content.Height - drawY >= lineH;
+            var hasSpace = content.Y + content.Height - drawY >= CellLineHeight;
             if (!string.IsNullOrEmpty(equipment) && hasSpace)
             {
-                var equipRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, equipRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Edit, equipment, 10);
-                drawY += lineH;
+                var equipRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, equipRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Edit, equipment, 10);
+                drawY += CellLineHeight;
             }
 
             if (hasSpace && !Event.IsAllDay)
             {
                 var timeText = $"{Event.StartTime:t} - {Event.EndTime:t}";
-                var timeRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Clock, timeText, 10);
+                var timeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Clock, timeText, 10);
             }
 
             if (priority == "Emergency" || priority == "Critical" || priority == "High")
             {
-                BeepCellTemplateHelpers.DrawBadge(g, rect, detailFont,
+                BeepCellTemplateHelpers.DrawBadge(g, rect, DetailFont,
                     priority, accentColor, Color.White);
             }
-
-            titleFont.Dispose();
-            detailFont.Dispose();
         }
     }
 }

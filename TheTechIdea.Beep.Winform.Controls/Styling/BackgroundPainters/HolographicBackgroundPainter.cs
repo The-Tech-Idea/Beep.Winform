@@ -3,6 +3,8 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
@@ -47,7 +49,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     Positions = new[] { 0f, 0.25f, 0.5f, 0.75f, 1f }
                 };
             }
-            catch { /* Fallback to linear gradient */ }
+            catch (Exception ex)
+            {
+                // Paint-path: a malformed ColorBlend falls back to the plain gradient.
+                BeepLog.FallbackOnce("holographic.gradient", typeof(HolographicBackgroundPainter), "build holographic gradient", ex);
+            }
             
             g.FillPath(gradient, path);
 

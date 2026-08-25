@@ -117,6 +117,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
+            // Draw the active-filter chips row (DevExpress-style removable
+            // conditions). Its rect is empty unless a filter is active, so
+            // drawing it is a no-op on an unfiltered grid.
+            try
+            {
+                DrawActiveFilterBar(g);
+            }
+            catch (Exception ex)
+            {
+                _grid.ReportRenderError("ActiveFilterBar", ex);
+            }
+
             // Draw data rows, or the empty state when there is nothing to draw
             try
             {
@@ -345,6 +357,159 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
 
         /// <summary>
+        /// Draws the active-filter chips row below the column headers.  Each
+        /// chip is one filter condition — an <see cref="FilterConfiguration"/>
+        /// criterion or a per-column SortFilter condition — with an "x" that
+        /// removes just that condition; a trailing "Clear all" removes every
+        /// condition at once. The row is only laid out (and therefore drawn)
+        /// while at least one condition is active.
+        /// </summary>
+        private void DrawActiveFilterBar(Graphics g)
+        {
+            var barRect = _grid.Layout.ActiveFilterBarRect;
+            _activeFilterChipClearRects.Clear();
+            _sortFilterChipClearRects.Clear();
+            _activeFilterClearAllRect = Rectangle.Empty;
+
+            if (barRect.Width <= 0 || barRect.Height <= 0) return;
+
+            var activeCriteria = _grid.ActiveFilter?.Criteria;
+            var sortCriteria = _grid.SortFilter.GetActiveColumnCriteria();
+            bool hasAny = (activeCriteria != null && activeCriteria.Count > 0)
+                          || (sortCriteria != null && sortCriteria.Count > 0);
+            if (!hasAny) return;
+
+            var isDark = IsDarkTheme;
+            float dpi = _grid.DeviceDpi / 96f;
+
+            var barBack = Theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(38, 48, 64) : Color.FromArgb(247, 248, 250));
+            var chipBack = Theme?.GridBackColor ?? (isDark ? Color.FromArgb(31, 41, 55) : Color.White);
+            var borderColor = Theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180));
+            var textColor = Theme?.GridForeColor ?? (isDark ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
+            var accent = Theme?.AccentColor ?? Color.DodgerBlue;
+
+            using (var backBrush = new SolidBrush(barBack))
+            {
+                g.FillRectangle(backBrush, barRect);
+            }
+
+            Font font = _grid.Font ?? SystemFonts.DefaultFont;
+
+            int paddingX = (int)(8 * dpi);
+            int chipHeight = Math.Max(20, (int)(22 * dpi));
+            int chipGap = (int)(6 * dpi);
+            int closeSize = (int)(16 * dpi);
+
+            int x = barRect.Left + paddingX;
+            int y = barRect.Top + (barRect.Height - chipHeight) / 2;
+
+            var prefix = "Filter:";
+            var prefixSize = TextRenderer.MeasureText(prefix, font);
+            TextRenderer.DrawText(g, prefix, font,
+                new Point(x, barRect.Top + (barRect.Height - prefixSize.Height) / 2), textColor);
+            x += prefixSize.Width + (int)(8 * dpi);
+
+            if (activeCriteria != null)
+            {
+                for (int i = 0; i < activeCriteria.Count; i++)
+                {
+                    var criterion = activeCriteria[i];
+                    if (criterion == null) continue;
+
+                    x = DrawFilterChip(g, criterion.ToString(), font, chipBack, borderColor, textColor,
+                        chipHeight, closeSize, dpi, x, y, chipGap, out var chipClearRect);
+                    _activeFilterChipClearRects[i] = chipClearRect;
+                }
+            }
+
+            if (sortCriteria != null)
+            {
+                foreach (var criterion in sortCriteria)
+                {
+                    x = DrawFilterChip(g, criterion.ToString(), font, chipBack, borderColor, textColor,
+                        chipHeight, closeSize, dpi, x, y, chipGap, out var sortChipClearRect);
+                    _sortFilterChipClearRects[criterion.ColumnName] = sortChipClearRect;
+                }
+            }
+
+            const string clearAll = "Clear all";
+            var clearSize = TextRenderer.MeasureText(clearAll, font);
+            var clearRect = new Rectangle(x + (int)(4 * dpi), y, clearSize.Width + (int)(8 * dpi), chipHeight);
+            _activeFilterClearAllRect = clearRect;
+            using (var accentBrush = new SolidBrush(accent))
+            {
+                TextRenderer.DrawText(g, clearAll, font, clearRect, accent,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+            }
+        }
+
+        /// <summary>
+        /// Draws one active-filter chip and returns the x position after the
+        /// chip plus its gap. The "x" close-target rect is returned through
+        /// <paramref name="clearRect"/> for hit-testing.
+        /// </summary>
+        private int DrawFilterChip(Graphics g, string label, Font font, Color chipBack, Color borderColor,
+            Color textColor, int chipHeight, int closeSize, float dpi, int x, int y, int chipGap, out Rectangle clearRect)
+        {
+            var textSize = TextRenderer.MeasureText(label, font);
+            int chipWidth = textSize.Width + closeSize + (int)(16 * dpi);
+
+            var chipRect = new Rectangle(x, y, chipWidth, chipHeight);
+
+            using (var path = CreateChipPath(chipRect, chipHeight / 2))
+            using (var chipBrush = new SolidBrush(chipBack))
+            using (var borderPen = new Pen(borderColor))
+            {
+                g.FillPath(chipBrush, path);
+                g.DrawPath(borderPen, path);
+            }
+
+            var labelRect = new Rectangle(
+                chipRect.X + (int)(7 * dpi), chipRect.Y,
+                chipRect.Width - closeSize - (int)(10 * dpi), chipRect.Height);
+            TextRenderer.DrawText(g, label, font, labelRect, textColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+
+            clearRect = new Rectangle(
+                chipRect.Right - closeSize - (int)(3 * dpi),
+                chipRect.Y + (chipRect.Height - closeSize) / 2,
+                closeSize, closeSize);
+            DrawCloseGlyph(g, clearRect, textColor);
+
+            return chipRect.Right + chipGap;
+        }
+
+        private static GraphicsPath CreateChipPath(Rectangle rect, int radius)
+        {
+            var path = new GraphicsPath();
+            int r = Math.Min(radius, Math.Min(rect.Width / 2, rect.Height / 2));
+            if (r <= 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+            int d = r * 2;
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+            path.AddLine(rect.X + r, rect.Y, rect.Right - r, rect.Y);
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+            path.AddLine(rect.Right, rect.Y + r, rect.Right, rect.Bottom - r);
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+            path.AddLine(rect.Right - r, rect.Bottom, rect.X + r, rect.Bottom);
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+            path.AddLine(rect.X, rect.Bottom - r, rect.X, rect.Y + r);
+            path.CloseFigure();
+            return path;
+        }
+
+        private static void DrawCloseGlyph(Graphics g, Rectangle rect, Color color)
+        {
+            int inset = Math.Max(2, rect.Width / 4);
+            using var pen = new Pen(color, 1.5f);
+            g.DrawLine(pen, rect.Left + inset, rect.Top + inset, rect.Right - inset, rect.Bottom - inset);
+            g.DrawLine(pen, rect.Right - inset, rect.Top + inset, rect.Left + inset, rect.Bottom - inset);
+        }
+
+        /// <summary>
         /// Draws a filter icon (funnel shape)
         /// </summary>
         private void DrawFilterIcon(Graphics g, Rectangle rect, bool active)
@@ -472,9 +637,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             bool isHovered = UseHeaderHoverEffects && _grid.Layout.HoveredHeaderColumnIndex == columnIndex;
             var isDark = IsDarkTheme;
+            var painter = _grid.HeaderPainter;
 
-            // Background with gradient support
-            if (UseHeaderGradient)
+            // Per-style background: the painter owns the header chrome so each GridStyle renders
+            // its own look. The uniform renderer remains only as the no-painter fallback.
+            if (painter != null)
+            {
+                painter.PaintHeaderBackground(g, cellRect, isHovered, Theme);
+            }
+            else if (UseHeaderGradient)
             {
                 var baseColor = Theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240));
                 var lightColor = Color.FromArgb(
@@ -532,7 +703,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Geometry comes from the active style painter, so Material/AGGrid/Fluent/Telerik each
             // place the caption, indicator and menu their own way. The renderer only records where
             // the interactive parts landed, which is what keeps input handling style-agnostic.
-            var painter = _grid.HeaderPainter;
             var layout = painter?.CalculateHeaderCellLayout(cellRect, column, _grid, _grid.DeviceDpi / 96f);
 
             Rectangle textRect, sortIconRect, menuButtonRect;
@@ -569,7 +739,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                  || isHovered;
                 if (drawGlyph)
                 {
-                    DrawSortIndicator(g, sortIconRect, direction);
+                    if (painter != null)
+                        painter.PaintSortIndicator(g, sortIconRect, direction, Theme);
+                    else
+                        DrawSortIndicator(g, sortIconRect, direction);
 
                     // Multi-sort: show this column's position so a two-column sort reads 1 and 2
                     // rather than two identical arrows.

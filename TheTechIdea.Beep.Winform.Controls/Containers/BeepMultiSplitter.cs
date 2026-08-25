@@ -1,10 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
@@ -23,9 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override Size DefaultSize => BeepLayoutMetrics.MultiSplitter;
         // Constants for user interactions
         private const int RESIZE_TOLERANCE = 10;
-        private const int ANIMATION_DELAY_MS = 50;
-        private const int MIN_ROW_HEIGHT = 30;
-        private const int ROW_HEIGHT_INCREMENT = 5;
 
         private bool isResizing = false;
         private int rowOrColumnIndex = -1;
@@ -57,7 +52,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _tableLayoutPanel.MouseUp -= TableLayoutPanel_MouseUp;
                         _tableLayoutPanel.DragEnter -= TableLayoutPanel_DragEnter;
                         _tableLayoutPanel.DragOver -= TableLayoutPanel_DragOver;
+                        _tableLayoutPanel.DragLeave -= TableLayoutPanel_DragLeave;
                         Controls.Remove(_tableLayoutPanel);
+                        _tableLayoutPanel.Dispose();
                     }
 
                     _tableLayoutPanel = value;
@@ -70,6 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _tableLayoutPanel.MouseUp += TableLayoutPanel_MouseUp;
                         _tableLayoutPanel.DragEnter += TableLayoutPanel_DragEnter;
                         _tableLayoutPanel.DragOver += TableLayoutPanel_DragOver;
+                        _tableLayoutPanel.DragLeave += TableLayoutPanel_DragLeave;
                         _tableLayoutPanel.Dock = DockStyle.Fill;
                         Controls.Add(_tableLayoutPanel);
                         HookAdornments();
@@ -91,6 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _tableLayoutPanel.AllowDrop = true;
             _tableLayoutPanel.DragEnter += TableLayoutPanel_DragEnter;
             _tableLayoutPanel.DragOver += TableLayoutPanel_DragOver;
+            _tableLayoutPanel.DragLeave += TableLayoutPanel_DragLeave;
 
             // Mouse event handlers for resizing (only at runtime)
             _tableLayoutPanel.MouseDown += TableLayoutPanel_MouseDown;
@@ -199,34 +198,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _tableLayoutPanel.RowCount--;
             }
         }
-
-        // Example of an animated approach
-        private async System.Threading.Tasks.Task AddRowAnimatedAsync()
-        {
-            int rowIndex = _tableLayoutPanel.RowCount;
-            _tableLayoutPanel.RowCount++;
-            _tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 0));
-
-            for (int i = 0; i < _tableLayoutPanel.ColumnCount; i++)
-            {
-                var label = new BeepLabel()
-                {
-                    Text = $"New Cell {rowIndex + 1},{i + 1}",
-                    TextAlign = ContentAlignment.MiddleCenter
-                };
-                _tableLayoutPanel.Controls.Add(label, i, rowIndex);
-            }
-
-            for (int height = 0; height <= MIN_ROW_HEIGHT; height += ROW_HEIGHT_INCREMENT)
-            {
-                _tableLayoutPanel.RowStyles[rowIndex].Height = height;
-                await Task.Delay(ANIMATION_DELAY_MS);
-            }
-        }
-
-        #endregion
-
-        #region "Column Routines"
 
         // Adds a new column with default properties
         private void AddColumn()
@@ -397,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (DesignMode) return;
 
-            Point tablePanelPt = _tableLayoutPanel.PointToClient(new Point(e.X, e.Y));
+            Point tablePanelPt = _tableLayoutPanel.PointToClient(Cursor.Position);
             TableLayoutPanelCellPosition cellPos = GetCellFromPoint(tablePanelPt);
             HighlightCell(cellPos);
         }
@@ -407,27 +378,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private int _lastHighlightedRow = -1;
         private int _lastHighlightedCol = -1;
+        private readonly Dictionary<Control, Color> _originalCellBackColors = new Dictionary<Control, Color>();
+
+        private void TableLayoutPanel_DragLeave(object sender, EventArgs e)
+        {
+            ClearCellHighlight();
+        }
 
         private void HighlightCell(TableLayoutPanelCellPosition cellPosition)
         {
             if (cellPosition.Row == _lastHighlightedRow && cellPosition.Column == _lastHighlightedCol)
                 return;
 
-            var defaultBackColor = _tableLayoutPanel.BackColor;
+            ClearCellHighlight();
+
             foreach (Control control in _tableLayoutPanel.Controls)
             {
                 TableLayoutPanelCellPosition pos = _tableLayoutPanel.GetPositionFromControl(control);
                 if (pos.Equals(cellPosition))
                 {
+                    // Remember the control's own color before tinting so the
+                    // highlight can be reverted exactly on drag-leave.
+                    _originalCellBackColors[control] = control.BackColor;
                     control.BackColor = ColorUtils.GetLighterColor(_tableLayoutPanel.BackColor, 0.15f);
-                }
-                else
-                {
-                    control.BackColor = defaultBackColor;
                 }
             }
             _lastHighlightedRow = cellPosition.Row;
             _lastHighlightedCol = cellPosition.Column;
+        }
+
+        private void ClearCellHighlight()
+        {
+            foreach (var pair in _originalCellBackColors)
+            {
+                if (pair.Key != null && !pair.Key.IsDisposed)
+                {
+                    pair.Key.BackColor = pair.Value;
+                }
+            }
+            _originalCellBackColors.Clear();
+            _lastHighlightedRow = -1;
+            _lastHighlightedCol = -1;
         }
 
         #endregion
@@ -529,6 +520,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get => _tableLayoutPanel.CellBorderStyle;
             set => _tableLayoutPanel.CellBorderStyle = value;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // contextMenu is not a child control, so dispose it explicitly.
+                contextMenu?.Dispose();
+                contextMenu = null;
+            }
+            base.Dispose(disposing);
         }
     }
 }

@@ -150,9 +150,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                             activeContextMenu.Dispose();
                         }
                     }
-                    catch (ObjectDisposedException)
-                    {
-                    }
                     finally
                     {
                         activeContextMenu = null;
@@ -483,6 +480,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
 
             return removed;
+        }
+
+        /// <summary>
+        /// Removes the filter criterion at the given index and re-applies
+        /// the remaining criteria.  Used by the active-filter chips row so
+        /// each chip's "x" removes exactly that condition.
+        /// </summary>
+        public bool RemoveFilterCriterionAt(int index)
+        {
+            if (_activeFilter == null || index < 0 || index >= _activeFilter.Criteria.Count)
+                return false;
+
+            _activeFilter.Criteria.RemoveAt(index);
+
+            if (_activeFilter.Criteria.Count == 0)
+            {
+                ClearFilter();
+            }
+            else
+            {
+                ApplyActiveFilter();
+            }
+
+            return true;
         }
 
         /// <summary>

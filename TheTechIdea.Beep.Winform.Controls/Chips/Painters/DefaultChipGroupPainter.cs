@@ -58,13 +58,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             var (bg, fg, border) = GetColors(state, opt);
             var groupBack = (opt.Theme ?? _theme)?.BackColor ?? _owner?.BackColor ?? Color.White;
 
-            if (state.IsDisabled)
-            {
-                bg = Color.FromArgb(120, bg);
-                fg = Color.FromArgb(120, fg);
-                border = Color.FromArgb(120, border);
-            }
-
             if (!state.IsSelected && bg.ToArgb() == groupBack.ToArgb())
             {
                 bool isDark = (opt.Theme ?? _theme)?.IsDarkTheme == true;
@@ -78,7 +71,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             }
             using var path = RoundedPath(bounds, DpiScalingHelper.ScaleValue(opt.CornerRadius, scale));
 
-            float originalAlpha = state.IsDisabled ? 0.6f : 1.0f;
             var oldClip = g.Clip;
             try
             {
@@ -88,31 +80,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                     g.Clip = clipRegion;
                 }
 
-                switch (opt.Style)
-                {
-                    case ChipStyle.Minimalist:
-                        if (state.IsHovered || state.IsSelected)
-                        {
-                            var tint = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsSelected ? 28 : 14, fg));
-                            g.FillPath(tint, path);
-                        }
-                        break;
-                    case ChipStyle.Classic:
-                    case ChipStyle.Professional:
-                    case ChipStyle.HighContrast:
-                        {
-                            var bgBr = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsHovered || state.IsSelected ? 18 : 8, bg));
-                            g.FillPath(bgBr, path);
-                        }
-                        break;
-                    default:
-                        {
-                            var fillColor = state.IsSelected ? bg : Color.FromArgb(220, bg);
-                            var bgBr = PaintersFactory.GetSolidBrush(fillColor);
-                            g.FillPath(bgBr, path);
-                        }
-                        break;
-                }
+                // ChipStyle.Minimalist/Classic/Professional/HighContrast are routed
+                // to their own painters by SwitchPainter, so the Default painter only
+                // ever renders the default fill here.
+                var fillColor = state.IsSelected
+                    ? bg
+                    : Color.FromArgb(state.IsHovered ? 240 : 220, bg);
+                var bgBr = PaintersFactory.GetSolidBrush(fillColor);
+                g.FillPath(bgBr, path);
 
                 if (opt.ShowBorders)
                 {
@@ -204,12 +179,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             {
                 g.Clip = oldClip;
             }
-
-            if (state.IsDisabled)
-            {
-                using var disabledOverlay = new SolidBrush(Color.FromArgb(60, groupBack));
-                g.FillPath(disabledOverlay, path);
-            }
         }
 
         public void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options) { }
@@ -282,7 +251,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             else if (s.Color == ChipColor.Error) { bg = Color.FromArgb(239, 68, 68); fg = Color.White; border = bg; }
             else if (s.Color == ChipColor.Info) { bg = Color.FromArgb(59, 130, 246); fg = Color.White; border = bg; }
             else if (s.Color == ChipColor.Dark) { bg = Color.FromArgb(51, 65, 85); fg = Color.White; border = Color.FromArgb(71, 85, 105); }
-            
+
+            // Semantic chips would otherwise render hover and rest identically,
+            // because the override above assigns the same colour regardless of
+            // state. Lighten on hover (but not on selection) so the two read
+            // differently, matching the hover overlay the default branch applies.
+            if (!s.IsSelected && s.IsHovered && s.Color != ChipColor.Default)
+            {
+                bg = ShiftLuminance(bg, 0.06f);
+                border = ShiftLuminance(border, 0.06f);
+            }
+
             return (bg, fg, border);
         }
 

@@ -374,9 +374,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     if (_showImage) itemWidth += _imageSize + ScaleLogical(4);
                     itemWidth += textSize.Width + ScaleLogical(8);
 
-                    if (_showShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
+                    string shortcut = ResolveShortcutText(item);
+                    if (_showShortcuts && !string.IsNullOrEmpty(shortcut))
                     {
-                        SizeF shortcutSizeF = TextUtils.MeasureText(item.KeyCombination, _shortcutFont, int.MaxValue);
+                        SizeF shortcutSizeF = TextUtils.MeasureText(shortcut, _shortcutFont, int.MaxValue);
                         var shortcutSize = new Size((int)shortcutSizeF.Width, (int)shortcutSizeF.Height);
                         itemWidth += shortcutSize.Width + ScaleLogical(16);
                     }
@@ -420,44 +421,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 _scrollBar.Top = beepInsets;
                 _scrollBar.Height = Height - (beepInsets * 2);
 
-                // Configure properties that may not exist on Control
-                if (_scrollBar is VScrollBar vs)
-                {
-                    vs.Minimum = 0;
-                    vs.SmallChange = PreferredItemHeight;
-                    int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2);
-                    vs.LargeChange = Math.Max(1, visibleContentHeight);
-                    vs.Maximum = contentHeight + vs.LargeChange - 1;
-                    int maxScroll = Math.Max(0, contentHeight - visibleContentHeight);
-                    _scrollOffset = Math.Min(_scrollOffset, maxScroll);
-                    vs.Value = _scrollOffset;
-                }
-                else
-                {
-                    // Use reflection for BeepScrollBar or other custom scroll implementations
-                    try
-                    {
-                        var t = _scrollBar.GetType();
-                        var propMin = t.GetProperty("Minimum");
-                        var propMax = t.GetProperty("Maximum");
-                        var propSmall = t.GetProperty("SmallChange");
-                        var propLarge = t.GetProperty("LargeChange");
-                        var propValue = t.GetProperty("Value");
-                        if (propMin != null) propMin.SetValue(_scrollBar, 0);
-                        if (propSmall != null) propSmall.SetValue(_scrollBar, PreferredItemHeight);
-                        int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2);
-                        if (propLarge != null) propLarge.SetValue(_scrollBar, Math.Max(1, visibleContentHeight));
-                        if (propMax != null && propLarge != null)
-                        {
-                            int large = (int)propLarge.GetValue(_scrollBar);
-                            propMax.SetValue(_scrollBar, contentHeight + large - 1);
-                        }
-                        int maxScroll = Math.Max(0, contentHeight - visibleContentHeight);
-                        _scrollOffset = Math.Min(_scrollOffset, maxScroll);
-                        if (propValue != null) propValue.SetValue(_scrollBar, _scrollOffset);
-                    }
-                    catch { }
-                }
+                _scrollBar.Minimum = 0;
+                _scrollBar.SmallChange = PreferredItemHeight;
+                int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2);
+                _scrollBar.LargeChange = Math.Max(1, visibleContentHeight);
+                _scrollBar.Maximum = contentHeight + _scrollBar.LargeChange - 1;
+                int maxScroll = Math.Max(0, contentHeight - visibleContentHeight);
+                _scrollOffset = Math.Min(_scrollOffset, maxScroll);
+                _scrollBar.Value = _scrollOffset;
             }
             else
             {
@@ -519,6 +490,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private bool IsSeparator(SimpleItem item)
         {
             return item != null && (item.DisplayField == "-" || item.Tag?.ToString() == "separator");
+        }
+
+        /// <summary>
+        /// Resolves the single shortcut text for an item. <see cref="SimpleItem"/> carries
+        /// three aliases (ShortcutText, Shortcut, KeyCombination); this mirrors
+        /// ComboBoxPopupModelBuilder.ResolveTrailingShortcutText so measure and draw agree.
+        /// </summary>
+        private static string ResolveShortcutText(SimpleItem item)
+        {
+            if (item == null) return string.Empty;
+            if (!string.IsNullOrWhiteSpace(item.ShortcutText)) return item.ShortcutText.Trim();
+            if (!string.IsNullOrWhiteSpace(item.Shortcut)) return item.Shortcut.Trim();
+            if (!string.IsNullOrWhiteSpace(item.KeyCombination)) return item.KeyCombination.Trim();
+            return string.Empty;
         }
         
         #endregion
@@ -791,7 +776,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             int itemTop = cumulativeY;
             int itemBottom = itemTop + GetItemHeight(_menuItems[index]);
 
-            int currentScroll = GetScrollBarValue();
+            int currentScroll = _scrollBar.Value;
 
             if (itemTop < currentScroll)
             {
@@ -803,12 +788,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
 
             // Clamp and apply
-            int min = GetScrollBarMinimum();
-            int max = Math.Max(0, GetScrollBarMaximum() - GetScrollBarLargeChange() + 1);
+            int min = _scrollBar.Minimum;
+            int max = Math.Max(0, _scrollBar.Maximum - _scrollBar.LargeChange + 1);
             currentScroll = Math.Max(min, Math.Min(currentScroll, max));
-            if (currentScroll != GetScrollBarValue())
+            if (currentScroll != _scrollBar.Value)
             {
-                SetScrollBarValue(currentScroll);
+                _scrollBar.Value = currentScroll;
             }
             _scrollOffset = currentScroll;
             Invalidate();

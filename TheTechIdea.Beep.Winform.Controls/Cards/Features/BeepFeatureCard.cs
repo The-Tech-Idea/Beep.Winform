@@ -209,10 +209,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
 
         #region Events
-        public event EventHandler ActionIcon1Click;
-        public event EventHandler ActionIcon2Click;
-        public event EventHandler CardClick;
-        public event EventHandler CardIconClick;
+        public event EventHandler? ActionIcon1Click;
+        public event EventHandler? ActionIcon2Click;
+        public event EventHandler? CardClick;
+        public event EventHandler? CardIconClick;
 
         protected virtual void OnActionIcon1Click()
         {

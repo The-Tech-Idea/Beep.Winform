@@ -31,6 +31,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override int CalculateHeaderPadding() => 16;
 
         /// <summary>
+        /// Paints this style's sort arrow (up = ascending, down = descending).
+        /// </summary>
+        public override void PaintSortIndicator(Graphics g, Rectangle rect, SortDirection direction, IBeepTheme? theme)
+            => PaintMinimalSortIndicator(g, rect, direction, theme);
+
+        /// <summary>
         /// Paint all column headers
         /// </summary>
         public override void PaintHeaders(Graphics g, Rectangle headerRect, BeepGridPro grid, IBeepTheme? theme)
@@ -122,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Calculate icon areas
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 12 : 0;
+            int sortIconSize = column.AllowSort ? 12 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 14 : 0;
             int rightX = cellRect.Right - padding;
 
@@ -168,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw minimal sort indicator (very subtle)
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintMinimalSortIndicator(g, sortIconRect, column.SortDirection, theme);
             }

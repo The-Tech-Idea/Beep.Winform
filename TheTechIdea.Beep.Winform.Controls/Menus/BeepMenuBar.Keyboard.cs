@@ -16,6 +16,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -55,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Close any open popup first so the user isn't left
                 // staring at an orphan after pressing Esc.
                 try { ContextMenus.ContextMenuManager.CloseAllMenus(); }
-                catch { /* non-fatal */ }
+                catch (Exception ex) { BeepLog.Fallback(this, "CloseAllMenus", ex); }
                 _openTopLevelIndex = -1;
                 DeactivateKeyboard();
                 return true;
@@ -151,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Second Alt or Alt-while-popup-open: leave keyboard mode.
                 try { ContextMenus.ContextMenuManager.CloseAllMenus(); }
-                catch { /* non-fatal */ }
+                catch (Exception ex) { BeepLog.Fallback(this, "CloseAllMenus", ex); }
                 _openTopLevelIndex = -1;
                 _selectedIndex     = -1;
                 DeactivateKeyboard();

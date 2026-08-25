@@ -39,8 +39,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             (Color.FromArgb(38, 166, 154), Color.FromArgb(0, 137, 123)),     // Teal
         };
 
-        private int _chipCounter = 0;
-
         public void Initialize(BaseControl owner, IBeepTheme theme)
         {
             _owner = owner;
@@ -204,21 +202,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             {
                 g.DrawString(item?.Text ?? item?.DisplayField ?? string.Empty, font, textBrush, textRect, _centerFormat);
             }
-
-            _chipCounter++;
         }
 
         public void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options)
         {
-            _chipCounter = 0; // Reset counter for each render pass
         }
 
         #region Private Helpers
 
         private int GetColorIndex(SimpleItem item)
         {
-            // Use item's GuidId or text hash for consistent color
-            string key = item?.GuidId ?? item?.Text ?? _chipCounter.ToString();
+            // Stable colour per item. Items without an identity share one colour;
+            // a render-order counter here would shift their colour every paint.
+            string key = item?.GuidId ?? item?.Text ?? string.Empty;
             return Math.Abs(key.GetHashCode()) % ColorPalette.Length;
         }
 

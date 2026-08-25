@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
         /// </summary>
         public static string GenerateAccessibleName(
             BeepMetricTile tile,
-            string customName = null)
+            string? customName = null)
         {
             if (!string.IsNullOrEmpty(customName))
                 return customName;
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
         /// </summary>
         public static string GenerateAccessibleDescription(
             BeepMetricTile tile,
-            string customDescription = null)
+            string? customDescription = null)
         {
             if (!string.IsNullOrEmpty(customDescription))
                 return customDescription;
@@ -138,8 +138,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
         /// </summary>
         public static void ApplyAccessibilitySettings(
             BeepMetricTile tile,
-            string accessibleName = null,
-            string accessibleDescription = null)
+            string? accessibleName = null,
+            string? accessibleDescription = null)
         {
             if (tile == null)
                 return;
@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
         /// </summary>
         public static void ApplyHighContrastAdjustments(
             BeepMetricTile tile,
-            IBeepTheme theme = null,
+            IBeepTheme? theme = null,
             bool useThemeColors = false)
         {
             if (tile == null || !IsHighContrastMode())

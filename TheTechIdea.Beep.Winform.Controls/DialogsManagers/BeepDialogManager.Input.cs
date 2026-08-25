@@ -107,6 +107,70 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region Input Dialog Helpers
 
+        /// <summary>
+        /// Shows an input dialog driven by a <see cref="DialogConfig"/>, wiring
+        /// <see cref="DialogConfig.FieldValidators"/> into the input box's live
+        /// validation and recording each outcome in
+        /// <see cref="DialogConfig.ValidationState"/>. This is the reader those two
+        /// properties never had: without it they are declared and never honoured.
+        /// </summary>
+        public DialogReturn ShowInput(DialogConfig config)
+        {
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+
+            using var dialog = BuildInputDialog(config);
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+
+            return new DialogReturn
+            {
+                Result = result == DialogResult.OK ? BeepDialogResult.OK : BeepDialogResult.Cancel,
+                Value = result == DialogResult.OK ? dialog.ReturnValue : string.Empty,
+                Submit = result == DialogResult.OK,
+                Cancel = result != DialogResult.OK,
+                UserAction = result == DialogResult.OK ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel
+            };
+        }
+
+        /// <summary>
+        /// Builds the input dialog and attaches the per-field validators, separated
+        /// from <see cref="ShowInput"/> so the wiring can be asserted without opening
+        /// a modal window.
+        /// </summary>
+        internal BeepInputDialog BuildInputDialog(DialogConfig config)
+        {
+            var dialog = CreateInputDialog(
+                config.Title,
+                config.Message,
+                defaultValue: null,
+                multiline: false,
+                password: false);
+
+            if (config.FieldValidators is { Count: > 0 })
+            {
+                // The input dialog has exactly one field, so every validator runs
+                // against that value; the first failure is the message shown. The
+                // per-validator outcomes land in ValidationState so the caller can
+                // report which rule failed, not just that one did.
+                dialog.InputValidator = value =>
+                {
+                    var text = value ?? string.Empty;
+                    config.ValidationState.Clear();
+                    foreach (var pair in config.FieldValidators)
+                    {
+                        var (valid, error) = pair.Value(text);
+                        config.ValidationState[pair.Key] = (valid, error);
+                        if (!valid) return error;
+                    }
+                    return null;
+                };
+                dialog.RevalidateInput();
+            }
+
+            return dialog;
+        }
+
         private BeepInputDialog CreateInputDialog(string title, string prompt, string? defaultValue, bool multiline, bool password)
         {
             var dialog = new BeepInputDialog();

@@ -11,11 +11,17 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters;
 using ContentAlignment = System.Drawing.ContentAlignment;
 using TextImageRelation = System.Windows.Forms.TextImageRelation;
  
@@ -40,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A button control with an image and text.")]
     [DisplayName("Beep Button")]
     //[Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepButtonDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
-    public class BeepButton : BaseControl, IButtonControl
+    public partial class BeepButton : BaseControl, IButtonControl
     {
         #region "Properties"
         // Add these new fields to your BeepButton class (in your region "Properties" or near other private fields):
@@ -88,6 +94,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Private field to store the button's text
 
         private Rectangle contentRect;
+
+        // Advanced button painter system (Phase 1) — opt-in visual style axis.
+        private IAdvancedButtonPainter? _advancedPainter;
+        private AdvancedButtonStyle _advancedPainterStyle;
+        private AdvancedButtonStyle? _buttonVisualStyle;
+        private ButtonIntent _intent = ButtonIntent.Primary;
+        private AdvancedButtonSize _buttonSize = AdvancedButtonSize.Medium;
+        private NewsBannerVariant _newsBannerVariant = NewsBannerVariant.Auto;
+        private ContactVariant _contactVariant = ContactVariant.Auto;
+        private ChevronVariant _chevronVariant = ChevronVariant.Auto;
+        private FlatWebVariant _flatWebVariant = FlatWebVariant.Auto;
+        private LowerThirdVariant _lowerThirdVariant = LowerThirdVariant.Auto;
+        private StickerLabelVariant _stickerLabelVariant = StickerLabelVariant.Auto;
+        private ButtonShape? _shape; // null = derive the default shape from the advanced style
+        private Color _solidBackground = Color.Empty;
+        private Color _solidForeground = Color.White;
+        private bool _reduceMotion = false;
+        private bool _showFocusRing = true;
+        private int _focusRingThickness = 2;
+        private int _focusRingOffset = 2;
+        private int _focusRingRadiusDelta = 2;
+        private bool _suppressClickWhileLoading = true;
+        private string _iconLeft = string.Empty;
+        private string _iconRight = string.Empty;
       
         // create a public event for beepImage.onClick
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
@@ -413,6 +443,326 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("When set, renders the button with one of the advanced visual styles (Solid, FAB, Ghost, Gradient, NewsBanner, …). Null keeps the classic BeepButton rendering.")]
+        [DefaultValue(null)]
+        public AdvancedButtonStyle? ButtonVisualStyle
+        {
+            get => _buttonVisualStyle;
+            set
+            {
+                if (_buttonVisualStyle != value)
+                {
+                    _buttonVisualStyle = value;
+                    RegisterSplitButtonAreas();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Semantic intent used to map the advanced styles to consistent color roles.")]
+        [DefaultValue(ButtonIntent.Primary)]
+        public ButtonIntent Intent
+        {
+            get => _intent;
+            set
+            {
+                if (_intent != value)
+                {
+                    _intent = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Size preset used by the advanced styles.")]
+        [DefaultValue(AdvancedButtonSize.Medium)]
+        public AdvancedButtonSize ButtonSize
+        {
+            get => _buttonSize;
+            set
+            {
+                if (_buttonSize != value)
+                {
+                    _buttonSize = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Variants")]
+        [Description("Explicit news banner layout variant used when ButtonVisualStyle is NewsBanner. Auto keeps heuristic layout selection.")]
+        [DefaultValue(NewsBannerVariant.Auto)]
+        public NewsBannerVariant NewsBannerVariant
+        {
+            get => _newsBannerVariant;
+            set
+            {
+                if (_newsBannerVariant != value)
+                {
+                    _newsBannerVariant = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Icon path for the left side of the button (advanced styles with dual icons).")]
+        public string IconLeft
+        {
+            get => _iconLeft;
+            set
+            {
+                if (_iconLeft != value)
+                {
+                    _iconLeft = value ?? string.Empty;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Icon path for the right side of the button (advanced styles with dual icons).")]
+        public string IconRight
+        {
+            get => _iconRight;
+            set
+            {
+                if (_iconRight != value)
+                {
+                    _iconRight = value ?? string.Empty;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Variants")]
+        [Description("Explicit contact button layout variant. Auto keeps heuristic layout selection.")]
+        [DefaultValue(ContactVariant.Auto)]
+        public ContactVariant ContactVariant
+        {
+            get => _contactVariant;
+            set
+            {
+                if (_contactVariant != value)
+                {
+                    _contactVariant = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Variants")]
+        [Description("Explicit navigation chevron layout variant. Auto keeps heuristic layout selection.")]
+        [DefaultValue(ChevronVariant.Auto)]
+        public ChevronVariant ChevronVariant
+        {
+            get => _chevronVariant;
+            set
+            {
+                if (_chevronVariant != value)
+                {
+                    _chevronVariant = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Variants")]
+        [Description("Explicit flat web layout variant. Auto keeps heuristic layout selection.")]
+        [DefaultValue(FlatWebVariant.Auto)]
+        public FlatWebVariant FlatWebVariant
+        {
+            get => _flatWebVariant;
+            set
+            {
+                if (_flatWebVariant != value)
+                {
+                    _flatWebVariant = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Variants")]
+        [Description("Explicit lower-third layout variant. Auto keeps heuristic layout selection.")]
+        [DefaultValue(LowerThirdVariant.Auto)]
+        public LowerThirdVariant LowerThirdVariant
+        {
+            get => _lowerThirdVariant;
+            set
+            {
+                if (_lowerThirdVariant != value)
+                {
+                    _lowerThirdVariant = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Variants")]
+        [Description("Explicit sticker label layout variant. Auto keeps heuristic layout selection.")]
+        [DefaultValue(StickerLabelVariant.Auto)]
+        public StickerLabelVariant StickerLabelVariant
+        {
+            get => _stickerLabelVariant;
+            set
+            {
+                if (_stickerLabelVariant != value)
+                {
+                    _stickerLabelVariant = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Explicit shape override for the advanced styles. Null derives the default shape from the style.")]
+        [DefaultValue(null)]
+        public ButtonShape? Shape
+        {
+            get => _shape;
+            set
+            {
+                if (_shape != value)
+                {
+                    _shape = value;
+                    RegisterSplitButtonAreas();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Explicit background color for solid advanced styles. Empty falls back to the intent/token color.")]
+        public Color SolidBackground
+        {
+            get => _solidBackground;
+            set { _solidBackground = value; Invalidate(); }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Explicit foreground/text color for solid advanced styles. Empty falls back to the intent/token color.")]
+        public Color SolidForeground
+        {
+            get => _solidForeground;
+            set { _solidForeground = value; Invalidate(); }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, disables motion-heavy transitions and ripple animation.")]
+        [DefaultValue(false)]
+        public bool ReduceMotion
+        {
+            get => _reduceMotion;
+            set
+            {
+                if (_reduceMotion != value)
+                {
+                    _reduceMotion = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Displays a keyboard-only focus ring when focus-visible is active.")]
+        [DefaultValue(true)]
+        public bool ShowFocusRing
+        {
+            get => _showFocusRing;
+            set
+            {
+                if (_showFocusRing != value)
+                {
+                    _showFocusRing = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Focus ring stroke thickness in pixels.")]
+        [DefaultValue(2)]
+        public int FocusRingThickness
+        {
+            get => _focusRingThickness;
+            set
+            {
+                int sanitized = Math.Max(1, value);
+                if (_focusRingThickness != sanitized)
+                {
+                    _focusRingThickness = sanitized;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Inset offset for focus ring rendering in pixels.")]
+        [DefaultValue(2)]
+        public int FocusRingOffset
+        {
+            get => _focusRingOffset;
+            set
+            {
+                int sanitized = Math.Max(0, value);
+                if (_focusRingOffset != sanitized)
+                {
+                    _focusRingOffset = sanitized;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Additional radius applied to focus ring over button border radius.")]
+        [DefaultValue(2)]
+        public int FocusRingRadiusDelta
+        {
+            get => _focusRingRadiusDelta;
+            set
+            {
+                int sanitized = Math.Max(0, value);
+                if (_focusRingRadiusDelta != sanitized)
+                {
+                    _focusRingRadiusDelta = sanitized;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, click activation is suppressed while loading is active.")]
+        [DefaultValue(true)]
+        public bool SuppressClickWhileLoading
+        {
+            get => _suppressClickWhileLoading;
+            set => _suppressClickWhileLoading = value;
+        }
         // Expose alignment and relation as properties (needed by designer and drawing)
         [Browsable(true)]
         [Category("Appearance")]
@@ -681,6 +1031,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             _measurementsDirty = true; // Invalidate cached measurements
         }
      
+        /// <summary>
+        /// When set, the button resolves its chrome from the theme's per-severity
+        /// dialog palette rather than the generic button palette. The dialog
+        /// button styler hands severity off this way instead of assigning a
+        /// colour directly, so the colour follows a theme switch — a direct
+        /// <see cref="BackColor"/> assignment would be overwritten by the
+        /// control's own <see cref="ApplyTheme"/>.
+        /// </summary>
+        public DialogSeverity? Severity { get; set; }
+
         public override void ApplyTheme()
         {
             if (_currentTheme == null) return;  // guard
@@ -715,6 +1075,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             FocusBackColor = _currentTheme.ButtonSelectedBackColor;
             FocusForeColor = _currentTheme.ButtonSelectedForeColor;
             ForeColor = _currentTheme.ButtonForeColor;
+
+            ApplySeverityChrome();
 
 
             // Apply border colors only when borders are actually enabled
@@ -765,6 +1127,55 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Force redraw with new theme - base.ApplyTheme() already calls Invalidate()
             // so we don't need to call it again to avoid double invalidation
         }
+        /// <summary>
+        /// Resolves the button's chrome from the theme's per-severity dialog keys
+        /// when <see cref="Severity"/> is set. Success has no dedicated dialog
+        /// keys, so it falls back to the generic success colour.
+        /// </summary>
+        private void ApplySeverityChrome()
+        {
+            if (Severity is not DialogSeverity value || value == DialogSeverity.Neutral)
+                return;
+
+            Color back, fore, hoverBack, hoverFore;
+            switch (value)
+            {
+                case DialogSeverity.Error:
+                    back = _currentTheme.DialogErrorButtonBackColor;
+                    fore = _currentTheme.DialogErrorButtonForeColor;
+                    hoverBack = _currentTheme.DialogErrorButtonHoverBackColor;
+                    hoverFore = _currentTheme.DialogErrorButtonHoverForeColor;
+                    break;
+                case DialogSeverity.Warning:
+                    back = _currentTheme.DialogWarningButtonBackColor;
+                    fore = _currentTheme.DialogWarningButtonForeColor;
+                    hoverBack = _currentTheme.DialogWarningButtonHoverBackColor;
+                    hoverFore = _currentTheme.DialogWarningButtonHoverForeColor;
+                    break;
+                case DialogSeverity.Info:
+                    back = _currentTheme.DialogInformationButtonBackColor;
+                    fore = _currentTheme.DialogInformationButtonForeColor;
+                    hoverBack = _currentTheme.DialogInformationButtonHoverBackColor;
+                    hoverFore = _currentTheme.DialogInformationButtonHoverForeColor;
+                    break;
+                case DialogSeverity.Success:
+                    back = _currentTheme.SuccessColor;
+                    fore = Color.Empty;
+                    hoverBack = _currentTheme.SuccessColor;
+                    hoverFore = Color.Empty;
+                    break;
+                default:
+                    return;
+            }
+
+            if (back.IsEmpty) return;
+
+            BackColor = back;
+            ForeColor = fore.IsEmpty ? ColorUtils.GetContrastColor(back) : fore;
+            HoverBackColor = hoverBack.IsEmpty ? back : hoverBack;
+            HoverForeColor = hoverFore.IsEmpty ? ColorUtils.GetContrastColor(HoverBackColor) : hoverFore;
+        }
+
         public void ApplyThemeToSvg()
         {
 
@@ -788,11 +1199,32 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         protected override void DrawContent(Graphics g)
         {
+            // Chevron and circular are full-custom render modes (classic path only)
+            // that bypass the base background/border painter entirely.
+            if (!_buttonVisualStyle.HasValue && _chevronDirection.HasValue)
+            {
+                DrawChevronContent(g);
+                return;
+            }
+
+            if (!_buttonVisualStyle.HasValue && _textLocation.HasValue)
+            {
+                DrawCircularContent(g);
+                return;
+            }
+
             base.DrawContent(g);
 
             UpdateDrawingRect();
             contentRect = DrawingRect;
             contentRect.Inflate(-2, -2);
+
+            if (_buttonVisualStyle.HasValue)
+            {
+                DrawAdvancedContent(g);
+                return;
+            }
+
             DrawStateOverlays(g);
             DrawImageAndText(g);
             DrawFocusRing(g);
@@ -800,6 +1232,205 @@ namespace TheTechIdea.Beep.Winform.Controls
             DrawLoadingIndicator(g);
 
         }
+
+        #region "Advanced painter styles"
+
+        private void DrawAdvancedContent(Graphics g)
+        {
+            if (_currentTheme == null)
+            {
+                return;
+            }
+
+            AdvancedButtonStyle style = _buttonVisualStyle!.Value;
+            EnsureAdvancedPainter(style);
+            if (_advancedPainter == null)
+            {
+                return;
+            }
+
+            Font textFont;
+            try
+            {
+                textFont = BeepThemesManager.ToFont(_currentTheme.ButtonFont, applyDpiScaling: true) ?? Font;
+            }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("BeepButton.AdvancedTextFont", this, nameof(DrawAdvancedContent), ex);
+                textFont = _textFont ?? Font;
+            }
+
+            var intentTokens = ResolveIntentColors(_currentTheme);
+            ButtonShape shape = _shape ?? GetDefaultShapeForStyle(style);
+
+            var context = new AdvancedButtonPaintContext
+            {
+                Graphics = g,
+                OwnerControl = this,
+                Bounds = ClientRectangle,
+                State = GetCurrentState(),
+                Text = Text,
+                ImagePath = ImagePath,
+                IconLeft = _iconLeft,
+                IconRight = _iconRight,
+                IsToggled = _isToggled,
+                IsLoading = _isLoading,
+                Theme = _currentTheme,
+                Shape = shape,
+                NewsBannerVariant = _newsBannerVariant,
+                ContactVariant = _contactVariant,
+                ChevronVariant = _chevronVariant,
+                FlatWebVariant = _flatWebVariant,
+                LowerThirdVariant = _lowerThirdVariant,
+                StickerLabelVariant = _stickerLabelVariant,
+                LeftAreaHovered = _leftAreaHovered,
+                RightAreaHovered = _rightAreaHovered,
+                LeftAreaPressed = _leftAreaPressed,
+                RightAreaPressed = _rightAreaPressed,
+                BorderRadius = ButtonShapeHelper.GetCornerRadiusForShape(shape, ClientRectangle, BorderRadius),
+                BorderWidth = BorderThickness,
+                BorderColor = BorderColor,
+                SolidBackground = _solidBackground != Color.Empty ? _solidBackground : intentTokens.Background,
+                SolidForeground = _solidForeground != Color.Empty ? _solidForeground : intentTokens.Foreground,
+                HoverBackground = HoverBackColor != Color.Empty ? HoverBackColor : intentTokens.HoverBackground,
+                HoverForeground = HoverForeColor != Color.Empty ? HoverForeColor : intentTokens.HoverForeground,
+                PressedBackground = PressedBackColor != Color.Empty ? PressedBackColor : intentTokens.PressedBackground,
+                DisabledBackground = DisabledBackColor != Color.Empty ? DisabledBackColor : _currentTheme.DisabledBackColor,
+                DisabledForeground = DisabledForeColor != Color.Empty ? DisabledForeColor : _currentTheme.DisabledForeColor,
+                BackgroundColor = intentTokens.Background,
+                TextColor = intentTokens.Foreground,
+                IconColor = intentTokens.Foreground,
+                SecondaryColor = _currentTheme.SecondaryColor != Color.Empty ? _currentTheme.SecondaryColor : intentTokens.Background,
+                FocusRingColor = _currentTheme.PrimaryColor,
+                GlowColor = _currentTheme.AccentColor,
+                RippleColor = _currentTheme.AccentColor,
+                LoadingIndicatorColor = _currentTheme.AccentColor != Color.Empty ? _currentTheme.AccentColor : intentTokens.Foreground,
+                ToggleOnColor = _currentTheme.ButtonSelectedBackColor != Color.Empty ? _currentTheme.ButtonSelectedBackColor : _currentTheme.AccentColor,
+                ToggleOffColor = _currentTheme.ButtonBackColor,
+                ToggleBorderColor = _currentTheme.ButtonBorderColor,
+                BadgeColor = _currentTheme.BadgeBackColor != Color.Empty ? _currentTheme.BadgeBackColor : _currentTheme.AccentColor,
+                BadgeText = BadgeText ?? string.Empty,
+                IconBackgroundColor = _currentTheme.AccentColor != Color.Empty ? _currentTheme.AccentColor : _currentTheme.PrimaryColor,
+                ShowShadow = ShowShadow,
+                ShadowBlur = ShadowOffset,
+                ShadowColor = ShadowColor,
+                RippleActive = splashActive,
+                RippleCenter = splashCenter,
+                RippleProgress = splashProgress,
+                HoverProgress = IsHovered ? 1f : 0f,
+                PressProgress = IsPressed ? 1f : 0f,
+                LoadingRotationAngle = _loadingRotationAngle,
+                ReduceMotion = _reduceMotion,
+                IsHovered = IsHovered,
+                IsPressed = IsPressed,
+                ShowBorder = BorderThickness > 0,
+                BorderThickness = BorderThickness,
+                ShowFocusRing = _showFocusRing,
+                FocusRingThickness = _focusRingThickness,
+                FocusRingOffset = _focusRingOffset,
+                FocusRingRadiusDelta = _focusRingRadiusDelta,
+                TextFont = textFont,
+                Intent = _intent,
+                ButtonSize = _buttonSize
+            };
+
+            try
+            {
+                _advancedPainter.Paint(context);
+            }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("BeepButton.AdvancedPaint", this, nameof(DrawAdvancedContent), ex);
+            }
+        }
+
+        private void EnsureAdvancedPainter(AdvancedButtonStyle style)
+        {
+            if (_advancedPainter != null && _advancedPainterStyle == style)
+            {
+                return;
+            }
+
+            _advancedPainter = ButtonPainterFactory.CreatePainter(style, _newsBannerVariant, _contactVariant, _chevronVariant);
+            _advancedPainterStyle = style;
+            RegisterSplitButtonAreas();
+        }
+
+        private ButtonShape GetDefaultShapeForStyle(AdvancedButtonStyle style)
+        {
+            return style switch
+            {
+                AdvancedButtonStyle.FAB => ButtonShape.Circle,
+                AdvancedButtonStyle.Ghost => ButtonShape.Pill,
+                AdvancedButtonStyle.Toggle => ButtonShape.Split,
+                AdvancedButtonStyle.Solid => ButtonShape.Pill,
+                AdvancedButtonStyle.Icon => ButtonShape.Pill,
+                AdvancedButtonStyle.Text => ButtonShape.Pill,
+                AdvancedButtonStyle.Outlined => ButtonShape.Pill,
+                AdvancedButtonStyle.Link => ButtonShape.Rectangle,
+                AdvancedButtonStyle.Gradient => ButtonShape.Pill,
+                AdvancedButtonStyle.IconText => ButtonShape.Pill,
+                AdvancedButtonStyle.FlatWeb => ButtonShape.Rectangle,
+                AdvancedButtonStyle.LowerThird => ButtonShape.Rectangle,
+                AdvancedButtonStyle.StickerLabel => ButtonShape.RoundedRectangle,
+                _ => ButtonShape.Pill
+            };
+        }
+
+        private AdvancedButtonState GetCurrentState()
+        {
+            if (!Enabled)
+            {
+                return AdvancedButtonState.Disabled;
+            }
+            if (IsPressed)
+            {
+                return AdvancedButtonState.Pressed;
+            }
+            if (IsHovered)
+            {
+                return AdvancedButtonState.Hover;
+            }
+            return AdvancedButtonState.Normal;
+        }
+
+        private ButtonIntentColors ResolveIntentColors(IBeepTheme theme)
+        {
+            Color defaultBack = theme.ButtonBackColor;
+            Color defaultFore = theme.ButtonForeColor;
+            Color accent = theme.AccentColor != Color.Empty ? theme.AccentColor : (theme.PrimaryColor != Color.Empty ? theme.PrimaryColor : defaultBack);
+            Color secondary = theme.SecondaryColor != Color.Empty ? theme.SecondaryColor : defaultBack;
+
+            return _intent switch
+            {
+                ButtonIntent.Secondary => new ButtonIntentColors(secondary, defaultFore, ColorUtils.ShiftColor(secondary, 10), ColorUtils.ShiftColor(secondary, -12)),
+                ButtonIntent.Tertiary => new ButtonIntentColors(defaultBack, defaultFore, ColorUtils.ShiftColor(defaultBack, 8), ColorUtils.ShiftColor(defaultBack, -10)),
+                ButtonIntent.Destructive => new ButtonIntentColors(Color.FromArgb(220, 53, 69), Color.White, Color.FromArgb(230, 72, 88), Color.FromArgb(184, 38, 52)),
+                ButtonIntent.Success => new ButtonIntentColors(Color.FromArgb(25, 135, 84), Color.White, Color.FromArgb(40, 153, 102), Color.FromArgb(18, 112, 69)),
+                ButtonIntent.Neutral => new ButtonIntentColors(Color.FromArgb(108, 117, 125), Color.White, Color.FromArgb(123, 132, 140), Color.FromArgb(87, 95, 102)),
+                _ => new ButtonIntentColors(accent, defaultFore, theme.ButtonHoverBackColor != Color.Empty ? theme.ButtonHoverBackColor : ColorUtils.ShiftColor(accent, 10), theme.ButtonPressedBackColor != Color.Empty ? theme.ButtonPressedBackColor : ColorUtils.ShiftColor(accent, -10))
+            };
+        }
+
+        private readonly struct ButtonIntentColors
+        {
+            public ButtonIntentColors(Color background, Color foreground, Color hoverBackground, Color pressedBackground, Color? hoverForeground = null)
+            {
+                Background = background;
+                Foreground = foreground;
+                HoverBackground = hoverBackground;
+                PressedBackground = pressedBackground;
+                HoverForeground = hoverForeground ?? foreground;
+            }
+
+            public Color Background { get; }
+            public Color Foreground { get; }
+            public Color HoverBackground { get; }
+            public Color HoverForeground { get; }
+            public Color PressedBackground { get; }
+        }
+
+        #endregion
 
         private void DrawSplashEffect(Graphics g)
         {
@@ -1314,6 +1945,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             isLongPressTriggered = false;
             longPressTimer.Start();
+
+            UpdateSplitAreaPressedStates(e.Location);
             
             // Enable splash effect when allowed
             if (EnableSplashEffect)
@@ -1351,6 +1984,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseUp(e);
       
             longPressTimer.Stop();
+
+            _leftAreaPressed = false;
+            _rightAreaPressed = false;
+
+            // Advanced Toggle style (non-split): flip on release. Split-shape clicks
+            // are routed through the registered Left/RightButtonArea hit actions.
+            if (_buttonVisualStyle == AdvancedButtonStyle.Toggle && !IsSplitShape() && ClientRectangle.Contains(e.Location))
+            {
+                bool oldValue = IsToggled;
+                IsToggled = !IsToggled;
+                if (oldValue != IsToggled)
+                {
+                    ToggleChanged?.Invoke(this, new ToggleChangedEventArgs(IsToggled, null));
+                }
+            }
         }
         protected override void OnMouseEnter(EventArgs e)
         {
@@ -1361,6 +2009,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseLeave(e);
             Cursor = Cursors.Default;
+            _leftAreaHovered = false;
+            _rightAreaHovered = false;
         }
         protected override void OnDoubleClick(EventArgs e)
         {
@@ -1695,7 +2345,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         protected override void OnClick(EventArgs e)
         {
-            if (_isLoading) return; // Disable clicks when loading
+            if (_isLoading && _suppressClickWhileLoading) return; // Disable clicks while loading
             
             if (isLongPressTriggered)
             {
@@ -1714,6 +2364,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             base.OnClick(e);
+
+            // Chevron mode toggles its checked state on click when checkable.
+            if (_chevronDirection.HasValue && _isCheckable)
+            {
+                IsToggled = !IsToggled;
+            }
         }
 
         #region "Keyboard Navigation"

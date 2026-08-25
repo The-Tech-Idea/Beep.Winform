@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
                 _displayText = value ?? string.Empty;
                 _cachedFontText = null;
                 ApplyBadgeSize();
+                AccessibleName = DescribeBadge();
             }
         }
 
@@ -58,12 +59,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
         public BeepCounterBadge With(BadgeSide side, BadgeAlignment alignment) { Location = BadgeLocations.Css(side, alignment); return this; }
 
         /// <summary>The label as drawn, after MaxDisplay clamping.</summary>
-        private string EffectiveLabel()
+        protected string EffectiveLabel()
         {
             if (int.TryParse(_displayText, out int count) && count > _maxDisplay)
                 return _maxDisplay.ToString() + (_showPlus ? "+" : string.Empty);
             return _displayText;
         }
+
+        /// <summary>The counter's value is its meaning; announce it.</summary>
+        protected override string DescribeBadge() => EffectiveLabel();
 
         protected override int MeasureContentWidth()
         {

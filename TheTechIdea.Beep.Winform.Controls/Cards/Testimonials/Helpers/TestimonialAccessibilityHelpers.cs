@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
         /// </summary>
         public static string GenerateAccessibleName(
             BeepTestimonial testimonial,
-            string customName = null)
+            string? customName = null)
         {
             if (!string.IsNullOrEmpty(customName))
                 return customName;
@@ -98,8 +98,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
             if (testimonial == null)
                 return "Testimonial";
 
-            string name = !string.IsNullOrEmpty(testimonial.Name) 
-                ? testimonial.Name 
+            string name = !string.IsNullOrEmpty(testimonial.PersonName) 
+                ? testimonial.PersonName 
                 : "Anonymous";
 
             return $"Testimonial by {name}";
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
         /// </summary>
         public static string GenerateAccessibleDescription(
             BeepTestimonial testimonial,
-            string customDescription = null)
+            string? customDescription = null)
         {
             if (!string.IsNullOrEmpty(customDescription))
                 return customDescription;
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
             if (testimonial == null)
                 return "A testimonial card displaying customer feedback";
 
-            string description = $"Testimonial from {testimonial.Name}";
+            string description = $"Testimonial from {testimonial.PersonName}";
             
             if (!string.IsNullOrEmpty(testimonial.Position))
             {
@@ -143,8 +143,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
         /// </summary>
         public static void ApplyAccessibilitySettings(
             BeepTestimonial testimonial,
-            string accessibleName = null,
-            string accessibleDescription = null)
+            string? accessibleName = null,
+            string? accessibleDescription = null)
         {
             if (testimonial == null)
                 return;
@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
         /// </summary>
         public static void ApplyHighContrastAdjustments(
             BeepTestimonial testimonial,
-            IBeepTheme theme = null,
+            IBeepTheme? theme = null,
             bool useThemeColors = false)
         {
             if (testimonial == null || !IsHighContrastMode())

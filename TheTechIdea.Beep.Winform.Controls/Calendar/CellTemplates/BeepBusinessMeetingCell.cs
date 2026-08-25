@@ -8,30 +8,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
         protected override void DrawCellContent(Graphics g, Rectangle rect)
         {
             if (Event == null) return;
-            var theme = _currentTheme;
-            if (theme == null) return;
+            if (_currentTheme == null) return;
 
             var accentColor = BeepCellTemplateHelpers.StatusColor(Event.Status);
-            int pad = 6;
-            int accentWidth = 4;
-            var content = new Rectangle(rect.X + pad + accentWidth, rect.Y + pad,
-                rect.Width - pad * 2 - accentWidth, rect.Height - pad * 2);
+            var content = CellContentRect(rect);
+            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, CellAccentWidth);
 
-            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, accentWidth);
-
-            var titleFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            var detailFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
-            var textColor = theme.PrimaryTextColor;
-            var secondaryColor = Color.FromArgb(180, textColor);
-
-            int lineH = 16;
             var drawY = content.Y;
 
-            var titleRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            TextRenderer.DrawText(g, Event.Title, titleFont, titleRect, textColor,
+            var titleRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            TextRenderer.DrawText(g, Event.Title, TitleFont, titleRect, TextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-            drawY += lineH;
+            drawY += CellLineHeight;
 
             var roomName = Metadatum("ConferenceRoom", "");
             var attendees = Metadatum("Attendees", "");
@@ -42,32 +31,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                     : $"{roomName} · {attendees}";
             if (!string.IsNullOrEmpty(roomLine))
             {
-                var roomRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, roomRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Calendar, roomLine, 10);
-                drawY += lineH;
+                var roomRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, roomRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Calendar, roomLine, 10);
+                drawY += CellLineHeight;
             }
 
             var agenda = Metadatum("Agenda", "");
-            var hasSpace = content.Y + content.Height - drawY >= lineH;
+            var hasSpace = content.Y + content.Height - drawY >= CellLineHeight;
             if (!string.IsNullOrEmpty(agenda) && hasSpace)
             {
-                var agendaRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, agendaRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Edit, agenda, 10);
-                drawY += lineH;
+                var agendaRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, agendaRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Edit, agenda, 10);
+                drawY += CellLineHeight;
             }
 
-            if (!Event.IsAllDay && content.Y + content.Height - drawY >= lineH)
+            if (!Event.IsAllDay && content.Y + content.Height - drawY >= CellLineHeight)
             {
                 var timeText = $"{Event.StartTime:t} - {Event.EndTime:t}";
-                var timeRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Clock, timeText, 10);
+                var timeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Clock, timeText, 10);
             }
-
-            titleFont.Dispose();
-            detailFont.Dispose();
         }
     }
 }

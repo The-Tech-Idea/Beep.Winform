@@ -91,8 +91,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var neuRect = Rectangle.Inflate(itemRect, -Scale(4), -Scale(2));
             
             // Calculate shadow colors
-            Color lightShadow = LightenColor(_baseColor, 0.15f);
-            Color darkShadow = DarkenColor(_baseColor, 0.15f);
+            Color lightShadow = ColorUtils.GetLighterColor(_baseColor, 0.15f);
+            Color darkShadow = ColorUtils.GetDarkerColor(_baseColor, 0.85f);
 
             if (isSelected)
             {
@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw main surface first
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, new CornerRadius(Scale(_cornerRadius))))
             {
-                g.FillPath(GetBrush(DarkenColor(_baseColor, 0.05f)), path);
+                g.FillPath(GetBrush(ColorUtils.GetDarkerColor(_baseColor, 0.95f)), path);
             }
 
             // Inner shadow (dark on top-left for inset effect)
@@ -170,8 +170,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawNeumorphicCheckbox(Graphics g, Rectangle checkRect, bool isChecked, bool isHovered)
         {
-            Color lightShadow = LightenColor(_baseColor, 0.15f);
-            Color darkShadow = DarkenColor(_baseColor, 0.15f);
+            Color lightShadow = ColorUtils.GetLighterColor(_baseColor, 0.15f);
+            Color darkShadow = ColorUtils.GetDarkerColor(_baseColor, 0.85f);
 
             if (isChecked)
             {
@@ -203,27 +203,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Raised checkbox
                 DrawRaisedNeumorphic(g, checkRect, lightShadow, darkShadow, isHovered ? 0.6f : 0.4f);
             }
-        }
-
-        private float GetLuminance(Color c)
-        {
-            return (0.299f * c.R + 0.587f * c.G + 0.114f * c.B) / 255f;
-        }
-
-        private Color LightenColor(Color c, float amount)
-        {
-            int r = Math.Min(255, (int)(c.R + (255 - c.R) * amount));
-            int g = Math.Min(255, (int)(c.G + (255 - c.G) * amount));
-            int b = Math.Min(255, (int)(c.B + (255 - c.B) * amount));
-            return Color.FromArgb(c.A, r, g, b);
-        }
-
-        private Color DarkenColor(Color c, float amount)
-        {
-            int r = Math.Max(0, (int)(c.R * (1 - amount)));
-            int g = Math.Max(0, (int)(c.G * (1 - amount)));
-            int b = Math.Max(0, (int)(c.B * (1 - amount)));
-            return Color.FromArgb(c.A, r, g, b);
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)

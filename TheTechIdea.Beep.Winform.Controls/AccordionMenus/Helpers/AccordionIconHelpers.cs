@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
         /// Gets the icon color based on state and theme
         /// </summary>
         public static Color GetIconColor(
-            IBeepTheme theme,
+            IBeepTheme? theme,
             bool useThemeColors,
             bool isSelected = false,
             bool isHovered = false)
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
             Rectangle iconBounds,
             string iconPath,
             Color iconColor,
-            IBeepTheme theme = null,
+            IBeepTheme? theme = null,
             bool useThemeColors = false,
             bool isSelected = false,
             bool isHovered = false,

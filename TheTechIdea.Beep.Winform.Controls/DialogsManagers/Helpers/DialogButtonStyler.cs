@@ -35,23 +35,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
 
             var role = spec.ResolvedRole;
 
-            // Colour is assigned for one role only: the destructive action.
-            //
-            // Everything else is left entirely alone, because BeepButton colours itself from the
-            // theme and an assignment here is simply overwritten by its own ApplyTheme. A destructive
-            // action is the exception worth making - it is the one button whose colour carries a
-            // warning rather than a style, and the theme's own alert colour is what it takes.
-            if (role == DialogButtonRole.Destructive)
+            // Role decides the treatment; severity decides the colour. The button
+            // resolves the severity colour from the theme itself, in its own
+            // ApplyTheme, through the Severity property — so the colour follows a
+            // theme switch and this folder never assigns a colour directly. A
+            // destructive action is always error-coloured; a primary takes the
+            // dialog's own severity; secondary and cancel keep the neutral chrome.
+            button.Severity = role switch
             {
-                Color alert = theme?.DialogErrorButtonBackColor is { IsEmpty: false } a
-                    ? a
-                    : DialogStyleAdapter.GetSeverityAccent(DialogSeverity.Error, theme);
-
-                button.BackColor = alert;
-                button.ForeColor = theme?.DialogErrorButtonForeColor is { IsEmpty: false } f
-                    ? f
-                    : ColorUtils.GetContrastColor(alert);
-            }
+                DialogButtonRole.Destructive => DialogSeverity.Error,
+                DialogButtonRole.Primary      => severity,
+                _                             => null
+            };
 
             ApplyShape(button, shape);
             ApplyIcon(button, spec);

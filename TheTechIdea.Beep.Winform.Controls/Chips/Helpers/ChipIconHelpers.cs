@@ -64,7 +64,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 if (variant == ChipVariant.Filled)
                 {
                     // For filled chips, icon color should contrast with background
-                    Color bgColor = ChipThemeHelpers.GetChipBackgroundColor(theme, useThemeColors, variant, chipColor, isSelected, isHovered);
                     return ChipThemeHelpers.GetChipForegroundColor(theme, useThemeColors, variant, chipColor, isSelected);
                 }
                 else // Outlined or Text

@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -887,12 +888,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             foreach (var s in sizes)
                             {
-                                try { StyledImagePainter.PreRenderTintedToCache(iconPath, iconColor, 1f, new Size(s, s)); } catch { }
+                                try { StyledImagePainter.PreRenderTintedToCache(iconPath, iconColor, 1f, new Size(s, s)); }
+                                catch (Exception ex) { BeepLog.FallbackOnce($"prerender-calendar-icon-{s}", this, "pre-render tinted calendar icon", ex); }
                             }
                         });
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    // Best-effort theme propagation; the control stays usable with its previous styling.
+                    BeepLog.Fallback(this, "apply calendar theme tokens", ex);
+                }
             }
 
             // Propagate theme to popup calendar view

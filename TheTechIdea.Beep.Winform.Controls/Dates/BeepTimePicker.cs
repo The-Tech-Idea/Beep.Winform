@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
  
  
  
@@ -880,7 +881,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                // Log error if logging is available
+                BeepLog.Failure(this, "paint time picker", ex);
             }
         }
         #endregion
@@ -1011,7 +1012,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 minutesListBox.SelectedIndex = _selectedTime.Minutes / _minuteInterval;
             }
-            catch { }
+            catch (Exception ex) { BeepLog.Fallback(this, "set initial time selection in popup", ex); }
 
             // Handle selection changes
             EventHandler selectionChanged = (s, e) => {
@@ -1039,7 +1040,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         SelectedTime = newTime;
                     }
                 }
-                catch { }
+                catch (Exception ex) { BeepLog.Fallback(this, "apply time selection from popup list", ex); }
             };
 
             hoursListBox.SelectedIndexChanged += selectionChanged;

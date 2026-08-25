@@ -31,6 +31,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override int CalculateHeaderPadding() => 12;
 
         /// <summary>
+        /// Paints this style's sort arrow (up = ascending, down = descending).
+        /// </summary>
+        public override void PaintSortIndicator(Graphics g, Rectangle rect, SortDirection direction, IBeepTheme? theme)
+            => PaintFluentSortIndicator(g, rect, direction, theme);
+
+        /// <summary>
+        /// Paints this style's header cell background (acrylic gradient + reveal hover).
+        /// </summary>
+        public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
+        {
+            var baseColor = theme?.GridHeaderBackColor ?? Color.FromArgb(243, 243, 243);
+            using (var brush = new LinearGradientBrush(rect, baseColor, ColorUtils.Lighten(baseColor, 0.02f), LinearGradientMode.Vertical))
+                g.FillRectangle(brush, rect);
+
+            if (isHovered)
+            {
+                var accent = theme?.AccentColor ?? Color.FromArgb(0, 120, 212);
+                var hoverRect = new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2);
+                using var hoverBrush = new LinearGradientBrush(hoverRect, Color.FromArgb(25, accent), Color.FromArgb(10, accent), LinearGradientMode.Vertical);
+                g.FillRectangle(hoverBrush, hoverRect);
+            }
+        }
+
+        /// <summary>
         /// Paint all column headers
         /// </summary>
         public override void PaintHeaders(Graphics g, Rectangle headerRect, BeepGridPro grid, IBeepTheme? theme)
@@ -145,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Calculate icon areas
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 16 : 0;
+            int sortIconSize = column.AllowSort ? 16 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 18 : 0;
             int rightX = cellRect.Right - padding;
 
@@ -188,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw Fluent sort indicator
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintFluentSortIndicator(g, sortIconRect, column.SortDirection, theme);
             }

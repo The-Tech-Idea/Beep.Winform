@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cat.svg";
             CompanyLogoPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.kitty.svg";
             Testimonial = "This product is amazing!";
-            Name = "Nick Parsons";
+            PersonName = "Nick Parsons";
             Username = "@nickparsons";
             Position = "Director of Marketing";
             Rating = "5";
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Data")]
-        public string Name
+        public string PersonName
         {
             get => _name;
             set
@@ -305,7 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateTooltip();
         }
 
-        public void SetTestimonialTooltip(string text, string title = null, ToolTipType type = ToolTipType.Info)
+        public void SetTestimonialTooltip(string text, string? title = null, ToolTipType type = ToolTipType.Info)
         {
             TooltipText = text;
             if (!string.IsNullOrEmpty(title))
@@ -321,10 +321,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Events
-        public event EventHandler ImageClick;
-        public event EventHandler CompanyLogoClick;
-        public event EventHandler CloseClick;
-        public event EventHandler TestimonialClick;
+        public event EventHandler? ImageClick;
+        public event EventHandler? CompanyLogoClick;
+        public event EventHandler? CloseClick;
+        public event EventHandler? TestimonialClick;
 
         protected virtual void OnImageClick()
         {

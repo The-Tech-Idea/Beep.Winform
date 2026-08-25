@@ -8,6 +8,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
@@ -60,7 +62,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 Owner._input.PageDownKeyPressed += _onPageDown;
                 _keysHooked = true;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "hook keyboard", ex);
+            }
         }
 
         private void OnLeft() => SetPage(_currentPage - 1);
@@ -305,7 +310,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     if (_onPageUp != null) Owner._input.PageUpKeyPressed -= _onPageUp;
                     if (_onPageDown != null) Owner._input.PageDownKeyPressed -= _onPageDown;
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    BeepLog.Fallback(this, "unhook keyboard", ex);
+                }
             }
             _imagePainter?.Dispose();
         }

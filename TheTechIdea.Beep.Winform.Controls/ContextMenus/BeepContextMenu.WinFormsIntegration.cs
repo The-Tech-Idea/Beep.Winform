@@ -20,71 +20,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
 
         [DllImport("user32.dll")]
-        private static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
-        [DllImport("user32.dll")]
         private static extern IntPtr GetActiveWindow();
 
-        [DllImport("user32.dll")]
-        private static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
-
-        private const int GWL_HWNDPARENT = -8;
         private const uint RDW_FRAME = 0x0400;
         private const uint RDW_UPDATENOW = 0x0100;
         private const uint RDW_INVALIDATE = 0x0001;
         
-        #endregion
-
-        #region Owner Window Management (WinForms Pattern)
-
-        /// <summary>
-        /// Gets or creates the hidden owner window for dropdown menus
-        /// This prevents the menu from appearing in the taskbar
-        /// Mirrors ToolStripDropDown.DropDownOwnerWindow
-        /// </summary>
-        internal static NativeWindow DropDownOwnerWindow
-        {
-            get
-            {
-                if (_dropDownOwnerWindow == null)
-                {
-                    _dropDownOwnerWindow = new NativeWindow();
-                }
-
-                if (_dropDownOwnerWindow.Handle == IntPtr.Zero)
-                {
-                    CreateParams cp = new CreateParams
-                    {
-                        Caption = "BeepContextMenuOwner",
-                        Style = unchecked((int)0x80000000), // WS_POPUP
-                        ClassStyle = 0,
-                        X = 0,
-                        Y = 0,
-                        Width = 0,
-                        Height = 0,
-                        Parent = IntPtr.Zero,
-                        Param = null
-                    };
-                    _dropDownOwnerWindow.CreateHandle(cp);
-                }
-
-                return _dropDownOwnerWindow;
-            }
-        }
-
-        /// <summary>
-        /// Reparents this menu to the hidden owner window
-        /// This prevents taskbar entry
-        /// Mirrors ToolStripDropDown.ReparentToDropDownOwnerWindow
-        /// </summary>
-        private void ReparentToDropDownOwnerWindow()
-        {
-            if (IsHandleCreated && TopMost)
-            {
-                SetWindowLong(Handle, GWL_HWNDPARENT, DropDownOwnerWindow.Handle);
-            }
-        }
-
         #endregion
 
         #region CloseReason Management (WinForms Pattern)

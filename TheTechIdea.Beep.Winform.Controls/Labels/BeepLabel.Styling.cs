@@ -234,7 +234,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case LabelEffect.AccentBar:
                     int w = DpiScalingHelper.ScaleValue(3, this);
-                    g.FillRectangle(new SolidBrush(accent), bounds.X, bounds.Y, w, bounds.Height);
+                    using (var accentBrush = new SolidBrush(accent))
+                        g.FillRectangle(accentBrush, bounds.X, bounds.Y, w, bounds.Height);
                     break;
 
                 case LabelEffect.Glow:

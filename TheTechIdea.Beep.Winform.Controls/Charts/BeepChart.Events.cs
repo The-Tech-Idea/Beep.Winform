@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
@@ -89,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.WriteLine($"OnHandleCreated Error: {ex.Message}");
+                BeepLog.Failure(this, "OnHandleCreated", ex);
             }
         }
 

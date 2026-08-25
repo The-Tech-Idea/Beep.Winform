@@ -9,12 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.Containers.Models;
 using TheTechIdea.Beep.Winform.Controls.Containers.Painters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
-using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
-using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Icons;
 using System.Linq;
 
@@ -42,6 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment _titleAlignment = ContentAlignment.TopLeft;
         private PanelShape _panelShape = PanelShape.RoundedRectangle;
         private GraphicsPath _customShapePath;
+        private CornerRadius _cornerRadius = new CornerRadius(8);
+        private bool _cornerRadiusExplicit = false;
         private Region _panelRegion;
         private bool _isUpdatingRegion = false;
         private BeepPanelState _panelState = new BeepPanelState();
@@ -55,19 +53,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isDisposing = false;
         private bool InDesignMode => LicenseManager.UsageMode == LicenseUsageMode.Designtime || DesignMode || (Site?.DesignMode ?? false);
 
-        private bool _enableScrolling = false;
-        private int _scrollOffset = 0;
-        private VScrollBar _verticalScrollBar;
-        private HScrollBar _horizontalScrollBar;
-
         #region "Public Properties"
-        private Font _textFont = SystemFonts.MessageBoxFont;
+        // BeepPanel's TextFont is the TITLE font — a deliberate specialization of
+        // BaseControl's body TextFont. The `new` keyword documents the shadowing.
+        private new Font _textFont = SystemFonts.MessageBoxFont;
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
         [Description("Text Font displayed in the control.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public Font TextFont
+        public new Font TextFont
         {
             get => _textFont ?? Font;
             set
@@ -370,29 +365,93 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        #region Phase 1: Modern UX Properties
-
+        /// <summary>
+        /// Per-corner radius, CSS <c>border-radius</c> style. When never set, each corner
+        /// follows <see cref="BorderRadius"/> (the theme/uniform value). Setting any corner
+        /// makes this the authoritative shape radius for the clip region.
+        /// </summary>
         [Browsable(true)]
-        [Category("Scrolling")]
-        [Description("Enable automatic scrollbars when content overflows")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [DefaultValue(false)]
-        public bool AutoScroll
+        [Category("Appearance")]
+        [Description("Per-corner radius (CSS border-radius style). Leave unset to follow BorderRadius; set any corner to override the clip shape.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public CornerRadius CornerRadius
         {
-            get => _enableScrolling;
+            get => _cornerRadius;
             set
             {
-                if (_enableScrolling != value)
+                _cornerRadius = value ?? new CornerRadius(0);
+                _cornerRadiusExplicit = true;
+                if (_panelShape == PanelShape.RoundedRectangle)
                 {
-                    _enableScrolling = value;
-                    if (value)
-                        InitializeScrollBars();
-                    else
-                        RemoveScrollBars();
+                    UpdatePanelRegion();
                     Invalidate();
                 }
             }
         }
+
+        /// <summary>
+        /// Sets all four corner radii to the same value (and keeps the border radius aligned).
+        /// </summary>
+        public void SetCornerRadius(int all)
+        {
+            _cornerRadius.SetAll(all);
+            _cornerRadiusExplicit = true;
+            BorderRadius = all;
+            UpdatePanelRegion();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Sets each corner independently, CSS order: top-left, top-right, bottom-right, bottom-left.
+        /// </summary>
+        public void SetCornerRadius(int topLeft, int topRight, int bottomRight, int bottomLeft)
+        {
+            _cornerRadius.TopLeft = topLeft;
+            _cornerRadius.TopRight = topRight;
+            _cornerRadius.BottomRight = bottomRight;
+            _cornerRadius.BottomLeft = bottomLeft;
+            _cornerRadiusExplicit = true;
+            UpdatePanelRegion();
+            Invalidate();
+        }
+
+        private CornerRadius EffectiveCornerRadius
+            => _cornerRadiusExplicit ? _cornerRadius : new CornerRadius(BorderRadius);
+
+        /// <summary>
+        /// Builds a superellipse (squircle) path — the iOS/SwiftUI squircle shape.
+        /// </summary>
+        private static GraphicsPath CreateSquirclePath(Rectangle bounds, double n = 4.0)
+        {
+            var path = new GraphicsPath();
+            if (bounds.Width <= 0 || bounds.Height <= 0)
+            {
+                path.AddRectangle(bounds);
+                return path;
+            }
+
+            double w = bounds.Width / 2.0;
+            double h = bounds.Height / 2.0;
+            double cx = bounds.Left + w;
+            double cy = bounds.Top + h;
+            const int segments = 72;
+            var points = new PointF[segments];
+            double power = 2.0 / n;
+            for (int i = 0; i < segments; i++)
+            {
+                double angle = 2.0 * Math.PI * i / segments;
+                double cos = Math.Cos(angle);
+                double sin = Math.Sin(angle);
+                points[i] = new PointF(
+                    (float)(cx + Math.Sign(cos) * Math.Pow(Math.Abs(cos), power) * w),
+                    (float)(cy + Math.Sign(sin) * Math.Pow(Math.Abs(sin), power) * h));
+            }
+            path.AddPolygon(points);
+            path.CloseFigure();
+            return path;
+        }
+
+        #region Phase 1: Modern UX Properties
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -425,40 +484,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         private bool _isCollapsed = false;
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Material Design elevation level (0-5), adds shadow depth")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [DefaultValue(0)]
-        public int Elevation { get; set; } = 0;
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Elevation level when hovering (0-5)")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [DefaultValue(0)]
-        public int ElevationOnHover { get; set; } = 0;
-
-        [Browsable(true)]
-        [Category("Behavior")]
-        [Description("Keep header visible when scrolling content")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [DefaultValue(false)]
-        public bool StickyHeader { get; set; } = false;
-
-        [Browsable(true)]
-        [Category("State")]
-        [Description("Current state of the panel (Normal, Loading, Empty, Error)")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [DefaultValue(PanelState.Normal)]
-        public PanelState State { get; set; } = PanelState.Normal;
-
-        [Browsable(true)]
-        [Category("State")]
-        [Description("Message to display when panel is in Empty state")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public string EmptyStateMessage { get; set; } = "No content to display";
 
         [Browsable(true)]
         [Category("Animation")]
@@ -508,104 +533,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         
 
         /// <summary>
-        /// Gets the shape path based on PanelShape using PathPainters
-        /// </summary>
-        private GraphicsPath GetShapePath(Rectangle bounds)
-        {
-            switch (_panelShape)
-            {
-                case PanelShape.Rectangle:
-                    return PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
-                    
-                case PanelShape.RoundedRectangle:
-                    return PathPainterHelpers.CreateRoundedRectangle(bounds, BorderRadius);
-                    
-                case PanelShape.Ellipse:
-                    var ellipsePath = new GraphicsPath();
-                    ellipsePath.AddEllipse(bounds);
-                    return ellipsePath;
-                    
-                case PanelShape.Custom:
-                    if (_customShapePath != null)
-                    {
-                        return (GraphicsPath)_customShapePath.Clone();
-                    }
-                    return PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
-                    
-                default:
-                    return PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
-            }
-        }
-        
-      
-        
-        /// <summary>
-        /// Paints the border using BorderPainters, with custom path for GroupBox style
-        /// </summary>
-        private void PaintBorder(Graphics g, GraphicsPath basePath, Rectangle bounds)
-        {
-            if (basePath == null || basePath.PointCount == 0) return;
-            
-            try
-            {
-                GraphicsPath borderPath = basePath;
-                
-                // For GroupBox style, create a border path with gap for title
-                if (_titleStyle == PanelTitleStyle.GroupBox && _showTitle && !string.IsNullOrEmpty(_titleText))
-                {
-                    borderPath = CreateGroupBoxBorderPath(bounds);
-                }
-                
-                if (borderPath == null) return;
-                
-                var borderPainter = BorderPainterFactory.CreatePainter(ControlStyle);
-                if (borderPainter != null)
-                {
-                    var state = ControlState.Normal;
-                    if (IsHovered) state = ControlState.Hovered;
-                    if (IsFocused) state = ControlState.Focused;
-                    if (IsPressed) state = ControlState.Pressed;
-                    
-                    borderPainter.Paint(g, borderPath, IsFocused, ControlStyle, _currentTheme, UseThemeColors, state);
-                }
-                else
-                {
-                    // Fallback to simple border
-                    Color borderColor = BorderColor;
-                    if (UseThemeColors && _currentTheme != null)
-                    {
-                        borderColor = _currentTheme.BorderColor;
-                    }
-                    
-                    using (var pen = new Pen(borderColor, BorderThickness))
-                    {
-                        g.DrawPath(pen, borderPath);
-                    }
-                }
-                
-                // Dispose if we created a new path
-                if (borderPath != basePath)
-                {
-                    borderPath?.Dispose();
-                }
-            }
-            catch { }
-        }
-        
-        /// <summary>
-        /// Creates a border path with gap for GroupBox title
-        /// </summary>
-        private GraphicsPath CreateGroupBoxBorderPath(Rectangle bounds)
-        {
-            RefreshPanelLayoutContext(bounds);
-            if (!_panelLayoutContext.HasTitle)
-            {
-                return GetShapePath(bounds);
-            }
-            return BeepPanelPainter.BuildGroupBoxBorderPath(_panelState, _panelLayoutContext);
-        }
-
-        /// <summary>
         /// Updates the panel region based on the current shape.
         /// This clips child controls to the panel's shape.
         /// </summary>
@@ -632,7 +559,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             _panelRegion = new Region(bounds);
                             break;
                         case PanelShape.RoundedRectangle:
-                            path = GraphicsExtensions.GetRoundedRectPath(bounds, BorderRadius);
+                            path = GraphicsExtensions.CreateRoundedRectanglePath(bounds, EffectiveCornerRadius);
                             if (path != null)
                             {
                                 _panelRegion = new Region(path);
@@ -657,6 +584,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 _panelRegion = new Region(bounds);
                             }
                             break;
+                        case PanelShape.Pill:
+                            path = GraphicsExtensions.CreatePill(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+                            _panelRegion = new Region(path);
+                            break;
+                        case PanelShape.Squircle:
+                            path = CreateSquirclePath(bounds);
+                            _panelRegion = new Region(path);
+                            break;
                     }
                     
                     // Apply region to control to clip child controls
@@ -671,9 +606,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _isUpdatingRegion = false;
                 }
             }
-            catch 
+            catch (Exception ex)
             {
                 _isUpdatingRegion = false;
+                BeepLog.FallbackOnce("beeppanel.region", this, "update panel region", ex);
             }
         }
 
@@ -731,10 +667,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TitleIconTintWithForeColor = _titleIconTintWithForeColor
             };
 
-            var newFont = BeepPanelFontHelpers.GetTitleFont(this, _currentTheme);
-            if (_textFont != null && !ReferenceEquals(_textFont, newFont))
-                _textFont.Dispose();
-            _textFont = newFont;
+            _textFont = BeepPanelFontHelpers.GetTitleFont(this, _currentTheme);
             _panelLayoutContext = BeepPanelLayoutHelper.BuildLayout(this, bounds, _panelState, _textFont);
             _titleBottomY = _panelLayoutContext.HeaderBounds.Bottom;
         }
@@ -845,196 +778,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             try { ApplyTheme(); }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("beeppanel.theme.ctor", this, "apply theme in constructor", ex);
                 this.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control);
                 this.ForeColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
             }
         }
-        #endregion
-
-        #region Phase 1: Auto-Scroll Implementation
-
-        private void InitializeScrollBars()
-        {
-            if (_verticalScrollBar != null || _horizontalScrollBar != null)
-                return; // Already initialized
-
-            // Create modern thin vertical scrollbar
-            _verticalScrollBar = new VScrollBar
-            {
-                Dock = DockStyle.Right,
-                Width = 12,
-                Visible = false,
-                TabStop = false
-            };
-            _verticalScrollBar.Scroll += OnVerticalScroll;
-            _verticalScrollBar.MouseWheel += OnScrollBarMouseWheel;
-            Controls.Add(_verticalScrollBar);
-            _verticalScrollBar.BringToFront();
-
-            // Create modern thin horizontal scrollbar
-            _horizontalScrollBar = new HScrollBar
-            {
-                Dock = DockStyle.Bottom,
-                Height = 12,
-                Visible = false,
-                TabStop = false
-            };
-            _horizontalScrollBar.Scroll += OnHorizontalScroll;
-            Controls.Add(_horizontalScrollBar);
-            _horizontalScrollBar.BringToFront();
-
-            // Initial update
-            UpdateScrollBars();
-        }
-
-        private void RemoveScrollBars()
-        {
-            if (_verticalScrollBar != null)
-            {
-                _verticalScrollBar.Scroll -= OnVerticalScroll;
-                _verticalScrollBar.MouseWheel -= OnScrollBarMouseWheel;
-                Controls.Remove(_verticalScrollBar);
-                _verticalScrollBar.Dispose();
-                _verticalScrollBar = null;
-            }
-
-            if (_horizontalScrollBar != null)
-            {
-                _horizontalScrollBar.Scroll -= OnHorizontalScroll;
-                Controls.Remove(_horizontalScrollBar);
-                _horizontalScrollBar.Dispose();
-                _horizontalScrollBar = null;
-            }
-
-            _scrollOffset = 0;
-        }
-
-        private void UpdateScrollBars()
-        {
-            if (!AutoScroll || _verticalScrollBar == null || _horizontalScrollBar == null)
-                return;
-
-            // Calculate content size
-            int contentWidth = 0;
-            int contentHeight = 0;
-
-            foreach (Control child in Controls)
-            {
-                if (child == _verticalScrollBar || child == _horizontalScrollBar)
-                    continue;
-
-                contentWidth = Math.Max(contentWidth, child.Right + Padding.Right);
-                contentHeight = Math.Max(contentHeight, child.Bottom + Padding.Bottom);
-            }
-
-            // Add title height offset
-            contentHeight += _titleBottomY;
-
-            // Determine visible area
-            int visibleWidth = ClientSize.Width - (ShowVerticalScroll() ? _verticalScrollBar.Width : 0);
-            int visibleHeight = ClientSize.Height - (ShowHorizontalScroll() ? _horizontalScrollBar.Height : 0) - _titleBottomY;
-
-            // Update vertical scrollbar
-            bool needVerticalScroll = contentHeight > visibleHeight;
-            _verticalScrollBar.Visible = needVerticalScroll;
-            if (needVerticalScroll)
-            {
-                _verticalScrollBar.Maximum = contentHeight - visibleHeight + _verticalScrollBar.LargeChange - 1;
-                _verticalScrollBar.LargeChange = visibleHeight;
-                _verticalScrollBar.SmallChange = 20;
-            }
-
-            // Update horizontal scrollbar
-            bool needHorizontalScroll = contentWidth > visibleWidth;
-            _horizontalScrollBar.Visible = needHorizontalScroll;
-            if (needHorizontalScroll)
-            {
-                _horizontalScrollBar.Maximum = contentWidth - visibleWidth + _horizontalScrollBar.LargeChange - 1;
-                _horizontalScrollBar.LargeChange = visibleWidth;
-                _horizontalScrollBar.SmallChange = 20;
-            }
-        }
-
-        private bool ShowVerticalScroll() => _verticalScrollBar?.Visible ?? false;
-        private bool ShowHorizontalScroll() => _horizontalScrollBar?.Visible ?? false;
-
-        private void OnVerticalScroll(object sender, ScrollEventArgs e)
-        {
-            _scrollOffset = e.NewValue;
-            UpdateChildControlPositions();
-            Invalidate();
-        }
-
-        private void OnHorizontalScroll(object sender, ScrollEventArgs e)
-        {
-            // Horizontal scroll offset
-            UpdateChildControlPositions();
-            Invalidate();
-        }
-
-        private void OnScrollBarMouseWheel(object sender, MouseEventArgs e)
-        {
-            // Mouse wheel scrolling
-            if (_verticalScrollBar != null && _verticalScrollBar.Visible)
-            {
-                int newValue = _verticalScrollBar.Value - (e.Delta / 120) * _verticalScrollBar.SmallChange;
-                newValue = Math.Max(_verticalScrollBar.Minimum, Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange + 1, newValue));
-                _verticalScrollBar.Value = newValue;
-            }
-        }
-
-        private void UpdateChildControlPositions()
-        {
-            if (!AutoScroll) return;
-
-            int scrollOffset = _verticalScrollBar?.Value ?? 0;
-            int horizontalOffset = _horizontalScrollBar?.Value ?? 0;
-
-            foreach (Control child in Controls)
-            {
-                if (child == _verticalScrollBar || child == _horizontalScrollBar)
-                    continue;
-
-                // Adjust child position based on scroll
-                // Note: This is a simple implementation - might need AutoScrollPosition for better handling
-            }
-        }
-
-        protected override void OnMouseWheel(MouseEventArgs e)
-        {
-            base.OnMouseWheel(e);
-
-            if (AutoScroll && _verticalScrollBar != null && _verticalScrollBar.Visible)
-            {
-                int newValue = _verticalScrollBar.Value - (e.Delta / 120) * _verticalScrollBar.SmallChange;
-                newValue = Math.Max(_verticalScrollBar.Minimum, Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange + 1, newValue));
-                _verticalScrollBar.Value = newValue;
-            }
-        }
-
-        protected override void OnControlAdded(ControlEventArgs e)
-        {
-            base.OnControlAdded(e);
-            if (AutoScroll)
-                UpdateScrollBars();
-        }
-
-        protected override void OnControlRemoved(ControlEventArgs e)
-        {
-            base.OnControlRemoved(e);
-            if (AutoScroll)
-                UpdateScrollBars();
-        }
-
-        protected override void OnSizeChanged(EventArgs e)
-        {
-            base.OnSizeChanged(e);
-            if (AutoScroll)
-                UpdateScrollBars();
-        }
-
         #endregion
 
         #region Phase 1: Collapsible Implementation
@@ -1217,8 +967,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void HideContent()
         {
-            var children = Controls.Cast<Control>().Where(c => !c.IsDisposed && c != _verticalScrollBar && c != _horizontalScrollBar).ToArray();
-            foreach (var child in children)
+            foreach (var child in Controls.Cast<Control>().Where(c => !c.IsDisposed).ToArray())
             {
                 child.Visible = false;
             }
@@ -1226,8 +975,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ShowContent()
         {
-            var children = Controls.Cast<Control>().Where(c => !c.IsDisposed && c != _verticalScrollBar && c != _horizontalScrollBar).ToArray();
-            foreach (var child in children)
+            foreach (var child in Controls.Cast<Control>().Where(c => !c.IsDisposed).ToArray())
             {
                 child.Visible = true;
             }
@@ -1239,24 +987,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isDisposing = true;
             if (disposing)
             {
-                try
-                {
-                    if (_verticalScrollBar != null) { try { _verticalScrollBar.Dispose(); } catch { } _verticalScrollBar = null; }
-                    if (_horizontalScrollBar != null) { try { _horizontalScrollBar.Dispose(); } catch { } _horizontalScrollBar = null; }
+                // Dispose custom shape path
+                _customShapePath?.Dispose();
+                _customShapePath = null;
 
-                    // Dispose custom shape path
-                    _customShapePath?.Dispose();
-                    _customShapePath = null;
-                    
-                    // Dispose panel region
-                    _panelRegion?.Dispose();
-                    _panelRegion = null;
+                // Dispose panel region
+                _panelRegion?.Dispose();
+                _panelRegion = null;
 
-                    // Dispose font
-                    _textFont?.Dispose();
-                    _textFont = null;
-                }
-                catch { }
+                // Note: _textFont is intentionally not disposed here. It may be a
+                // shared system font, a theme-cached font, or a user-assigned font —
+                // the owner of the font is responsible for its disposal.
             }
 
             base.Dispose(disposing);
@@ -1300,6 +1041,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsRounded = true;
                     BorderRadius = _currentTheme.BorderRadius;
                 }
+                if (!_cornerRadiusExplicit)
+                {
+                    _cornerRadius.SetAll(BorderRadius);
+                }
                 if (_currentTheme.BorderSize > 0) { BorderThickness = _currentTheme.BorderSize; }
 
                 ShadowColor = _currentTheme.ShadowColor;
@@ -1312,8 +1057,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     UpdatePanelRegion();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("beeppanel.theme", this, "apply theme", ex);
                 this.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control); ForeColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
             }
             finally { this.ResumeLayout(false); }
@@ -1322,25 +1068,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
-        /// <summary>
-        /// Calculates the title area rectangle that needs to be painted.
-        /// This excludes the area where child controls will be rendered.
-        /// </summary>
-        private Rectangle GetTitleArea()
-        {
-            RefreshPanelLayoutContext(DrawingRect);
-            return _panelLayoutContext?.HeaderBounds ?? Rectangle.Empty;
-        }
-
         protected override void DrawContent(Graphics g)
         {
             if (_isDisposing || IsDisposed || !IsHandleCreated) return;
             base.DrawContent(g);
-            // Draw GroupBox-style title text (border is already drawn in OnPaintBackground)
-           /*  if (_titleStyle == PanelTitleStyle.GroupBox && _showTitle && !string.IsNullOrEmpty(_titleText))
-            {
-                DrawGroupBoxTitle(e.Graphics, DrawingRect);
-            } */
             try
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -1360,7 +1091,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Note: Child controls are painted automatically by Windows Forms
                 // after DrawContent completes, so they appear on top of the title
             }
-            catch { }
+            catch (Exception ex) { BeepLog.FallbackOnce("beeppanel.drawContent", this, "draw panel content", ex); }
         }
         
       
@@ -1407,17 +1138,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BackColor,
                     _titleLineColor);
             }
-            catch { }
+            catch (Exception ex) { BeepLog.FallbackOnce("beeppanel.drawTitle", this, "draw panel title", ex); }
         }
 
-
-        /// <summary>
-        /// Draws GroupBox-style title text (border is drawn in OnPaintBackground using BorderPainters)
-        /// </summary>
-        private void DrawGroupBoxTitle(Graphics g, Rectangle rectangle)
-        {
-            DrawTitle(g, rectangle);
-        }
 
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
@@ -1426,16 +1149,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 RefreshPanelLayoutContext(rectangle);
                 DrawTitle(graphics, rectangle);
-                // var children = Controls.Cast<Control>().ToArray();
-                // foreach (Control ctrl in children)
-                // {
-                //     if (ctrl is IBeepUIComponent comp && !ctrl.IsDisposed)
-                //     {
-                //         try { comp.Draw(graphics, rectangle); } catch { }
-                //     }
-                // }
             }
-            catch { }
+            catch (Exception ex) { BeepLog.FallbackOnce("beeppanel.draw", this, "draw panel", ex); }
         }
     }
 }

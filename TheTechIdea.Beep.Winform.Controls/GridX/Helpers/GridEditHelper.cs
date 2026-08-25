@@ -42,8 +42,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void BeginEdit()
         {
-            System.Diagnostics.Debug.WriteLine($"BeginEdit called. ReadOnly={_grid.ReadOnly}, HasSelection={_grid.Selection.HasSelection}");
-
             // Clear stale-cancel flags from any previous edit cycle so a
             // host that vetoed the last edit can't accidentally veto
             // this one (the thread-statics are set by OnCellBeginEdit
@@ -54,55 +52,44 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (_grid.ReadOnly)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Grid is ReadOnly");
                 return;
             }
 
             if (!_grid.Selection.HasSelection)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: No selection");
                 return;
             }
 
             int r = _grid.Selection.RowIndex;
             int c = _grid.Selection.ColumnIndex;
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Row={r}, Col={c}, RowCount={_grid.Data.Rows.Count}, ColCount={_grid.Data.Columns.Count}");
 
             if (r < 0 || c < 0 || r >= _grid.Data.Rows.Count || c >= _grid.Data.Columns.Count)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Invalid row or column index");
                 return;
             }
 
             var cell = _grid.Data.Rows[r].Cells[c];
             var col = _grid.Data.Columns[c];
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Cell IsReadOnly={cell.IsReadOnly}, IsEditable={cell.IsEditable}, ColVisible={col.Visible}");
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Cell Rect={cell.Rect}");
 
             if (cell.IsReadOnly || !cell.IsEditable || !col.Visible)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Cell is readonly or not editable");
                 return;
             }
 
             // Ensure we have up-to-date cell rectangles before creating/positioning the editor
             if (cell.Rect.Width <= 0 || cell.Rect.Height <= 0)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Cell Rect is empty, recalculating layout...");
                 _grid.UpdateDrawingRect();
                 _grid.Layout?.EnsureCalculated();
                 _grid.SafeInvalidate();
                 cell = _grid.Data.Rows[r].Cells[c];
-                System.Diagnostics.Debug.WriteLine($"BeginEdit: After recalc, Cell Rect={cell.Rect}");
 
                 if (cell.Rect.Width <= 0 || cell.Rect.Height <= 0)
                 {
-                    System.Diagnostics.Debug.WriteLine("BeginEdit: Cell Rect still invalid after recalculation");
                     return;
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine("BeginEdit: Creating editor control...");
             cell = _grid.Data.Rows[r].Cells[c];
 
             // Fire CellBeginEdit BEFORE creating the editor.  Hosts can
@@ -114,7 +101,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid.OnCellBeginEdit(r, c, cell);
             if (BeepGridPro.s_lastCellBeginEditCancel)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: CellBeginEdit vetoed by host");
                 return;
             }
 
@@ -123,18 +109,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             // Resolve editor from factory
             _currentEditor = _editorFactory.Resolve(col.CellEditor);
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Factory resolved editor: {_currentEditor?.GetType().Name ?? "NULL"}");
 
             _editorControl = _currentEditor?.CreateControl();
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: CreateControl returned: {_editorControl?.GetType().Name ?? "NULL"}");
 
             if (_editorControl == null)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Editor control is null, exiting");
                 return;
             }
 
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor created successfully: {_editorControl.GetType().Name}");
             _editingCell = cell;
             _originalValue = cell.CellValue;
             _isEndingEdit = false;
@@ -187,16 +169,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Controls.Add(_editorControl);
             }
             _editorControl.Bounds = editorRect;
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor bounds set to: {_editorControl.Bounds}");
 
             _editorControl.Anchor = AnchorStyles.None;
 
             // Force the editor to be visible and on top
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Setting editor visible. Current Visible: {_editorControl.Visible}, Enabled: {_editorControl.Enabled}");
             _editorControl.Visible = true;
             _editorControl.Show();
             _editorControl.BringToFront();
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: After Show/BringToFront. Visible: {_editorControl.Visible}, Handle created: {_editorControl.IsHandleCreated}");
 
             // Keep in sync with grid visuals
             _grid.Paint -= OnGridPaintReposition;
@@ -216,15 +195,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Use BeginInvoke to ensure proper focus timing
             _grid.BeginInvoke(new Action(() =>
             {
-                System.Diagnostics.Debug.WriteLine($"BeginEdit: BeginInvoke callback executing. _isEndingEdit={_isEndingEdit}, _editorControl!=null={_editorControl != null}");
                 if (!_isEndingEdit && _editorControl != null && !_editorControl.IsDisposed)
                 {
                     try
                     {
-                        System.Diagnostics.Debug.WriteLine($"BeginEdit: Setting focus. Editor type: {_editorControl.GetType().Name}");
                         _grid.ActiveControl = _editorControl;
                         _editorControl.Focus();
-                        System.Diagnostics.Debug.WriteLine($"BeginEdit: Focus set. Focused: {_editorControl.Focused}, ContainsFocus: {_editorControl.ContainsFocus}");
 
                         // Notify editor that editing has begun (e.g., open popups)
                         _currentEditor?.OnBeginEdit(_editorControl);
@@ -249,7 +225,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (_editorControl != null)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Cleaning up previous editor");
                 try
                 {
                     _editorControl.KeyDown -= OnEditorKeyDown;
@@ -307,7 +282,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         _originalValue, valueToAssign);
                     if (BeepGridPro.s_lastCellValidatingCancel)
                     {
-                        System.Diagnostics.Debug.WriteLine("EndEdit: CellValidating vetoed by host, treating as Escape");
                         commit = false; // treat as Escape
                     }
                     else if (BeepGridPro.s_lastCellValidatingNewValue != null)

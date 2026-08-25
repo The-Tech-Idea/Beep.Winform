@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Icons;
 using System.Collections.Generic;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -318,8 +319,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 StyledImagePainter.PaintWithTint(g, rect, SvgsUI.ChevronDown, color, 1f, cornerRadius: 2);
                 return;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("chevron", typeof(WidgetRenderingHelpers), "draw dropdown arrow icon", ex);
                 using var brush = new SolidBrush(color);
                 var points = new Point[]
                 {
@@ -342,8 +344,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 StyledImagePainter.PaintWithTint(g, rect, SvgsUI.Calendar, color, 1f, cornerRadius: 2);
                 return;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("calendar", typeof(WidgetRenderingHelpers), "draw calendar icon", ex);
                 using var pen = new Pen(color, 1);
                 using var brush = new SolidBrush(color);
                 
@@ -373,7 +376,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 StyledImagePainter.PaintWithTint(g, rect, SvgsUI.Search, color, 1f, cornerRadius: 2);
                 return;
             }
-            catch { /* fallback to manual drawing below */ }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("search", typeof(WidgetRenderingHelpers), "draw search icon", ex);
+            }
 
             using var pen = new Pen(color, 2);
             
@@ -396,7 +402,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 StyledImagePainter.PaintWithTint(g, rect, SvgsUI.X, color, 1f, cornerRadius: 2);
                 return;
             }
-            catch { /* fallback to manual drawing below */ }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("close", typeof(WidgetRenderingHelpers), "draw close icon", ex);
+            }
 
             using var pen = new Pen(color, 2);
             g.DrawLine(pen, rect.X + 2, rect.Y + 2, rect.Right - 2, rect.Bottom - 2);

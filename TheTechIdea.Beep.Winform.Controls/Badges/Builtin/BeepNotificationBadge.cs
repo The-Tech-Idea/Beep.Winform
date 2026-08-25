@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
             Shape = BadgeShape.Circle;
             Role = BadgeRole.Default;
             ShowDropShadow = true;
+            AccessibleRole = AccessibleRole.Alert;
             PulseEnabled = true;
         }
 

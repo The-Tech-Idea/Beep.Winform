@@ -51,8 +51,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Rendering
                 using var path = CreateTopRoundedRect(activeRect, radius);
                 using var fill = new SolidBrush(_theme.TabActiveBack);
                 g.FillPath(fill, path);
+
+                // Border only on the top and sides: the bottom stays open so the
+                // active tab visually merges with the panel beneath it.
                 using var border = new Pen(_theme.TabBorder, S(1));
-                g.DrawPath(border, path);
+                int d = radius * 2;
+                g.DrawArc(border, activeRect.X, activeRect.Y, d, d, 180, 90);
+                g.DrawArc(border, activeRect.Right - d, activeRect.Y, d, d, 270, 90);
+                g.DrawLine(border, activeRect.X, activeRect.Y + radius, activeRect.X, activeRect.Bottom);
+                g.DrawLine(border, activeRect.Right, activeRect.Y + radius, activeRect.Right, activeRect.Bottom);
 
                 // Accent indicator bar at bottom of active tab
                 var accentColor = _theme.FocusBorder;
@@ -67,6 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Rendering
                 using var path = CreateTopRoundedRect(bounds, radius);
                 using var fill = new SolidBrush(_theme.HoverBack);
                 g.FillPath(fill, path);
+                using var border = new Pen(_theme.TabBorder, S(1));
+                g.DrawPath(border, path);
             }
 
             // Tab text
@@ -153,17 +162,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Rendering
         private void PaintButtonBackground(Graphics g, Rectangle bounds, bool hovered, bool pressed, bool enabled)
         {
             if (!enabled) return;
+            using var path = CreateRoundedRect(bounds, S(4));
             if (pressed)
             {
-                using var path = CreateRoundedRect(bounds, S(4));
                 using var fill = new SolidBrush(_theme.PressedBack);
                 g.FillPath(fill, path);
             }
             else if (hovered)
             {
-                using var path = CreateRoundedRect(bounds, S(4));
                 using var fill = new SolidBrush(_theme.HoverBack);
                 g.FillPath(fill, path);
+            }
+            if (pressed || hovered)
+            {
                 using var border = new Pen(_theme.FocusBorder, S(1));
                 g.DrawPath(border, path);
             }

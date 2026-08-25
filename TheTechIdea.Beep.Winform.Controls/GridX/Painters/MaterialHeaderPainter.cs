@@ -31,6 +31,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override int CalculateHeaderPadding() => 12;
 
         /// <summary>
+        /// Paints this style's sort arrow (up = ascending, down = descending).
+        /// </summary>
+        public override void PaintSortIndicator(Graphics g, Rectangle rect, SortDirection direction, IBeepTheme? theme)
+            => PaintMaterialSortIndicator(g, rect, direction, theme);
+
+        /// <summary>
+        /// Paints this style's header cell background (gradient + hover ripple).
+        /// </summary>
+        public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
+        {
+            var baseColor = theme?.GridHeaderBackColor ?? Color.FromArgb(240, 240, 245);
+            DrawGradientBackground(g, rect, baseColor, LinearGradientMode.Vertical);
+
+            if (isHovered)
+            {
+                var accent = theme?.AccentColor ?? Color.DeepSkyBlue;
+                var hoverRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
+                using var hoverBrush = new LinearGradientBrush(hoverRect, Color.FromArgb(50, accent), Color.FromArgb(10, accent), LinearGradientMode.Vertical);
+                using var path = CreateRoundedRectangle(hoverRect, 4);
+                g.FillPath(hoverBrush, path);
+            }
+        }
+
+        /// <summary>
         /// Paint all column headers
         /// </summary>
         public override void PaintHeaders(Graphics g, Rectangle headerRect, BeepGridPro grid, IBeepTheme? theme)
@@ -143,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Calculate icon areas
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 18 : 0;
+            int sortIconSize = column.AllowSort ? 18 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 20 : 0;
             int rightX = cellRect.Right - padding;
 
@@ -186,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw Material sort indicator (animated-style)
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintMaterialSortIndicator(g, sortIconRect, column.SortDirection, theme);
             }

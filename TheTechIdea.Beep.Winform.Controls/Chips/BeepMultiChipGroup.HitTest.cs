@@ -44,14 +44,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 if (chip.Bounds.Width > 0 && chip.Bounds.Height > 0)
                 {
                     int chipIndex = i;
-                    AddHitArea($"Chip_{chipIndex}_{chip.Item.GuidId}", chip.Bounds, null, () => HandleChipClick(chip, _lastInteractionPoint, false));
+                    var hitBounds = _painter?.GetInteractiveBounds(chip.Bounds) ?? chip.Bounds;
+                    AddHitArea($"Chip_{chipIndex}_{chip.Item.GuidId}", hitBounds, null, () => HandleChipClick(chip, _lastInteractionPoint, false));
                 }
             }
         }
 
         private void SelectAllUtility()
         {
-            var previousSelected = _selectedItem;
             if (SelectionMode == ChipSelectionMode.Single)
             {
                 if (_chips.Count > 0)
@@ -76,7 +76,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
         private void ClearAllUtility()
         {
-            var previousSelected = _selectedItem;
             foreach (var c in _chips) c.IsSelected = false;
             _selectedItems.Clear();
             _selectedItem = null;
@@ -88,6 +87,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         {
             if (chip?.Item == null) return;
             if (chip.IsDisabled) return;
+
+            // The ripple is a pointer affordance; a keyboard activation has no
+            // click point to ripple from.
+            if (!keyboardAction)
+                TriggerRipple(chip, clickLocation);
 
             var idx = _chips.IndexOf(chip);
             if (!keyboardAction && idx >= 0 && _closeRects.TryGetValue(idx, out var closeRect))

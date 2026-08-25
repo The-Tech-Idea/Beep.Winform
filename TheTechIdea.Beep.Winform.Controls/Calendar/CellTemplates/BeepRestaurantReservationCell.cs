@@ -8,8 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
         protected override void DrawCellContent(Graphics g, Rectangle rect)
         {
             if (Event == null) return;
-            var theme = _currentTheme;
-            if (theme == null) return;
+            if (_currentTheme == null) return;
 
             var reservationStatus = Metadatum("ReservationStatus", "Booked");
             var accentColor = reservationStatus switch
@@ -20,19 +19,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                 _ => BeepCellTemplateHelpers.PriorityColor("medium")
             };
 
-            int pad = 6;
-            int accentWidth = 4;
-            var content = new Rectangle(rect.X + pad + accentWidth, rect.Y + pad,
-                rect.Width - pad * 2 - accentWidth, rect.Height - pad * 2);
+            var content = CellContentRect(rect);
+            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, CellAccentWidth);
 
-            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, accentWidth);
-
-            var titleFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            var detailFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
-            var textColor = theme.PrimaryTextColor;
-            var secondaryColor = Color.FromArgb(180, textColor);
-
-            int lineH = 16;
             var drawY = content.Y;
 
             var guestName = Metadatum("GuestName", "Guest");
@@ -40,10 +29,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var titleLine = string.IsNullOrEmpty(partySize)
                 ? guestName
                 : $"{guestName} · Party of {partySize}";
-            var titleRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            BeepCellTemplateHelpers.DrawIconLabel(g, titleRect, titleFont,
-                textColor, SvgsUIcons.Common.Calendar, titleLine, 12);
-            drawY += lineH;
+            var titleRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            BeepCellTemplateHelpers.DrawIconLabel(g, titleRect, TitleFont,
+                TextColor, SvgsUIcons.Common.Calendar, titleLine, 12);
+            drawY += CellLineHeight;
 
             var tableNumber = Metadatum("TableNumber", "");
             var specialRequest = Metadatum("SpecialRequests", "");
@@ -54,18 +43,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                     : $"Table {tableNumber} · {specialRequest}";
             if (!string.IsNullOrEmpty(tableLine))
             {
-                var tableRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, tableRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Calendar, tableLine, 10);
-                drawY += lineH;
+                var tableRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, tableRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Calendar, tableLine, 10);
+                drawY += CellLineHeight;
             }
 
-            if (!Event.IsAllDay && content.Y + content.Height - drawY >= lineH)
+            if (!Event.IsAllDay && content.Y + content.Height - drawY >= CellLineHeight)
             {
                 var timeText = $"{Event.StartTime:t} - {Event.EndTime:t}";
-                var timeRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Clock, timeText, 10);
+                var timeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Clock, timeText, 10);
             }
 
             var dotColor = reservationStatus switch
@@ -77,9 +66,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             };
             BeepCellTemplateHelpers.DrawStatusDot(g, rect.Right - 16,
                 rect.Y + rect.Height / 2, dotColor, 5);
-
-            titleFont.Dispose();
-            detailFont.Dispose();
         }
     }
 }

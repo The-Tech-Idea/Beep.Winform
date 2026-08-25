@@ -11,6 +11,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -35,21 +36,43 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         /// <summary>
+        /// Delegate invoked to run a method bound to a <see cref="SimpleItem.MethodName"/>.
+        /// The host wires this to resolve and invoke the method; the menubar only
+        /// dispatches through it.
+        /// </summary>
+        public delegate void RunFunctionFromExtensions(SimpleItem item, string MethodName);
+
+        /// <summary>
+        /// Host-provided dispatcher for menu items that carry a
+        /// <see cref="SimpleItem.MethodName"/>. When null, a method-bound item reports
+        /// <see cref="Errors.Failed"/> rather than fabricating success.
+        /// </summary>
+        public RunFunctionFromExtensions RunFunctionFromExtensionsHandler { get; set; }
+
+        /// <summary>
         /// Invokes a global function bound to a menu item via SimpleItem.MethodName.
         /// </summary>
         public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
         {
-            ErrorsInfo errorsInfo = new ErrorsInfo();
+            var errorsInfo = new ErrorsInfo();
             try
             {
-                OnMenuItemSelected(item);
-                //SimpleItemFactory.RunFunctionWithTreeHandler(item, MethodName);
+                if (RunFunctionFromExtensionsHandler == null)
+                {
+                    errorsInfo.Flag    = Errors.Failed;
+                    errorsInfo.Message = $"No {nameof(RunFunctionFromExtensionsHandler)} is wired to invoke '{MethodName}'.";
+                    return errorsInfo;
+                }
+
+                RunFunctionFromExtensionsHandler(item, MethodName);
+                errorsInfo.Flag = Errors.Ok;
             }
             catch (Exception ex)
             {
                 errorsInfo.Flag    = Errors.Failed;
                 errorsInfo.Message = ex.Message;
                 errorsInfo.Ex      = ex;
+                BeepLog.Failure(this, $"RunMethodFromGlobalFunctions('{MethodName}')", ex);
             }
             return errorsInfo;
         }

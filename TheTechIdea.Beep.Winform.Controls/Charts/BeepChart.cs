@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
@@ -64,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.WriteLine($"BeepChart Constructor Error: {ex.Message}");
+                BeepLog.Failure(this, "BeepChart constructor", ex);
             }
         }
 

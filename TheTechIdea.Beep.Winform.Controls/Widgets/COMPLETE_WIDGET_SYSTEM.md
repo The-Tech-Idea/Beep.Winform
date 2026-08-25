@@ -239,6 +239,12 @@ The foundation is complete! Future expansions could include:
 6. **Performance Optimized** - Efficient rendering and memory usage
 7. **Media Rich** - Modern support for images, avatars, and icons
 
+## Recent Fixes (2026-08)
+
+- **All bare catches eliminated.** The widget painters previously used 46 `catch { }` blocks for image fallbacks, event hooks, hit-action invocation, and clipboard copies — every one now reports through `BeepLog` (`FallbackOnce` keyed by image path in paint paths, `Fallback` for best-effort hooks and clipboard), so a failed icon, avatar, or event hook is visible instead of silent.
+- **Email validation no longer throws.** `BeepFormWidget.IsValidEmail` used `try/catch` with `MailAddress` (exception as control flow); it now uses `MailAddress.TryCreate`.
+- **Image-load failures report.** `BeepMediaWidget.LoadImage` and `BeepSocialWidget.LoadAvatarImage` reported nothing when a file failed to load; they now report through `BeepLog.Failure` before nulling the image.
+
 ## **? Result**
 
 The Beep Widget System is now a **COMPLETE, ENTERPRISE-READY** dashboard framework with:

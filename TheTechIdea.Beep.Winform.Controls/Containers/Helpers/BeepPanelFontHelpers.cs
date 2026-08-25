@@ -8,7 +8,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
     {
         public static Font GetTitleFont(BeepPanel owner, IBeepTheme theme)
         {
-            if (owner?.TextFont != null)
+            if (owner == null) return SystemFonts.MessageBoxFont;
+
+            // Honor UseThemeFont: when disabled, keep the user/control font.
+            if (!owner.UseThemeFont && owner.TextFont != null)
             {
                 return owner.TextFont;
             }
@@ -28,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
                 return BeepThemesManager.ToFont(theme.LabelFont);
             }
 
-            return SystemFonts.MessageBoxFont;
+            return owner.TextFont ?? SystemFonts.MessageBoxFont;
         }
     }
 }

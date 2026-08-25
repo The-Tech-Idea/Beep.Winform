@@ -10,6 +10,43 @@ A commercial-grade, hierarchical context menu system with unlimited nesting dept
 
 ---
 
+## Revision (2026-08-21) — Cleanup & Hardening Pass
+
+Changes since the original summary (some of the prose below is now out of date; this
+section is authoritative for current behaviour):
+
+- **BeepScrollBar used directly** — the `Type.GetType` + `Activator.CreateInstance`
+  reflection block (plus the `VScrollBar` fallback) was replaced with a typed
+  `new BeepScrollBar()` in `BeepContextMenu.Core.cs`. Scrollbar property access in
+  `RecalculateSize` / `EnsureIndexVisible` / mouse-wheel is now direct and typed.
+- **Multi-select return fixed** — `ShowMultiSelect` now reads `menu.GetSelectedItems()`
+  instead of the never-populated `context.SelectedItems`, so it returns real selections.
+- **`ShowNonBlocking` cleanup fixed** — its `FormClosed` handler now runs
+  `CleanupMenuContext`, so contexts no longer leak and `MenuDismissed` fires
+  symmetrically on item-click close.
+- **Removed blocking `Thread.Sleep(10)`** from `CloseRootMenus`. The synchronous
+  `Show`/`ShowMultiSelect` pump now uses `Application.DoEvents()` (to dispatch queued
+  messages) plus `MsgWaitForMultipleObjectsEx` (to idle) — the earlier claim of "no
+  DoEvents" was inaccurate; DoEvents is required by the blocking model.
+- **Removed dead API**: `ShowAsync`, `ShowMultiSelectAsync` (both moved UI work off the
+  STA thread), `EnableSubMenus`, `ActiveMenuCount`, `ConfirmMultiSelect`,
+  `UseThemeColors`, `AnimationDuration`, `FadeOutDuration`, `BorderColor` setter (now
+  get-only), `ContextMenuMetrics` (entire dead token type), and the dead owner-window
+  P/Invokes (`SetWindowLong`, `SetLayeredWindowAttributes`, `DropDownOwnerWindow`,
+  `ReparentToDropDownOwnerWindow`).
+- **Wired `ShowSeparators`** into the drawing path (it was accepted-then-ignored).
+- **Unified shortcut text** — `ResolveShortcutText` resolves `ShortcutText` → `Shortcut`
+  → `KeyCombination` so measure (`RecalculateSize`) and draw agree.
+- **Consolidated** the four duplicated `submenuOpeningHandler` bodies into one
+  `CreateSubmenuOpeningHandler` helper.
+- **Swallowed exceptions now report** through `BeepLog` in `ContextMenuManager`.
+
+The synchronous `Show` / `ShowMultiSelect` / `ShowNonBlocking` methods remain the
+public surface (see "Core Classes" below); the `ShowAsync` / `ShowMultiSelectAsync`
+overloads no longer exist.
+
+---
+
 ## 🏗️ Architecture
 
 ### **Single Source of Truth Pattern**

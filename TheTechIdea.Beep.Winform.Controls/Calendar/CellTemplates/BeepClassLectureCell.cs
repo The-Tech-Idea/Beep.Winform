@@ -8,8 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
         protected override void DrawCellContent(Graphics g, Rectangle rect)
         {
             if (Event == null) return;
-            var theme = _currentTheme;
-            if (theme == null) return;
+            if (_currentTheme == null) return;
 
             var lectureType = Metadatum("LectureType", "Lecture");
             var accentColor = lectureType switch
@@ -20,30 +19,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                 _ => BeepCellTemplateHelpers.PriorityColor("medium")
             };
 
-            int pad = 6;
-            int accentWidth = 4;
-            var content = new Rectangle(rect.X + pad + accentWidth, rect.Y + pad,
-                rect.Width - pad * 2 - accentWidth, rect.Height - pad * 2);
+            var content = CellContentRect(rect);
+            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, CellAccentWidth);
 
-            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, accentWidth);
-
-            var titleFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            var detailFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
-            var textColor = theme.PrimaryTextColor;
-            var secondaryColor = Color.FromArgb(180, textColor);
-
-            int lineH = 16;
             var drawY = content.Y;
 
             var courseCode = Metadatum("CourseCode", "");
             var titleLine = string.IsNullOrEmpty(courseCode)
                 ? Event.Title
                 : $"{courseCode}: {Event.Title}";
-            var titleRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            TextRenderer.DrawText(g, titleLine, titleFont, titleRect, textColor,
+            var titleRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            TextRenderer.DrawText(g, titleLine, TitleFont, titleRect, TextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-            drawY += lineH;
+            drawY += CellLineHeight;
 
             var instructor = Metadatum("Instructor", "");
             var room = Metadatum("Room", "");
@@ -54,34 +43,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                     : $"{instructor} · Room {room}";
             if (!string.IsNullOrEmpty(instLine) && instLine != "Room ")
             {
-                var instRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, instRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Calendar, instLine, 10);
-                drawY += lineH;
+                var instRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, instRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Calendar, instLine, 10);
+                drawY += CellLineHeight;
             }
 
             var enrollment = Metadatum("Enrollment", "");
-            var hasSpace = content.Y + content.Height - drawY >= lineH;
+            var hasSpace = content.Y + content.Height - drawY >= CellLineHeight;
             if (!string.IsNullOrEmpty(enrollment) && hasSpace)
             {
-                var enrollRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, enrollRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Calendar, enrollment, 10);
-                drawY += lineH;
+                var enrollRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, enrollRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Calendar, enrollment, 10);
+                drawY += CellLineHeight;
             }
 
-            if (!Event.IsAllDay && content.Y + content.Height - drawY >= lineH)
+            if (!Event.IsAllDay && content.Y + content.Height - drawY >= CellLineHeight)
             {
                 var dayPattern = Event.IsRecurring
                     ? $"{Event.StartTime:ddd} " : "";
                 var timeText = $"{dayPattern}{Event.StartTime:t}-{Event.EndTime:t}";
-                var timeRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Clock, timeText, 10);
+                var timeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Clock, timeText, 10);
             }
-
-            titleFont.Dispose();
-            detailFont.Dispose();
         }
     }
 }

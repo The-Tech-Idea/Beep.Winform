@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -65,7 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                     // If popup picker exists, update its mode immediately
                     if (_calendarView != null)
                     {
-                        try { _calendarView.Mode = value; } catch { }
+                        try { _calendarView.Mode = value; }
+                        catch (Exception ex) { BeepLog.Fallback(this, "apply mode to the popup calendar", ex); }
                     }
                     
                     Invalidate();
@@ -226,7 +228,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 // Update calendar if open
                 if (_calendarView != null && value.HasValue)
                 {
-                    try { _calendarView.MinDate = value.Value; } catch { }
+                    try { _calendarView.MinDate = value.Value; }
+                    catch (Exception ex) { BeepLog.Fallback(this, "apply MinDate to the popup calendar", ex); }
                 }
             }
         }
@@ -244,7 +247,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 // Update calendar if open
                 if (_calendarView != null && value.HasValue)
                 {
-                    try { _calendarView.MaxDate = value.Value; } catch { }
+                    try { _calendarView.MaxDate = value.Value; }
+                    catch (Exception ex) { BeepLog.Fallback(this, "apply MaxDate to the popup calendar", ex); }
                 }
             }
         }

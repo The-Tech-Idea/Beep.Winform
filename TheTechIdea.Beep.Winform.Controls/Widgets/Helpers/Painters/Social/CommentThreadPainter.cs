@@ -16,6 +16,8 @@ using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 {
     /// <summary>
@@ -285,7 +287,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                     float cy = rect.Y + rect.Height / 2f;
                     StyledImagePainter.PaintInCircle(g, cx, cy, radius, avatarPath);
                 }
-                catch { /* avatar unavailable, fall through to initials */ }
+                catch (Exception ex)
+                {
+                    BeepLog.FallbackOnce(avatarPath, this, "render avatar", ex);
+                }
             }
 
             if (string.IsNullOrEmpty(avatarPath))

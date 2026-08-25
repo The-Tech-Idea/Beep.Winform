@@ -1,4 +1,5 @@
 using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Scolling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         // Visual Style
         private FormStyle _contextMenuType = FormStyle.Modern;
         private BeepControlStyle _controlStyle = BeepControlStyle.None;
-        private bool _useThemeColors = true;
         private Forms.ModernForm.Painters.CornerRadius _cornerRadius = new Forms.ModernForm.Painters.CornerRadius(8);
         private Forms.ModernForm.Painters.ShadowEffect _shadowEffect = new Forms.ModernForm.Painters.ShadowEffect();
         
@@ -128,8 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         // Scrolling support
         private int _maxHeight = DefaultMaxHeightLogical; // Maximum height before scrolling
-        private int _minHeight = 0; // Will be calculated as one item height + padding
-        private Control _scrollBar; // VScrollBar or BeepScrollBar depending on availability
+        private BeepScrollBar _scrollBar;
         private int _scrollOffset = 0;
         private bool _needsScrolling = false;
         private int _totalContentHeight = 0;
@@ -152,9 +151,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private bool _maxWidthSetExplicitly = false;
         private bool _maxHeightSetExplicitly = false;
         
-    // MenuStyle (visual Style of the context menu painter)
-    private FormStyle menustyle =  FormStyle.Modern;
-
     // Theme management (aligns with BaseControl pattern)
     private string _themeName = ThemeManagement.BeepThemesManager.CurrentThemeName;
     private IBeepTheme _currentTheme = ThemeManagement.BeepThemesManager.GetDefaultTheme();
@@ -175,12 +171,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         // Animation
         private Timer _fadeTimer;
         private double _opacity = 0;
-        private const int FADE_STEPS = 10;
         private const int FADE_INTERVAL = 20;
-        private int _animationDuration = 200;
         private bool _enableAnimations = true;
         private int _fadeInDuration = 150;
-        private int _fadeOutDuration = 100;
 
     // Lifecycle behavior: by default, hide instead of disposing on Close
     private bool _destroyOnClose = false;
@@ -188,9 +181,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
     // Fonts adoption toggle (follow theme fonts automatically)
     private bool _useThemeFonts = true;
 
-    // WinForms-style owner window management (prevents taskbar entry)
-    private static NativeWindow _dropDownOwnerWindow;
-    
     // Close reason tracking (mirrors ToolStripDropDown)
     private BeepContextMenuCloseReason _closeReason = BeepContextMenuCloseReason.AppFocusChange;
     
@@ -276,57 +266,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 Opacity = 1.0;
             }
             
-            // Initialize scrollbar - prefer BeepScrollBar if available
-            try
+            // Initialize scrollbar (positioned manually in RecalculateSize).
+            _scrollBar = new BeepScrollBar
             {
-                var beepScrollType = Type.GetType("TheTechIdea.Beep.Winform.Controls.BeepScrollBar, TheTechIdea.Beep.Winform.Controls");
-                if (beepScrollType != null)
-                {
-                    var beepScroll = (Control)Activator.CreateInstance(beepScrollType);
-                    beepScroll.Dock = DockStyle.Right;
-                    beepScroll.Width = SCROLL_BAR_WIDTH;
-                    beepScroll.Visible = false;
-                    // Wire generic event handler (ValueChanged) to our ScrollBar_Scroll
-                    var eventInfo = beepScrollType.GetEvent("ValueChanged");
-                    if (eventInfo != null)
-                    {
-                        eventInfo.AddEventHandler(beepScroll, new EventHandler((s, e) => InternalScrollBarValueChanged(s, e)));
-                    }
-                    // Try to set theme and some properties for consistent styling
-                    try
-                    {
-                        var themeProp = beepScrollType.GetProperty("Theme");
-                        if (themeProp != null) themeProp.SetValue(beepScroll, _themeName);
-                        var applyThemeMethod = beepScrollType.GetMethod("ApplyTheme");
-                        applyThemeMethod?.Invoke(beepScroll, null);
-                    }
-                    catch { }
-                    _scrollBar = beepScroll;
-                    this.Controls.Add(_scrollBar);
-                }
-                else
-                {
-                    var vscroll = new VScrollBar();
-                    vscroll.Dock = DockStyle.Right;
-                    vscroll.Width = SCROLL_BAR_WIDTH;
-                    vscroll.Visible = false;
-                    vscroll.Scroll += ScrollBar_Scroll;
-                    vscroll.TabStop = false;
-                    _scrollBar = vscroll;
-                    this.Controls.Add(_scrollBar);
-                }
-            }
-            catch
-            {
-                var vscroll = new VScrollBar();
-                vscroll.Dock = DockStyle.Right;
-                vscroll.Width = SCROLL_BAR_WIDTH;
-                vscroll.Visible = false;
-                vscroll.Scroll += ScrollBar_Scroll;
-                vscroll.TabStop = false;
-                _scrollBar = vscroll;
-                this.Controls.Add(_scrollBar);
-            }
+                Width = SCROLL_BAR_WIDTH,
+                Visible = false,
+                TabStop = false
+            };
+            _scrollBar.ValueChanged += InternalScrollBarValueChanged;
+            Controls.Add(_scrollBar);
             
             // Event handlers
             this.MouseMove += BeepContextMenu_MouseMove;
@@ -725,23 +673,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             }
         }
-        
-        #endregion
-        
-        #region IDisposable Support
-        
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing)
-        //    {
-        //        try { _submenuTimer?.Stop(); _submenuTimer?.Dispose(); } catch { }
-        //        try { _fadeTimer?.Stop(); _fadeTimer?.Dispose(); } catch { }
-        //        try { _openSubmenu?.Dispose(); } catch { }
-        //        try { if (_scrollBar != null) { if (_scrollBar is VScrollBar v) v.Scroll -= ScrollBar_Scroll; else { var ev = _scrollBar.GetType().GetEvent("ValueChanged"); ev?.RemoveEventHandler(_scrollBar, new EventHandler((s, e) => InternalScrollBarValueChanged(s, e))); } } } catch { }
-        //        try { if (_searchTextBox != null) { _searchTextBox.TextChanged -= SearchTextBox_TextChanged; Controls.Remove(_searchTextBox); _searchTextBox.Dispose(); _searchTextBox = null; } } catch { }
-        //    }
-        //    base.Dispose(disposing);
-        //}
         
         #endregion
         

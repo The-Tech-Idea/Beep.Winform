@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -134,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"MenuBar drawing error: {ex.Message}");
+                BeepLog.FallbackOnce("menubar-paint-fallback", this, "PaintMenuItem", ex);
                 DrawMenuItemFallback(g, item, rect, isHovered, isSelected);
             }
         }
@@ -145,13 +146,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawMenuItemFallback(
             Graphics g, SimpleItem item, Rectangle rect, bool isHovered, bool isSelected)
         {
-            var brush = new SolidBrush(isHovered ? Color.LightBlue : Color.White);
-            g.FillRectangle(brush, rect);
-            brush.Dispose();
+            using (var brush = new SolidBrush(isHovered ? Color.LightBlue : Color.White))
+                g.FillRectangle(brush, rect);
 
-            var pen = new Pen(Color.Gray, Math.Max(1, ScaleUi(1)));
-            g.DrawRectangle(pen, rect);
-            pen.Dispose();
+            using (var pen = new Pen(Color.Gray, Math.Max(1, ScaleUi(1))))
+                g.DrawRectangle(pen, rect);
 
             using (var textBrush = new SolidBrush(_currentTheme.MenuItemForeColor))
             using (var format    = new StringFormat())

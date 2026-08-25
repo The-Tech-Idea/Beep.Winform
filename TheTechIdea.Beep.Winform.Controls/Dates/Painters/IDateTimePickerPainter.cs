@@ -364,8 +364,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public Rectangle ActionButtonsRect { get; set; }
         public Rectangle ApplyButtonRect { get; set; }
         public Rectangle CancelButtonRect { get; set; }
-        public Rectangle TimeScrollUpRect { get; set; }
-        public Rectangle TimeScrollDownRect { get; set; }
         
         // Legacy time spinner (kept for backward compatibility)
         public Rectangle TimeSpinnerRect { get; set; }

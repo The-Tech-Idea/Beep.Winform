@@ -223,7 +223,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed)
             {
                 _inlineQSCombo.Visible = false;
-                System.Diagnostics.Debug.WriteLine("Combo box hidden");
             }
            // CheckIfBothControlsHidden();
         }
@@ -237,7 +236,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 _inlineQSCombo.Visible = true;
                 _inlineQuickSearchIsLive = true;
-                System.Diagnostics.Debug.WriteLine("Combo box shown");
             }
         }
 
@@ -250,10 +248,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed && _inlineQSCombo.Visible && _inlineQSCombo.Enabled)
             {
                 bool isOn = _inlineQSCombo.Bounds.Contains(clickLocation);
-                System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is {(isOn ? "ON" : "NOT ON")} combo bounds {_inlineQSCombo.Bounds}");
                 return isOn;
             }
-            System.Diagnostics.Debug.WriteLine($"Combo box is not available for click detection (Disposed={_inlineQSCombo?.IsDisposed}, Visible={_inlineQSCombo?.Visible}, Enabled={_inlineQSCombo?.Enabled})");
             return false;
         }
 
@@ -267,12 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 if (!_inlineQSCombo.Bounds.Contains(clickLocation))
                 {
-                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is OUTSIDE combo bounds {_inlineQSCombo.Bounds} - hiding combo");
                     HideInlineQSCombo();
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is INSIDE combo bounds - keeping visible");
                 }
             }
         }
@@ -292,7 +283,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     _inlineQSCombo.Bounds = _inlineQSComboRect;
                     ShowInlineQSCombo();
                     _inlineQSCombo.BringToFront();
-                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is ON combo painted rect {_inlineQSComboRect} - showing combo");
                 }
             }
         }
@@ -309,7 +299,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (_inlineQSText != null && !_inlineQSText.IsDisposed)
             {
                 _inlineQSText.Visible = false;
-                System.Diagnostics.Debug.WriteLine("Text box hidden");
             }
             CheckIfBothControlsHidden();
         }
@@ -323,7 +312,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 _inlineQSText.Visible = true;
                 _inlineQuickSearchIsLive = true;
-                System.Diagnostics.Debug.WriteLine("Text box shown");
             }
         }
 
@@ -336,10 +324,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (_inlineQSText != null && !_inlineQSText.IsDisposed && _inlineQSText.Visible && _inlineQSText.Enabled)
             {
                 bool isOn = _inlineQSText.Bounds.Contains(clickLocation);
-                System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is {(isOn ? "ON" : "NOT ON")} textbox bounds {_inlineQSText.Bounds}");
                 return isOn;
             }
-            System.Diagnostics.Debug.WriteLine($"Text box is not available for click detection (Disposed={_inlineQSText?.IsDisposed}, Visible={_inlineQSText?.Visible}, Enabled={_inlineQSText?.Enabled})");
             return false;
         }
 
@@ -353,12 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 if (!_inlineQSText.Bounds.Contains(clickLocation))
                 {
-                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is OUTSIDE textbox bounds {_inlineQSText.Bounds} - hiding textbox");
                     HideInlineQSText();
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is INSIDE textbox bounds - keeping visible");
                 }
             }
         }
@@ -378,7 +359,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     ShowInlineQSText();
                     _inlineQSText.BringToFront();
                     _inlineQSText.Focus();
-                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is ON text painted rect {_inlineQSTextRect} - showing text");
                 }
             }
         }
@@ -398,7 +378,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (!comboVisible && !textVisible)
             {
                 _inlineQuickSearchIsLive = false;
-                System.Diagnostics.Debug.WriteLine("Both controls hidden - marking as not live");
             }
         }
 
@@ -490,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 _inlineQSCombo.LostFocus += InlineQSControl_LostFocus;
                 Controls.Add(_inlineQSCombo);
                 
-                System.Diagnostics.Debug.WriteLine("Combo box created and added to Controls");
+                Controls.Add(_inlineQSCombo);
             }
 
             // --- Search text box ---
@@ -513,7 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 _inlineQSText.LostFocus += InlineQSControl_LostFocus;
                 Controls.Add(_inlineQSText);
                 
-                System.Diagnostics.Debug.WriteLine("Text box created and added to Controls");
+                Controls.Add(_inlineQSText);
             }
         }
 

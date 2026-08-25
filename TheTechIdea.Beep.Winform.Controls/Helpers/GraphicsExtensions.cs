@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -100,8 +101,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 var scaledPath = new GraphicsPath(scaledPoints, path.PathTypes);
                 return scaledPath;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("GraphicsExtensions.scalePath", typeof(GraphicsExtensions), "scale path toward centroid", ex);
                 return null;
             }
         }
@@ -216,8 +218,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                // Log the error if you have logging infrastructure
-                // System.Diagnostics.Debug.WriteLine($"CreateInsetPath error: {ex.Message}");
+                // Paint-path: a degenerate path geometry falls back to the original path.
+                BeepLog.FallbackOnce("GraphicsExtensions.insetPath", typeof(GraphicsExtensions), "create inset path", ex);
 
                 // Return a safe fallback
                 return (GraphicsPath)originalPath.Clone();
@@ -316,8 +318,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                // Log the error if you have logging infrastructure
-                // System.Diagnostics.Debug.WriteLine($"CreateInsetPath error: {ex.Message}");
+                // Paint-path: a degenerate path geometry falls back to the original path.
+                BeepLog.FallbackOnce("GraphicsExtensions.insetPath.corner", typeof(GraphicsExtensions), "create inset path (corner radius)", ex);
 
                 // Return a safe fallback
                 return (GraphicsPath)originalPath.Clone();
@@ -368,8 +370,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 insetPath.AddPolygon(insetPoints);
                 return insetPath;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("GraphicsExtensions.insetPolygon", typeof(GraphicsExtensions), "create inset polygon", ex);
                 return null;
             }
         }
@@ -462,9 +465,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         return estimatedRadius;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Swallow and return 0
+                BeepLog.FallbackOnce("GraphicsExtensions.detectRadius", typeof(GraphicsExtensions), "detect rounded-rect radius", ex);
             }
             return 0f;
         }
@@ -579,8 +582,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
                 return widenedPath;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.FallbackOnce("GraphicsExtensions.widen", typeof(GraphicsExtensions), "widen path for inset", ex);
                 return null;
             }
         }

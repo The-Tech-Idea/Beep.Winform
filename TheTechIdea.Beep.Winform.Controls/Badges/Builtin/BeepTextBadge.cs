@@ -27,11 +27,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges.Builtin
                 _displayText = value ?? string.Empty;
                 _cachedFontText = null;
                 ApplyBadgeSize();
+                AccessibleName = DescribeBadge();
             }
         }
 
         public BeepTextBadge SetText(string text) { DisplayText = text; return this; }
         public BeepTextBadge At(float fractionX, float fractionY) { Location = BadgeLocations.Relative(fractionX, fractionY); return this; }
+
+        /// <summary>The badge's text is its meaning; announce it.</summary>
+        protected override string DescribeBadge() => _displayText;
 
         /// <summary>The width this badge's text needs, so a pill can be as wide as its word.</summary>
         protected override int MeasureContentWidth()

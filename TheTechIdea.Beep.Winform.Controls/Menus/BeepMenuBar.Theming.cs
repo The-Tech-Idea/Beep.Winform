@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -48,8 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 catch (Exception ex)
                 {
                     Invalidate();
-                    System.Diagnostics.Debug.WriteLine(
-                        $"BeepMenuBar: Failed to create font from theme: {ex.Message}");
+                    BeepLog.Fallback(this, "CreateFontFromTheme", ex);
                 }
             }
 

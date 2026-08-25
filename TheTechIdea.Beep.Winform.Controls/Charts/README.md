@@ -77,6 +77,13 @@ That plan set includes:
 - `BeepChart` inherits from `BaseControl` and should follow the shared Beep control authoring rules.
 - The current planning package is intended to guide phased enhancement work before broad rollout of advanced chart capabilities.
 
+## Recent Fixes
+
+- **Failures now report through `BeepLog`.** All chart `catch` blocks that wrote to `System.Diagnostics.Trace` (constructor, `ApplyTheme`, `OnHandleCreated`, axis-value conversion, viewport scaling/drawing-rect setup) now report through the library's single failure sink instead.
+- **No more silent drops in data binding.** Non-numeric cell/property values during `DataTable`/`IList` binding were silently coerced to `0`; each failing column now reports once via `BeepLog.FallbackOnce`.
+- **State/export/print failures are no longer swallowed.** `SaveChartImage`, `PrintChart`, `ShowPrintPreview`, `ImportChartStateFromJSON`, `SaveChartStateToFile`, and `LoadChartStateFromFile` previously returned `false` with the exception discarded; they now report the exception through `BeepLog.Failure` before returning `false`.
+- **Doughnut GDI leak fixed.** `PieSeriesPainter` leaked the ring `Region` (and the captured clip clone) on every doughnut paint, and left the clip set to the ring if a slice draw threw. Slice drawing now runs in `try`/`finally`, restoring the clip and disposing the ring region and clip clone on the way out.
+
 ## Host Integration Patterns
 
 Common host integration patterns can be implemented directly with the public API surface:

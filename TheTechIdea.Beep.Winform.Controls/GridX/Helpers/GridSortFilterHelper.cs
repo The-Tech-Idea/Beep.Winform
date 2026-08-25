@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Filtering;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -157,6 +158,53 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             SetAllRowsVisible();
             RecalculateAndInvalidate();
+        }
+
+        /// <summary>
+        /// True when any per-column contains/in filter is in force, even when the
+        /// grid's <see cref="BeepGridPro.ActiveFilter"/> is empty.
+        /// </summary>
+        public bool HasActiveFilters => _containsFilters.Count > 0 || _inFilters.Count > 0;
+
+        /// <summary>
+        /// Clears the contains/in filters for a single column and re-applies the
+        /// remaining filter state. Used by the active-filter chips row so each
+        /// per-column chip's "x" removes just that column's condition.
+        /// </summary>
+        public void ClearColumnFilter(string columnName)
+        {
+            var col = FindColumn(columnName);
+            if (col == null) return;
+
+            _containsFilters.Remove(col.ColumnName);
+            _inFilters.Remove(col.ColumnName);
+            col.Filter = string.Empty;
+
+            UpdateFilteredColumnFlags();
+            ApplyFilterState();
+        }
+
+        /// <summary>
+        /// Returns the active per-column filter conditions as
+        /// <see cref="FilterCriteria"/> objects, one per column, so the
+        /// active-filter chips row can render them identically to
+        /// <see cref="BeepGridPro.ActiveFilter"/> criteria.
+        /// </summary>
+        public IReadOnlyList<FilterCriteria> GetActiveColumnCriteria()
+        {
+            var criteria = new List<FilterCriteria>();
+
+            foreach (var pair in _containsFilters)
+            {
+                criteria.Add(new FilterCriteria(pair.Key, FilterOperator.Contains, pair.Value));
+            }
+
+            foreach (var pair in _inFilters)
+            {
+                criteria.Add(new FilterCriteria(pair.Key, FilterOperator.In, string.Join(", ", pair.Value)));
+            }
+
+            return criteria;
         }
 
         private BeepColumnConfig? FindColumn(string columnName)

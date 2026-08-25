@@ -15,6 +15,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -107,10 +108,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 return Math.Max(1, sz.Height);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Fallback(typeof(BeepMenuBar), "MeasureFontHeight", ex);
                 try { return context?.Font?.Height ?? SystemFonts.DefaultFont.Height; }
-                catch { return 12; }
+                catch (Exception fallbackEx)
+                {
+                    BeepLog.FallbackOnce("menubar-fontheight-default", typeof(BeepMenuBar), "MeasureFontHeight", fallbackEx);
+                    return 12;
+                }
             }
         }
 

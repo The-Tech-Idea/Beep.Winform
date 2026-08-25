@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
         /// </summary>
         public static string GenerateAccessibleName(
             BeepTaskCard card,
-            string customName = null)
+            string? customName = null)
         {
             if (!string.IsNullOrEmpty(customName))
                 return customName;
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
         /// </summary>
         public static string GenerateAccessibleDescription(
             BeepTaskCard card,
-            string customDescription = null)
+            string? customDescription = null)
         {
             if (!string.IsNullOrEmpty(customDescription))
                 return customDescription;
@@ -145,8 +145,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
         /// </summary>
         public static void ApplyAccessibilitySettings(
             BeepTaskCard card,
-            string accessibleName = null,
-            string accessibleDescription = null)
+            string? accessibleName = null,
+            string? accessibleDescription = null)
         {
             if (card == null)
                 return;
@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
         /// </summary>
         public static void ApplyHighContrastAdjustments(
             BeepTaskCard card,
-            IBeepTheme theme = null,
+            IBeepTheme? theme = null,
             bool useThemeColors = false)
         {
             if (card == null || !IsHighContrastMode())

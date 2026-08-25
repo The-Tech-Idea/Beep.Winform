@@ -5,6 +5,8 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
@@ -51,7 +53,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 };
                 brush.InterpolationColors = blend;
             }
-            catch { /* Fallback to linear gradient if blend fails */ }
+            catch (Exception ex)
+            {
+                // Paint-path: a malformed ColorBlend falls back to the plain gradient.
+                BeepLog.FallbackOnce("fluent.acrylic", typeof(FluentBackgroundPainter), "build acrylic blend", ex);
+            }
 
             g.FillPath(brush, path);
         }

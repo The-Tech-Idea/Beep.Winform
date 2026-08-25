@@ -1,8 +1,15 @@
 # BeepContextMenu WinForms Integration Guide
 
+> **Note (2026-08-21):** The "Hidden Owner Window" section below is historical. The
+> `DropDownOwnerWindow` / `ReparentToDropDownOwnerWindow` / `SetWindowLong` plumbing was
+> removed as dead code — `ShowInTaskbar = false` already prevents taskbar entry for a
+> top-level form, so the hidden owner window was redundant. The remaining live
+> WinForms integration is `WndProc` (WM_NCACTIVATE owner-activation), `SetVisibleCore`
+> (open/close event sequencing), and `TRACKMOUSEEVENT` hover tracking.
+
 ## Overview
 
-BeepContextMenu now implements key patterns from `ToolStripDropDown` and `ContextMenuStrip` to behave like native WinForms context menus.
+BeepContextMenu implements key patterns from `ToolStripDropDown` and `ContextMenuStrip` to behave like native WinForms context menus.
 
 ## Key WinForms Patterns Implemented
 

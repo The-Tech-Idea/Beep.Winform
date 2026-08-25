@@ -188,7 +188,6 @@ classes, each of which owns one concern. Helpers are constructed in
 | `GridUnitOfWorkBinder` | UoW-to-grid synchronization |
 | `GridThemeHelper` | Per-style theme colour application |
 | `GridNavigationPainterHelper` | Owner-drawn navigator rendering |
-| `GridColumnHeadersPainterHelper` | Per-style header rendering |
 | `GridColumnVirtualizer` | Per-window horizontal virtualization |
 | `GridRowVirtualizer` | On-demand row materialization |
 | `GridExportEngine` | CSV / JSON / HTML + pluggable Excel/PDF |
@@ -223,9 +222,10 @@ plus the legacy 12.
 
 ### Toolbar (Phase 18)
 
-The unified toolbar replaces `BeepFilterRow` and `BeepQuickFilterBar`.
-It is fully owner-drawn (no child controls except the lazy search text
-editor). See [The Unified Toolbar](#the-unified-toolbar).
+The unified toolbar replaces the legacy `BeepFilterRow` and
+`BeepQuickFilterBar` (both removed). It is fully owner-drawn (no child
+controls except the lazy search text editor). See
+[The Unified Toolbar](#the-unified-toolbar).
 
 ---
 
@@ -275,6 +275,17 @@ There are **two** distinct filtering paths in the current code:
 - Raises `FilterApplied` and `FilterCleared` events.
 - Drives the top filter panel and the unified toolbar search box.
 
+### Active filter chips row
+
+While at least one filter condition is active — an `ActiveFilter`
+criterion or a per-column `SortFilter` condition — a compact
+DevExpress-style chips row appears below the column headers. Each chip
+shows one condition (`Column operator value`) with an "x" that removes
+just that condition (`RemoveFilterCriterionAt` for `ActiveFilter`
+criteria, `SortFilter.ClearColumnFilter` for per-column conditions); a
+trailing "Clear all" clears everything. Toggle with
+`grid.ShowActiveFilterBar` and size with `grid.ActiveFilterBarHeight`.
+
 ### `SortFilter` helper path
 - Used by `GridSortFilterHelper` and the Excel-style popup extension.
 - Tries to push sort/filter into the underlying `BindingSource` first.
@@ -306,8 +317,8 @@ exclusive — enabling one disables the other.
 ┌────────────────────────────────────────────────────────────────────┐
 │ [📋 Customers]  [+ New] [✏ Edit] [🗑 Delete] │ [🔍 Search...] │      │
 │  Title             Actions                     Search              │
-│                                                  │ [⚙ Filter] [⛭ Adv]│[✕]
-│                                                  │       Filter      │
+│                                                  │ [⚙ Filter] [✕]     │
+│                                                  │   Filter   Clear   │
 │                                                  │   [↥][↧][↤][↦]    │
 │                                                  │   Import Export  │
 │                                                  │   [↥][↧]  [🖨]   │
@@ -322,7 +333,7 @@ exclusive — enabling one disables the other.
 | **Title** | `GridTitle` (configurable, toggle via `ShowGridTitle`) | Fixed, up to 25 % of toolbar width |
 | **Actions** | New, Edit, Delete | Icon + text label, fixed |
 | **Search** | Search icon + flexible-width box | Flexible — fills remaining space |
-| **Filter** | Filter button, Advanced button, Clear button (when active) | Icon-only, fixed |
+| **Filter** | Filter button, Clear button (when active) | Icon-only, fixed |
 | **Export** | Import, Export, Print | Icon-only, fixed |
 
 ### Behaviour
@@ -330,10 +341,11 @@ exclusive — enabling one disables the other.
 - **Action buttons** are visible by default. Set
   `grid.SetToolbarButtonVisible("delete", false)` to hide individual
   buttons (e.g. when nothing is selected).
-- **Filter button** opens the Excel-style filter dialog
-  (`ShowFilterDialog`).
-- **Advanced button** opens the multi-criteria advanced filter dialog
+- **Filter button** opens the multi-criteria advanced filter dialog
   (`ShowAdvancedFilterDialog`).
+- **Quick column filter** (`ShowFilterDialog`) is opt-in — enable it
+  with `grid.ShowFilterButton = true` to add a second funnel that opens
+  the single-column "Filter by Column" dialog.
 - **Clear filter button** appears only when a filter is active, with a
   badge showing the active criteria count.
 - **Search box** activates an on-demand `BeepTextBox` editor on click;
@@ -385,11 +397,6 @@ grid.ToolbarAction += (s, e) =>
 > are bound directly to `Navigator.InsertNew` and
 > `Navigator.DeleteCurrent`. Subscribe to `RowAdded`, `RowDeleted`, and
 > the UoW lifecycle events for fine-grained tracking.
-
-### Deprecation
-
-`BeepFilterRow` and `BeepQuickFilterBar` are marked `[Obsolete]` and
-will be removed in a future version. Migrate to the unified toolbar.
 
 ---
 
@@ -613,10 +620,8 @@ focuses the toolbar search box.
 |---|---|
 | `BeepGridStyle.Modern` is the latest style; verify its render in all themes. | Visual QA pass |
 | The `LayoutPreset` enum is fully wired but some presets share the same default style heuristic. | Add per-preset painter params |
-| Toolbar button tooltips are not yet shown. | Phase 19: per-button `ToolTip` member + auto-binding |
 | `SelectionMode` strategy switch is implemented but most input handlers still use the legacy focus/checkbox path. | Phase 10 follow-up |
 | Filtering has two parallel pipelines (`ActiveFilter` vs `SortFilter`). | Phase 20: unify the engines |
-| `BeepFilterRow` and `BeepQuickFilterBar` are still defined; the toolbar supersedes them but the obsolete classes remain. | Phase 21: remove obsolete types |
 
 ---
 

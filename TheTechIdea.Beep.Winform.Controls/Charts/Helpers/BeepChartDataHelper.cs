@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -57,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.WriteLine($"Error converting value: {ex.Message}");
+                BeepLog.Fallback(typeof(BeepChartDataHelper), "convert axis value", ex);
                 return 0;
             }
         }

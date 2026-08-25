@@ -79,6 +79,37 @@ public class BeepDialogManagerCreationTests
         });
     }
 
+    [Fact]
+    public void ShowInput_WiresFieldValidatorsAndGatesThePrimary()
+    {
+        RunSta(() =>
+        {
+            var manager = new BeepDialogManager();
+            var config = new DialogConfig
+            {
+                Title = "Name",
+                Message = "Enter your name"
+            };
+            config.FieldValidators["value"] = v =>
+                string.IsNullOrWhiteSpace(v) ? (false, "Name is required") : (true, string.Empty);
+
+            // BuildInputDialog attaches the validator and re-validates the empty
+            // initial value, so the primary action must come up disabled — the
+            // FieldValidators config surface is actually honoured, not just declared.
+            using var dialog = manager.BuildInputDialog(config);
+
+            var ok = Descendants(dialog)
+                .OfType<BeepButton>()
+                .First(button => string.Equals(button.Text, "OK", StringComparison.OrdinalIgnoreCase));
+
+            Assert.False(ok.Enabled);
+
+            var state = config.ValidationState["value"];
+            Assert.False(state.Valid);
+            Assert.Equal("Name is required", state.Error);
+        });
+    }
+
     private static void RunSta(Action action)
     {
         Exception? failure = null;

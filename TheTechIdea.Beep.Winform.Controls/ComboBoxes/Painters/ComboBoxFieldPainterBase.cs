@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -446,9 +447,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                     StyledImagePainter.Paint(g, imageRect, imagePath, style);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback: draw a placeholder icon
+                // Degraded path: StyledImagePainter failed (e.g. corrupt image), so draw a
+                // placeholder. Keyed by path and once-only because this runs from paint.
+                BeepLog.FallbackOnce(imagePath, _owner, "render leading icon", ex);
                 DrawPlaceholderIcon(g, imageRect);
             }
         }

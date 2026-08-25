@@ -158,9 +158,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 int itemY = contentStartY + yOffset - scroll;
                 var itemRect = new Rectangle(contentStartX, itemY, contentWidth, itemHeight);
 
-                if (item.DisplayField == "-" || item.Tag == "separator")
+                if (IsSeparator(item))
                 {
-                    DrawSeparatorSimple(g, itemRect);
+                    if (_showSeparators)
+                    {
+                        DrawSeparatorSimple(g, itemRect);
+                    }
                 }
                 else
                 {
@@ -176,7 +179,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             bool isHovered = (_hoveredItem ==  item);
             bool isSelected = (_selectedIndex == index);
             bool hasChildren = ContextMenuManager.HasChildren(item);
-            bool hasShortcut = _showShortcuts && !string.IsNullOrEmpty(item.ShortcutText);
+            string shortcutText = ResolveShortcutText(item);
+            bool hasShortcut = _showShortcuts && !string.IsNullOrEmpty(shortcutText);
 
             // Get theme colors directly from current theme
             var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
@@ -229,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             int shortcutWidth = 0;
             if (hasShortcut)
             {
-                SizeF shortcutSizeF = TextUtils.MeasureText(item.ShortcutText, _textFont, int.MaxValue);
+                SizeF shortcutSizeF = TextUtils.MeasureText(shortcutText, _textFont, int.MaxValue);
                 var shortcutSize = new Size((int)shortcutSizeF.Width, (int)shortcutSizeF.Height);
                 shortcutWidth = shortcutSize.Width + ScaleLogical(16);
             }
@@ -320,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     itemRect.Height
                 );
                 
-                TextRenderer.DrawText(g, item.ShortcutText, safeFont, shortcutRect, shortcutColor,
+                TextRenderer.DrawText(g, shortcutText, safeFont, shortcutRect, shortcutColor,
                     TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
             }
             

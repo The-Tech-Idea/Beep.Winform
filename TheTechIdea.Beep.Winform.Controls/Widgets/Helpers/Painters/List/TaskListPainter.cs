@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Vis.Modules;
@@ -43,7 +44,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_wheelHooked || Owner == null) return;
             try { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(Owner, "hook mouse wheel", ex);
+            }
         }
 
         private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)

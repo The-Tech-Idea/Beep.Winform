@@ -70,6 +70,7 @@ BeepDateDropDown (date-specific functionality + dropdown)
 - **DatePickerMode** - Enum defining visual/functional modes (18+ modes)
 - **ReturnDateTimeType** - Enum defining what value type is returned
 - **DatePickerModeMapping** - Maps each mode to its return type
+- **DateTimePickerPainterBase** - Shared painter foundation: theme-token colors/typography, DPI scaling, and the common calendar chrome (header, navigation, day-name row, day cells)
 
 ---
 

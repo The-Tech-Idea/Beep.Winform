@@ -10,6 +10,8 @@ using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Widgets;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
 	/// <summary>
@@ -208,9 +210,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 					StyledImagePainter.PaintInCircle(g, cx, cy, radius, ctx.ImagePath);
 					avatarDrawn = true;
 				}
-				catch
+				catch (Exception ex)
 				{
-					try { _avatarPainter.DrawImage(g, ctx.ImagePath, rect); avatarDrawn = true; } catch { }
+					BeepLog.FallbackOnce(ctx.ImagePath, this, "render avatar", ex);
+					try { _avatarPainter.DrawImage(g, ctx.ImagePath, rect); avatarDrawn = true; }
+					catch (Exception ex2)
+					{
+						BeepLog.FallbackOnce($"avatarFallback:{ctx.ImagePath}", this, "render avatar fallback", ex2);
+					}
 				}
 			}
 			

@@ -23,7 +23,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
     {
         private DateTime? _selectedDate;
         private TimeSpan? _selectedTime;
-        private int _scrollOffset = 0; // For future scroll support
         
         public DatePickerMode Mode => DatePickerMode.Appointment;
 
@@ -359,7 +358,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
         {
             _selectedDate = null;
             _selectedTime = null;
-            _scrollOffset = 0;
         }
 
         /// <summary>

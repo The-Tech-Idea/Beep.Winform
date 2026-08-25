@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 using TheTechIdea.Beep.Winform.Controls.Dates.Painters;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -63,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Hit area registration error: {ex.Message}");
+                    BeepLog.Failure(this, "register hit areas", ex);
                 }
             }
 

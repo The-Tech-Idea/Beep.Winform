@@ -330,9 +330,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 
                 StyledImagePainter.Paint(g, imageRect, imagePath, Style);
             }
-            catch
+            catch (Exception ex)
             {
                 // Fallback: draw a placeholder (translucent gray dot — intentional alpha overlay)
+                BeepLog.FallbackOnce(imagePath, this, "PaintListBoxItemImage", ex);
                 int inflate = DpiScalingHelper.ScaleValue(4, _owner);
                 var smallRect = imageRect;
                 smallRect.Inflate(-inflate, -inflate);
@@ -424,7 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 hoverProgress = (_owner != null && item != null) ? _owner.GetHoverProgress(item) : 0f;
             }
-            catch { hoverProgress = 0f; }
+            catch (Exception ex) { BeepLog.FallbackOnce("listbox-hover-progress", this, "GetHoverProgress", ex); hoverProgress = 0f; }
 
             // If selected, ensure a selection border/overlay is present
             if (isSelected)

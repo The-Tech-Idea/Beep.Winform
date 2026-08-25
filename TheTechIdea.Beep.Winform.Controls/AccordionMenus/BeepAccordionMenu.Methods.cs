@@ -10,18 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
 {
     public partial class BeepAccordionMenu
     {
-        private void InitializeAccordion()
-        {
-            // Set up the accordion properties
-            BackColor = AccordionThemeHelpers.GetAccordionBackgroundColor(
-                _currentTheme,
-                UseThemeColors);
-
-            // Subscribe to events
-            items.ListChanged += Items_ListChanged;
-        }
-
-        private void Items_ListChanged(object sender, ListChangedEventArgs e)
+        private void Items_ListChanged(object? sender, ListChangedEventArgs e)
         {
             InitializeMenuItemState();
             if (AutoFitHeight)
@@ -109,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             animationTimer.Start();
         }
 
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
             if (!isAnimating) return;
 
@@ -139,15 +128,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
 
             Width = currentWidth;
             Invalidate();
-        }
-
-        private void UpdateItemsPanelSize()
-        {
-            if (itemsPanel == null || toggleButton == null || logo == null) return;
-
-            itemsPanel.Location = new Point(5, toggleButton.Bottom + 5);
-            itemsPanel.Size = new Size(Width - 10, Height - toggleButton.Bottom - logo.Height - 15);
-            itemsPanel.PerformLayout();
         }
 
         // Override ApplyTheme to apply theme colors to the control

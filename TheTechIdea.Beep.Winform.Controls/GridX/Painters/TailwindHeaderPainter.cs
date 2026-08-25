@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Calculate icon areas
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 14 : 0;
+            int sortIconSize = column.AllowSort ? 14 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 16 : 0;
             int rightX = cellRect.Right - padding;
 
@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw sort indicator
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintSortIndicator(g, sortIconRect, column.SortDirection, theme);
             }

@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Base;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
@@ -97,8 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                     {
                         StyledImagePainter.Paint(g, mediaRect, path);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        BeepLog.FallbackOnce(path, this, "render media", ex);
                         _mediaPainter.DrawImage(g, ctx.CustomImagePaths[0], mediaRect);
                     }
                 }
@@ -107,7 +110,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                     DrawMediaViewerPlaceholder(g, mediaRect, ctx);
                 }
             }
-            catch { DrawMediaViewerPlaceholder(g, mediaRect, ctx); }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("mediaviewer", this, "draw media", ex);
+                DrawMediaViewerPlaceholder(g, mediaRect, ctx);
+            }
         }
 
         private void DrawMediaViewerPlaceholder(Graphics g, Rectangle mediaRect, WidgetContext ctx)

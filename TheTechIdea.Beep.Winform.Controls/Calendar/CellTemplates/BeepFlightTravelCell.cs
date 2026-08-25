@@ -8,8 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
         protected override void DrawCellContent(Graphics g, Rectangle rect)
         {
             if (Event == null) return;
-            var theme = _currentTheme;
-            if (theme == null) return;
+            if (_currentTheme == null) return;
 
             var travelStatus = Metadatum("TravelStatus", "OnTime");
             var accentColor = travelStatus switch
@@ -20,19 +19,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                 _ => BeepCellTemplateHelpers.PriorityColor("medium")
             };
 
-            int pad = 6;
-            int accentWidth = 4;
-            var content = new Rectangle(rect.X + pad + accentWidth, rect.Y + pad,
-                rect.Width - pad * 2 - accentWidth, rect.Height - pad * 2);
+            var content = CellContentRect(rect);
+            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, CellAccentWidth);
 
-            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, accentWidth);
-
-            var titleFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            var detailFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
-            var textColor = theme.PrimaryTextColor;
-            var secondaryColor = Color.FromArgb(180, textColor);
-
-            int lineH = 16;
             var drawY = content.Y;
 
             var flightNum = Metadatum("FlightNumber", Event.Title);
@@ -41,11 +30,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             var routeLine = string.IsNullOrEmpty(dest)
                 ? flightNum
                 : $"{flightNum}  {origin} → {dest}";
-            var titleRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            TextRenderer.DrawText(g, routeLine, titleFont, titleRect, textColor,
+            var titleRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            TextRenderer.DrawText(g, routeLine, TitleFont, titleRect, TextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-            drawY += lineH;
+            drawY += CellLineHeight;
 
             var gate = Metadatum("Gate", "");
             var baggage = Metadatum("Baggage", "");
@@ -56,24 +45,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                     : $"Gate {gate} · Baggage {baggage}";
             if (!string.IsNullOrEmpty(infoLine))
             {
-                var infoRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, infoRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Calendar, infoLine, 10);
-                drawY += lineH;
+                var infoRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, infoRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Calendar, infoLine, 10);
+                drawY += CellLineHeight;
             }
 
-            if (!Event.IsAllDay && content.Y + content.Height - drawY >= lineH)
+            if (!Event.IsAllDay && content.Y + content.Height - drawY >= CellLineHeight)
             {
                 var timeText = $"{Event.StartTime:t} - {Event.EndTime:t}";
-                var timeRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Clock, timeText, 10);
-                drawY += lineH;
+                var timeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Clock, timeText, 10);
+                drawY += CellLineHeight;
             }
 
-            if (content.Y + content.Height - drawY >= lineH)
+            if (content.Y + content.Height - drawY >= CellLineHeight)
             {
-                var badgeRect = new Rectangle(content.X, drawY, content.Width, lineH);
+                var badgeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
                 var statusColor = travelStatus switch
                 {
                     "OnTime" => BeepCellTemplateHelpers.StatusColor(CalendarEventStatus.Confirmed),
@@ -81,12 +70,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                     "Cancelled" => BeepCellTemplateHelpers.PriorityColor("critical"),
                     _ => BeepCellTemplateHelpers.PriorityColor("medium")
                 };
-                BeepCellTemplateHelpers.DrawIconLabel(g, badgeRect, detailFont,
+                BeepCellTemplateHelpers.DrawIconLabel(g, badgeRect, DetailFont,
                     statusColor, null, travelStatus, 10);
             }
-
-            titleFont.Dispose();
-            detailFont.Dispose();
         }
     }
 }

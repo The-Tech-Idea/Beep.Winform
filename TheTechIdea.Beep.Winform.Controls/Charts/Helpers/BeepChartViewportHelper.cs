@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -73,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.WriteLine($"AutoScaleViewport Error: {ex.Message}");
+                BeepLog.Failure(chart, "AutoScaleViewport", ex);
             }
         }
 
@@ -120,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.WriteLine($"UpdateChartDrawingRectBase Error: {ex.Message}");
+                BeepLog.Failure(chart, "UpdateChartDrawingRectBase", ex);
                 
                 // Fallback - set to client rectangle
                 var fieldInfo = typeof(BeepChart).GetField("_chartDrawingRect", 

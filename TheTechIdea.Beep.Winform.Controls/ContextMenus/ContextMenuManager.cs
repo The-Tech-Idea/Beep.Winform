@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
@@ -43,8 +44,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         #region Properties
         
-        public static bool EnableSubMenus { get; set; } = true;
-        
         public static bool IsAnyMenuActive
         {
             get
@@ -52,17 +51,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 lock (_lock)
                 {
                     return _activeMenus.Count > 0;
-                }
-            }
-        }
-        
-        public static int ActiveMenuCount
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _activeMenus.Count;
                 }
             }
         }
@@ -85,7 +73,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             public bool IsClosing { get; set; }
             public Timer MousePoller { get; set; }
             public bool WasHovered { get; set; }
-            public TaskCompletionSource<bool> CloseTcs { get; set; }
 
             // Phase 01: guard so MenuDismissed fires exactly once per context.
             public bool DismissedFired { get; set; }
@@ -103,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     MousePoller?.Dispose();
                     MousePoller = null;
                 }
-                catch { }
+                catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.dispose.poller", null, "dispose menu mouse poller", ex); }
                 
                 try
                 {
@@ -117,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                             Menu.FormClosed -= FormClosedHandler;
                     }
                 }
-                catch { }
+                catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.dispose.handlers", null, "unsubscribe menu event handlers", ex); }
             }
         }
         
@@ -178,9 +165,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     //     again is intended toggle UX, not a bug.
                     CloseAllMenus();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Silently handle click outside filter errors
+                    BeepLog.FallbackOnce("ctxmenu.clickOutsideFilter", null, "filter an outside click to close the menus", ex);
                 }
 
                 return false; // Default: deliver to the original target.
@@ -310,27 +297,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 context.SelectedItem = e.Item;
             };
             
-            submenuOpeningHandler = (s, e) =>
-            {
-                if (e?.Item == null || !HasChildren(e.Item))
-                    return;
-                
-                StopAutoCloseTimer();
-                CloseChildMenus(menuId);
-                
-                var menuLocation = menu.PointToScreen(Point.Empty);
-                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
-                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
-                
-                try
-                {
-                    ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
-                }
-                catch
-                {
-                    // Silently handle sub-menu errors
-                }
-            };
+            submenuOpeningHandler = CreateSubmenuOpeningHandler(menu, style, theme, menuId);
             
             formClosedHandler = (s, e) =>
             {
@@ -370,8 +337,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
                 return context.SelectedItem;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(null, "show context menu and pump until closed; returning null", ex);
                 return null;
             }
             finally
@@ -383,52 +351,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
         }
 
-        /// <summary>
-        /// Shows a context menu at the specified screen location (async).
-        /// Returns the selected item when the menu is closed.
-        /// </summary>
-        public static async Task<SimpleItem> ShowAsync(
-            List<SimpleItem> items,
-            Point screenLocation,
-            Control owner = null,
-            FormStyle style = FormStyle.Modern,
-            bool multiSelect = false,
-            string theme = null,
-            string parentMenuId = null)
-        {
-            if (items == null || items.Count == 0)
-                return null;
-            
-            return await Task.Run(() => 
-                Show(items, screenLocation, owner, style, multiSelect, theme, parentMenuId));
-        }
-        
-        /// <summary>
-        /// Shows a multi-select context menu and returns all selected items.
-        /// </summary>
-        public static async Task<List<SimpleItem>> ShowMultiSelectAsync(
-            List<SimpleItem> items,
-            Point screenLocation,
-            Control owner = null,
-            FormStyle style = FormStyle.Modern,
-            string theme = null)
-        {
-            if (items == null || items.Count == 0)
-                return new List<SimpleItem>();
-            
-            await ShowAsync(items, screenLocation, owner, style, true, theme, null);
-            
-            lock (_lock)
-            {
-                foreach (var ctx in _activeMenus.Values.Where(c => c.IsMultiSelect && c.IsClosed))
-                {
-                    return ctx.SelectedItems ?? new List<SimpleItem>();
-                }
-            }
-            
-            return new List<SimpleItem>();
-        }
-        
         /// <summary>
         /// Shows a multi-select context menu and returns all selected items (sync).
         /// </summary>
@@ -484,32 +406,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 context.SelectedItem = e.Item;
             };
             
-            submenuOpeningHandler = (s, e) =>
-            {
-                if (e?.Item == null || !HasChildren(e.Item))
-                    return;
-                
-                StopAutoCloseTimer();
-                CloseChildMenus(menuId);
-                
-                var menuLocation = menu.PointToScreen(Point.Empty);
-                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
-                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
-                
-                try
-                {
-                    ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
-                }
-                catch
-                {
-                    // Silently handle sub-menu errors
-                }
-            };
+            submenuOpeningHandler = CreateSubmenuOpeningHandler(menu, style, theme, menuId);
             
             formClosedHandler = (s, e) =>
             {
                 context.IsClosed = true;
-                selectedItems = context.SelectedItems ?? new List<SimpleItem>();
+                selectedItems = menu.GetSelectedItems();
+                context.SelectedItems = selectedItems;
                 isClosed = true;
             };
             
@@ -534,8 +437,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
                 return selectedItems ?? new List<SimpleItem>();
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(null, "show multi-select context menu and pump until closed; returning empty", ex);
                 return new List<SimpleItem>();
             }
             finally
@@ -624,32 +528,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (onItemSelected != null && e.Item != null)
                 {
                     try { onItemSelected(e.Item); }
-                    catch { /* user callback — swallow to keep popup robust */ }
+                    catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.userCallback", null, "invoke onItemSelected callback", ex); }
                 }
             };
 
-            submenuOpeningHandler = (s, e) =>
-            {
-                if (e?.Item == null || !HasChildren(e.Item))
-                    return;
-
-                StopAutoCloseTimer();
-                CloseChildMenus(menuId);
-
-                var menuLocation = menu.PointToScreen(Point.Empty);
-                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
-                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
-
-                try
-                {
-                    ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
-                }
-                catch { /* silently handle sub-menu errors */ }
-            };
+            submenuOpeningHandler = CreateSubmenuOpeningHandler(menu, style, theme, menuId);
 
             formClosedHandler = (s, e) =>
             {
                 context.IsClosed = true;
+                // Non-blocking menus have no pumping loop to run a finally block,
+                // so cleanup (context removal, MenuDismissed, disposal) happens here.
+                CleanupMenuContext(menuId);
             };
 
             menu.ItemClicked    += itemClickedHandler;
@@ -668,8 +558,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 menu.Show(shownAt, owner);
                 ActivateMenu(menu);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(null, "show non-blocking context menu; returning empty handle", ex);
                 CleanupMenuContext(menuId);
                 return ContextMenuHandle.Empty;
             }
@@ -719,9 +610,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently handle close menu errors
+                BeepLog.FallbackOnce("ctxmenu.closeMenu", null, "close context menu hierarchy", ex);
             }
         }
         
@@ -759,7 +650,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     {
                         CloseMenu(id);
                     }
-                    catch { }
+                    catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.closeAll", null, "close menu during close-all cascade", ex); }
                 }
 
                 // Phase 01: notify per dismissed root.
@@ -870,12 +761,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 menu.Activate();
                 menu.Focus();
             }
-            catch { }
+            catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.activate", menu, "activate and focus the popup", ex); }
         }
         
         #endregion
 
         #region Private Methods - Event Handlers
+        
+        private static EventHandler<MenuItemEventArgs> CreateSubmenuOpeningHandler(
+            BeepContextMenu menu, FormStyle style, string theme, string menuId)
+        {
+            return (s, e) =>
+            {
+                if (e?.Item == null || !HasChildren(e.Item))
+                    return;
+
+                StopAutoCloseTimer();
+                CloseChildMenus(menuId);
+
+                var menuLocation = menu.PointToScreen(Point.Empty);
+                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
+                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
+
+                // ShowChildMenu is itself exception-safe (returns null on failure).
+                ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
+            };
+        }
         
         private static void SetupMenuEventHandlers(MenuContext context, BeepContextMenu menu, FormStyle style, string theme)
         {
@@ -897,27 +808,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             };
             
-            context.SubmenuOpeningHandler = (sender, e) =>
-            {
-                if (e?.Item == null || !HasChildren(e.Item))
-                    return;
-                
-                StopAutoCloseTimer();
-                CloseChildMenus(menuId);
-                
-                var menuLocation = menu.PointToScreen(Point.Empty);
-                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
-                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
-                
-                try
-                {
-                    ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
-                }
-                catch
-                {
-                    // Silently handle sub-menu errors
-                }
-            };
+            context.SubmenuOpeningHandler = CreateSubmenuOpeningHandler(menu, style, theme, menuId);
             
             context.FormClosedHandler = (sender, e) =>
             {
@@ -926,7 +817,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     if (_activeMenus.TryGetValue(menuId, out var ctx))
                     {
                         ctx.IsClosed = true;
-                        ctx.CloseTcs?.TrySetResult(true);
                         CloseChildMenus(menuId);
                     }
                 }
@@ -1081,7 +971,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     {
                         Application.RemoveMessageFilter(_clickOutsideFilter);
                     }
-                    catch { }
+                    catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.removeFilter", null, "remove click-outside message filter", ex); }
                     _clickOutsideFilter = null;
                 }
             }
@@ -1152,13 +1042,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (owner is BeepContextMenu parentMenu && !parentMenu.IsDisposed)
                 {
                     try { parentMenu.NoteSubmenuOpened(menu.Bounds); }
-                    catch { /* non-fatal */ }
+                    catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.noteSubmenuOpened", null, "record open submenu bounds", ex); }
                 }
 
                 return menuId;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(null, "show child submenu; returning null", ex);
                 CleanupMenuContext(menuId);
                 return null;
             }
@@ -1206,26 +1097,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     menu.Close();
                 }
             }
-            catch { }
+            catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.safeClose", menu, "close menu form", ex); }
         }
         
         private static void CloseRootMenus()
         {
+            List<string> rootMenuIds;
             lock (_lock)
             {
-                var rootMenuIds = _activeMenus
+                rootMenuIds = _activeMenus
                     .Where(kvp => string.IsNullOrEmpty(kvp.Value.ParentMenuId))
                     .Select(kvp => kvp.Key)
                     .ToList();
-                
-                foreach (var id in rootMenuIds)
-                {
-                    CloseMenu(id);
-                }
             }
-            
-            // Brief pause to allow close to complete
-            System.Threading.Thread.Sleep(10);
+
+            // CloseMenu closes each form synchronously on the UI thread; no sleep needed.
+            foreach (var id in rootMenuIds)
+            {
+                CloseMenu(id);
+            }
         }
         
         private static void CloseChildMenus(string parentMenuId)
@@ -1251,7 +1141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (parentMenuForm != null && !parentMenuForm.IsDisposed)
             {
                 try { parentMenuForm.NoteSubmenuClosed(); }
-                catch { /* non-fatal */ }
+                catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.noteSubmenuClosed", null, "clear open submenu bounds", ex); }
             }
         }
         
@@ -1290,16 +1180,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         // Phase 05 — ContextMenu Lifecycle Hardening
         //
         // Native message-pump helpers. The synchronous Show / ShowMultiSelect
-        // paths used to spin with Application.DoEvents() + Thread.Sleep(1),
-        // which pegged a CPU core and re-entered the UI message pump for
-        // every iteration. PumpUntilClosed yields to the OS between
-        // messages via MsgWaitForMultipleObjectsEx, mirroring the loop
-        // Form.ShowDialog uses internally but without the modal disable.
+        // paths block the UI thread, so PumpUntilClosed must both (a) dispatch
+        // queued messages (Application.DoEvents — this is what lets the menu
+        // paint, receive input, and run the click-outside filter) and (b) idle
+        // without a CPU-burning spin. MsgWaitForMultipleObjectsEx provides (b):
+        // it blocks until a message arrives instead of Thread.Sleep(1)-looping.
         // ─────────────────────────────────────────────────────────────────
 
         private const uint QS_ALLINPUT = 0x04FF;
         private const uint MWMO_INPUTAVAILABLE = 0x0004;
-        private const uint WAIT_TIMEOUT = 0x00000102;
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
         private static extern uint MsgWaitForMultipleObjectsEx(
@@ -1310,13 +1199,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             uint dwFlags);
 
         /// <summary>
-        /// Yields to the OS until the menu form closes. Replaces the legacy
-        /// busy-wait spin (~1 ms tick) with a real blocking wait that wakes
-        /// when a Windows message is posted to this thread's queue.
-        ///
-        /// The 50 ms safety timeout exists only to guard against missed
-        /// programmatic close-completions in unusual hosts; normal
-        /// dismissal generates WM_CLOSE which wakes the wait instantly.
+        /// Blocks the UI thread until the menu form closes. DoEvents dispatches
+        /// queued messages (required so the modeless popup can paint and receive
+        /// input while the caller is blocked); MsgWaitForMultipleObjectsEx then
+        /// idles until the next message arrives, replacing the old Thread.Sleep
+        /// busy-wait. The 50 ms timeout is a safety net for unusual hosts.
         /// </summary>
         private static void PumpUntilClosed(BeepContextMenu menu, Func<bool> isClosed)
         {
@@ -1412,7 +1299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     context.Menu.Dispose();
                 }
             }
-            catch { }
+            catch (Exception ex) { BeepLog.FallbackOnce("ctxmenu.disposeChild", null, "dispose child menu form", ex); }
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -1446,9 +1333,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
                 handler(null, new MenuDismissedEventArgs(context.Owner, reason, screenPt));
             }
-            catch
+            catch (Exception ex)
             {
-                // Never let a subscriber exception leak into the close path.
+                // Never let a subscriber exception leak into the close path — but report it.
+                BeepLog.FallbackOnce("ctxmenu.dismissedSubscriber", null, "raise MenuDismissed", ex);
             }
         }
 

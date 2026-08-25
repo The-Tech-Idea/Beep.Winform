@@ -268,8 +268,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                         using (var chipPen = new Pen(chipBorder))
                         {
                             int chipRadius = Math.Max(ScaleLogicalX(tokens.CornerRadius), c.Rect.Height / 2);
-                            g.FillPath(chipBrush, GraphicsExtensions.GetRoundedRectPath(c.Rect, chipRadius));
-                            g.DrawPath(chipPen, GraphicsExtensions.GetRoundedRectPath(c.Rect, chipRadius));
+                            // One path for fill + stroke so we don't leak a GraphicsPath per chip
+                            // per paint (the old code built two and disposed neither).
+                            using (var chipPath = GraphicsExtensions.GetRoundedRectPath(c.Rect, chipRadius))
+                            {
+                                g.FillPath(chipBrush, chipPath);
+                                g.DrawPath(chipPen, chipPath);
+                            }
 
                             // Draw image if present (left side)
                             if (!string.IsNullOrEmpty(c.Item?.ImagePath))

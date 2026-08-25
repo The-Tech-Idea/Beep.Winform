@@ -6,6 +6,8 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
@@ -41,7 +43,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_wheelHooked || Owner == null) return;
             try { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(Owner, "hook mouse wheel", ex);
+            }
         }
 
         private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)
@@ -76,7 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 Owner._input.EnterKeyPressed += OnEnter;
                 _keysHooked = true;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "hook keyboard", ex);
+            }
         }
 
         private void OnUp(object? s, EventArgs e)
@@ -125,7 +133,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var hit = Owner._hitTest?.HitList?.FirstOrDefault(h => h.Name == id);
                 hit?.HitAction?.Invoke();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "invoke sidebar hit action", ex);
+            }
         }
 
         private void UpdateSelectionFromIndex()
@@ -321,12 +332,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     Owner._input.EnterKeyPressed     -= OnEnter;
                     _keysHooked = false;
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    BeepLog.Fallback(this, "unhook keyboard", ex);
+                }
             }
             if (_wheelHooked && Owner != null)
             {
                 try { Owner.MouseWheel -= OnMouseWheel; _wheelHooked = false; }
-                catch { }
+                catch (Exception ex)
+                {
+                    BeepLog.Fallback(Owner, "unhook mouse wheel", ex);
+                }
             }
         }
     }

@@ -245,3 +245,28 @@ var iconSize = ChipIconHelpers.GetChipIconSize(ChipSize.Medium);
 - Supports multiple chip shapes (Rounded, Pill, Square, Stadium)
 - ApplyTheme() method was enhanced (already existed)
 - Painters already have excellent theme integration
+
+### ✅ Phase 6: Disabled-State API (COMPLETED)
+
+`ChipItem.IsDisabled` was declared and read but never settable from the public
+surface, and only the `DefaultChipGroupPainter` honoured it. Disabled state is now:
+
+- **Settable** via `BeepMultiChipGroup.SetItemDisabled(SimpleItem item, bool disabled)`.
+- **Modelled** on `SimpleItem.IsEnabled` (the shared model) — the setter writes the
+  model, and `UpdateChipsFromItems()` reads it back as `IsDisabled = !item.IsEnabled`,
+  so a `ListItems` rebuild does not drop the disabled state.
+- **Rendered centrally** in `DrawContent`: a single dim overlay is drawn over the chip
+  after `RenderChip`, so every painter shows disabled chips identically. Disabled chips
+  also never receive a hover visual (`IsHovered` is masked).
+- **Not clickable** — `HandleChipClick` returns early for disabled chips.
+- `DefaultChipGroupPainter`'s own disabled alpha + overlay were removed so it does not
+  double-dim now that the control owns the dimming.
+
+### ✅ Phase 7: HSL dedup + Elevated hit-test (COMPLETED)
+
+- Removed the duplicate HSL helpers (`ShiftLuminance`/`ColorToHsl`/`ColorFromHsl`/
+  `HueToRgb`) from `BeepMultiChipGroup.Drawing.cs` and `ShadedChipGroupPainter.cs`.
+  Both now call `ColorUtils.ShiftLuminance` — one owner for luminance shifting.
+- `IChipGroupPainter` gained `GetInteractiveBounds(Rectangle)` (default = full bounds).
+  `ElevatedChipGroupPainter` overrides it to exclude the drop-shadow padding, and
+  `SetupChipHitAreas` registers that region — so the shadow gutter is no longer clickable.

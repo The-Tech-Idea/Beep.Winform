@@ -8,12 +8,15 @@ using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Labels.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Labels.Models;
 using TheTechIdea.Beep.Winform.Controls.Labels.Painters;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -459,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateMinimumSize()
         {
             {
-                var headerFont = _textFont ?? Font;
+                var headerFont = BeepLabelFontHelpers.GetHeaderFont(this, _currentTheme);
                 string headerSample = string.IsNullOrEmpty(Text) ? "A" : Text;
 
                 // The same rule the painter uses (see the wrapText branch in the layout pass).
@@ -480,7 +483,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     measureFlags);
 
                 bool hasSub = !string.IsNullOrEmpty(SubHeaderText);
-                var subFont = SubHeaderFont ?? headerFont;
+                var subFont = BeepLabelFontHelpers.GetSubHeaderFont(this, _currentTheme, headerFont);
                 Size subSize = Size.Empty;
                 if (hasSub)
                 {
@@ -780,8 +783,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     resolved = painter.ImageSize;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Fallback(this, $"resolve label image '{_imagePath}'", ex);
                 resolved = _maxImageSize;
             }
 
@@ -805,6 +809,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Painting"
 
         #region "Theme"
+        /// <summary>
+        /// When set, the label tints its background with the dialog's severity
+        /// wash and its foreground with the severity accent — the mechanism the
+        /// title row uses to carry the severity band. Resolved from the theme in
+        /// <see cref="ApplyTheme"/>, so a theme switch moves the band with it.
+        /// </summary>
+        public DialogSeverity? Severity { get; set; }
+
+        /// <summary>
+        /// When true, the severity fills the label and the text goes to the
+        /// contrast colour — the saturated hero band (`dialog4.png`). When false
+        /// the severity is applied as a light wash with the accent as the text.
+        /// </summary>
+        public bool SeveritySaturated { get; set; }
+
         public override void ApplyTheme()
         {
             if (_currentTheme != null)
@@ -838,6 +857,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ApplyThemeToSvg();
                 ApplyStyleProfile();
                 ApplyColorProfile();
+                ApplySeverityTint();
                 UpdateAccessibilitySnapshot();
                 //Invalidate();
                 //Refresh();
@@ -848,6 +868,37 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ApplyThemeToSvg()
         {
             Invalidate();
+        }
+
+        /// <summary>
+        /// Tints the label with the severity wash and accent, reusing the single
+        /// severity resolver rather than a second palette. Runs last so it wins
+        /// over the colour profile.
+        /// </summary>
+        private void ApplySeverityTint()
+        {
+            if (Severity is not DialogSeverity value ||
+                value == DialogSeverity.Neutral ||
+                _currentTheme is null)
+            {
+                return;
+            }
+
+            var accent = DialogStyleAdapter.GetSeverityAccent(value, _currentTheme);
+            if (accent.IsEmpty) return;
+
+            if (SeveritySaturated)
+            {
+                // The hero band: the severity colour fills the label and the text
+                // goes to the contrast colour (dialog4.png's saturated top third).
+                BackColor = accent;
+                ForeColor = ColorUtils.GetContrastColor(accent);
+            }
+            else
+            {
+                BackColor = DialogStyleAdapter.GetSeverityWash(value, _currentTheme, BackColor);
+                ForeColor = accent;
+            }
         }
 
         private void ApplyStyleProfile()
@@ -1012,7 +1063,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override Size GetPreferredSize(Size proposedSize)
         {
-            var fontToUse = _textFont ?? Font;
+            var fontToUse = BeepLabelFontHelpers.GetHeaderFont(this, _currentTheme);
 
             _state.HeaderText = Text ?? string.Empty;
             _state.SubHeaderText = SubHeaderText ?? string.Empty;
@@ -1046,18 +1097,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Measure subheader text size
             Size subHeaderTextSize = Size.Empty;
             bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
+            var subHeaderFont = hasSubHeader
+                ? BeepLabelFontHelpers.GetSubHeaderFont(this, _currentTheme, fontToUse)
+                : null;
 
             if (hasSubHeader)
             {
                 if (wrapText)
                 {
-                    subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
+                    subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, subHeaderFont,
                         new Size(maxWidth, int.MaxValue),
                         BeepLabelLayoutHelper.GetTextFormatFlags(_state));
                 }
                 else
                 {
-                    subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
+                    subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, subHeaderFont,
                         new Size(int.MaxValue, int.MaxValue),
                         BeepLabelLayoutHelper.GetTextFormatFlags(_state));
                 }

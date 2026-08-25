@@ -13,6 +13,8 @@ using MessageType = TheTechIdea.Beep.Winform.Controls.Widgets.Models.MessageType
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 {
     /// <summary>
@@ -306,8 +308,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                     float cy = rect.Y + rect.Height / 2f;
                     StyledImagePainter.PaintInCircle(g, cx, cy, radius, avatarPath);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    BeepLog.FallbackOnce(avatarPath, this, "render avatar", ex);
                     _imagePainter.ImagePath = avatarPath;
                     _imagePainter.ClipShape = Vis.Modules.ImageClipShape.Circle;
                     _imagePainter.DrawImage(g, avatarPath, rect);

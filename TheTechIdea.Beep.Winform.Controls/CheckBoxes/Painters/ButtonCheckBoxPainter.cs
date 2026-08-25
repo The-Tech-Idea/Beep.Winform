@@ -49,9 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 
             using (var path = CreateRoundedPath(bounds, options.BorderRadius))
             {
-                using (var brush = new SolidBrush(bgColor))
+                using (var brush = new SolidBrush(effectiveBackground))
                 {
-                    brush.Color = effectiveBackground;
                     g.FillPath(brush, path);
                 }
 

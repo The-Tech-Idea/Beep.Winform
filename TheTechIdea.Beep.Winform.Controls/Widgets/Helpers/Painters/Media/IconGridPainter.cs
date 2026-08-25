@@ -10,6 +10,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
@@ -117,9 +119,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                         StyledImagePainter.PaintWithTint(g, iconRect, customIconPath, Color.White, 1f, cornerRadius: 2);
                         drawn = true;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        try { _iconPainter.DrawImage(g, customIconPath, iconRect); drawn = true; } catch { }
+                        BeepLog.FallbackOnce(customIconPath, this, "render icon", ex);
+                        try { _iconPainter.DrawImage(g, customIconPath, iconRect); drawn = true; }
+                        catch (Exception ex2)
+                        {
+                            BeepLog.FallbackOnce($"iconFallback:{customIconPath}", this, "render icon fallback", ex2);
+                        }
                     }
                 }
                 if (!drawn)

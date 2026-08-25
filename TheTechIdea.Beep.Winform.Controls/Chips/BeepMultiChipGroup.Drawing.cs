@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using Size = System.Drawing.Size;
 
@@ -51,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 var state = new ChipVisualState 
                 { 
                     IsSelected = chip.IsSelected, 
-                    IsHovered = chip.IsHovered, 
+                    IsHovered = chip.IsHovered && !chip.IsDisabled, 
                     Variant = chip.Variant, 
                     Size = chip.Size, 
                     Color = chip.Color, 
@@ -69,6 +70,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NullReferenceException)
                 {
+                    // One chip failing to render must not take the whole control down:
+                    // skip this chip and draw the rest. Reported to the debug stream
+                    // because this control has no editor/logger channel in scope.
                     System.Diagnostics.Debug.WriteLine($"BeepMultiChipGroup.RenderChip[{i}] failed: {ex.Message}");
                 }
                 finally
@@ -76,6 +80,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                     g.Restore(graphicsState);
                 }
                 if (!closeRect.IsEmpty) _closeRects[i] = closeRect;
+
+                // One dim pass here, not per painter: every disabled chip reads
+                // the same whether its painter knows about IsDisabled or not.
+                if (state.IsDisabled)
+                {
+                    using var dimPath = GraphicsExtensions.GetRoundedRectPath(chip.Bounds, _renderOptions.CornerRadius);
+                    using var dimBrush = new SolidBrush(Color.FromArgb(140, effectiveTheme?.BackColor ?? BackColor));
+                    g.FillPath(dimBrush, dimPath);
+                }
 
                 if (state.IsFocused)
                 {
@@ -127,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             var borderColor = effectiveTheme?.ButtonBorderColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
             var backColor = effectiveTheme?.ButtonBackColor ?? ColorUtils.MapSystemColor(SystemColors.ControlLight);
             var foreColor = effectiveTheme?.ButtonForeColor ?? ForeColor;
-            var hoverBack = effectiveTheme?.ButtonHoverBackColor ?? ShiftLuminance(backColor, effectiveTheme?.IsDarkTheme == true ? -0.05f : 0.05f);
+            var hoverBack = effectiveTheme?.ButtonHoverBackColor ?? ColorUtils.ShiftLuminance(backColor, effectiveTheme?.IsDarkTheme == true ? -0.05f : 0.05f);
 
             var selectBack = _selectAllRect.Contains(_lastInteractionPoint) ? hoverBack : backColor;
             var clearBack = _clearAllRect.Contains(_lastInteractionPoint) ? hoverBack : backColor;
@@ -174,60 +187,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 ContentAlignment.BottomCenter => flags | TextFormatFlags.HorizontalCenter | TextFormatFlags.Bottom,
                 _ => flags | TextFormatFlags.Right | TextFormatFlags.Bottom,
             };
-        }
-
-        private static Color ShiftLuminance(Color color, float amount)
-        {
-            float h, s, l;
-            ColorToHsl(color, out h, out s, out l);
-            l = Math.Max(0, Math.Min(1, l + amount));
-            return ColorFromHsl(h, s, l);
-        }
-
-        private static void ColorToHsl(Color color, out float h, out float s, out float l)
-        {
-            float r = color.R / 255.0f;
-            float g = color.G / 255.0f;
-            float b = color.B / 255.0f;
-            float min = Math.Min(r, Math.Min(g, b));
-            float max = Math.Max(r, Math.Max(g, b));
-            float delta = max - min;
-            l = (max + min) / 2.0f;
-            if (delta == 0) { h = 0; s = 0; }
-            else
-            {
-                s = l < 0.5f ? delta / (max + min) : delta / (2.0f - max - min);
-                if (r == max) h = (g - b) / delta;
-                else if (g == max) h = 2.0f + (b - r) / delta;
-                else h = 4.0f + (r - g) / delta;
-                h /= 6.0f;
-                if (h < 0) h += 1.0f;
-            }
-        }
-
-        private static Color ColorFromHsl(float h, float s, float l)
-        {
-            float r, g, b;
-            if (s == 0) { r = g = b = l; }
-            else
-            {
-                float q = l < 0.5f ? l * (1.0f + s) : l + s - l * s;
-                float p = 2.0f * l - q;
-                r = HueToRgb(p, q, h + 1.0f / 3.0f);
-                g = HueToRgb(p, q, h);
-                b = HueToRgb(p, q, h - 1.0f / 3.0f);
-            }
-            return Color.FromArgb(255, Math.Max(0, Math.Min(255, (int)(r * 255))), Math.Max(0, Math.Min(255, (int)(g * 255))), Math.Max(0, Math.Min(255, (int)(b * 255))));
-        }
-
-        private static float HueToRgb(float p, float q, float t)
-        {
-            if (t < 0) t += 1.0f;
-            if (t > 1) t -= 1.0f;
-            if (t < 1.0f / 6.0f) return p + (q - p) * 6.0f * t;
-            if (t < 1.0f / 2.0f) return q;
-            if (t < 2.0f / 3.0f) return p + (q - p) * (2.0f / 3.0f - t) * 6.0f;
-            return p;
         }
 
         private void DrawDragIndicators(Graphics g, IBeepTheme theme)

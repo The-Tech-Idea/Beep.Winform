@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
@@ -109,9 +111,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                         StyledImagePainter.Paint(g, photoRect, path);
                         photoDrawn = true;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        try { _photoPainter.DrawImage(g, ctx.CustomImagePaths[i], photoRect); photoDrawn = true; } catch { }
+                        BeepLog.FallbackOnce(path, this, "render photo", ex);
+                        try { _photoPainter.DrawImage(g, ctx.CustomImagePaths[i], photoRect); photoDrawn = true; }
+                        catch (Exception ex2)
+                        {
+                            BeepLog.FallbackOnce($"photoFallback:{path}", this, "render photo fallback", ex2);
+                        }
                     }
                 }
 

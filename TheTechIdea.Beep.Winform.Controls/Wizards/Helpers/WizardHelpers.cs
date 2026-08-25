@@ -159,5 +159,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
             };
             timer.Start();
         }
+
+        /// <summary>
+        /// Opens the wizard's global help URL in the default browser. A failure to launch the
+        /// browser is surfaced to the user (not thrown and not silently dropped) because it is a
+        /// user-triggered action.
+        /// </summary>
+        public static void OpenHelpUrl(IWin32Window owner, string? helpUrl)
+        {
+            if (string.IsNullOrEmpty(helpUrl)) return;
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = helpUrl,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(owner, $"Unable to open help URL: {ex.Message}", "Help Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
     }
 }

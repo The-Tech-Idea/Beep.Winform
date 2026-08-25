@@ -40,6 +40,13 @@ The control already provides:
 - `ApplyTheme()` also guards the `_beepImage` path against null during host/designer initialization churn.
 - Lightweight debug diagnostics are available through `BeepCheckBoxDiagnostics` (`InvalidationCount`, `ToggleCount`, `CacheRebuildCount`, `PainterFetchCount`) to support regression checks without release-build overhead.
 
+## Recent Fixes
+
+- **Luminance math unified.** Hover/pressed color shifts now come from `ColorUtils.ShiftLuminance` (true HSL) instead of a divergent per-base RGB shift that inverted pressed feedback on light surfaces.
+- **Switch capability corrected.** `SwitchCheckBoxPainter` now advertises `SupportsThreeState` because it renders the indeterminate position (mid-toned track, center-left thumb, dash).
+- **Button painter cleanup.** Removed a dead brush construction in `ButtonCheckBoxPainter`.
+- **No more silent value drops.** `SetValue` coercion failures are reported to the debugger instead of being swallowed by empty `catch` blocks.
+
 ## Main Source Files
 
 - `BeepCheckBox.cs`

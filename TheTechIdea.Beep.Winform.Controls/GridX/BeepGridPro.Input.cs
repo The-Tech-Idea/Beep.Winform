@@ -13,8 +13,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"BeepGridPro.OnMouseDown at {e.Location}, TopFilterRect={Layout.TopFilterRect}, ShowTopFilterPanel={ShowTopFilterPanel}");
-            // === ADD THESE TWO LINES ===
             Layout.EnsureCalculated();
             ScrollBars?.UpdateBars();
             if (e.Button == MouseButtons.Right)
@@ -24,12 +22,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 return;
             }
             bool handledByScrollbar = ScrollBars?.HandleMouseDown(e.Location, e.Button) ?? false;
-            System.Diagnostics.Debug.WriteLine($"handledByScrollbar={handledByScrollbar}, Input is null: {Input == null}, Input type: {Input?.GetType().FullName}");
             if (!handledByScrollbar)
             {
-                System.Diagnostics.Debug.WriteLine($"About to call Input.HandleMouseDown, method exists: {Input.GetType().GetMethod("HandleMouseDown") != null}");
                 Input.HandleMouseDown(e);
-                System.Diagnostics.Debug.WriteLine("Input.HandleMouseDown returned");
             }
             base.OnMouseDown(e);
         }
@@ -55,7 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            // === ADD THESE TWO LINES ===
             Layout.EnsureCalculated();
             ScrollBars?.UpdateBars();
             bool handledByScrollbar = ScrollBars?.HandleMouseUp(e.Location, e.Button) ?? false;
@@ -211,8 +205,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             // search box, filter, advanced, clear-filter chip, and
             // overflow button separately from the action/export list.
             if (state.SearchBoxRect.Contains(location)) return "Search rows";
-            if (state.FilterButtonRect.Contains(location)) return "Open column filter";
-            if (state.AdvancedButtonRect.Contains(location)) return "Open advanced filter";
+            if (state.FilterButtonRect.Contains(location)) return "Filter by column";
+            if (state.AdvancedButtonRect.Contains(location)) return "Filter rows";
             if (state.ClearFilterRect.Contains(location) && state.IsFilterActive) return "Clear active filter";
             if (state.OverflowButtonRect.Contains(location)) return "Show overflow buttons";
 

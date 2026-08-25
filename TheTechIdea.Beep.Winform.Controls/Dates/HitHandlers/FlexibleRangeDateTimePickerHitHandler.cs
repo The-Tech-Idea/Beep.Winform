@@ -222,13 +222,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
                 hoverState.HoverArea = DateTimePickerHitArea.DayCell;
                 hoverState.HoveredDate = hitResult.Date.Value;
                 hoverState.HoverBounds = hitResult.HitBounds;
-                
-                // Show range preview based on center date (if set) and hover
-                if (_centerDate.HasValue)
-                {
-                    // Could show potential range if tolerance was applied
-                    // For now, just highlight the date
-                }
             }
             // Tolerance button hover
             else if (hitResult.HitArea == DateTimePickerHitArea.QuickButton)

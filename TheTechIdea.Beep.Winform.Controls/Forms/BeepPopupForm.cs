@@ -419,15 +419,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public virtual void ShowPopup(Control triggerControl, Point location)
         {
-            if (triggerControl == null)
-                throw new ArgumentNullException(nameof(triggerControl));
-
             TriggerControl = triggerControl;
 
-            TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
-            TriggerControl.MouseEnter += TriggerControl_MouseEnter;
-            TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
-            TriggerControl.MouseLeave += TriggerControl_MouseLeave;
+            if (triggerControl != null)
+            {
+                TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
+                TriggerControl.MouseEnter += TriggerControl_MouseEnter;
+                TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
+                TriggerControl.MouseLeave += TriggerControl_MouseLeave;
+            }
 
             Location = location;
             SetAsActive();
@@ -499,15 +499,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public virtual async Task ShowPopupAsync(Control triggerControl, Point location)
         {
-            if (triggerControl == null)
-                throw new ArgumentNullException(nameof(triggerControl));
-
             TriggerControl = triggerControl;
 
-            TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
-            TriggerControl.MouseEnter += TriggerControl_MouseEnter;
-            TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
-            TriggerControl.MouseLeave += TriggerControl_MouseLeave;
+            if (triggerControl != null)
+            {
+                TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
+                TriggerControl.MouseEnter += TriggerControl_MouseEnter;
+                TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
+                TriggerControl.MouseLeave += TriggerControl_MouseLeave;
+            }
 
             Location = location;
             SetAsActive();

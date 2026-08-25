@@ -70,9 +70,36 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
         private void OkButton_Click(object? sender, EventArgs e)
         {
+            // The live validator disables the button while the text is invalid, but
+            // that only runs on a text change — an empty box never changed, so an
+            // empty submit would slip past it. Re-check here so the OK button is
+            // the last word, not the text-changed handler.
+            if (InputValidator != null)
+            {
+                var err = InputValidator(_inputBox.Text ?? string.Empty);
+                if (!string.IsNullOrEmpty(err))
+                {
+                    _validationLabel.Text = err;
+                    _validationLabel.Visible = true;
+                    _okButton.Enabled = false;
+                    _inputBox.Focus();
+                    return;
+                }
+            }
+
             ReturnValue = _inputBox.Text;
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        /// <summary>
+        /// Re-runs the live validator against the current input. Used by the manager
+        /// after attaching a validator, so a default or empty value is validated on
+        /// open rather than waiting for the first keystroke.
+        /// </summary>
+        public void RevalidateInput()
+        {
+            InputBox_TextChanged(_inputBox, EventArgs.Empty);
         }
 
         private void CancelButton_Click(object? sender, EventArgs e)

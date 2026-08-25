@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Marquees.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
 {
@@ -34,13 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
             float cy  = dest.Y + dest.Height / 2f;
             float x   = dest.X + ctx.Padding;
 
-            // Icon placeholder (filled square) when ImagePath is set
-            // A full image loader integration can replace this stub.
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                float ty = cy - IconSize / 2f;
-                using var ib = new SolidBrush(Color.FromArgb(160, fg));
-                g.FillRectangle(ib, x, ty, IconSize, IconSize);
+                var iconRect = new Rectangle((int)x, (int)(cy - IconSize / 2f), IconSize, IconSize);
+                StyledImagePainter.PaintWithTint(g, iconRect, item.ImagePath, fg);
                 x += IconSize + IconGap;
             }
 

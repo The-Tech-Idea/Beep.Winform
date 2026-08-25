@@ -1,5 +1,6 @@
 using System;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -75,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"SyncToCalendar error: {ex.Message}");
+                BeepLog.Failure(this, "sync dropdown state to the popup calendar", ex);
             }
         }
         
@@ -168,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"SyncFromCalendar error: {ex.Message}");
+                BeepLog.Failure(this, "sync popup calendar state back to the dropdown", ex);
             }
         }
         

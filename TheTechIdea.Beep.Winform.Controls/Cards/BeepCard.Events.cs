@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseMove(e);
             _interactionManager?.NotifyMouseMove(e.Location);
 
-            string newHoveredArea = null;
+            string? newHoveredArea = null;
             Cursor desiredCursor = Cursors.Default;
 
             if (_showSelectionCheckbox && !_selectionRect.IsEmpty && _selectionRect.Contains(e.Location))

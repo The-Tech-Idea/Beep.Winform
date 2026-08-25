@@ -19,3 +19,11 @@
 
 - Keep feature moves mechanical: copy contiguous methods into the matching partial and remove them from the main file without redesigning behavior.
 - Prefer adding new ribbon behavior to the feature partial that already owns that slice instead of growing `BeepRibbonControl.cs` again.
+
+## Visual Polish (2026-08)
+
+`BeepRibbonPainter` refinements to match the Office/Fluent ribbon look:
+
+- **Connected active tab** — the active tab's border is now drawn on the top and sides only; the bottom stays open so the tab merges with the panel below instead of drawing a horizontal line across it.
+- **Defined hovered tab** — a hovered tab now gets the same subtle outline as the active tab, rather than a bare fill.
+- **Consistent press feedback** — pressed command buttons keep the accent outline (previously only hover showed it, so pressing made a button look flatter than hovering).

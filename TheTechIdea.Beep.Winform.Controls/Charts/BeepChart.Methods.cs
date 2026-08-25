@@ -7,6 +7,7 @@ using System.Drawing.Printing;
 using System.IO;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
@@ -98,7 +99,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 {
                     string x = xColName != null ? row[xColName]?.ToString() ?? "" : "";
                     float y = 0f;
-                    try { y = Convert.ToSingle(row[dc]); } catch { }
+                    try { y = Convert.ToSingle(row[dc]); }
+                    catch (Exception ex)
+                    {
+                        BeepLog.FallbackOnce($"chart.bind:{dc.ColumnName}", this, "coerce cell to numeric", ex);
+                    }
                     series.Points.Add(new ChartDataPoint(x, y.ToString(), y));
                 }
                 outList.Add(series);
@@ -135,7 +140,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                         ? itemType.GetProperty(xPropName)?.GetValue(item)?.ToString() ?? ""
                         : "";
                     float y = 0f;
-                    try { y = Convert.ToSingle(prop.GetValue(item)); } catch { }
+                    try { y = Convert.ToSingle(prop.GetValue(item)); }
+                    catch (Exception ex)
+                    {
+                        BeepLog.FallbackOnce($"chart.bind:{prop.Name}", this, "coerce property to numeric", ex);
+                    }
                     series.Points.Add(new ChartDataPoint(x, y.ToString(), y));
                 }
                 outList.Add(series);
@@ -859,8 +868,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 bmp.Save(filePath, format);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, "SaveChartImage", ex);
                 return false;
             }
         }
@@ -902,8 +912,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 document.Print();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, "PrintChart", ex);
                 return false;
             }
         }
@@ -923,8 +934,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 previewDialog.ShowDialog();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, "ShowPrintPreview", ex);
                 return false;
             }
         }
@@ -983,8 +995,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 Invalidate();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, "ImportChartStateFromJSON", ex);
                 return false;
             }
         }
@@ -1000,8 +1013,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 File.WriteAllText(filePath, json);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, "SaveChartStateToFile", ex);
                 return false;
             }
         }
@@ -1016,8 +1030,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 var json = File.ReadAllText(filePath);
                 return ImportChartStateFromJSON(json);
             }
-            catch
+            catch (Exception ex)
             {
+                BeepLog.Failure(this, "LoadChartStateFromFile", ex);
                 return false;
             }
         }

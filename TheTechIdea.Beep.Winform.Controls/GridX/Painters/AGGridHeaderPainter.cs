@@ -32,6 +32,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override int CalculateHeaderPadding() => 8;
 
         /// <summary>
+        /// Paints this style's sort arrow (up = ascending, down = descending).
+        /// </summary>
+        public override void PaintSortIndicator(Graphics g, Rectangle rect, SortDirection direction, IBeepTheme? theme)
+            => PaintAGGridSortIndicator(g, rect, direction, theme);
+
+        /// <summary>
         /// Paint all column headers
         /// </summary>
         public override void PaintHeaders(Graphics g, Rectangle headerRect, BeepGridPro grid, IBeepTheme? theme)
@@ -39,14 +45,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (g == null || grid?.Layout == null || headerRect.IsEmpty) return;
 
             // AG-Grid neutral header background
-            var bgColor = theme?.GridHeaderBackColor ?? Color.Empty;
+            var bgColor = theme?.GridHeaderBackColor ?? Color.FromArgb(245, 247, 247);
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, headerRect);
             }
 
             // Top and bottom borders
-            var borderColor = theme?.GridLineColor ?? Color.Empty;
+            var borderColor = theme?.GridLineColor ?? Color.FromArgb(217, 222, 229);
             using (var pen = new Pen(borderColor))
             {
                 g.DrawLine(pen, headerRect.Left, headerRect.Top, headerRect.Right, headerRect.Top);
@@ -127,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Calculate icon areas
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 12 : 0;
+            int sortIconSize = column.AllowSort ? 12 : 0;
             int filterIconSize = column.ShowFilterIcon ? 14 : 0; // Always show if enabled
             int rightX = cellRect.Right - padding;
 
@@ -167,11 +173,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) 
                 ??          FontListHelper.GetFont("Arial", 9f, FontStyle.Bold);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            var textColor = theme?.GridHeaderForeColor ?? Color.Empty;
+            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(24, 29, 31);
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw AG-Grid sort indicator (small triangle)
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintAGGridSortIndicator(g, sortIconRect, column.SortDirection, theme);
             }
@@ -194,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (sortDirection == SortDirection.None || iconRect.IsEmpty) return;
 
-            var color = theme?.AccentColor ?? Color.Empty;
+            var color = theme?.AccentColor ?? Color.FromArgb(33, 150, 243);
             using (var brush = new SolidBrush(color))
             {
                 var centerX = iconRect.X + iconRect.Width / 2;
@@ -233,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (iconRect.IsEmpty) return;
 
             var color = isActive
-                ? (theme?.AccentColor ?? Color.Empty)
+                ? (theme?.AccentColor ?? Color.FromArgb(33, 150, 243))
                 : Color.FromArgb(150, 150, 150);
 
             using (var pen = new Pen(color, 1.5f))
@@ -253,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Active indicator dot
             if (isActive)
             {
-                using (var brush = new SolidBrush(theme?.AccentColor ?? Color.Empty))
+                using (var brush = new SolidBrush(theme?.AccentColor ?? Color.FromArgb(33, 150, 243)))
                 {
                     g.FillEllipse(brush, iconRect.Right - 4, iconRect.Y, 3, 3);
                 }

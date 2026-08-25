@@ -222,14 +222,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                     {
                         var pt = new System.Drawing.PointF(rect.Left + (rect.Width - sz.Width) / 2, rect.Top + (rect.Height - sz.Height) / 2);
                         
-                        // Owner getters already resolve theme + high contrast; keep the
-                        // WCAG floor against the actual fill (accepted idiom).
-                        Color textColor = ProgressBarAccessibilityHelpers.AdjustForContrast(
-                            owner.TextColor,
-                            owner.ProgressColor,
-                            4.5);
-                        using var tb = new SolidBrush(textColor);
-                        g.DrawString(text, font, tb, pt);
+                        // Two-tone caption. The label is centred, so at low values it sits over
+                        // the TRACK, not the fill; a single colour picked against the fill washes
+                        // out on light themes. Draw it once against the track, then redraw the
+                        // filled slice against the fill so every glyph contrasts with what is
+                        // actually behind it.
+                        Color trackText = ColorUtils.EnsureReadable(owner.TextColor, owner.BackColor, 4.5);
+                        using (var trackBrush = new SolidBrush(trackText))
+                            g.DrawString(text, font, trackBrush, pt);
+
+                        if (!isIndeterminate)
+                        {
+                            float pct = owner.DisplayProgressPercentageAccessor;
+                            pct = System.Math.Max(0f, System.Math.Min(1f, pct));
+                            int fillWidth = (int)System.Math.Round(pct * rect.Width);
+                            if (fillWidth > 0)
+                            {
+                                var priorClip = g.Clip;
+                                using var fillRegion = new Region(new Rectangle(rect.X, rect.Y, fillWidth, rect.Height));
+                                g.SetClip(fillRegion, CombineMode.Intersect);
+                                using var fillBrush = new SolidBrush(ColorUtils.EnsureReadable(owner.TextColor, owner.ProgressColor, 4.5));
+                                g.DrawString(text, font, fillBrush, pt);
+                                g.Clip = priorClip;
+                                priorClip.Dispose();
+                            }
+                        }
                     }
 
                     if (owner.TextFont == null)

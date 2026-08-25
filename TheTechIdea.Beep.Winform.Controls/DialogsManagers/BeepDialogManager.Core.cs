@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms;
 using DialogShowAnimation = TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models.DialogShowAnimation;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
@@ -522,6 +523,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             // assigns colours is competing with that, and it loses - every attempt in this folder was
             // overwritten by the control's own ApplyTheme, or covered by a control painted on top.
             // Severity is resolved and carried; how it looks is the theme's business.
+
+            // The title row carries the severity band: the title label's background
+            // is the one surface that reliably renders, and it resolves the colour
+            // from the theme itself (through BeepLabel.Severity) so a theme switch
+            // moves the band with it rather than freezing a stale tint.
+            foreach (Control control in shell.Controls)
+            {
+                if (control is BeepLabel label &&
+                    string.Equals(label.Text, config.Title, StringComparison.Ordinal))
+                {
+                    label.Severity = severity;
+                    label.SeveritySaturated = config.Presentation == DialogPresentation.HeroBand;
+                    break;
+                }
+            }
+
+            // The icon carries the severity through its own glyph and circle
+            // container, resolved by BeepImage from the theme — the treatment is
+            // a presentation default, overridable per config.
+            var iconTreatment = config.IconTreatment ?? config.Presentation switch
+            {
+                DialogPresentation.Centred  => DialogIconTreatment.CircleFilled,
+                DialogPresentation.HeroBand => DialogIconTreatment.CircleFilled,
+                DialogPresentation.Flat     => DialogIconTreatment.Oversized,
+                _                           => DialogIconTreatment.CircleOutline
+            };
+            foreach (Control control in shell.Controls)
+            {
+                if (control is BeepImage icon)
+                {
+                    icon.Severity = severity;
+                    icon.IconTreatment = iconTreatment;
+                    break;
+                }
+            }
+
             ApplyButtonHierarchy(shell, config, severity, theme);
         }
 

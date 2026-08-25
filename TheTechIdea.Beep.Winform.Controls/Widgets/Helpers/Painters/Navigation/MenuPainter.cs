@@ -6,6 +6,8 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
@@ -53,7 +55,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 Owner._input.EnterKeyPressed += OnEnter;
                 _keysHooked = true;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "hook keyboard", ex);
+            }
         }
 
         private int PageSize => Math.Max(1, _itemRects.Count);
@@ -90,7 +95,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var hit = Owner._hitTest?.HitList?.FirstOrDefault(h => h.Name == id);
                 hit?.HitAction?.Invoke();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "invoke menu hit action", ex);
+            }
         }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
@@ -209,7 +217,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     Owner._input.EnterKeyPressed -= OnEnter;
                     _keysHooked = false;
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    BeepLog.Fallback(this, "unhook keyboard", ex);
+                }
             }
             if (_wheelHooked && Owner != null) { Owner.MouseWheel -= OnMouseWheel; _wheelHooked = false; }
         }

@@ -8,6 +8,8 @@ using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
@@ -82,8 +84,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                     {
                         StyledImagePainter.Paint(g, imageRect, path);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        BeepLog.FallbackOnce(path, this, "render overlay image", ex);
                         _imagePainter.DrawImage(g, ctx.CustomImagePaths[0], imageRect);
                     }
                 }
@@ -92,7 +95,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                     DrawImagePlaceholder(g, imageRect, ctx);
                 }
             }
-            catch { DrawImagePlaceholder(g, imageRect, ctx); }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("imageoverlay", this, "draw overlay image", ex);
+                DrawImagePlaceholder(g, imageRect, ctx);
+            }
         }
 
         private void DrawImagePlaceholder(Graphics g, Rectangle imageRect, WidgetContext ctx)

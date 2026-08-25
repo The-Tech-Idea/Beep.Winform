@@ -177,7 +177,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             if (_hostedList == null || _hostedListEventsBound) return;
             _hostedList.SelectedItemChanged += HostedList_SelectedItemChanged;
-            _hostedList.ItemClicked += HostedList_ItemClicked;
             _hostedListEventsBound = true;
         }
 
@@ -185,7 +184,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             if (_hostedList == null || !_hostedListEventsBound) return;
             _hostedList.SelectedItemChanged -= HostedList_SelectedItemChanged;
-            _hostedList.ItemClicked -= HostedList_ItemClicked;
             _hostedListEventsBound = false;
         }
 
@@ -278,35 +276,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (!_multiSelect && _closeOnItemClick)
             {
                 try { Close(); } catch { }
-            }
-        }
-
-        private void HostedList_ItemClicked(object sender, SimpleItem item)
-        {
-            // BeepListBox raises ItemClicked alongside SelectedItemChanged. We only
-            // need one forwarder; SelectedItemChanged already covers the contract.
-            // Keep this hook reserved for future per-click telemetry.
-        }
-
-        #endregion
-
-        #region Layout Helper
-
-        /// <summary>
-        /// Returns the preferred height of the hosted list's item area, used by
-        /// RecalculateSize when the substrate is active. Returns 0 when inactive.
-        /// </summary>
-        internal int GetHostedListPreferredHeight()
-        {
-            if (!IsHostedListSubstrateActive || _menuItems == null) return 0;
-            try
-            {
-                int per = Math.Max(1, _hostedList.PreferredItemHeight);
-                return per * _menuItems.Count;
-            }
-            catch
-            {
-                return 0;
             }
         }
 

@@ -40,6 +40,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             _theme = theme;
         }
 
+        public Rectangle GetInteractiveBounds(Rectangle bounds)
+        {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);
+            int shadowOffset = DpiScalingHelper.ScaleValue(BASE_SHADOW_OFFSET, scale);
+            return new Rectangle(bounds.X, bounds.Y, Math.Max(0, bounds.Width - shadowOffset), Math.Max(0, bounds.Height - shadowOffset));
+        }
+
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions options)
         {
             float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);

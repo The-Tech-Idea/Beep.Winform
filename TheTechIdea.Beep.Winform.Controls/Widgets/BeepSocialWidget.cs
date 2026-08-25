@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
@@ -364,9 +365,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     _avatarImage = Image.FromFile(_userAvatar);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                _avatarImage = null; // Failed to load image
+                BeepLog.Failure(this, "load avatar image", ex);
+                _avatarImage = null;
             }
         }
 

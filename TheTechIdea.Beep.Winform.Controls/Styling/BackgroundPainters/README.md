@@ -305,6 +305,11 @@ Styling/
 └── ShadowPainters/      ⏳ TODO
 ```
 
+## Recent Fixes (2026-08)
+
+- **Gradient fallbacks now report.** `EffectBackgroundPainter`, `FluentBackgroundPainter`, and `HolographicBackgroundPainter` had bare `catch { /* Fallback to linear gradient */ }` blocks around `ColorBlend` construction; each now reports once per paint path through `BeepLog.FallbackOnce`.
+- **`BlendColors` deduplicated.** `Windows11MicaBackgroundPainter` carried its own private `BlendColors`; it now calls the shared `BackgroundPainterHelpers.BlendColors` (which also clamps the ratio), so there is one owner for color blending.
+
 ## Conclusion
 
 ✅ Successfully refactored all background painting logic  

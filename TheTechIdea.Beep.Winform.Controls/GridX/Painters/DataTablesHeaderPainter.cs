@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Calculate text area with padding for icons
             int padding = CalculateHeaderPadding();
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 16 : 0;
+            int sortIconSize = column.AllowSort ? 16 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 18 : 0;
 
             int rightX = cellRect.Right - padding;
@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw sort indicator if needed
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintSortIndicator(g, sortIconRect, column.SortDirection, theme);
             }

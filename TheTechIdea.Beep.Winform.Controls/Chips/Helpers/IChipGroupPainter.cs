@@ -21,6 +21,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 
         // Optional: draw title/background inside DrawingRect (outer container by BaseControl painters)
         void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options);
+
+        // The clickable region of a chip, after the painter reserves space for
+        // non-interactive visuals (e.g. a drop shadow). Default is the full bounds.
+        Rectangle GetInteractiveBounds(Rectangle bounds) => bounds;
     }
 
     internal struct ChipVisualState

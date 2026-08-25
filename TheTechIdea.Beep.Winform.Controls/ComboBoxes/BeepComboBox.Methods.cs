@@ -198,7 +198,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Dispose the handle so the manager can free its tracking dict entry.
             var h = _managerPopupHandle;
             _managerPopupHandle = null;
-            try { h?.Dispose(); } catch { /* non-fatal */ }
+            try { h?.Dispose(); }
+            catch (Exception ex)
+            {
+                // A popup handle that will not dispose is a leaked window, not a non-event.
+                BeepLog.Failure(this, "dispose combo popup handle", ex);
+            }
             // Reuse the manual path's close cleanup so behavior matches.
             OnDropdownMenuClosed(this, null);
         }
@@ -222,7 +227,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // outside the manager path (e.g. user pressed Escape on the form).
             var h = _managerPopupHandle;
             _managerPopupHandle = null;
-            try { h?.Dispose(); } catch { /* non-fatal */ }
+            try { h?.Dispose(); }
+            catch (Exception ex)
+            {
+                BeepLog.Failure(this, "dispose combo popup handle", ex);
+            }
 
             _isDropdownOpen = false;
             TriggerChevronAnimation(false);

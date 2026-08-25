@@ -30,6 +30,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override int CalculateHeaderPadding() => 10;
 
         /// <summary>
+        /// Paints this style's sort arrow (up = ascending, down = descending).
+        /// </summary>
+        public override void PaintSortIndicator(Graphics g, Rectangle rect, SortDirection direction, IBeepTheme? theme)
+            => PaintTelerikSortIndicator(g, rect, direction);
+
+        /// <summary>
+        /// Paints this style's header cell background (vertical gradient + hover lighten).
+        /// </summary>
+        public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
+        {
+            var top = theme?.GridHeaderBackColor ?? Color.FromArgb(246, 246, 246);
+            var bottom = Color.FromArgb(232, 232, 232);
+            using (var brush = new LinearGradientBrush(rect, top, bottom, LinearGradientMode.Vertical))
+                g.FillRectangle(brush, rect);
+
+            if (isHovered)
+            {
+                using var hoverBrush = new LinearGradientBrush(rect, Color.FromArgb(252, 252, 252), Color.FromArgb(240, 240, 240), LinearGradientMode.Vertical);
+                g.FillRectangle(hoverBrush, rect);
+            }
+        }
+
+        /// <summary>
         /// Paint all column headers
         /// </summary>
         public override void PaintHeaders(Graphics g, Rectangle headerRect, BeepGridPro grid, IBeepTheme? theme)
@@ -181,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Calculate layout areas
             int padding = CalculateHeaderPadding();
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 16 : 0;
+            int sortIconSize = column.AllowSort ? 16 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 18 : 0;
 
             int rightX = cellRect.Right - padding;
@@ -225,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw sort indicator with Telerik arrow style
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintTelerikSortIndicator(g, sortIconRect, column.SortDirection);
             }

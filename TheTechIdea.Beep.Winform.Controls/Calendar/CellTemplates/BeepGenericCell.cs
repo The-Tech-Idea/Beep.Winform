@@ -8,34 +8,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
         protected override void DrawCellContent(Graphics g, Rectangle rect)
         {
             if (Event == null) return;
-            var theme = _currentTheme;
-            if (theme == null) return;
+            if (_currentTheme == null) return;
 
-            int pad = 6;
-            int accentWidth = 4;
-            var content = new Rectangle(rect.X + pad + accentWidth, rect.Y + pad,
-                rect.Width - pad * 2 - accentWidth, rect.Height - pad * 2);
+            var content = CellContentRect(rect);
 
             var accentColor = ParseColor("cell:accentColor",
                 BeepCellTemplateHelpers.StatusColor(Event.Status));
             if (accentColor.A > 0)
             {
-                BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, accentWidth);
+                BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, CellAccentWidth);
             }
 
-            var titleFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            var detailFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
-            var textColor = theme.PrimaryTextColor;
-            var secondaryColor = Color.FromArgb(180, textColor);
-
             var drawY = content.Y;
-            int lineH = 16;
 
-            var titleRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            TextRenderer.DrawText(g, Event.Title, titleFont, titleRect, textColor,
+            var titleRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            TextRenderer.DrawText(g, Event.Title, TitleFont, titleRect, TextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-            drawY += lineH;
+            drawY += CellLineHeight;
 
             for (int i = 0; i < 2; i++)
             {
@@ -54,32 +44,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                 if (iconPath != null && !iconPath.StartsWith("svgs:"))
                     iconPath = null;
 
-                var detailRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, detailRect, detailFont,
-                    secondaryColor, iconPath, text, 10);
-                drawY += lineH;
+                var detailRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, detailRect, DetailFont,
+                    SecondaryTextColor, iconPath, text, 10);
+                drawY += CellLineHeight;
             }
 
-            var showTime = !Event.IsAllDay && content.Y + content.Height - drawY >= lineH;
+            var showTime = !Event.IsAllDay && content.Y + content.Height - drawY >= CellLineHeight;
             if (showTime)
             {
                 var timeText = $"{Event.StartTime:t} - {Event.EndTime:t}";
-                var timeRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Clock, timeText, 10);
-                drawY += lineH;
+                var timeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Clock, timeText, 10);
+                drawY += CellLineHeight;
             }
 
             var badgeText = Metadatum("cell:badgeText");
             if (!string.IsNullOrEmpty(badgeText))
             {
                 var badgeColor = ParseColor("cell:badgeColor", accentColor);
-                BeepCellTemplateHelpers.DrawBadge(g, rect, detailFont,
+                BeepCellTemplateHelpers.DrawBadge(g, rect, DetailFont,
                     badgeText, badgeColor, Color.White);
             }
-
-            titleFont.Dispose();
-            detailFont.Dispose();
         }
     }
 }

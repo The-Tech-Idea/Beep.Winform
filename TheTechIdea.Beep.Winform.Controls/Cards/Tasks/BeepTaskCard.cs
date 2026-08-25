@@ -30,7 +30,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _metricText = "110 hours / 45%";
         private float _progressValue = 45f;
         private string _moreIconPath = Svgs.Cat;
-        private Image _moreIcon = null;
         private bool _isApplyingTheme = false;
         private bool _autoGenerateTooltip = true;
 
@@ -42,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _avatarImagePaths = value;
-                _avatarImages = _avatarImagePaths.Select(path => ImageListHelper.GetImageFromName(path) as Image).ToList();
+                _avatarImages = _avatarImagePaths.Select(path => ImageListHelper.GetImageFromName(path) as Image).OfType<Image>().ToList();
                 Recompose();
             }
         }
@@ -115,7 +114,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _moreIconPath = TaskCardIconHelpers.ResolveIconPath(value, TaskCardIconHelpers.GetRecommendedMoreIcon());
-                _moreIcon = ImageListHelper.GetImageFromName(_moreIconPath) as Image;
                 Recompose();
             }
         }
@@ -238,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateTooltip();
         }
 
-        public void SetTaskCardTooltip(string text, string title = null, ToolTipType type = ToolTipType.Info)
+        public void SetTaskCardTooltip(string text, string? title = null, ToolTipType type = ToolTipType.Info)
         {
             TooltipText = text;
             if (!string.IsNullOrEmpty(title))
@@ -254,9 +252,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Events
-        public event EventHandler CardClick;
-        public event EventHandler<AvatarClickEventArgs> AvatarClick;
-        public event EventHandler MoreIconClick;
+        public event EventHandler? CardClick;
+        public event EventHandler<AvatarClickEventArgs>? AvatarClick;
+        public event EventHandler? MoreIconClick;
 
         protected virtual void OnCardClick()
         {

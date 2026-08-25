@@ -33,6 +33,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int NavigatorHeight { get; set; } = BeepLayoutMetrics.DataNavigator.Height;
         public int TopFilterHeight { get; set; } = BeepLayoutMetrics.FieldStandard.Height;
         public bool ShowTopFilterPanel { get; set; } = true;
+        public bool ShowActiveFilterBar { get; set; } = true;
+        public int ActiveFilterBarHeight { get; set; } = BeepLayoutMetrics.GridActiveFilterBarHeight;
+        public Rectangle ActiveFilterBarRect { get; private set; } = Rectangle.Empty;
 
         public int CheckBoxColumnWidth { get; set; } = (int)(BeepLayoutMetrics.MinTouchTarget * 0.68f); // ~30 px at 96 DPI
 
@@ -84,6 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     HeaderRect = Rectangle.Empty;
                     TopFilterRect = Rectangle.Empty;
                     ToolbarRect = Rectangle.Empty;
+                    ActiveFilterBarRect = Rectangle.Empty;
                     RowsRect = Rectangle.Empty;
                     NavigatorRect = Rectangle.Empty;
                     HeaderCellRects = System.Array.Empty<Rectangle>();
@@ -175,6 +179,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 else
                 {
                     HeaderRect = Rectangle.Empty;
+                }
+
+                // Active filter chips row (DevExpress-style). It appears only while
+                // a filter with at least one condition is active — either an
+                // ActiveFilter criterion or a per-column SortFilter condition — so
+                // the band is reserved lazily rather than always occupying a row.
+                bool hasActiveCriteria = (_grid.ActiveFilter?.Criteria?.Count ?? 0) > 0;
+                bool showActiveFilterBar = ShowActiveFilterBar
+                    && (hasActiveCriteria || _grid.SortFilter.HasActiveFilters);
+
+                int activeFilterBarHeight = showActiveFilterBar
+                    ? Math.Min(ActiveFilterBarHeight, Math.Max(0, r.Height))
+                    : 0;
+
+                if (activeFilterBarHeight > 0)
+                {
+                    int filterBarWidth = Math.Max(0, r.Width - scrollbarWidth);
+                    ActiveFilterBarRect = new Rectangle(r.Left, top, filterBarWidth, activeFilterBarHeight);
+                    top += activeFilterBarHeight;
+                }
+                else
+                {
+                    ActiveFilterBarRect = Rectangle.Empty;
                 }
 
                 int bottomReserve = 0;

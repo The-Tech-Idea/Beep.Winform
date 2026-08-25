@@ -775,7 +775,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                     IsHovered = false,
                     Variant = _chipVariant,
                     Color = _chipColor,
-                    Size = _chipSize
+                    Size = _chipSize,
+                    IsDisabled = !item.IsEnabled
                 });
             }
             UpdateChipBounds();
@@ -931,6 +932,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 OnSelectionChanged(null, false);
             }
             
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Enables or disables a single chip. A disabled chip is not clickable,
+        /// shows no hover, and is dimmed by the control — honoured uniformly
+        /// across every painter, not left to each one to remember.
+        /// </summary>
+        public void SetItemDisabled(SimpleItem item, bool disabled)
+        {
+            if (item == null) return;
+            item.IsEnabled = !disabled;
+            var chip = _chips.FirstOrDefault(c => c.Item?.GuidId == item.GuidId);
+            if (chip == null) return;
+            chip.IsDisabled = disabled;
             Invalidate();
         }
         

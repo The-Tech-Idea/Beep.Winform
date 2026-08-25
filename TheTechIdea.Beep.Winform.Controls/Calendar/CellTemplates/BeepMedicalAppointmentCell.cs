@@ -9,8 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
         protected override void DrawCellContent(Graphics g, Rectangle rect)
         {
             if (Event == null) return;
-            var theme = _currentTheme;
-            if (theme == null) return;
+            if (_currentTheme == null) return;
 
             var appointmentType = Metadatum("AppointmentType", "Appointment");
             var accentColor = appointmentType switch
@@ -22,19 +21,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
                 _ => BeepCellTemplateHelpers.StatusColor(Event.Status)
             };
 
-            int pad = 6;
-            int accentWidth = 4;
-            var content = new Rectangle(rect.X + pad + accentWidth, rect.Y + pad,
-                rect.Width - pad * 2 - accentWidth, rect.Height - pad * 2);
+            var content = CellContentRect(rect);
+            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, CellAccentWidth);
 
-            BeepCellTemplateHelpers.DrawAccentBadge(g, rect, accentColor, accentWidth);
-
-            var titleFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            var detailFont = new Font(Font?.FontFamily ?? FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
-            var textColor = theme.PrimaryTextColor;
-            var secondaryColor = Color.FromArgb(180, textColor);
-
-            int lineH = 16;
             var drawY = content.Y;
 
             var doctorName = Metadatum("DoctorName", "");
@@ -47,35 +36,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
 
             if (!string.IsNullOrEmpty(doctorLine))
             {
-                var doctorRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, doctorRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Calendar, doctorLine, 10);
-                drawY += lineH;
+                var doctorRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, doctorRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Calendar, doctorLine, 10);
+                drawY += CellLineHeight;
             }
 
             var patientName = Metadatum("PatientName", "Patient");
-            var patientRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            TextRenderer.DrawText(g, patientName, titleFont, patientRect, textColor,
+            var patientRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            TextRenderer.DrawText(g, patientName, TitleFont, patientRect, TextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-            drawY += lineH;
+            drawY += CellLineHeight;
 
             var procedureCode = Metadatum("ProcedureCode", "");
             var procLine = string.IsNullOrEmpty(procedureCode)
                 ? appointmentType
                 : $"{procedureCode} · {appointmentType}";
-            var procRect = new Rectangle(content.X, drawY, content.Width, lineH);
-            BeepCellTemplateHelpers.DrawIconLabel(g, procRect, detailFont,
-                secondaryColor, SvgsUIcons.Common.Edit, procLine, 10);
-            drawY += lineH;
+            var procRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+            BeepCellTemplateHelpers.DrawIconLabel(g, procRect, DetailFont,
+                SecondaryTextColor, SvgsUIcons.Common.Edit, procLine, 10);
+            drawY += CellLineHeight;
 
-            var hasSpaceForTime = content.Y + content.Height - drawY >= lineH;
+            var hasSpaceForTime = content.Y + content.Height - drawY >= CellLineHeight;
             if (!Event.IsAllDay && hasSpaceForTime)
             {
                 var timeText = $"{Event.StartTime:t} - {Event.EndTime:t}";
-                var timeRect = new Rectangle(content.X, drawY, content.Width, lineH);
-                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, detailFont,
-                    secondaryColor, SvgsUIcons.Common.Clock, timeText, 10);
+                var timeRect = new Rectangle(content.X, drawY, content.Width, CellLineHeight);
+                BeepCellTemplateHelpers.DrawIconLabel(g, timeRect, DetailFont,
+                    SecondaryTextColor, SvgsUIcons.Common.Clock, timeText, 10);
             }
 
             var patientStatus = Metadatum("PatientStatus", "Scheduled");
@@ -89,9 +78,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.CellTemplates
             };
             BeepCellTemplateHelpers.DrawStatusDot(g, rect.Right - 16,
                 rect.Y + rect.Height / 2, statusColor, 5);
-
-            titleFont.Dispose();
-            detailFont.Dispose();
         }
     }
 }

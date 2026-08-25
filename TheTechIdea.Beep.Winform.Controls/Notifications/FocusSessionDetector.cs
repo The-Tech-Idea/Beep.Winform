@@ -1,4 +1,5 @@
 using System;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
 {
@@ -33,8 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 // manager; FieldAccess returns null if the property is missing.
                 return FieldAccess.TryGetDoNotDisturbMode() == true;
             }
-            catch
+            catch (Exception ex)
             {
+                // Best-effort detection: any failure (e.g. reflection error in FieldAccess)
+                // falls back to "not in a focus session".
+                BeepLog.Fallback(typeof(FocusSessionDetector), "detect focus session", ex);
                 return false;
             }
         }

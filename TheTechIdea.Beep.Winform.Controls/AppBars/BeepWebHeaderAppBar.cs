@@ -317,6 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     if (idx >= 0) _selectedTabIndex = idx;
                     SelectedTabChanged?.Invoke(this, new SelectedTabChangedEventArgs(old, value, _selectedTabIndex));
                     TabSelected?.Invoke(this, new SelectedItemChangedEventArgs(_selectedTab));
+                    UpdateAccessibility();
                     Invalidate();
                 }
             }
@@ -336,9 +337,24 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     InvalidatePainterCache();
                     SelectedTabChanged?.Invoke(this, new SelectedTabChangedEventArgs(old, _selectedTab, value));
                     TabSelected?.Invoke(this, new SelectedItemChangedEventArgs(_selectedTab));
+                    UpdateAccessibility();
                     StartUnderlineAnimationToTab(value);
                 }
             }
+        }
+
+        /// <summary>
+        /// Keeps the menubar's accessible description in step with the active tab,
+        /// so a screen reader navigating here announces which tab is current rather
+        /// than a static label. The individual tabs are painted, not child controls,
+        /// so this is the one place their state can be surfaced.
+        /// </summary>
+        private void UpdateAccessibility()
+        {
+            AccessibleDescription = _selectedTab is not null &&
+                                    !string.IsNullOrWhiteSpace(_selectedTab.Text)
+                ? $"Navigation header. Current tab: {_selectedTab.Text}."
+                : "Navigation header with tabs, search, and action buttons";
         }
 
         [Browsable(true)]

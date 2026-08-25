@@ -24,9 +24,14 @@ the gate now implies the checkbox — with "I understand" as the caption when no
 
 ### Not built, and not claimed
 
-- `FieldValidators` / `ValidationState` — per-field validation. The largest item here and untouched.
-- `EnableUndoForDestructiveActions` — still defaults to **`true`** while doing nothing, which remains
-  the most misleading default in the folder.
+- `FieldValidators` / `ValidationState` — per-field validation. **Built 2026-08-19** for the input
+  dialog: `BeepDialogManager.ShowInput(DialogConfig)` wires `FieldValidators` into
+  `BeepInputDialog.InputValidator` (live inline error + OK disable, plus a re-check on OK so an
+  empty submit cannot slip past) and records each outcome in `ValidationState`.
+- `EnableUndoForDestructiveActions` — **deleted 2026-08-19**. It defaulted to `true` while doing
+  nothing, and it could never be honoured generically: undo needs the *caller's* action to reverse,
+  which only `ConfirmDestructiveWithUndo(title, message, undoAction)` can receive. That method is the
+  complete, working form of this capability; a config flag beside it was a second, lying surface.
 - `MotionProfile` / `StaggerDelay` — **deleted**, on the user's decision. `Animation`,
   `AnimationEasing`, `AnimationDuration` and `ReducedMotion` already cover motion and `ReducedMotion`
   is genuinely wired with 13 readers; a second motion surface with zero readers was the duplication
@@ -95,11 +100,8 @@ answer is not the same for all seven.
 
 - `FieldValidators` / `ValidationState` — per-field validation with inline messages. The dictionary
   shape is already right. This is the largest item here.
-- `EnableUndoForDestructiveActions` — there is a hook already
-  (`BeepDialogManager.Core.cs:941 ConfirmDestructiveWithUndo`), so the mechanism is half-present. The
-  pattern is Sonner's: perform the action, show a toast with Undo for a grace period, and only commit
-  after it expires. That is a notification concern as much as a dialog one and touches
-  `BeepDialogManager.Notifications.cs`.
+- ~~`EnableUndoForDestructiveActions`~~ — deleted: undo cannot be automated by the dialog, because the
+  dialog never performs the caller's action. `ConfirmDestructiveWithUndo` is the real feature.
 
 **Delete unless someone wants them:**
 

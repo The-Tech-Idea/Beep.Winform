@@ -31,6 +31,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override int CalculateHeaderPadding() => 12;
 
         /// <summary>
+        /// Paints this style's sort arrow (up = ascending, down = descending).
+        /// </summary>
+        public override void PaintSortIndicator(Graphics g, Rectangle rect, SortDirection direction, IBeepTheme? theme)
+            => PaintAntDesignSortIndicator(g, rect, direction);
+
+        /// <summary>
+        /// Paints this style's header cell background (flat #FAFAFA + hover tint).
+        /// </summary>
+        public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
+        {
+            var baseColor = theme?.GridHeaderBackColor ?? Color.FromArgb(250, 250, 250);
+            using (var brush = new SolidBrush(baseColor))
+                g.FillRectangle(brush, rect);
+
+            if (isHovered)
+            {
+                using var hoverBrush = new SolidBrush(Color.FromArgb(245, 245, 245));
+                g.FillRectangle(hoverBrush, rect);
+            }
+        }
+
+        /// <summary>
         /// Paint all column headers
         /// </summary>
         public override void PaintHeaders(Graphics g, Rectangle headerRect, BeepGridPro grid, IBeepTheme? theme)
@@ -155,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Calculate layout areas
             int padding = CalculateHeaderPadding();
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 16 : 0;
+            int sortIconSize = column.AllowSort ? 16 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 18 : 0;
 
             int rightX = cellRect.Right - padding;
@@ -199,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw sort indicator with Ant Design dual carets
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintAntDesignSortIndicator(g, sortIconRect, column.SortDirection);
             }

@@ -172,5 +172,9 @@ Built with love following best practices:
 - ✅ Animation system
 - ✅ Hit area system
 
+## Recent Fixes (2026-08)
+
+- **Removed a dead legacy path.** `GetCapsulePath_Legacy` (superseded by `CreateTrackPath`) was unreferenced and carried a second capsule-path implementation — deleted per the no-legacy-paths rule. `CreateTrackPath` and `CreateIconPath` remain the single owners, and both are disposed by their callers via `using`.
+
 **Enjoy your world-class switch control!** 🎉
 

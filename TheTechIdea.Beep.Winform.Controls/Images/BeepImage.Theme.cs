@@ -4,6 +4,9 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using Svg;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Images
@@ -11,6 +14,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
     public partial class BeepImage
     {
         #region Theme Handling
+
+        /// <summary>
+        /// When set, the glyph resolves from the dialog's severity accent rather
+        /// than the generic icon colour — the mechanism the dialog icon uses to
+        /// carry severity. See <see cref="IconTreatment"/>.
+        /// </summary>
+        public DialogSeverity? Severity { get; set; }
+
+        /// <summary>
+        /// The glyph's container: none, an outlined circle, a filled circle, or an
+        /// oversized bare mark. Drawn by <see cref="BeepImage"/>, coloured by the
+        /// severity accent, following a theme switch.
+        /// </summary>
+        public DialogIconTreatment IconTreatment { get; set; } = DialogIconTreatment.Bare;
 
         public override void ApplyTheme()
         {
@@ -39,10 +56,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
                     // Potential place for non-SVG theming, if needed
                 }
             }
+            ApplySeverityIcon();
             // MenuStyle changed -> ensure cache regenerates even if rect hasn't changed
             _stateChanged = true;
             _cachedRenderedImage?.Dispose();
             _cachedRenderedImage = null;
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Tints the glyph from the severity accent — contrast on a filled circle,
+        /// the accent itself otherwise — reusing the single severity resolver.
+        /// </summary>
+        private void ApplySeverityIcon()
+        {
+            if (Severity is not DialogSeverity value || value == DialogSeverity.Neutral) return;
+            if (_currentTheme is null) return;
+
+            var accent = DialogStyleAdapter.GetSeverityAccent(value, _currentTheme);
+            if (accent.IsEmpty) return;
+
+            var glyph = IconTreatment == DialogIconTreatment.CircleFilled
+                ? ColorUtils.GetContrastColor(accent)
+                : accent;
+
+            if (isSvg && svgDocument != null)
+            {
+                ApplyColorToAllElements(glyph);
+                _lastSvgThemeSignature = null;
+            }
             Invalidate();
         }
 

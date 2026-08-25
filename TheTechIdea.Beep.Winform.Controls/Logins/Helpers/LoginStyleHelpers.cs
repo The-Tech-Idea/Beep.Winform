@@ -111,20 +111,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
             loginControl.ShowShadow = styleConfig.ShowShadow;
         }
 
-        /// <summary>
-        /// Applies styling to child controls based on view type
-        /// Uses LoginControlHelpers to configure actual BeepTextBox and BeepButton instances
-        /// </summary>
-        public static void ApplyChildControlStyling(
-            LoginViewType viewType, 
-            LoginStyleConfig styleConfig,
-            IBeepTheme theme = null,
-            bool useThemeColors = true)
-        {
-            // This will be used by painters to style child controls
-            // The actual implementation is in LoginControlHelpers.ApplyViewTypeToControls()
-            // which configures BeepTextBox, BeepButton, BeepCircularButton, etc.
-        }
     }
 }
 

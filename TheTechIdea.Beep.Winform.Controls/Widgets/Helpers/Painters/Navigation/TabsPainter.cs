@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Icons;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
@@ -57,7 +59,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 Owner._input.EndKeyPressed += OnEnd;
                 _keysHooked = true;
             }
-            catch { /* best-effort */ }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "hook keyboard", ex);
+            }
         }
 
         private void OnLeft(object? s, EventArgs e)
@@ -121,7 +126,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var hit = Owner._hitTest?.HitList?.FirstOrDefault(h => h.Name == id);
                 hit?.HitAction?.Invoke();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "invoke tab hit action", ex);
+            }
         }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
@@ -332,7 +340,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 Owner._input.EndKeyPressed        -= OnEnd;
                 _keysHooked = false;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(this, "unhook keyboard", ex);
+            }
         }
     }
 }

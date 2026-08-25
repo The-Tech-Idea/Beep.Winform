@@ -1,5 +1,39 @@
 # BeepLogin Painters and Helpers - Implementation Summary
 
+## Recent Fixes (2026-08)
+
+- **Colour math deduplicated** — `LoginControlHelpers.ConfigureLoginButton` now uses
+  `ColorUtils.GetDarkerColor` / `ColorUtils.GetLighterColor` instead of its own private
+  `DarkenColor`/`LightenColor`, which are deleted. `BeepLogin`'s private copy is still
+  present but dead (only the dead `ApplyButtonTheming` calls it) — see the pending-cleanup
+  note below.
+- **Literal error/warning colours single-sourced** — the Material error red
+  `(183,28,28)` and warning orange `(230,81,0)` were repeated across the constructor and
+  `SetError`. They are now the `ErrorRed`/`WarningOrange` constants and used everywhere.
+- **Empty stub helpers removed** — `LoginControlHelpers.ApplyViewTypeToControls`,
+  `LoginStyleHelpers.ApplyChildControlStyling`, and `LoginFontHelpers.ApplyFontTheme` were
+  declared-but-unused (two were no-op bodies). `BeepLogin` configures each control with the
+  individual `Configure*` methods, so the batch helper is gone.
+- **Password eye toggle uses an icon, not mojibake emoji** — `ImagePath = SvgsUI.Eye`
+  replaces the corrupted `👁`/`🙈` text glyphs, and the Caps Lock label no longer carries the
+  broken `⚠` glyph.
+
+### Pending cleanup (dead legacy layout code)
+
+The old manual-layout implementation is still in `BeepLogin.cs` and is dead — `ViewType`
+rebuilds the layout through the painters, so none of it runs:
+
+- `ApplyModernStylingForViewType` + `ApplyChildControlStyling` (~line 730)
+- the `#region Manual Positioning Layouts for Each View` block with the nine
+  `SetupSimpleView`…`SetupFullView` methods (~line 818, ~900 lines, hardcoded sizes and
+  margins)
+- `ApplyButtonTheming` + the private `DarkenColor`/`LightenColor` (~line 1848)
+
+One remaining mojibake glyph could not be fixed by text edit: the eye button's old `Text`
+literal contained a raw 0x81 byte (a 4-byte emoji mangled by a CP1252 re-save). It is now
+replaced by `SvgsUI.Eye`; the corrupted bytes only remain in the dead `Setup*` methods and
+comments above.
+
 ## ✅ Completed Implementation
 
 ### Phase 1: Foundation ✅
@@ -133,10 +167,9 @@ var metrics = painter.CalculateMetrics(DrawingRect, _viewType, styleConfig);
 // Apply metrics to controls
 ApplyMetricsToControls(metrics);
 
-// Configure controls
-LoginControlHelpers.ApplyViewTypeToControls(
-    txtUsername, txtPassword, btnLogin, ...,
-    _viewType, styleConfig, theme, useThemeColors);
+// Configure controls (one Configure* call per control type)
+LoginControlHelpers.ConfigureLoginTextBox(txtUsername, _viewType, styleConfig, theme, useThemeColors, "Username or Email", false);
+LoginControlHelpers.ConfigureLoginButton(btnLogin, _viewType, styleConfig, theme, useThemeColors, "Login", "login");
 
 // Paint background/border
 GraphicsPath path = BeepStyling.CreateControlStylePath(DrawingRect, ControlStyle);
@@ -145,11 +178,12 @@ painter.Paint(e.Graphics, path, _viewType, ControlStyle, theme, useThemeColors, 
 
 ## Next Steps
 
-### Phase 4: Integration
-- [ ] Refactor `BeepLogin.cs` to use painters
-- [ ] Replace manual `SetupXxxView()` methods with painter calls
-- [ ] Integrate with BeepStyling system
-- [ ] Test all view types
+### Phase 4: Integration ✅
+- [x] Refactor `BeepLogin.cs` to use painters
+- [ ] Delete the dead `SetupXxxView()` methods and the dead styling helpers
+      (`ApplyModernStylingForViewType`, `ApplyButtonTheming`) — the painters are the only
+      live layout path
+- [x] Integrate with BeepStyling system
 
 ### Phase 5: Testing & Polish
 - [ ] Unit tests for helpers

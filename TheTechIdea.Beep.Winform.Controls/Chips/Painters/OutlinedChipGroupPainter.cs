@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         {
             float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);
             var font = ResolveFont(opt, scale);
-            string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
+            string text = ResolveChipText(item);
             var sz = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
             
             int extra = 0;
@@ -108,10 +108,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             var textRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, contentRect.Width - leftPad - rightPad, contentRect.Height);
             var tbr = PaintersFactory.GetSolidBrush(text);
-            g.DrawString(item?.Text ?? string.Empty, font, tbr, textRect, _centerFmt);
+            g.DrawString(ResolveChipText(item), font, tbr, textRect, _centerFmt);
         }
 
         public void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options) { }
+
+        /// <summary>
+        /// One source of truth for a chip's display text. MeasureChip and RenderChip
+        /// must resolve it identically, or a data-bound item whose Text is empty
+        /// measures wide but draws blank.
+        /// </summary>
+        private static string ResolveChipText(SimpleItem item) =>
+            item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
 
         private static GraphicsPath RoundedPath(Rectangle rect, int radius)
         {

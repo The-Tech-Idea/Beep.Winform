@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
@@ -712,7 +713,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                     if (mgr.ActiveCount > 0)
                         mgr.MarkConsumed(_notificationData.Id);
                 }
-                catch { /* manager unavailable — fine */ }
+                catch (Exception ex)
+                {
+                    // Best-effort forward: the notification still dismisses even if the
+                    // manager singleton is unavailable.
+                    BeepLog.Fallback(this, "forward consumed notification to manager", ex);
+                }
             }
 
             if (!args.Cancel) Visible = false;
@@ -775,7 +781,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 // read by ToolTipManager on the next hover/paint, so we don't
                 // need to invalidate here.
             }
-            catch { /* control may be disposed mid-shutdown */ }
+            catch (Exception ex)
+            {
+                // Timer tick: the child progress bar may be disposed mid-shutdown. Report once.
+                BeepLog.FallbackOnce("notification.progress", this, "update progress bar", ex);
+            }
         }
 
         private void StopTimers()

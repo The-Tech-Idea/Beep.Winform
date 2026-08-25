@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Calculate icon areas (smaller for compact)
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 10 : 0;
+            int sortIconSize = column.AllowSort ? 10 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 12 : 0;
             int rightX = cellRect.Right - padding;
 
@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw compact sort indicator
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintSortIndicator(g, sortIconRect, column.SortDirection, theme);
             }

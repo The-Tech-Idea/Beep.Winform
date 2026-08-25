@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle _cachedDrawingRect = Rectangle.Empty;
         
         // Hover tracking
-        private string _hoveredArea = null;
+        private string? _hoveredArea;
         private readonly CardInteractionManager _interactionManager;
         private readonly Timer _expandCollapseTimer;
         private readonly Timer _loadingTimer;
@@ -171,14 +171,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Font _paragraphFont = new Font(SystemFonts.DefaultFont, SystemFonts.DefaultFont.Style);
 
         // Events - using BaseControl's built-in event system
-        public event EventHandler<BeepEventDataArgs> ImageClicked;
-        public event EventHandler<BeepEventDataArgs> HeaderClicked;
-        public event EventHandler<BeepEventDataArgs> ParagraphClicked;
-        public event EventHandler<BeepEventDataArgs> ButtonClicked;
-        public event EventHandler<BeepEventDataArgs> BadgeClicked;
-        public event EventHandler<BeepEventDataArgs> RatingClicked;
-        public event EventHandler SelectionChanged;
-        public event EventHandler ContextMenuRequested;
+        public event EventHandler<BeepEventDataArgs>? ImageClicked;
+        public event EventHandler<BeepEventDataArgs>? HeaderClicked;
+        public event EventHandler<BeepEventDataArgs>? ParagraphClicked;
+        public event EventHandler<BeepEventDataArgs>? ButtonClicked;
+        public event EventHandler<BeepEventDataArgs>? BadgeClicked;
+        public event EventHandler<BeepEventDataArgs>? RatingClicked;
+        public event EventHandler? SelectionChanged;
+        public event EventHandler? ContextMenuRequested;
         
         // Constructor
         public BeepCard() : base()

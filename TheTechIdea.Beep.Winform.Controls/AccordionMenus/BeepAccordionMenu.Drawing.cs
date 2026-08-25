@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             };
 
             // Paint background
-            _painter.PaintAccordionBackground(graphics, rectangle, renderOptions);
+            _accordionPainter.PaintAccordionBackground(graphics, rectangle, renderOptions);
 
             // Draw the title/header area
             Rectangle headerRect = new Rectangle(
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
                 headerHeight
             );
 
-            _painter.PaintHeader(graphics, headerRect, Title, renderOptions);
+            _accordionPainter.PaintHeader(graphics, headerRect, Title, renderOptions);
 
             // Draw toggle button
             _toggleButtonRect = new Rectangle(
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             AddHitArea(
                 "ToggleButton",
                 _toggleButtonRect,
-                null,
+                null!,
                 () => {
                     isCollapsed = !isCollapsed;
                     StartAccordionAnimation();
@@ -230,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             };
 
             // Use painter to draw item
-            _painter.PaintItem(graphics, headerItemRect, headerItem, itemState, options);
+            _accordionPainter.PaintItem(graphics, headerItemRect, headerItem, itemState, options);
 
             // Draw item icon if available
             if (HasItemIcons && !string.IsNullOrEmpty(headerItem.ImagePath))
@@ -250,7 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
                 AddHitArea(
                     $"ExpandCollapse_{headerItem.Text}_{items.IndexOf(headerItem)}",
                     expanderRect,
-                    null,
+                    null!,
                     () => {
                         expandedState[headerItem] = !expandedState[headerItem];
                         HeaderExpandedChanged?.Invoke(this, new BeepMouseEventArgs(headerItem.Text, headerItem));
@@ -263,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             AddHitArea(
                 $"HeaderItem_{headerItem.Text}_{items.IndexOf(headerItem)}",
                 headerItemRect,
-                null,
+                null!,
                 () => {
                     if (headerItem.Children.Count > 0)
                     {
@@ -317,14 +317,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
                 int lineTop = headerItem.Y + itemHeight;
                 int lineBottom = yOffset + childItemHeight / 2;
 
-                _painter.PaintConnectorLine(
+                _accordionPainter.PaintConnectorLine(
                     graphics,
                     new Point(lineX, lineTop),
                     new Point(childItemRect.X, lineBottom),
                     options);
 
                 // Use painter to draw child item
-                _painter.PaintChildItem(graphics, childItemRect, childItem, itemState, options);
+                _accordionPainter.PaintChildItem(graphics, childItemRect, childItem, itemState, options);
 
                 // Draw item icon if available
                 if (HasItemIcons && !string.IsNullOrEmpty(childItem.ImagePath))
@@ -336,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
                 AddHitArea(
                     $"ChildItem_{childItem.Text}_{headerItem.Children.IndexOf(childItem)}",
                     childItemRect,
-                    null,
+                    null!,
                     () => {
                         SelectedItem = (SimpleItem)childItem;
                         ItemClick?.Invoke(this, new BeepMouseEventArgs(childItem.Text, childItem));

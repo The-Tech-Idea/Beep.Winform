@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Use theme primary color gradient for selected
                     var primaryColor = Theme.PrimaryColor;
-                    var secondaryColor = _theme?.AccentColor ?? DarkenColor(primaryColor, 0.3f);
+                    var secondaryColor = _theme?.AccentColor ?? ColorUtils.GetDarkerColor(primaryColor, 0.7f);
                     
                     using (var brush = new LinearGradientBrush(cardRect,
                         primaryColor, secondaryColor, LinearGradientMode.Horizontal))
@@ -220,14 +220,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private Color[] GetPalette(int index)
         {
             return GradientPalettes[Math.Abs(index) % GradientPalettes.Length];
-        }
-
-        private Color DarkenColor(Color c, float amount)
-        {
-            int r = Math.Max(0, (int)(c.R * (1 - amount)));
-            int g = Math.Max(0, (int)(c.G * (1 - amount)));
-            int b = Math.Max(0, (int)(c.B * (1 - amount)));
-            return Color.FromArgb(c.A, r, g, b);
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)

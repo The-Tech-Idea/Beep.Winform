@@ -40,10 +40,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
             int clusterWidth = titleSize.Width + (hasIcon ? iconSize + iconGap : 0);
             int clusterHeight = System.Math.Max(titleHeight, iconSize);
             int headerHeight = clusterHeight + gap;
+            int tabHeaderHeight = clusterHeight + (gap * 2); // tab-style header band with padding above/below
             // Allow title line in all horizontal title modes (including GroupBox).
-            context.HasTitleLine = state.ShowTitleLine &&
-                                   state.TitleStyle != PanelTitleStyle.Left &&
-                                   state.TitleStyle != PanelTitleStyle.Right;
+            context.HasTitleLine = state.TitleStyle == PanelTitleStyle.Divider ||
+                                   (state.ShowTitleLine &&
+                                    state.TitleStyle != PanelTitleStyle.Left &&
+                                    state.TitleStyle != PanelTitleStyle.Right);
 
             int titleX = bounds.Left + gap;
             int clusterX = titleX;
@@ -61,6 +63,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
                     break;
             }
 
+            if (state.TitleStyle == PanelTitleStyle.Divider)
+            {
+                // Divider headings are always centered, like CSS "heading with rules".
+                clusterX = bounds.Left + (bounds.Width - clusterWidth) / 2;
+            }
+
             int clusterY = bounds.Top + DpiScalingHelper.ScaleValue(2, owner);
             if (state.TitleStyle == PanelTitleStyle.GroupBox)
             {
@@ -71,9 +79,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
             {
                 clusterY = bounds.Bottom - clusterHeight - gap;
             }
-            else if (state.TitleStyle == PanelTitleStyle.Overlay || state.TitleStyle == PanelTitleStyle.TopHeader || state.TitleStyle == PanelTitleStyle.Above)
+            else if (state.TitleStyle == PanelTitleStyle.Overlay || state.TitleStyle == PanelTitleStyle.Above ||
+                     state.TitleStyle == PanelTitleStyle.Divider || state.TitleStyle == PanelTitleStyle.Badge)
             {
                 clusterY = bounds.Top + gap / 2;
+            }
+            else if (state.TitleStyle == PanelTitleStyle.TopHeader)
+            {
+                // Tab-style header: title vertically centered in the header band.
+                clusterY = bounds.Top + (tabHeaderHeight - clusterHeight) / 2;
             }
             else if (state.TitleStyle == PanelTitleStyle.Left || state.TitleStyle == PanelTitleStyle.Right)
             {
@@ -88,6 +102,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
             {
                 context.IconBounds = new Rectangle(clusterX, clusterY + ((clusterHeight - iconSize) / 2), iconSize, iconSize);
             }
+            if (state.TitleStyle == PanelTitleStyle.Badge)
+            {
+                int badgePadH = gap;
+                int badgePadV = DpiScalingHelper.ScaleValue(2, owner);
+                context.BadgeBounds = new Rectangle(
+                    clusterX - badgePadH,
+                    clusterY - badgePadV,
+                    clusterWidth + (badgePadH * 2),
+                    clusterHeight + (badgePadV * 2));
+            }
             context.TitleGapBounds = new Rectangle(
                 context.TitleClusterBounds.Left - gap,
                 bounds.Top,
@@ -96,14 +120,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
 
             if (context.HasTitleLine)
             {
-                int lineY = context.TitleClusterBounds.Bottom + DpiScalingHelper.ScaleValue(2, owner);
-                int lineX = state.ShowTitleLineFullWidth ? bounds.Left + state.BorderThickness : context.TitleClusterBounds.Left;
-                int lineWidth = state.ShowTitleLineFullWidth
-                    ? bounds.Width - (state.BorderThickness * 2)
-                    : context.TitleClusterBounds.Width;
-                lineWidth = System.Math.Max(1, lineWidth);
-                context.TitleLineStartX = lineX;
-                context.TitleLineBounds = new Rectangle(lineX, lineY, lineWidth, System.Math.Max(1, thickness));
+                if (state.TitleStyle == PanelTitleStyle.Divider)
+                {
+                    int ruleY = clusterY + clusterHeight / 2;
+                    int sidePad = DpiScalingHelper.ScaleValue(8, owner);
+                    context.TitleLineBounds = new Rectangle(
+                        bounds.Left + sidePad,
+                        ruleY,
+                        System.Math.Max(1, clusterX - gap - (bounds.Left + sidePad)),
+                        System.Math.Max(1, thickness));
+                    context.TitleLineBoundsRight = new Rectangle(
+                        clusterX + clusterWidth + gap,
+                        ruleY,
+                        System.Math.Max(1, (bounds.Right - sidePad) - (clusterX + clusterWidth + gap)),
+                        System.Math.Max(1, thickness));
+                }
+                else if (state.TitleStyle == PanelTitleStyle.TopHeader)
+                {
+                    // Divider at the bottom edge of the header band, full width.
+                    int lineY = bounds.Top + tabHeaderHeight - System.Math.Max(1, thickness);
+                    int lineX = bounds.Left + state.BorderThickness;
+                    context.TitleLineStartX = lineX;
+                    context.TitleLineBounds = new Rectangle(
+                        lineX,
+                        lineY,
+                        System.Math.Max(1, bounds.Width - (state.BorderThickness * 2)),
+                        System.Math.Max(1, thickness));
+                }
+                else
+                {
+                    int lineY = context.TitleClusterBounds.Bottom + DpiScalingHelper.ScaleValue(2, owner);
+                    int lineX = state.ShowTitleLineFullWidth ? bounds.Left + state.BorderThickness : context.TitleClusterBounds.Left;
+                    int lineWidth = state.ShowTitleLineFullWidth
+                        ? bounds.Width - (state.BorderThickness * 2)
+                        : context.TitleClusterBounds.Width;
+                    lineWidth = System.Math.Max(1, lineWidth);
+                    context.TitleLineStartX = lineX;
+                    context.TitleLineBounds = new Rectangle(lineX, lineY, lineWidth, System.Math.Max(1, thickness));
+                }
             }
 
             context.HeaderBounds = state.TitleStyle switch
@@ -112,6 +166,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
                 PanelTitleStyle.Below => new Rectangle(bounds.Left, bounds.Bottom - headerHeight, bounds.Width, headerHeight),
                 PanelTitleStyle.Left => new Rectangle(bounds.Left, bounds.Top, clusterWidth + (gap * 2), bounds.Height),
                 PanelTitleStyle.Right => new Rectangle(bounds.Right - (clusterWidth + (gap * 2)), bounds.Top, clusterWidth + (gap * 2), bounds.Height),
+                PanelTitleStyle.Divider => new Rectangle(bounds.Left, bounds.Top, bounds.Width, headerHeight),
+                PanelTitleStyle.Badge => new Rectangle(bounds.Left, bounds.Top, bounds.Width, headerHeight + gap),
+                PanelTitleStyle.TopHeader => new Rectangle(bounds.Left, bounds.Top, bounds.Width, tabHeaderHeight),
                 _ => new Rectangle(bounds.Left, bounds.Top, bounds.Width, headerHeight + (context.HasTitleLine ? thickness : 0))
             };
 
@@ -119,7 +176,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers.Helpers
             int contentLeftInset = state.Padding.Left;
             int contentRightInset = state.Padding.Right;
             int contentBottomInset = state.Padding.Bottom;
-            if (state.TitleStyle == PanelTitleStyle.GroupBox || state.TitleStyle == PanelTitleStyle.Above || state.TitleStyle == PanelTitleStyle.TopHeader || state.TitleStyle == PanelTitleStyle.Overlay)
+            if (state.TitleStyle == PanelTitleStyle.TopHeader)
+            {
+                contentTopInset += tabHeaderHeight + (context.HasTitleLine ? thickness : 0);
+            }
+            else if (state.TitleStyle == PanelTitleStyle.GroupBox || state.TitleStyle == PanelTitleStyle.Above || state.TitleStyle == PanelTitleStyle.Overlay ||
+                state.TitleStyle == PanelTitleStyle.Divider || state.TitleStyle == PanelTitleStyle.Badge)
             {
                 contentTopInset += headerHeight + (context.HasTitleLine ? thickness : 0);
             }

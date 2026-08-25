@@ -114,8 +114,6 @@ After applying `DefaultSize` to all Beep controls, here is the complete referenc
 | `BeepDatePickerView` | 200×200 | `FieldDateView` |
 | `BeepNumericUpDown` | 100×34 | `FieldNumeric` |
 | `BeepFilter` | 400×32 | `FilterBar` |
-| `BeepFilterRow` | 300×32 | `FilterRow` |
-| `BeepQuickFilterBar` | 400×32 | `QuickFilterBar` |
 | `BeepQueryandFilter` | 400×36 | `QueryAndFilter` |
 
 ### Inline / small
@@ -249,7 +247,7 @@ After applying `DefaultSize` to all Beep controls, here is the complete referenc
 | `BeepSocialWidget` | 280×160 | `Card` |
 
 ### Forms / Dialogs (size managed by `BeepiFormPro` / `DialogConfig`)
-`BeepiFormPro`, `BeepDialogModal`, `BeepMessageDialog`, `BeepQuestionDialog`, `BeepInputDialog`, `BeepListDialog`, `BeepFileDialog`, `BeepProgressDialog`, `BeepMultiSelectDialog`, `BeepModelessDialog`, `BeepWait`, `BeepNotification`, `BeepDockPopup`, `BeepGridFilterPopup`, `BeepTreeFilterPopup`, `BeepAdvancedFilterDialog`, `BeepCommandPaletteDialog`, `BeepPopupForm`, `BeepPopupModalForm`, `BeepPrintPreviewForm`, `BeepContextMenu`, `BeepDockTooltip`, `BeepLovPopup` — these are `Form`-derived. They manage their own size through their respective config (`DialogConfig`, `MenuConfig`, etc.) and do **not** need `DefaultSize`.
+`BeepiFormPro`, `BeepDialogModal`, `BeepMessageDialog`, `BeepQuestionDialog`, `BeepInputDialog`, `BeepListDialog`, `BeepFileDialog`, `BeepProgressDialog`, `BeepMultiSelectDialog`, `BeepModelessDialog`, `BeepWait`, `BeepNotification`, `BeepDockPopup`, `BeepGridFilterPopup`, `BeepTreeFilterPopup`, `BeepCommandPaletteDialog`, `BeepPopupForm`, `BeepPopupModalForm`, `BeepPrintPreviewForm`, `BeepContextMenu`, `BeepDockTooltip`, `BeepLovPopup` — these are `Form`-derived. They manage their own size through their respective config (`DialogConfig`, `MenuConfig`, etc.) and do **not** need `DefaultSize`.
 
 ---
 

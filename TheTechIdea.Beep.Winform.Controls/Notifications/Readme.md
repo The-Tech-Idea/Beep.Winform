@@ -821,6 +821,14 @@ var data = new NotificationData
 };
 ```
 
+## Recent Fixes
+
+- **No more swallowed catches.** The four remaining bare `catch` blocks now report through `BeepLog`:
+  - forwarding a consumed notification to the manager (`BeepNotification`)
+  - updating the progress bar from the auto-dismiss timer (`BeepNotification`, once-only)
+  - detecting a Windows Focus Session (`FocusSessionDetector`)
+  - reading `DoNotDisturbMode` via reflection (`FieldAccess` — best-effort, fails open, reports the degradation)
+
 ## Next Steps
 
 1. **BeepNotificationManager** - Queue and manage multiple notifications

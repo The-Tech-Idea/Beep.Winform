@@ -79,57 +79,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
             return null;
         }
         
-        /// <summary>
-        /// Gets the index of the menu item at the specified point
-        /// </summary>
-        public int GetItemIndex(Point location)
-        {
-            var item = HitTest(location);
-            return item != null ? _owner.MenuItems.IndexOf(item) : -1;
-        }
-        
-        /// <summary>
-        /// Checks if a point is within the checkbox area of an item
-        /// </summary>
-        public bool IsInCheckBox(Point location, SimpleItem item)
-        {
-            if (!_owner.ShowCheckBox || item == null)
-            {
-                return false;
-            }
-            
-            var checkRect = _owner.LayoutHelper.GetCheckBoxRect(item);
-            return checkRect.Contains(location);
-        }
-        
-        /// <summary>
-        /// Checks if a point is within the icon area of an item
-        /// </summary>
-        public bool IsInIcon(Point location, SimpleItem item)
-        {
-            if (!_owner.ShowImage || item == null)
-            {
-                return false;
-            }
-            
-            var iconRect = _owner.LayoutHelper.GetIconRect(item);
-            return iconRect.Contains(location);
-        }
-        
-        /// <summary>
-        /// Checks if a point is within the text area of an item
-        /// </summary>
-        public bool IsInText(Point location, SimpleItem item)
-        {
-            if (item == null)
-            {
-                return false;
-            }
-            
-            var textRect = _owner.LayoutHelper.GetTextRect(item);
-            return textRect.Contains(location);
-        }
-        
         private bool IsSeparator(SimpleItem item)
         {
             return item != null && (item.DisplayField == "-" || item.Tag?.ToString() == "separator");

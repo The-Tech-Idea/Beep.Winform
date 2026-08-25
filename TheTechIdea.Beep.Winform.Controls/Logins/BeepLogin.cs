@@ -56,6 +56,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepLabel lblCapsLock;           // Caps Lock warning
         private bool _isLoading;                 // login-in-progress flag
 
+        // Semantic state colours - error red and warning orange (Material Design shades).
+        private static readonly Color ErrorRed      = Color.FromArgb(183, 28, 28);
+        private static readonly Color WarningOrange = Color.FromArgb(230, 81, 0);
+
         private LoginViewType _viewType = LoginViewType.Simple;
         private bool _isApplyingTheme = false;
 
@@ -169,12 +173,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             };
 
+            // The Text assigned above was written with a corrupted encoding (a raw 0x81 byte),
+            // so clear it and render a proper icon instead.
+            btnTogglePassword.Text = string.Empty;
+            btnTogglePassword.ImagePath = SvgsUI.Eye;
+
             // Inline error label â€” hidden until login fails
             lblError = new BeepLabel
             {
                 Text = "",
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
-                ForeColor = Color.FromArgb(183, 28, 28),
+                ForeColor = ErrorRed,
                 IsChild = true,
                 Visible = false,
                 AutoSize = true,
@@ -186,9 +195,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Caps Lock warning â€” shown when Caps Lock is on while password field focused
             lblCapsLock = new BeepLabel
             {
-                Text = "âš  Caps Lock is on",
+                Text = "Caps Lock is on",
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
-                ForeColor = Color.FromArgb(230, 81, 0),
+                ForeColor = WarningOrange,
                 IsChild = true,
                 Visible = false,
                 AutoSize = true,
@@ -1919,7 +1928,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _isLoading = true;
             btnLogin.Enabled = false;
-            btnLogin.Text = "Signing inâ€¦";
+            btnLogin.Text = "Signing in...";
         }
 
         /// <summary>
@@ -1952,8 +1961,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             lblError.BringToFront();
 
             // Red border on both input fields (visual error feedback)
-            txtUsername.BorderColor = Color.FromArgb(183, 28, 28);
-            txtPassword.BorderColor = Color.FromArgb(183, 28, 28);
+            txtUsername.BorderColor = ErrorRed;
+            txtPassword.BorderColor = ErrorRed;
         }
 
         /// <summary>

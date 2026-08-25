@@ -19,10 +19,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
     {
         protected override Size DefaultSize => BeepLayoutMetrics.AccordionItem;
         #region Private Fields
-        private Panel buttonRowPanel;
-        private BeepButton mainButton;
-        private BeepButton toggleButton;
-        private Panel submenuPanel;
+        private Panel buttonRowPanel = null!;
+        private BeepButton mainButton = null!;
+        private BeepButton toggleButton = null!;
+        private Panel submenuPanel = null!;
         private SimpleItem item;
         private int itemHeight;
         private bool isChild;
@@ -33,8 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
         #endregion
 
         #region Events
-        public event EventHandler HeightChanged;
-        public event EventHandler<BeepMouseEventArgs> ItemClick;
+        public event EventHandler? HeightChanged;
+        public event EventHandler<BeepMouseEventArgs>? ItemClick;
         #endregion
 
         #region Properties
@@ -247,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
         #endregion
 
         #region Methods
-        private void ToggleSubMenu(object sender, EventArgs e)
+        private void ToggleSubMenu(object? sender, EventArgs e)
         {
             bool isExpanded = submenuPanel.Visible;
             submenuPanel.Visible = !isExpanded;

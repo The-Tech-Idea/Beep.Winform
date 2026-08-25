@@ -38,6 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             MinimumSize = new Size(8, 8);
             MaximumSize = new Size(0, 48);   // cap the height; width grows to fit content
             TabStop = false;
+            AccessibleRole = AccessibleRole.StaticText;
             Visible = false;
 
             SubscribeToTheme();
@@ -227,6 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             Reposition();
             BringToFront();
             Visible = target.Visible;
+            AccessibleName = DescribeBadge();
 
             // Raised without a catch. An exception here belongs to the subscriber, and swallowing it
             // makes their bug invisible - Control.Click does not catch either.
@@ -322,6 +324,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
         protected virtual void DrawBadgeContent(Graphics g, Rectangle contentBounds)
         {
         }
+
+        /// <summary>
+        /// The badge's accessible name — what a screen reader announces. Empty by
+        /// default (a bare dot says nothing); text-bearing badges override it so
+        /// the badge's content is not invisible to assistive technology.
+        /// </summary>
+        protected virtual string DescribeBadge() => string.Empty;
 
         protected GraphicsPath GetShapePath(Rectangle bounds)
         {

@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     SetColumnSort(columnIndex, SortDirection.None);
                     break;
                 case "col_filter":
-                    ShowFilterDialog();
+                    ShowFilterDialog(preferredColumnName: column.ColumnName);
                     break;
                 case "col_filter_clear":
                     SortFilter.Filter(column.ColumnName, string.Empty);

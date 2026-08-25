@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -383,7 +384,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return (ht.IsHovered, ht.IsPressed);
                 return (false, false);
             }
-            catch { return (false, false); }
+            catch (Exception ex)
+            {
+                BeepLog.FallbackOnce("GetHitState", this, "resolve hit state", ex);
+                return (false, false);
+            }
         }
 
         private void DrawHoverBackground(Graphics g, Rectangle rect, bool pressed, Color baseColor)

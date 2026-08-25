@@ -103,15 +103,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
                 11f,
                 FontStyle.Regular);
         }
-
-        /// <summary>
-        /// Applies font theme to all controls (to be called by painters)
-        /// </summary>
-        public static void ApplyFontTheme(LoginViewType viewType)
-        {
-            // This will be used by painters to apply fonts to child controls
-            // Implementation details will be in the painters
-        }
     }
 }
 

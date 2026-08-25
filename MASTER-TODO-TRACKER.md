@@ -439,7 +439,7 @@
  - [ ] **Grouping Engine** — `architecture/gridx-grouping.html` — GridGroupEngine, descriptors
  - [ ] **Export Engine** — `architecture/gridx-export.html` — CSV/JSON/HTML/Excel/PDF export
  - [ ] **Grid Editors** — `architecture/gridx-editors.html` — GridEditorFactory, 7 editor types
- - [ ] **Grid Filtering** — `architecture/gridx-filtering.html` — BeepAdvancedFilterDialog, filter bar
+ - [ ] **Grid Filtering** — `architecture/gridx-filtering.html` — BeepFilter, toolbar filter
 
  ### 28. Chart System (4)
  - [ ] **Chart Architecture** — `architecture/chart-overview.html` — partial class layout, drawing pipeline

@@ -24,3 +24,9 @@
 - **DottedRingProgressPainter**: Rotating active dot cluster for indeterminate
 - **RadialSegmentedPainter**: Rotating active segment cluster for indeterminate, ellipsis center text
 - **RingCenterImagePainter**: Inherits indeterminate support from RingProgressPainter pattern
+
+## Recent Fixes (2026-08)
+
+- **Two-tone caption contrast** — `LinearProgressPainter` now draws the centred label twice: once against the track, then redrawn clipped to the filled slice against the fill. Fixes the known defect where a single fill-contrast colour washed the caption out at low percentages (the label sits over the track, not the fill). Resolves the "Observation (not fixed)" in `plans/00-MASTER-TRACKER.md`.
+- **Duplicate WCAG/colour math removed** — `ProgressBarAccessibilityHelpers` (`CalculateContrastRatio`, `GetRelativeLuminance`, `EnsureContrastRatio`, `AdjustForContrast`) now delegate to the canonical `ColorUtils` (`ContrastRatio`, `RelativeLuminance`, `EnsureReadable`); the private `GetColorComponent`/`DarkenColor`/`LightenColor` helpers are deleted.
+- **Designer GDI safety reports instead of swallowing** — the two `catch (ArgumentException)` guards in `BeepProgressBar` (`Paint`, `UpdateHitAreas`) still rethrow at runtime and now report the designer-time swallow via `BeepLog.FallbackOnce`.

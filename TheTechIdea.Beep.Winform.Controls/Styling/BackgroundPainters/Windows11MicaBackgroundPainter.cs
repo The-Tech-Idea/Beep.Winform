@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             };
 
             // Blend base with primary based on tint strength
-            Color blended = BlendColors(baseColor, primaryColor, tintStrength);
+            Color blended = BackgroundPainterHelpers.BlendColors(baseColor, primaryColor, tintStrength);
 
             // Additional modifications for specific states - use HSL for more natural results
             if (state == ControlState.Pressed)
@@ -70,16 +70,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
 
             return blended;
-        }
-
-        private static Color BlendColors(Color baseColor, Color blendColor, float ratio)
-        {
-            return Color.FromArgb(
-                baseColor.A,
-                (int)(baseColor.R * (1 - ratio) + blendColor.R * ratio),
-                (int)(baseColor.G * (1 - ratio) + blendColor.G * ratio),
-                (int)(baseColor.B * (1 - ratio) + blendColor.B * ratio)
-            );
         }
     }
 }

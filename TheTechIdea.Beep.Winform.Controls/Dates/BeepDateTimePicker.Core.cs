@@ -149,17 +149,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         private void InitializePainter()
         {
-            // Ensure theme exists (BaseControl sets _currentTheme in ctor)
+            // BaseControl sets _currentTheme in its constructor; this guard only covers the
+            // unlikely case a subclass or designer constructed the control without a theme.
             if (_currentTheme == null)
             {
-                try
-                {
-                    _currentTheme = ThemeManagement.BeepThemesManager.GetDefaultTheme();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"BeepDateTimePicker.InitializePainter: Failed to get default theme: {ex.Message}");
-                }
+                _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
             _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
@@ -262,14 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         {
             if (_currentTheme == null)
             {
-                try
-                {
-                    _currentTheme = ThemeManagement.BeepThemesManager.GetDefaultTheme();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"BeepDateTimePicker.UpdatePainter: Failed to get default theme: {ex.Message}");
-                }
+                _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
             // Create painter based on mode - theme provides visual styling

@@ -45,6 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             float holeRatio = options?.DoughnutHoleRatio ?? 0f;
             var isDoughnut = holeRatio > 0f;
             Region originalClip = null;
+            Region ringRegion = null;
             if (isDoughnut)
             {
                 originalClip = g.Clip;
@@ -53,33 +54,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 float holeRadius = pieRect.Width / 2f * holeRatio;
                 var outerPath = new GraphicsPath();
                 outerPath.AddEllipse(pieRect);
-                var region = new Region(outerPath);
+                ringRegion = new Region(outerPath);
                 var innerPath = new GraphicsPath();
                 innerPath.AddEllipse(cx - holeRadius, cy - holeRadius, holeRadius * 2, holeRadius * 2);
-                region.Exclude(innerPath);
-                g.SetClip(region, CombineMode.Intersect);
+                ringRegion.Exclude(innerPath);
+                g.SetClip(ringRegion, CombineMode.Intersect);
                 outerPath.Dispose();
                 innerPath.Dispose();
             }
 
-            float startAngle = 0f;
-            int colorIndex = 0;
-            foreach (var p in series.Points)
+            try
             {
-                float sliceValue = p.Value;
-                if (sliceValue <= 0) continue;
-                float sweepAngle = sliceValue / totalValue * 360f * Math.Clamp(options?.AnimationProgress ?? 1f, 0f, 1f);
-                Color color = p.Color != Color.Empty ? p.Color : palette[colorIndex % palette.Count];
-                var brush = PaintersFactory.GetSolidBrush(color);
-                var pen = PaintersFactory.GetPen(axisColor, 1);
-                g.FillPie(brush, pieRect, startAngle, sweepAngle);
-                g.DrawPie(pen, pieRect, startAngle, sweepAngle);
-                startAngle += sweepAngle;
-                colorIndex++;
+                float startAngle = 0f;
+                int colorIndex = 0;
+                foreach (var p in series.Points)
+                {
+                    float sliceValue = p.Value;
+                    if (sliceValue <= 0) continue;
+                    float sweepAngle = sliceValue / totalValue * 360f * Math.Clamp(options?.AnimationProgress ?? 1f, 0f, 1f);
+                    Color color = p.Color != Color.Empty ? p.Color : palette[colorIndex % palette.Count];
+                    var brush = PaintersFactory.GetSolidBrush(color);
+                    var pen = PaintersFactory.GetPen(axisColor, 1);
+                    g.FillPie(brush, pieRect, startAngle, sweepAngle);
+                    g.DrawPie(pen, pieRect, startAngle, sweepAngle);
+                    startAngle += sweepAngle;
+                    colorIndex++;
+                }
             }
-
-            // Restore the clip so legend/other elements render outside the doughnut
-            if (isDoughnut) { g.Clip = originalClip; }
+            finally
+            {
+                // Restore the clip so legend/other elements render outside the doughnut,
+                // and release the clip clone + ring region (per-paint GDI allocations we own).
+                if (isDoughnut)
+                {
+                    g.Clip = originalClip;
+                    originalClip?.Dispose();
+                    ringRegion?.Dispose();
+                }
+            }
 
             // Data labels in the centre of each slice
             if (options?.ShowDataLabels == true && series.ShowLabel)
@@ -100,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 
             foreach (var p in series.Points)
             {
-                if (p.Value <= 0) { startAngle += 0; continue; }
+                if (p.Value <= 0) continue;
                 float sweepAngle = p.Value / totalValue * 360f;
                 float midAngle = startAngle + sweepAngle / 2f;
                 float rad = (float)(midAngle * Math.PI / 180d);

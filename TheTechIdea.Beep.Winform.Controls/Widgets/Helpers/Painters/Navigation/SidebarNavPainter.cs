@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
@@ -45,7 +47,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_wheelHooked || Owner == null) return;
             try { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
-            catch { }
+            catch (Exception ex)
+            {
+                BeepLog.Fallback(Owner, "hook mouse wheel", ex);
+            }
         }
 
         private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)
@@ -252,7 +257,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_wheelHooked && Owner != null)
             {
-                try { Owner.MouseWheel -= OnMouseWheel; } catch { }
+                try { Owner.MouseWheel -= OnMouseWheel; }
+                catch (Exception ex)
+                {
+                    BeepLog.Fallback(Owner, "unhook mouse wheel", ex);
+                }
                 _wheelHooked = false;
             }
         }

@@ -19,6 +19,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -97,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!_highContrastSubscribed) return;
             try { SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged; }
-            catch { /* non-fatal */ }
+            catch (Exception ex) { BeepLog.Fallback(this, "UnsubscribeHighContrastEvents", ex); }
             _highContrastSubscribed = false;
         }
 
@@ -110,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (InvokeRequired)
             {
-                try { BeginInvoke(new Action(Invalidate)); } catch { }
+                try { BeginInvoke(new Action(Invalidate)); } catch (Exception ex) { BeepLog.Fallback(this, "InvalidateOnPreferenceChanged", ex); }
             }
             else
             {

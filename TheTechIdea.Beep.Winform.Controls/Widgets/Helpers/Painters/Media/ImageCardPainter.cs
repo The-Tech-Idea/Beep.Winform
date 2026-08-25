@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
+
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
@@ -75,8 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                         StyledImagePainter.Paint(g, ctx.DrawingRect, imagePath);
                         g.ResetClip();
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        BeepLog.FallbackOnce(imagePath, this, "render image", ex);
                         _imagePainter.ImagePath = imagePath;
                         _imagePainter.DrawImage(g, ctx.DrawingRect);
                     }
@@ -91,8 +94,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                         g.DrawImage(image, ctx.DrawingRect);
                         g.ResetClip();
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        BeepLog.FallbackOnce("imagecard.image", this, "render image instance", ex);
                         _imagePainter.Image = image;
                         _imagePainter.DrawImage(g, ctx.DrawingRect);
                     }

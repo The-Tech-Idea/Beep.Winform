@@ -31,7 +31,7 @@ code does not implement.** Measured, counting readers outside `Models/`:
 | `VerificationText`, `VerificationChecked` | **0** | no "don't show this again" exists |
 | `ButtonLayout` | **0** | `DialogHelpers` has Horizontal/Vertical/Grid code that is never given the config's value |
 | `FieldValidators`, `ValidationState` | **0** | per-field validation is declared only |
-| `EnableUndoForDestructiveActions` | **0** | defaults to `true` and does nothing |
+| `EnableUndoForDestructiveActions` | **0** | deleted 2026-08-19 — undo needs the caller's action; `ConfirmDestructiveWithUndo` is the real feature |
 | `DisablePrimaryUntilAcknowledged` | **0** | |
 | `MotionProfile`, `StaggerDelay` | **0** | |
 | `CloseOnEscape` | **written twice, read never** | a preset sets it `false` (`:774`) and Escape ignores it |
@@ -62,7 +62,7 @@ harness the rest report through.
 | [02](02-escape-and-default-buttons.md) | `CloseOnEscape` cannot turn Escape off | **defect** | ☑ done |
 | [03](03-backdrop-dismiss-policy.md) | Two properties for one backdrop-dismiss decision | structural | ☑ done |
 | [04](04-typed-confirmation.md) | The destructive preset promises a confirmation that does not exist | **defect** | ☑ done |
-| [05](05-dead-config-surface.md) | Seven more properties with no mechanism | structural | ◐ partial |
+| [05](05-dead-config-surface.md) | Seven more properties with no mechanism | structural | ☑ done |
 | [06](06-severity-and-headers.md) | Severity resolver (appearance moved to the theme) | conformance | ☑ done |
 | [07](07-button-hierarchy.md) | Button roles, order and hit targets (colour is the theme's) | conformance | ☑ done |
 | [08](08-body-layouts-and-callouts.md) | Inset callouts built; icon treatments are control work | conformance | ◐ partial |
@@ -123,12 +123,22 @@ colours for primary, secondary and cancel. Four further attempts to make an assi
 **The one exception:** a destructive action takes the theme's `DialogErrorButtonBackColor`. That
 colour carries a warning rather than a style, which is the case worth making an exception for.
 
-**What this means for the reference designs.** `dialog1.png`'s tinted header strip, `dialog4.png`'s
-saturated colour block and the severity-coloured primary buttons are all *theme* work, not dialog
-work. Making them appear means giving the theme the keys — several already exist and nothing reads
-them (`DialogErrorButtonBackColor`, `DialogWarningButtonBackColor`, `DialogInformationButtonBackColor`
-and siblings) — and having the controls resolve them. [Stage 12](12-presentation-styles.md) should be
-read that way: it describes presentations the theme has to supply.
+**2026-08-19 — the severity-coloured primary now renders, through the control.** The folder still
+assigns no colours. `BeepButton` gained a `Severity` property whose `ApplyTheme` resolves the theme's
+per-severity dialog keys (`DialogError/Warning/InformationButtonBackColor` + fore/hover siblings;
+success falls back to `SuccessColor`). `DialogButtonStyler` hands severity off — primary takes the
+dialog's severity, destructive is always error — instead of assigning `BackColor`, so the colour
+follows a theme switch, which a direct assignment never did. This is the "controls resolve the keys"
+half the design was waiting for.
+
+**What this means for the reference designs.** `dialog1.png`'s tinted header strip now renders: the
+title row's `BeepLabel` gained the same `Severity` hand-off as the buttons and tints its background
+with the severity wash (foreground in the accent) from the theme, following a theme switch. `dialog4.png`'s
+saturated hero band also renders: `BeepLabel.SeveritySaturated` fills the label with the severity colour
+and flips the text to the contrast colour, set from `DialogPresentation.HeroBand`. The icon treatment
+(circular outline / filled / bare / oversized) is drawn by `BeepImage` through `Severity` +
+`IconTreatment`; `DialogConfig.IconTreatment` picks it, defaulting from the presentation. [Stage 12](12-presentation-styles.md)
+should be read that way: it describes presentations the theme has to supply.
 
 ## The designer files are now the source of truth for layout
 

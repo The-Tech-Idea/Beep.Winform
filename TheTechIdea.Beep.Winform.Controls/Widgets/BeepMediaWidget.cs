@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
@@ -286,9 +287,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     _image = Image.FromFile(_imagePath);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                _image = null; // Failed to load image
+                BeepLog.Failure(this, "load image", ex);
+                _image = null;
             }
         }
         #endregion

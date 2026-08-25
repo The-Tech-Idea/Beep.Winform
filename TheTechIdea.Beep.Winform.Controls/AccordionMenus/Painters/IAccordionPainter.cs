@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Painters
     /// </summary>
     public class AccordionRenderOptions
     {
-        public IBeepTheme Theme { get; set; }
+        public IBeepTheme Theme { get; set; } = null!;
         public bool UseThemeColors { get; set; } = true;
         public BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
         public AccordionMenus.Helpers.AccordionStyle AccordionStyle { get; set; } = AccordionMenus.Helpers.AccordionStyle.Material3;
@@ -34,9 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Painters
         public int BorderRadius { get; set; } = 8;
         public int HighlightWidth { get; set; } = 4;
         public bool IsCollapsed { get; set; } = false;
-        public Font HeaderFont { get; set; }
-        public Font ItemFont { get; set; }
-        public Font ChildItemFont { get; set; }
+        public Font HeaderFont { get; set; } = null!;
+        public Font ItemFont { get; set; } = null!;
+        public Font ChildItemFont { get; set; } = null!;
     }
 
     /// <summary>

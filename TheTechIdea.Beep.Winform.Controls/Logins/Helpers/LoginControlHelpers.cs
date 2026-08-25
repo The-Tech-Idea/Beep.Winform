@@ -110,10 +110,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
 
             // Gradient colors for buttons
             button.GradientStartColor = bgColor;
-            button.GradientEndColor = DarkenColor(bgColor, 0.8f);
+            button.GradientEndColor = ColorUtils.GetDarkerColor(bgColor, 0.8f);
 
             // Hover colors
-            button.HoverBackColor = LightenColor(bgColor, 1.1f);
+            button.HoverBackColor = ColorUtils.GetLighterColor(bgColor, 0.1f);
             button.HoverForeColor = textColor;
         }
 
@@ -234,117 +234,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
             {
                 link.LinkColor = styleConfig.LinkColor;
             }
-        }
-
-        /// <summary>
-        /// Applies view type styling to all login controls
-        /// </summary>
-        public static void ApplyViewTypeToControls(
-            BeepTextBox txtUsername,
-            BeepTextBox txtPassword,
-            BeepButton btnLogin,
-            BeepButton btnGoogleLogin,
-            BeepButton btnFacebookLogin,
-            BeepButton btnTwitterLogin,
-            BeepCircularButton btnLogo,
-            BeepCircularButton btnAvatar,
-            Control lblTitle,
-            Control lblSubtitle,
-            LinkLabel lnkForgotPassword,
-            LinkLabel lnkRegister,
-            LoginViewType viewType,
-            LoginStyleConfig styleConfig,
-            IBeepTheme theme,
-            bool useThemeColors)
-        {
-            // Configure text boxes
-            if (txtUsername != null)
-            {
-                ConfigureLoginTextBox(txtUsername, viewType, styleConfig, theme, useThemeColors, "Username or Email", false);
-            }
-
-            if (txtPassword != null)
-            {
-                ConfigureLoginTextBox(txtPassword, viewType, styleConfig, theme, useThemeColors, "Password", true);
-            }
-
-            // Configure buttons
-            if (btnLogin != null)
-            {
-                ConfigureLoginButton(btnLogin, viewType, styleConfig, theme, useThemeColors, "Login", "login");
-            }
-
-            if (btnGoogleLogin != null)
-            {
-                ConfigureLoginButton(btnGoogleLogin, viewType, styleConfig, theme, useThemeColors, "Google", "google");
-            }
-
-            if (btnFacebookLogin != null)
-            {
-                ConfigureLoginButton(btnFacebookLogin, viewType, styleConfig, theme, useThemeColors, "Facebook", "facebook");
-            }
-
-            if (btnTwitterLogin != null)
-            {
-                ConfigureLoginButton(btnTwitterLogin, viewType, styleConfig, theme, useThemeColors, "Twitter", "twitter");
-            }
-
-            // Configure circular buttons
-            if (btnLogo != null)
-            {
-                ConfigureCircularButton(btnLogo, viewType, styleConfig, theme, useThemeColors);
-            }
-
-            if (btnAvatar != null)
-            {
-                ConfigureCircularButton(btnAvatar, viewType, styleConfig, theme, useThemeColors);
-            }
-
-            // Configure labels
-            if (lblTitle != null)
-            {
-                ConfigureLoginLabel(lblTitle, viewType, styleConfig, theme, useThemeColors, true);
-            }
-
-            if (lblSubtitle != null)
-            {
-                ConfigureLoginLabel(lblSubtitle, viewType, styleConfig, theme, useThemeColors, false);
-            }
-
-            // Configure links
-            if (lnkForgotPassword != null)
-            {
-                ConfigureLoginLink(lnkForgotPassword, viewType, styleConfig, theme, useThemeColors);
-            }
-
-            if (lnkRegister != null)
-            {
-                ConfigureLoginLink(lnkRegister, viewType, styleConfig, theme, useThemeColors);
-            }
-        }
-
-        /// <summary>
-        /// Helper to darken a color
-        /// </summary>
-        private static Color DarkenColor(Color color, float factor)
-        {
-            return Color.FromArgb(
-                color.A,
-                (int)(color.R * factor),
-                (int)(color.G * factor),
-                (int)(color.B * factor));
-        }
-
-        /// <summary>
-        /// Helper to lighten a color
-        /// </summary>
-        private static Color LightenColor(Color color, float factor)
-        {
-            return Color.FromArgb(
-                color.A,
-                Math.Min(255, (int)(color.R * factor)),
-                Math.Min(255, (int)(color.G * factor)),
-                Math.Min(255, (int)(color.B * factor)));
         }
     }
 }

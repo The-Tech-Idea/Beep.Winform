@@ -25,7 +25,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Custom shape defined by a GraphicsPath
         /// </summary>
-        Custom
+        Custom,
+        
+        /// <summary>
+        /// Pill/stadium shape — fully rounded ends.
+        /// CSS: <c>border-radius: 9999px</c> (Tailwind rounded-full; radii larger than half
+        /// the height are clamped, so this yields a pill at any size).
+        /// </summary>
+        Pill,
+        
+        /// <summary>
+        /// iOS-style superellipse (squircle) with continuous curvature
+        /// </summary>
+        Squircle
     }
     
     /// <summary>
@@ -66,53 +78,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Title displayed in a solid header bar at the top
         /// </summary>
-        TopHeader
-    }
-
-    /// <summary>
-    /// Defines the horizontal position of the title text
-    /// </summary>
-    public enum TitlePosition
-    {
-        /// <summary>
-        /// Title aligned to the left
-        /// </summary>
-        Left,
+        TopHeader,
 
         /// <summary>
-        /// Title centered horizontally
+        /// Title centered with horizontal rules on both sides (CSS "heading with rules")
         /// </summary>
-        Center,
+        Divider,
 
         /// <summary>
-        /// Title aligned to the right
+        /// Title rendered inside a pill-shaped badge (CSS chip/badge)
         /// </summary>
-        Right
-    }
-
-    /// <summary>
-    /// Defines the display state of the panel (Phase 1 enhancement)
-    /// </summary>
-    public enum PanelState
-    {
-        /// <summary>
-        /// Normal state - display content
-        /// </summary>
-        Normal,
-
-        /// <summary>
-        /// Loading state - show loading skeleton
-        /// </summary>
-        Loading,
-
-        /// <summary>
-        /// Empty state - show empty message
-        /// </summary>
-        Empty,
-
-        /// <summary>
-        /// Error state - show error message
-        /// </summary>
-        Error
+        Badge
     }
 }
+

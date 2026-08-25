@@ -41,6 +41,15 @@ only reason this was not constant. See [01](01-crash-and-leak.md).
 
 Status marks: ☐ open · ◐ in progress · ☑ done
 
+## 2026-08-19 — accessibility
+
+The one gap the review did not name: badges were invisible to assistive technology. `TabStop = false`
+correctly kept them out of keyboard order, but no badge set `AccessibleRole` or `AccessibleName`, so a
+screen reader announced nothing. Now the base sets `AccessibleRole.StaticText` and exposes a virtual
+`DescribeBadge()` hook; `Attach` assigns it to `AccessibleName`. Text/counter badges announce their
+label (counter announces the `MaxDisplay`-clamped label), the validation badge announces its message
+(or state) with `AccessibleRole.Alert`, and the notification badge announces its count as an alert.
+
 ## Every stage is done
 
 **27 checks, 0 failures.** Each stage's fix has a check that fails without it.

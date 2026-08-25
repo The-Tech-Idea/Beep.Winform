@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -14,47 +15,65 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             var panel = new Panel
             {
-                Size = new Size(500, 200),
+                Size = new Size(540, 200),
                 BorderStyle = BorderStyle.None
             };
 
-            var filterLabel = new Label
+            // The panel hosts Beep controls, which self-theme through their
+            // own Theme property.  ApplyThemeToControl skips Beep controls so
+            // the raw WinForms theming path cannot clobber their themed look.
+            string themeName = _grid.Theme;
+
+            var filterLabel = new BeepLabel
             {
                 Text = "Filter by Column:",
-                Location = new Point(10, 15),
-                Size = new Size(100, 20)
+                Location = new Point(10, 14),
+                Size = new Size(110, 26),
+                IsChild = true,
+                IsFrameless = true,
+                Theme = themeName,
             };
 
-            var columnCombo = new ComboBox
+            var columnCombo = new BeepComboBox
             {
-                Location = new Point(120, 12),
-                Size = new Size(150, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList
+                Location = new Point(130, 10),
+                Size = new Size(200, 30),
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = true,
+                Theme = themeName,
             };
 
             var filterableColumns = _grid.Data.Columns
                 .Where(c => c.Visible && !c.IsSelectionCheckBox && !c.IsRowNumColumn)
                 .ToList();
 
-            columnCombo.Items.Add("All Columns");
+            columnCombo.ListItems.Add(new SimpleItem { Text = "All Columns" });
             foreach (var col in filterableColumns)
             {
-                columnCombo.Items.Add(col.ColumnCaption ?? col.ColumnName);
+                columnCombo.ListItems.Add(new SimpleItem { Text = col.ColumnCaption ?? col.ColumnName });
             }
             columnCombo.SelectedIndex = 0;
 
-            var filterTextLabel = new Label
+            var filterTextLabel = new BeepLabel
             {
                 Text = "Filter Text:",
-                Location = new Point(10, 50),
-                Size = new Size(100, 20)
+                Location = new Point(10, 54),
+                Size = new Size(110, 26),
+                IsChild = true,
+                IsFrameless = true,
+                Theme = themeName,
             };
 
-            var filterTextBox = new TextBox
+            var filterTextBox = new BeepTextBox
             {
-                Location = new Point(120, 47),
-                Size = new Size(200, 25),
-                Name = "FilterTextBox"
+                Location = new Point(130, 50),
+                Size = new Size(220, 30),
+                Name = "FilterTextBox",
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = true,
+                Theme = themeName,
             };
 
             if (!string.IsNullOrWhiteSpace(preferredColumnName))
@@ -81,21 +100,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 filterTextBox.Text = selectedCol.Filter ?? string.Empty;
             }
 
-            var applyButton = new Button
+            var applyButton = new BeepButton
             {
                 Text = "Apply Filter",
-                Location = new Point(120, 85),
-                Size = new Size(100, 30)
+                Location = new Point(130, 95),
+                Size = new Size(110, 32),
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = true,
+                Theme = themeName,
             };
 
-            var clearButton = new Button
+            var clearButton = new BeepButton
             {
                 Text = "Clear Filter",
-                Location = new Point(230, 85),
-                Size = new Size(100, 30)
+                Location = new Point(250, 95),
+                Size = new Size(110, 32),
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = true,
+                Theme = themeName,
             };
 
-            applyButton.Click += (s, e) => ApplyFilter(columnCombo.SelectedItem?.ToString() ?? string.Empty, filterTextBox.Text);
+            applyButton.Click += (s, e) => ApplyFilter(columnCombo.SelectedItem?.Text ?? string.Empty, filterTextBox.Text);
             clearButton.Click += (s, e) => ClearFilter();
 
             panel.Controls.AddRange(new Control[]
@@ -377,6 +404,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void ApplyThemeToControl(Control control, IBeepTheme theme, Font bodyFont, Font headerFont, Color parentBack, Color parentFore)
         {
+            // Beep controls theme themselves through their own Theme property
+            // and painter.  Recolouring them through the raw WinForms switch
+            // below would fight the control's own theme and leave it
+            // half-themed, so skip them entirely.
+            if (control is BaseControl) return;
+
             switch (control)
             {
                 case Panel:

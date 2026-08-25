@@ -24,6 +24,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -150,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Invalidate();
             try { ActivationChanged?.Invoke(this, next); }
-            catch { /* subscriber errors must not break the menubar */ }
+            catch (Exception ex) { BeepLog.Fallback(this, "ActivationChanged", ex); }
         }
 
         /// <summary>
@@ -183,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _focusToRestore = active;
                 }
             }
-            catch { /* defensive — never block activation */ }
+            catch (Exception ex) { BeepLog.Fallback(this, "CaptureFocusForActivation", ex); }
         }
 
         private void RestoreFocusOnDeactivation()
@@ -196,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (target.CanFocus) target.Focus();
             }
-            catch { /* defensive */ }
+            catch (Exception ex) { BeepLog.Fallback(this, "RestoreFocus", ex); }
         }
     }
 }

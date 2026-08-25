@@ -86,11 +86,16 @@ renders non-Empty after F5 (the census check must fail before the fix). Eyeball.
    ProgressColor survives a live theme change, live ArcLinux→Zen re-render, auto-colour
    resolves Error@20/Success@90 WITHOUT poisoning the custom slot, Linear/Ring/DotsLoader
    distinct, Rustic paints its sienna fill (previously Color.Empty).
+4. F7 — caption contrast fixed (two-tone render against track + fill), WCAG/colour math
+   deduped onto ColorUtils, designer ArgumentException swallows reported via
+   BeepLog.FallbackOnce.
 
-Observation (not fixed): at low values the centred caption sits over the TRACK while the
-WCAG floor adjusts it against the FILL colour, so light themes wash the caption out until
-the fill reaches the centre. Not verified: the other 9 painter kinds (rendered by
-registry, reviewed only), indeterminate mode, milestone/tooltip integration, RTL.
+Observation (FIXED 2026-08): the centred caption previously sat over the TRACK at low
+   values while the WCAG floor adjusted it against the FILL colour, so light themes washed
+   the caption out until the fill reached the centre. LinearProgressPainter now renders a
+   two-tone caption (track-contrast base + fill-contrast clipped redraw). Not verified:
+   the other 9 painter kinds (rendered by registry, reviewed only), indeterminate mode,
+   milestone/tooltip integration, RTL.
 
 ## Standing constraints
 

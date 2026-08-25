@@ -34,34 +34,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
 
-        /// <summary>
-        /// LEGACY: Creates a capsule-shaped GraphicsPath (replaced by CreateTrackPath in Drawing.cs).
-        /// </summary>
-        /// <param name="rect">The rectangle for the capsule.</param>
-        /// <param name="vertical">If true, creates a vertical capsule; otherwise horizontal.</param>
-        private GraphicsPath GetCapsulePath_Legacy(Rectangle rect, bool vertical)
-        {
-            GraphicsPath path = new GraphicsPath();
-            if (vertical)
-            {
-                int radius = rect.Width / 2;
-                // Top arc.
-                path.AddArc(rect.X, rect.Y, rect.Width, 2 * radius, 180, 180);
-                // Bottom arc.
-                path.AddArc(rect.X, rect.Bottom - 2 * radius, rect.Width, 2 * radius, 0, 180);
-            }
-            else
-            {
-                int radius = rect.Height / 2;
-                // Left arc.
-                path.AddArc(rect.X, rect.Y, rect.Height, rect.Height, 90, 180);
-                // Right arc.
-                path.AddArc(rect.Right - rect.Height, rect.Y, rect.Height, rect.Height, 270, 180);
-            }
-            path.CloseFigure();
-            return path;
-        }
-
         // NOTE: Mouse Interaction moved to BeepSwitch.Interaction.cs
 
         // NOTE: Event Raisers moved to BeepSwitch.Properties.cs

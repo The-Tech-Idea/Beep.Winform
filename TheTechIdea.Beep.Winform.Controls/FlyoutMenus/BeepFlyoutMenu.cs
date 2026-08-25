@@ -36,8 +36,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         private int _minTouchTargetWidth = 44;
         private bool _popupOpen = false;
         private ListBoxType _listBoxType = ListBoxType.Standard;
+        private bool _showSearch = false;
+        private bool _showCheckBox = false;
+        private bool _showItemIcons = true;
+        private bool _multiSelect = false;
 
-        private List<BeepFlyoutMenu> beepFlyoutMenus = new List<BeepFlyoutMenu>();
+        private readonly FlyoutManager _flyoutManager = new FlyoutManager();
 
         public event EventHandler<BeepEventDataArgs> MenuClicked;
 
@@ -106,9 +110,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         [DefaultValue(false)]
         public bool ShowSearch
         {
-            get => _menu?.ShowSearch ?? false;
+            get => _showSearch;
             set
             {
+                _showSearch = value;
                 if (_menu != null)
                     _menu.ShowSearch = value;
             }
@@ -120,9 +125,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         [DefaultValue(false)]
         public bool ShowCheckBox
         {
-            get => _menu?.ShowCheckBox ?? false;
+            get => _showCheckBox;
             set
             {
+                _showCheckBox = value;
                 if (_menu != null)
                     _menu.ShowCheckBox = value;
             }
@@ -134,9 +140,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         [DefaultValue(true)]
         public bool ShowItemIcons
         {
-            get => _menu?.ShowImage ?? true;
+            get => _showItemIcons;
             set
             {
+                _showItemIcons = value;
                 if (_menu != null)
                     _menu.ShowImage = value;
             }
@@ -148,9 +155,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         [DefaultValue(false)]
         public bool MultiSelect
         {
-            get => _menu?.MultiSelect ?? false;
+            get => _multiSelect;
             set
             {
+                _multiSelect = value;
                 if (_menu != null)
                     _menu.MultiSelect = value;
             }
@@ -282,6 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             Text = "Flyout Menu";
             InitDropDownMenu();
             InitMenu();
+            _flyoutManager.Closed += OnFlyoutClosed;
         }
 
         protected override void InitLayout()
@@ -290,7 +299,6 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             SlideFrom = SlideDirection.Bottom;
             AnimationType = DisplayAnimationType.SlideAndFade;
             UpdateControlLayout();
-            UpdateMenuPosition();
         }
 
         private void InitDropDownMenu()
@@ -359,20 +367,18 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         {
             _menu = new BeepListBox
             {
-                Visible = false,
                 ListItems = items,
                 Theme = Theme,
                 Width = _menuWidth,
-                Location = new Point(0, Height),
                 ShowAllBorders = true,
                 ShowShadow = true,
                 IsFrameless = false,
                 ListBoxType = _listBoxType,
                 BorderRadius = 8,
-                ShowImage = true,
-                MultiSelect = false,
-                ShowSearch = false,
-                ShowCheckBox = false,
+                ShowImage = _showItemIcons,
+                MultiSelect = _multiSelect,
+                ShowSearch = _showSearch,
+                ShowCheckBox = _showCheckBox,
                 TabStop = false
             };
 
@@ -399,8 +405,6 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             {
                 MenuClicked?.Invoke(this, new BeepEventDataArgs("MenuClick", item));
             };
-
-            Controls.Add(_menu);
         }
 
         private void UpdateButtonIcon()
@@ -420,28 +424,6 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             };
 
             _dropDownButton.ImagePath = iconPath;
-        }
-
-        private void UpdateMenuPosition()
-        {
-            if (Parent == null) return;
-
-            var globalPosition = this.PointToScreen(Point.Empty);
-
-            switch (_flyoutDirection)
-            {
-                case SlideDirection.Bottom:
-                    _menu.Location = new Point(globalPosition.X, globalPosition.Y + Height);
-                    break;
-                case SlideDirection.Right:
-                    _menu.Location = new Point(globalPosition.X + Width, globalPosition.Y);
-                    break;
-                case SlideDirection.Left:
-                    _menu.Location = new Point(globalPosition.X - _menuWidth, globalPosition.Y);
-                    break;
-                default:
-                    break;
-            }
         }
 
         private void ToggleMenu(object sender, EventArgs e)
@@ -469,51 +451,53 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
 
         private void ShowMenu()
         {
-            _isExpanded = true;
-            _popupOpen = true;
-            UpdateButtonIcon();
-            UpdateLabelVisibility();
-            UpdateMenuPosition();
+            if (_menu == null) return;
 
             _menu.ListItems = items;
             _menu.Width = _menuWidth;
             RecalculateMenuHeight();
 
-            var parentForm = FindForm();
-            if (parentForm != null)
-            {
-                parentForm.Controls.Add(_menu);
-            }
-            _menu.Visible = true;
-            _menu.BringToFront();
+            _flyoutManager.Show(
+                _menu,
+                this,
+                MapFlyoutPosition(_flyoutDirection),
+                new Size(_menuWidth, _menu.Height));
+
+            _isExpanded = true;
+            _popupOpen = true;
+            UpdateButtonIcon();
+            UpdateLabelVisibility();
 
             OnPopupOpened(EventArgs.Empty);
         }
 
         private void HideMenu()
         {
+            _flyoutManager.Close();
+        }
+
+        private void OnFlyoutClosed(object? sender, EventArgs e)
+        {
+            if (!_isExpanded && !_popupOpen) return;
+
             _isExpanded = false;
             _popupOpen = false;
             UpdateButtonIcon();
             UpdateLabelVisibility();
-
-            _menu.Visible = false;
-
-            var parentForm = FindForm();
-            if (parentForm != null && _menu.Parent?.Equals(parentForm) == true)
-            {
-                parentForm.Controls.Remove(_menu);
-            }
-
             OnPopupClosed(EventArgs.Empty);
         }
 
+        private static BeepPopupFormPosition MapFlyoutPosition(SlideDirection direction) => direction switch
+        {
+            SlideDirection.Left => BeepPopupFormPosition.Left,
+            SlideDirection.Right => BeepPopupFormPosition.Right,
+            SlideDirection.Top => BeepPopupFormPosition.Top,
+            _ => BeepPopupFormPosition.Bottom,
+        };
+
         public void CloseChildPopup()
         {
-            if (_popupOpen)
-            {
-                HideMenu();
-            }
+            HideMenu();
         }
 
         protected virtual void OnPopupOpened(EventArgs e) => PopupOpened?.Invoke(this, e);
@@ -540,21 +524,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
                 _dropDownLabel.Left = _dropDownButton.Right;
                 _dropDownLabel.Width = DrawingRect.Width - _dropDownButton.Width;
             }
-
-            UpdateMenuPosition();
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            if (_dropDownButton != null)
-            {
-                _dropDownButton.Location = new Point(DrawingRect.Width - _dropDownButton.Width - 5, (DrawingRect.Height - _dropDownButton.Height) / 2);
-            }
-            if (_menu != null)
-            {
-                UpdateControlLayout();
-            }
+            UpdateControlLayout();
         }
 
         public override void ApplyTheme()
@@ -575,6 +550,17 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
                 _dropDownButton.Theme = Theme;
                 _dropDownButton.ApplyTheme();
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _flyoutManager.Closed -= OnFlyoutClosed;
+                _flyoutManager.Dispose(); // closes any open flyout before releasing the menu
+                _menu?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

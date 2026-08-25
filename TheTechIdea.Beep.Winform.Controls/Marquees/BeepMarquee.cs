@@ -63,6 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private MarqueeScrollDirection _scrollDir     = MarqueeScrollDirection.RightToLeft;
         private MarqueeStyle           _marqueeStyle  = MarqueeStyle.Default;
         private bool _paused        = false;
+        private bool _hoverPaused   = false;
         private bool _pauseOnHover  = true;
         private bool _fadeEdges     = false;
         private int  _fadeWidth     = 40;
@@ -249,10 +250,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>Pause the marquee animation.</summary>
-        public void Pause()  { _paused = true;  _timer.Stop(); }
+        public void Pause()  { _paused = true;  _hoverPaused = false; _timer.Stop(); }
 
         /// <summary>Resume the marquee animation.</summary>
-        public void Resume() { _paused = false; _timer.Start(); }
+        public void Resume() { _paused = false; _hoverPaused = false; _timer.Start(); }
 
         /// <summary>Add a rich item to the Items list.</summary>
         public void AddItem(MarqueeItem item)
@@ -318,14 +319,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-            if (_pauseOnHover && !_paused) { _paused = true; _timer.Stop(); }
+            if (_pauseOnHover && !_paused) { _paused = true; _hoverPaused = true; _timer.Stop(); }
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
             _hoveredItemIndex = -1;
-            if (_pauseOnHover && _paused) { _paused = false; _timer.Start(); }
+            if (_hoverPaused) { _paused = false; _hoverPaused = false; _timer.Start(); }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -468,17 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
 
-            bool vertical = _scrollDir == MarqueeScrollDirection.TopToBottom
-                         || _scrollDir == MarqueeScrollDirection.BottomToTop;
-            int dirtyMargin = 10;
-            if (vertical)
-            {
-                Invalidate(new Rectangle(0, 0, Width, Height));
-            }
-            else
-            {
-                Invalidate(new Rectangle(0, 0, Width, Height));
-            }
+            Invalidate();
         }
 
         private void TickContinuous()

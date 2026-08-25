@@ -40,6 +40,43 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         }
 
         /// <summary>
+        /// Paints this style's sort arrow (up = ascending, down = descending).
+        /// </summary>
+        public override void PaintSortIndicator(Graphics g, Rectangle rect, SortDirection direction, IBeepTheme? theme)
+            => PaintCardSortIndicator(g, rect, direction);
+
+        /// <summary>
+        /// Paints this style's header cell background (rounded card + shadow + border).
+        /// </summary>
+        public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
+        {
+            int cardSpacing = 4;
+            var cardBounds = new Rectangle(rect.X + cardSpacing / 2, rect.Y + cardSpacing, rect.Width - cardSpacing, rect.Height - cardSpacing * 2);
+            int cornerRadius = 8;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            using (var cardPath = CreateRoundedRectangle(cardBounds, cornerRadius))
+            {
+                var shadowBounds = cardBounds;
+                shadowBounds.Offset(0, 2);
+                using (var shadowPath = CreateRoundedRectangle(shadowBounds, cornerRadius))
+                using (var shadowBrush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
+                    g.FillPath(shadowBrush, shadowPath);
+
+                var cardBg = isHovered ? Color.FromArgb(248, 249, 250) : Color.White;
+                using (var cardBrush = new SolidBrush(cardBg))
+                    g.FillPath(cardBrush, cardPath);
+
+                var border = isHovered ? Color.FromArgb(206, 212, 218) : Color.FromArgb(222, 226, 230);
+                using (var borderPen = new Pen(border, 1.5f))
+                    g.DrawPath(borderPen, cardPath);
+            }
+
+            g.SmoothingMode = SmoothingMode.Default;
+        }
+
+        /// <summary>
         /// Paint all column headers
         /// </summary>
         public override void PaintHeaders(Graphics g, Rectangle headerRect, BeepGridPro grid, IBeepTheme? theme)
@@ -166,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Calculate layout areas
             int padding = CalculateHeaderPadding();
-            int sortIconSize = column.IsSorted && column.ShowSortIcon ? 16 : 0;
+            int sortIconSize = column.AllowSort ? 16 : 0;
             int filterIconSize = column.ShowFilterIcon && isHovered ? 18 : 0;
 
             int rightX = cardBounds.Right - padding;
@@ -210,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw sort indicator if needed
-            if (sortIconSize > 0)
+            if (column.IsSorted && column.ShowSortIcon)
             {
                 PaintCardSortIndicator(g, sortIconRect, column.SortDirection);
             }

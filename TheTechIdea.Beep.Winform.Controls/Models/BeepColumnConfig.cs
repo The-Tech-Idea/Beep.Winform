@@ -767,7 +767,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public ContentAlignment CellTextAlignment
         {
             get => _cellTextAlignment;
-            internal set { _cellTextAlignment = value; OnPropertyChanged(nameof(CellTextAlignment)); }
+            set { _cellTextAlignment = value; OnPropertyChanged(nameof(CellTextAlignment)); }
         }
 
         private ContentAlignment _headerTextAlignment = ContentAlignment.MiddleLeft;
@@ -777,7 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public ContentAlignment HeaderTextAlignment
         {
             get => _headerTextAlignment;
-            internal set { _headerTextAlignment = value; OnPropertyChanged(nameof(HeaderTextAlignment)); }
+            set { _headerTextAlignment = value; OnPropertyChanged(nameof(HeaderTextAlignment)); }
         }
       
         public bool AllowFilter { get; internal set; }

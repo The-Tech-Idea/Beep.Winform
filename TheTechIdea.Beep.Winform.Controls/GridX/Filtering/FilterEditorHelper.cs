@@ -21,8 +21,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         // committed because hiding the editor fires LostFocus which called
         // CommitSearch.
         private bool _isCancelling;
+        private readonly System.Windows.Forms.Timer _liveSearchTimer;
+        private bool _suppressLiveSearch;
+        private string _lastCommittedText = string.Empty;
 
-        public FilterEditorHelper(BeepGridPro grid) { _grid = grid; }
+        public FilterEditorHelper(BeepGridPro grid)
+        {
+            _grid = grid;
+            _liveSearchTimer = new System.Windows.Forms.Timer { Interval = 250 };
+            _liveSearchTimer.Tick += (_, __) =>
+            {
+                _liveSearchTimer.Stop();
+                if (_searchEditor == null || _suppressLiveSearch || _isCancelling) return;
+                CommitSearch();
+            };
+        }
 
         public void ActivateSearchEditor(Rectangle bounds)
         {
@@ -75,7 +88,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // text with the painted placeholder / text position.
             var inner = InnerEditorBounds(bounds);
             _searchEditor.Bounds = inner;
+            _liveSearchTimer.Stop();
+            _suppressLiveSearch = true;
             _searchEditor.Text = _grid.ToolbarState.SearchText;
+            _suppressLiveSearch = false;
+            _lastCommittedText = _searchEditor.Text;
             _isCancelling = false;
             _searchEditor.Visible = true;
             _searchEditor.Focus();
@@ -117,28 +134,45 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // along the top, bottom and right and the box looked like it had lost three sides.
             float dpiScale = _grid.DeviceDpi / 96f;
             return Toolbar.BeepGridToolbarPainter.SearchTextArea(
-                bounds, _grid.ToolbarState.SearchIconWidth, dpiScale);
+                bounds, _grid.ToolbarState.SearchIconWidth, dpiScale,
+                _grid.ToolbarState.SearchTextRightReserve);
         }
 
         private void OnSearchEditorTextChanged(object? sender, EventArgs e)
         {
-            // Trigger toolbar repaint to update the painted search text in
-            // sync with the editor.  We do NOT commit on every keystroke —
-            // commit happens on Enter or focus loss.
-            _grid.ToolbarState.SearchText = _searchEditor?.Text ?? string.Empty;
+            if (_suppressLiveSearch) return;
+
+            string previous = _grid.ToolbarState.SearchText;
+            string next = _searchEditor?.Text ?? string.Empty;
+            _grid.ToolbarState.SearchText = next;
+            if (string.IsNullOrEmpty(previous) != string.IsNullOrEmpty(next))
+                _grid.Layout.Recalculate();
             _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+
+            // Live search is debounced; Enter commits immediately.
+            _liveSearchTimer.Stop();
+            _liveSearchTimer.Start();
         }
 
         private void OnSearchEditorKeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
+                _liveSearchTimer.Stop();
                 CommitAndHide();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            else if (e.Alt && e.KeyCode == Keys.Down)
+            {
+                var box = _grid.ToolbarState.SearchBoxRect;
+                _grid.ShowSearchScopeMenu(_grid.PointToScreen(new Point(box.Left, box.Bottom)));
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
             else if (e.KeyCode == Keys.Escape)
             {
+                _liveSearchTimer.Stop();
                 // Mark the upcoming LostFocus as a cancel so the commit is
                 // skipped.  We still keep the editor's text in
                 // ToolbarState.SearchText so the painted search reflects
@@ -156,6 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 
         private void OnSearchEditorLostFocus(object? sender, EventArgs e)
         {
+            _liveSearchTimer.Stop();
             if (_isCancelling)
             {
                 _isCancelling = false;
@@ -167,6 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         private void CommitAndHide()
         {
             if (_searchEditor == null) return;
+            _liveSearchTimer.Stop();
             CommitSearch();
             DeactivateAndReturnFocus();
         }
@@ -174,7 +210,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         private void CommitSearch()
         {
             if (_searchEditor == null) return;
+            _liveSearchTimer.Stop();
             var text = _searchEditor.Text;
+            if (string.Equals(text, _lastCommittedText, StringComparison.Ordinal))
+                return;
+
+            _lastCommittedText = text;
             _grid.ToolbarState.SearchText = text;
             _grid.ApplyQuickFilter(text);
         }
@@ -204,6 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 
         public void HideSearchEditor()
         {
+            _liveSearchTimer.Stop();
             // Always reset the state's focus flag, even when the editor
             // has never been created, so callers can use this as a
             // "make sure the search box isn't focused" teardown.
@@ -269,6 +311,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 
         public void Dispose()
         {
+            _liveSearchTimer.Stop();
+            _liveSearchTimer.Dispose();
             if (_searchEditor == null) return;
             _searchEditor.LostFocus -= OnSearchEditorLostFocus;
             _searchEditor.KeyDown -= OnSearchEditorKeyDown;

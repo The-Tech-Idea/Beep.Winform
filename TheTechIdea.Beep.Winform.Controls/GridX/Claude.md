@@ -27,7 +27,7 @@ When docs or plans disagree with code, treat the code as authoritative.
 
 | Area | Primary files |
 |------|---------------|
-| Binding and rows | `GridDataHelper.cs`, `GridDataHelper.Rows.cs`, `GridDataHelper.ValueConversion.cs` |
+| Binding and rows | `Binding/GridDataBinding.cs`, `GridDataHelper.cs`, `GridDataHelper.Rows.cs` |
 | Layout | `GridLayoutHelper.cs` |
 | Rendering | `GridRenderHelper.cs`, `GridRenderHelper.Rendering.cs`, `GridRenderHelper.CellContent.cs` |
 | Input | `GridInputHelper.cs` |
@@ -47,7 +47,7 @@ When docs or plans disagree with code, treat the code as authoritative.
 
 ### 1. Two filter systems exist
 - `BeepGridPro.Filtering.cs` owns `ActiveFilter`, `ApplyQuickFilter`, `ShowAdvancedFilterDialog`, `FilterApplied`, and `FilterCleared`.
-- `GridSortFilterHelper` owns the `SortFilter` pipeline used by header popup filtering and binding-source sort/filter attempts.
+- `GridSortFilterHelper` owns the `SortFilter` pipeline used by header popup filtering and always applies sort/filter locally over the row view.
 - They are related in the UI but not the same internal state. Do not document them as one unified engine.
 
 ### 2. UOW mode is interface-driven only
@@ -179,6 +179,34 @@ These are unbound helper columns. Skip them in new sort/filter/auto-size/reorder
 - Do not state that `Uow` accepts arbitrary runtime UOW objects without wrapping.
 - Do not bypass `GridDataHelper.UpdateCellValue()` if the underlying row object must stay synchronized.
 - Do not forget that `BindingSource.DataSourceChanged` triggers full column regeneration.
+
+## Phase 3 Chrome Invariants
+
+- Header, toolbar/search, chips, and navigator sizes/state colors come from
+  `GridChromeMetrics` / `GridChromeState`; do not add new painter-local spacing
+  constants.
+- Header input has one routing path. Never attach a `MouseClick` handler that
+  opens a filter popup for a header hit; header actions go through
+  `GridInputHelper` and `ShowColumnMenu`.
+- Header geometry is computed by `BaseHeaderPainter.CalculateHeaderCellLayout`
+  from shared metrics; sort and menu slots are reserved before caption width.
+- The toolbar search is the canonical search surface. Legacy modal/inside-panel
+  search paths must route to it or be removed.
+- Search scope is public through `SearchColumnName`; the search box
+  right-click/Alt+Down menu changes it.
+- Live search is debounced (250 ms); Enter commits, Esc cancels. Do not rebuild
+  the grid per keystroke.
+- Search criteria in virtual mode belong on `GridRowVirtualizer.QueryFilters`;
+  never search only the materialized window.
+- Filter chips are per condition, editable from the body, removable from `x`,
+  and collapse overflow to `+N more`. “Clear all” must remain visible or be
+  omitted, never clipped.
+- Saved filter files are versioned. Unknown columns are removed and reported,
+  not applied.
+- Pager page size comes from `PageSize` (0 = viewport capacity); page changes
+  and query changes reset to page 1.
+- Chrome failures are reported through `ReportOperationError` /
+  `ReportRenderError` (or `GridErrorReporter`), never swallowed.
 
 ## Safe Change Patterns
 

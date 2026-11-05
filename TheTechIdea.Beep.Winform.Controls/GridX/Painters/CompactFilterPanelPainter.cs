@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
@@ -41,8 +42,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                     regularFontHeight = FontManagement.FontListHelper.GetFontHeightSafe(regularFont, grid);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
+                BeepLog.FallbackOnce("CompactFilterPanel.MeasureFonts", this, "measure filter header fonts", ex);
                 titleFontHeight = 14;
                 regularFontHeight = 12;
             }

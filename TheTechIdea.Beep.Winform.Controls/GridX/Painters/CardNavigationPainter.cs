@@ -26,7 +26,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Background using theme color directly
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
@@ -125,7 +127,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Card background
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             using (var path = CreateRoundedRectangle(bounds, 8))
             {
                 g.FillPath(brush, path);
@@ -149,14 +153,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Circular button
             Rectangle circleBounds = new Rectangle(bounds.X, bounds.Y, BUTTON_SIZE, BUTTON_SIZE);
             
-            Color bgColor = isAccent ? theme.AccentColor : theme.GridHeaderBackColor;
+            bool highContrast = System.Windows.Forms.SystemInformation.HighContrast;
+            Color bgColor = highContrast
+                ? (isAccent ? SystemColors.Highlight : SystemColors.Control)
+                : (isAccent ? theme.AccentColor : theme.GridHeaderBackColor);
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillEllipse(brush, circleBounds);
             }
 
             // Icon
-            Color iconColor = isAccent ? theme.GridHeaderBackColor : theme.GridHeaderForeColor;
+            Color iconColor = highContrast
+                ? (isAccent ? SystemColors.HighlightText : SystemColors.ControlText)
+                : (isAccent ? theme.GridHeaderBackColor : theme.GridHeaderForeColor);
             using (var font = new Font("Segoe UI", 12, FontStyle.Regular))
             {
                 DrawCenteredText(g, icon, font, iconColor, bounds);

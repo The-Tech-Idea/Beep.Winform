@@ -114,13 +114,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Accessibility
 
                 case AccessibleNavigation.Up:
                     {
-                        var upRow = _parent.Parent?.GetChild(_rowIndex - 1) as GridRowAccessibleObject;
+                        var upRow = (_parent.Parent as GridAccessibleObject)?.GetAdjacentVisibleRow(_rowIndex, -1) as GridRowAccessibleObject;
                         return upRow?.GetChild(currentIdx);
                     }
 
                 case AccessibleNavigation.Down:
                     {
-                        var downRow = _parent.Parent?.GetChild(_rowIndex + 1) as GridRowAccessibleObject;
+                        var downRow = (_parent.Parent as GridAccessibleObject)?.GetAdjacentVisibleRow(_rowIndex, 1) as GridRowAccessibleObject;
                         return downRow?.GetChild(currentIdx);
                     }
 

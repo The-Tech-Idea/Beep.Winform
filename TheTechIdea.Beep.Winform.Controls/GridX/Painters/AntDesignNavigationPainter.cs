@@ -25,7 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Clean background using theme
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
@@ -64,7 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.AddHitArea(text, bounds, null, action);
 
             // Button background using theme
-            Color bgColor = isPrimary ? theme.AccentColor : theme.GridHeaderBackColor;
+            bool highContrast = System.Windows.Forms.SystemInformation.HighContrast;
+            Color bgColor = highContrast
+                ? (isPrimary ? SystemColors.Highlight : SystemColors.Control)
+                : (isPrimary ? theme.AccentColor : theme.GridHeaderBackColor);
             using (var brush = new SolidBrush(bgColor))
             using (var path = CreateRoundedRectangle(bounds, 2))
             {
@@ -72,7 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Border using theme colors
-            Color borderColor = isPrimary ? theme.AccentColor : theme.GridHeaderBorderColor;
+            Color borderColor = highContrast
+                ? SystemColors.ControlText
+                : (isPrimary ? theme.AccentColor : theme.GridHeaderBorderColor);
             using (var pen = new Pen(borderColor, 1))
             using (var path = CreateRoundedRectangle(bounds, 2))
             {
@@ -80,7 +87,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Text
-            Color textColor = isPrimary ? theme.GridHeaderBackColor : theme.GridHeaderForeColor;
+            Color textColor = highContrast
+                ? (isPrimary ? SystemColors.HighlightText : SystemColors.ControlText)
+                : (isPrimary ? theme.GridHeaderBackColor : theme.GridHeaderForeColor);
             using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
             {
                 DrawCenteredText(g, text, font, textColor, bounds);

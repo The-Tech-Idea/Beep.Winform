@@ -26,7 +26,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     internal partial class GridRenderHelper
     {
         private readonly BeepGridPro _grid;
+        private readonly System.Collections.Generic.Dictionary<int, Font> _sortBadgeFonts = new();
         private BeepCheckBoxBool _rowCheck;
+        private BeepCheckBoxBool _headerCheck;
+
+        private Font GetSortBadgeFont(float size)
+        {
+            int key = System.Math.Max(6, (int)System.Math.Round(size));
+            if (_sortBadgeFonts.TryGetValue(key, out var cached))
+                return cached;
+
+            var font = new Font(GetSafeHeaderFont().FontFamily, key, FontStyle.Bold, GraphicsUnit.Pixel);
+            _sortBadgeFonts[key] = font;
+            return font;
+        }
 
         // Cache drawers per column (like BeepSimpleGrid)
         private readonly Dictionary<string, IBeepUIComponent> _columnDrawerCache = new();
@@ -60,11 +73,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private readonly Dictionary<int, Rectangle> _activeFilterChipClearRects = new();
         public Dictionary<int, Rectangle> ActiveFilterChipClearRects => _activeFilterChipClearRects;
 
+        private readonly Dictionary<int, Rectangle> _activeFilterChipRects = new();
+        public Dictionary<int, Rectangle> ActiveFilterChipRects => _activeFilterChipRects;
+
         private readonly Dictionary<string, Rectangle> _sortFilterChipClearRects = new(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, Rectangle> SortFilterChipClearRects => _sortFilterChipClearRects;
 
+        private readonly Dictionary<string, Rectangle> _sortFilterChipRects = new(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, Rectangle> SortFilterChipRects => _sortFilterChipRects;
+
         private Rectangle _activeFilterClearAllRect = Rectangle.Empty;
         public Rectangle ActiveFilterClearAllRect => _activeFilterClearAllRect;
+        private Rectangle _emptyStateClearRect = Rectangle.Empty;
+        public Rectangle EmptyStateClearRect => _emptyStateClearRect;
 
         // Group header rectangles for hit-testing (key = group key hash)
         private readonly Dictionary<string, Rectangle> _groupHeaderRects = new();
@@ -135,6 +156,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _cachedBoldHeaderFont?.Dispose();
             _cachedBoldHeaderFont = null;
             _cachedBoldBaseFont = null;
+
+            foreach (var font in _styledCellFonts.Values)
+                font.Dispose();
+            _styledCellFonts.Clear();
+
+            foreach (var font in _sortBadgeFonts.Values)
+                font.Dispose();
+            _sortBadgeFonts.Clear();
+        }
+
+        internal void DisposeRenderCache()
+        {
+            DisposeFontCache();
+
+            foreach (var drawer in _columnDrawerCache.Values)
+            {
+                if (drawer is IDisposable disposable)
+                    disposable.Dispose();
+            }
+            _columnDrawerCache.Clear();
+
+            _rowCheck?.Dispose();
+            _rowCheck = null;
+            _headerCheck?.Dispose();
+            _headerCheck = null;
         }
     }
 }

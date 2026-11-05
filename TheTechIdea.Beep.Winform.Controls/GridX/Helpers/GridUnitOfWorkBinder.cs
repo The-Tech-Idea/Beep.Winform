@@ -108,6 +108,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (_isRefreshingBinding) return;
 
+            // GridDataHelper already refreshes rows for a subscribed list.
+            if (_grid.Data.IsSubscribedTo(sender))
+            {
+                ClampSelection();
+                return;
+            }
+
             if (e.ListChangedType == ListChangedType.ItemChanged)
             {
                 bool canFastRefresh =
@@ -132,7 +139,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (_isRefreshingBinding) return;
+            if (_grid.Data.IsSubscribedTo(sender))
+            {
+                ClampSelection();
+                return;
+            }
             RefreshBinding();
+        }
+
+        private void ClampSelection()
+        {
+            if (_grid.Rows.Count == 0)
+            {
+                _grid.Selection.Clear();
+                return;
+            }
+
+            if (!_grid.Selection.HasSelection) return;
+            int rowIndex = Math.Max(0, Math.Min(_grid.Selection.RowIndex, _grid.Rows.Count - 1));
+            int colIndex = Math.Max(0, Math.Min(_grid.Selection.ColumnIndex, Math.Max(0, _grid.Columns.Count - 1)));
+            _grid.SelectCell(rowIndex, colIndex);
         }
 
         private object? GetUnits()

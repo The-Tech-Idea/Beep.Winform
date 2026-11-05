@@ -41,7 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         /// </summary>
         public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
         {
-            var baseColor = theme?.GridHeaderBackColor ?? Color.FromArgb(240, 240, 245);
+            var baseColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(240, 240, 245));
             DrawGradientBackground(g, rect, baseColor, LinearGradientMode.Vertical);
 
             if (isHovered)
@@ -65,7 +67,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Material gradient background
-            var startColor = theme?.GridHeaderBackColor ?? Color.FromArgb(240, 240, 245);
+            var startColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(240, 240, 245));
             DrawGradientBackground(g, headerRect, startColor, LinearGradientMode.Vertical);
 
             // Subtle elevation shadow
@@ -206,7 +210,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Draw text with Material typography
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) ?? new Font("Roboto", 10f, FontStyle.Bold);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(60, 60, 67);
+            var textColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : (theme?.GridHeaderForeColor ?? Color.FromArgb(60, 60, 67));
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw Material sort indicator (animated-style)

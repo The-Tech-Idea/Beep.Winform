@@ -26,13 +26,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Compact background using theme color directly
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
             // Thin border using theme border color
-            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
+            using (var pen = new Pen(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : theme.GridHeaderBorderColor, 1))
             {
                 g.DrawRectangle(pen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
             }
@@ -64,13 +68,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.AddHitArea(icon, bounds, null, action);
 
             // Button background using theme color directly
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
             // Thin border using theme border color
-            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
+            using (var pen = new Pen(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : theme.GridHeaderBorderColor, 1))
             {
                 g.DrawRectangle(pen, bounds);
             }
@@ -78,7 +86,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Draw icon
             using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
             {
-                DrawCenteredText(g, icon, font, theme.GridHeaderForeColor, bounds);
+                DrawCenteredText(g, icon, font, System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : theme.GridHeaderForeColor, bounds);
             }
         }
 

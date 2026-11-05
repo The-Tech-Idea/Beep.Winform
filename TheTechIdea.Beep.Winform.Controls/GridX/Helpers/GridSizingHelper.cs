@@ -107,6 +107,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     }
                 }
             }
+
+            _grid.Layout.RowMetrics.Invalidate();
         }
 
         /// <summary>

@@ -130,12 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (!HasSelection) return;
             
             // Calculate the pixel offset for the selected row
-            int targetY = 0;
-            for (int i = 0; i < RowIndex && i < _grid.Data.Rows.Count; i++)
-            {
-                var row = _grid.Data.Rows[i];
-                targetY += row.Height > 0 ? row.Height : _grid.RowHeight;
-            }
+            int targetY = _grid.Layout.RowMetrics.TopOfRow(RowIndex);
             
             // Get current viewport
             var rowsRect = _grid.Layout.RowsRect;

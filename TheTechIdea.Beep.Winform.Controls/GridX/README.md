@@ -76,6 +76,95 @@ grid.EnableExcelFilter();
 
 ---
 
+## Phase 2 Additions
+
+These APIs were added in Phase 2. They are additive; the existing surface is
+unchanged.
+
+```csharp
+// Shared view model (filter/sort/group/page result)
+GridView view = grid.View;
+GridQueryResult result = view.Result;
+
+// Per-user column layout (order, width, sticky, visibility)
+grid.LayoutStateKey = "MyApp/user1/Customers";
+grid.SaveLayoutState();
+grid.LoadLayoutState();
+grid.ResetLayoutState();
+
+// Server-side paging/sort/filter (virtualized)
+grid.QuerySource = myGridQuerySource;   // implements IGridQuerySource
+grid.EnableVirtualization = true;
+
+// Conditional formatting
+grid.ConditionalFormatting.Add(new ConditionalFormatRule
+{
+    ColumnName = "Amount",
+    Operator = FilterOperator.GreaterThan,
+    Value = "1000",
+    Style = new GridCellStyle { BackColor = Color.MistyRose }
+});
+
+// Pinned aggregate footer
+grid.ShowFooter = true;
+grid.Footer.SetAggregate("Amount", AggregationType.Sum);
+
+// Async export with progress/cancel
+await grid.ExportToCsvAsync(
+    "customers.csv",
+    progress: new Progress<GridExportProgress>(p => status.Text = p.Message),
+    cancellationToken: cts.Token);
+```
+
+`GridView.Build` materializes from `Data.Rows`; in virtual mode with an
+`IGridQuerySource`, export should use the source's own query API rather than
+assuming `Data.Rows` contains every row.
+
+---
+
+## Phase 3 Additions
+
+The chrome revision adds one shared density/state contract and completes the
+header, search, filter-chip, and pager command paths.
+
+```csharp
+// Shared chrome density: Compact, Standard, Comfortable, Touch
+grid.ChromeDensity = GridChromeDensity.Comfortable;
+
+// Search scope and result state
+grid.SearchColumnName = "CustomerName";   // empty = all columns
+grid.ApplyQuickFilter("alice");
+int matches = grid.SearchMatchCount;
+grid.MoveToNextSearchMatch();             // Ctrl+G / Ctrl+Shift+G
+grid.ClearToolbarSearch();
+
+// Paging over the current view
+grid.PageSize = 25;                       // 0 = viewport capacity
+grid.GoToPage(2);                         // Ctrl+Home/End/PageUp/PageDown
+int page = grid.CurrentPage;
+int pages = grid.TotalPages;
+```
+
+- **F6** focuses the header band; Left/Right move, Enter/Space sort,
+  Alt+Down/Menu opens the column menu, Esc leaves.
+- The column menu now includes autosize, pin/unpin, group, hide, reset, and
+  copy-name commands. “Filter…” opens the value-list popup.
+- The toolbar search paints a match count, previous/next, and clear control,
+  plus a right-click / Alt+Down scope menu.
+- Active filter chips are editable from their body and removable from their
+  `x`; overflow collapses to `+N more`.
+- Saved filter files are versioned; unknown-column conditions are dropped and
+  reported on load.
+- Virtual search is routed through `IGridQuerySource` instead of the
+  materialized window.
+
+The two filter implementations still retain separate internal state
+(`ActiveFilter` and `GridSortFilterHelper`); they are adapted into one view but
+not yet one query store. See
+[`plans/enhancements/P3_HEADER_SEARCH_NAV_DESIGN.md`](../../plans/enhancements/P3_HEADER_SEARCH_NAV_DESIGN.md).
+
+---
+
 ## Public Surface
 
 ### Data & Selection
@@ -176,7 +265,7 @@ classes, each of which owns one concern. Helpers are constructed in
 | `GridInputHelper` | Mouse, keyboard, resize, reorder, checkbox, filter-panel, and **toolbar** interaction |
 | `GridSelectionHelper` | Active cell tracking and viewport sync |
 | `GridScrollHelper` / `GridScrollBarsHelper` | Scroll position and custom scrollbar painting |
-| `GridSortFilterHelper` | Binding-source sort/filter fallback, local visibility filtering |
+| `GridSortFilterHelper` | Uniform local sort/filter across POCO, dictionary, and ADO.NET rows |
 | `GridEditHelper` | Overlay/in-place editor lifecycle; public `IsEditing` flag |
 | `GridNavigatorHelper` | Owner-drawn/external navigator actions and CRUD flows |
 | `GridSizingHelper` | Auto-size and best-fit logic |
@@ -256,10 +345,29 @@ grid.Uow = myUnitOfWork;              // must implement IUnitofWork or IUnitOfWo
 
 ### Live updates
 
-`GridDataHelper` subscribes to `INotifyCollectionChanged` when the
-resolved data implements it (and does not implement `IBindingList`).
-Add/remove/clear on an `ObservableCollection<T>` reflects in the grid
-without a manual `RefreshGrid()`. `ClearDataSource()` unsubscribes.
+Binding goes through `GridX/Binding/GridDataBinding.cs`, which normalizes
+`BindingSource`, `DataSet`/`DataTable`/`DataView`, `IListSource`, `IDataReader`,
+`IList`, `IBindingList`, `INotifyCollectionChanged`, `IEnumerable`/`IQueryable`,
+`IAsyncEnumerable`, dictionaries, POCOs, scalar/enum lists (synthetic `Value` column), and single objects. Async sequences are
+materialized synchronously before the row view is built.
+
+`GridDataHelper` subscribes to `IBindingList.ListChanged` or
+`INotifyCollectionChanged.CollectionChanged`, so add/remove/clear/item edits
+reflect without a manual refresh. `ClearDataSource()` unsubscribes. Add/remove/reset events also reapply the active sort and filters to the refreshed row view.
+
+### Two-way writes
+
+```csharp
+bool ok = grid.SetCellValue(rowIndex, "CustomerName", "Alicia");
+object? value = grid.GetCellValue(rowIndex, columnIndex);
+```
+
+Inline editor commits use the same adapter. Writes reach the original
+`DataRowView`/`DataRow`, dictionary key, or POCO property. Read-only members and
+conversion failures return `false` and are reported through `GridErrorReporter`.
+Items implementing `INotifyPropertyChanged` update their cells; other items on a
+supporting `IBindingList` are reset so external views refresh.
+
 
 ---
 
@@ -288,8 +396,10 @@ trailing "Clear all" clears everything. Toggle with
 
 ### `SortFilter` helper path
 - Used by `GridSortFilterHelper` and the Excel-style popup extension.
-- Tries to push sort/filter into the underlying `BindingSource` first.
-- Falls back to local row reorder or row visibility when necessary.
+- Always sorts/filters locally over the grid row view. It does not require the
+  source to implement `IBindingList`/`IBindingListView` sorting or filtering.
+- Reorders the row view for sort and toggles row visibility for filters; the
+  source items themselves are not reordered.
 - Does **not** raise the public `FilterApplied`/`FilterCleared` events.
 
 Treat these as separate mechanisms when extending or documenting.
@@ -618,10 +728,12 @@ focuses the toolbar search box.
 
 | Gap | Plan |
 |---|---|
-| `BeepGridStyle.Modern` is the latest style; verify its render in all themes. | Visual QA pass |
+| The full header/navigation painter visual matrix has not been run at 100/125/150 % DPI and high contrast. | Phase 3 Stage 6 validation |
 | The `LayoutPreset` enum is fully wired but some presets share the same default style heuristic. | Add per-preset painter params |
-| `SelectionMode` strategy switch is implemented but most input handlers still use the legacy focus/checkbox path. | Phase 10 follow-up |
-| Filtering has two parallel pipelines (`ActiveFilter` vs `SortFilter`). | Phase 20: unify the engines |
+| `SelectionMode` strategy switch is implemented but some input handlers still use the legacy focus/checkbox path. | Phase 10 follow-up |
+| Filtering has two parallel pipelines (`ActiveFilter` vs `SortFilter`). | Unify behind one `GridQuery` store |
+| Search exposes an accessible description but not a live-region announcement. | Add a UI notification/announcement path |
+| Pager/page-size controls are API and status driven; the visual selector is not a first-class painted control. | Stage 5 follow-up |
 
 ---
 

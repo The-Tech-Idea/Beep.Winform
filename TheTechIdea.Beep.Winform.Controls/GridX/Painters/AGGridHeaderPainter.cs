@@ -45,7 +45,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (g == null || grid?.Layout == null || headerRect.IsEmpty) return;
 
             // AG-Grid neutral header background
-            var bgColor = theme?.GridHeaderBackColor ?? Color.FromArgb(245, 247, 247);
+            var bgColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(245, 247, 247));
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, headerRect);
@@ -173,7 +175,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) 
                 ??          FontListHelper.GetFont("Arial", 9f, FontStyle.Bold);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(24, 29, 31);
+            var textColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : (theme?.GridHeaderForeColor ?? Color.FromArgb(24, 29, 31));
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw AG-Grid sort indicator (small triangle)

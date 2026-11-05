@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.GridX.Chrome;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
@@ -32,16 +33,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
             
             var font = BeepThemesManager.ToFont(grid._currentTheme.GridHeaderFont) ?? SystemFonts.DefaultFont;
-            int basePadding = CalculateHeaderPadding();
+            var metrics = GridChromeMetrics.Resolve(grid);
+            int basePadding = Math.Max(CalculateHeaderPadding(), metrics.HeaderPadding);
             int padding = DpiScalingHelper.ScaleValue(basePadding, dpiScale);
             
             // Use safe font height calculation to avoid errors with some fonts
             int fontHeight = FontManagement.FontListHelper.GetFontHeightSafe(font, grid);
             
-            // Scale border/spacing value
-            int borderSpacing = DpiScalingHelper.ScaleValue(4, dpiScale);
-            
-            return fontHeight + (padding * 2) + borderSpacing;
+            return Math.Max(metrics.HeaderMinHeight,
+                fontHeight + (padding * 2) + metrics.HeaderBorderSpacing);
         }
 
         /// <summary>
@@ -86,19 +86,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         /// commercial grid reserves the slot up front for exactly this reason.
         /// </para>
         /// <para>
-        /// Slots are at least <see cref="MinTouchTarget"/> logical pixels wide so the indicator and
+        /// Slots are at least <see cref="GridChromeMetrics.MinHitTarget"/> pixels wide so the indicator and
         /// the menu button are comfortably clickable rather than 16px specks, and everything is
-        /// derived from <paramref name="dpiScale"/>.
+        /// derived from the shared chrome metrics.
         /// </para>
         /// </remarks>
         public virtual HeaderCellLayout CalculateHeaderCellLayout(Rectangle cellRect, BeepColumnConfig column,
             BeepGridPro grid, float dpiScale)
         {
             int Scale(int v) => Math.Max(1, (int)Math.Round(v * dpiScale));
+            var metrics = GridChromeMetrics.Resolve(grid);
 
-            int padding = Scale(CalculateHeaderPadding());
-            int slot = Scale(MinTouchTarget);
-            int iconSize = Scale(HeaderIconSize);
+            int padding = Math.Max(metrics.HeaderPadding, Scale(CalculateHeaderPadding()));
+            int slot = metrics.MinHitTarget;
+            int iconSize = Math.Max(8, metrics.IconSize);
 
             var layout = new HeaderCellLayout();
             int rightX = cellRect.Right - padding;
@@ -186,12 +187,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
             g.SmoothingMode = smoothing;
         }
-
-        /// <summary>Logical size of a comfortable header hit target.</summary>
-        protected const int MinTouchTarget = 24;
-
-        /// <summary>Logical size of the glyph drawn inside a header slot.</summary>
-        protected const int HeaderIconSize = 12;
 
         #region Common Helper Methods
 
@@ -286,7 +281,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (rect.Width <= 0 || rect.Height <= 0 || string.IsNullOrEmpty(text)) return;
 
-            var textColor = theme?.GridHeaderForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
+            var textColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : (theme?.GridHeaderForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText));
             var flags = GetTextFormatFlags(alignment);
 
             TextRenderer.DrawText(g, text, font, rect, textColor, flags);

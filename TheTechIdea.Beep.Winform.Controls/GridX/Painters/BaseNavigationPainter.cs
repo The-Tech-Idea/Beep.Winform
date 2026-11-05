@@ -157,6 +157,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         /// black or white only when the theme pairs it with a background too close to read against.
         /// Painters should prefer this over <c>theme.GridHeaderForeColor</c> for status text.
         /// </summary>
+        protected (int Start, int End, int Total) GetVisibleRange(BeepGridPro grid)
+        {
+            int total = grid.IsFiltered ? grid.FilteredRowCount : grid.Data.Rows.Count;
+            int selectedRow = grid.Selection?.RowIndex ?? -1;
+            int visibleOrdinal = 0;
+            for (int i = 0; i < grid.Data.Rows.Count; i++)
+            {
+                if (i > selectedRow) break;
+                if (!grid.Data.Rows[i].IsVisible) continue;
+                visibleOrdinal++;
+            }
+
+            int pageSize = grid.PageSize > 0 ? grid.PageSize : grid.VisibleRowCapacity;
+            if (pageSize <= 0) pageSize = 10;
+
+            int start = total == 0
+                ? 0
+                : visibleOrdinal == 0
+                    ? 1
+                    : ((visibleOrdinal - 1) / pageSize) * pageSize + 1;
+            int end = Math.Min(start + pageSize - 1, total);
+            return (start, end, total);
+        }
+
         protected Color GetInfoTextColor(IBeepTheme theme)
             => TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.EnsureReadable(
                 theme.GridHeaderForeColor, theme.GridHeaderBackColor);
@@ -182,10 +206,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                     g.DrawString(text, font, brush, bounds, format);
                 }
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // Font or graphics parameter invalid - silently ignore
-                // This can happen if font is disposed or graphics state is invalid
+                GridErrorReporter.FallbackOnce("BaseNavigationPainter.DrawText", this, "draw navigation text", ex);
             }
         }
 

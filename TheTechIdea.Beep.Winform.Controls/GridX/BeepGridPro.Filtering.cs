@@ -1,10 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
+using TheTechIdea.Beep.Winform.Controls.GridX.Query;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
@@ -17,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         #region Filter Fields
 
         private FilterConfiguration? _activeFilter;
-        private List<int>? _filteredRowIndices;
         private bool _isFiltered;
 
         #endregion
@@ -43,18 +44,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// Gets whether the grid currently has an active filter
         /// </summary>
         [Browsable(false)]
-        public bool IsFiltered => _isFiltered;
+        public bool IsFiltered => _isFiltered || (SortFilter?.HasActiveFilters ?? false);
 
         /// <summary>
         /// Gets the count of filtered (visible) rows when a filter is active
         /// </summary>
         [Browsable(false)]
-        public int FilteredRowCount => _isFiltered && _filteredRowIndices != null
-            ? _filteredRowIndices.Count
+        public int FilteredRowCount => IsFiltered
+            ? FilteredRowIndices?.Count ?? 0
             : Data.Rows.Count;
 
         [Browsable(false)]
-        public IReadOnlyList<int>? FilteredRowIndices => _filteredRowIndices;
+        public IReadOnlyList<int>? FilteredRowIndices => ComputeFilteredRowIndices();
 
         #endregion
 
@@ -320,67 +321,80 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             if (string.IsNullOrWhiteSpace(searchText))
             {
+                ClearToolbarSearch();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(columnName) && !string.IsNullOrWhiteSpace(SearchColumnName))
+                columnName = SearchColumnName;
+
+            var query = new GridQuery();
+            var group = new GridFilterGroup { Logic = FilterLogic.Or };
+
+            if (string.IsNullOrEmpty(columnName))
+            {
+                foreach (var column in Data.Columns.Where(c =>
+                    c.Visible && !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID))
+                {
+                    group.Conditions.Add(new GridFilterCondition
+                    {
+                        ColumnName = column.ColumnName,
+                        Operator = FilterOperator.Contains,
+                        Value = searchText
+                    });
+                }
+            }
+            else
+            {
+                group.Conditions.Add(new GridFilterCondition
+                {
+                    ColumnName = columnName,
+                    Operator = FilterOperator.Contains,
+                    Value = searchText
+                });
+            }
+
+            if (group.Conditions.Count == 0)
+            {
                 ClearFilter();
                 return;
             }
 
-            // Manually apply quick filter across all or specific column
-            var searchLower = searchText.ToLowerInvariant();
-            var matchingIndices = new List<int>();
+            query.Filters.Add(group);
+            SortFilter.AppendQueryConditions(query);
 
-            for (int i = 0; i < Data.Rows.Count; i++)
-            {
-                var row = Data.Rows[i];
-                bool matches = false;
-
-                if (string.IsNullOrEmpty(columnName))
-                {
-                    // Search all columns
-                    foreach (var cell in row.Cells)
-                    {
-                        string cellText = cell.CellValue?.ToString() ?? string.Empty;
-                        if (cellText.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            matches = true;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    // Search specific column
-                    var cell = row.Cells.FirstOrDefault(c => c.ColumnName == columnName);
-                    if (cell != null)
-                    {
-                        string cellText = cell.CellValue?.ToString() ?? string.Empty;
-                        matches = cellText.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0;
-                    }
-                }
-
-                if (matches)
-                {
-                    matchingIndices.Add(i);
-                }
-            }
-
-            // Create and store filter configuration for display purposes
+            // Store the same criteria the query used so the active-filter
+            // chips and save/load paths describe the real condition.
             var config = new FilterConfiguration("Quick Filter")
             {
-                IsActive = true
+                IsActive = true,
+                Logic = group.Logic
             };
-            config.AddCriteria(new FilterCriteria(
-                columnName ?? "All Columns",
-                FilterOperator.Contains,
-                searchText
-            ));
+            foreach (var condition in group.Conditions)
+            {
+                config.AddCriteria(new FilterCriteria(
+                    condition.ColumnName,
+                    condition.Operator,
+                    condition.Value ?? string.Empty));
+            }
 
-            // Apply the matching indices
-            _filteredRowIndices = matchingIndices;
             _isFiltered = true;
             _activeFilter = config;
+            ToolbarState.SearchText = searchText;
 
-            UpdateFilteredDisplay();
-            OnFilterApplied(new FilterAppliedEventArgs(_activeFilter, _filteredRowIndices.Count));
+            if (EnableVirtualization && VirtualDataSource != null)
+            {
+                RowVirtualizer.SetQueryFilters(query.Filters);
+                ToolbarState.SearchMatchCount = 0;
+                RowVirtualizer.Refresh();
+                SafeInvalidate();
+                OnFilterApplied(new FilterAppliedEventArgs(_activeFilter, 0));
+                return;
+            }
+
+            var indices = ComputeFilteredRowIndices() ?? new List<int>();
+            UpdateFilteredDisplay(indices);
+            OnFilterApplied(new FilterAppliedEventArgs(_activeFilter, indices.Count));
         }
 
         /// <summary>
@@ -394,12 +408,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 return;
             }
 
-            _filteredRowIndices = ApplyFilterToRows(_activeFilter);
             _isFiltered = true;
             _activeFilter.IsActive = true;
 
-            UpdateFilteredDisplay();
-            OnFilterApplied(new FilterAppliedEventArgs(_activeFilter, _filteredRowIndices.Count));
+            var indices = ComputeFilteredRowIndices() ?? new List<int>();
+            UpdateFilteredDisplay(indices);
+            OnFilterApplied(new FilterAppliedEventArgs(_activeFilter, indices.Count));
         }
 
         /// <summary>
@@ -421,8 +435,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </remarks>
         public void ClearFilter()
         {
-            _filteredRowIndices = null;
             _isFiltered = false;
+            ToolbarState.SearchText = string.Empty;
+
+            if (EnableVirtualization && VirtualDataSource != null)
+                RowVirtualizer.ClearQueryFilters();
 
             if (_activeFilter != null)
             {
@@ -438,6 +455,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
 
             UpdateFilteredDisplay();
+            if (EnableVirtualization && VirtualDataSource != null)
+                RowVirtualizer.Refresh();
             OnFilterCleared();
         }
 
@@ -512,31 +531,98 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public void SaveFilterConfiguration(string filePath)
         {
             if (_activeFilter == null)
-                throw new InvalidOperationException("No active filter to save");
-
-            var json = System.Text.Json.JsonSerializer.Serialize(_activeFilter, new System.Text.Json.JsonSerializerOptions
             {
-                WriteIndented = true
-            });
+                ReportOperationError("Filter.Save",
+                    new InvalidOperationException("No active filter to save"));
+                return;
+            }
 
-            System.IO.File.WriteAllText(filePath, json);
+            try
+            {
+                var envelope = new SavedFilterEnvelope
+                {
+                    Version = 1,
+                    Filter = _activeFilter
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(envelope,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                System.IO.File.WriteAllText(filePath, json);
+            }
+            catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+            {
+                ReportOperationError("Filter.Save", ex);
+            }
         }
 
         /// <summary>
-        /// Loads a filter configuration from a JSON file
+        /// Loads a filter configuration from a JSON file. Unknown columns are
+        /// removed and reported instead of being applied.
         /// </summary>
         public void LoadFilterConfiguration(string filePath)
         {
             if (!System.IO.File.Exists(filePath))
-                throw new System.IO.FileNotFoundException("Filter configuration file not found", filePath);
-
-            var json = System.IO.File.ReadAllText(filePath);
-            var config = System.Text.Json.JsonSerializer.Deserialize<FilterConfiguration>(json);
-
-            if (config != null)
             {
-                ActiveFilter = config;
+                ReportOperationError("Filter.Load",
+                    new System.IO.FileNotFoundException("Filter configuration file not found", filePath));
+                return;
             }
+
+            var config = ReadFilterConfiguration(System.IO.File.ReadAllText(filePath));
+            if (config != null)
+                ActiveFilter = config;
+        }
+
+        private FilterConfiguration? ReadFilterConfiguration(string json)
+        {
+            try
+            {
+                var envelope = System.Text.Json.JsonSerializer.Deserialize<SavedFilterEnvelope>(json);
+                var config = envelope?.Filter
+                    ?? System.Text.Json.JsonSerializer.Deserialize<FilterConfiguration>(json);
+                if (config == null) return null;
+
+                int removed = config.Criteria.RemoveAll(c => !IsKnownFilterColumn(c.ColumnName));
+                if (removed > 0)
+                {
+                    ReportOperationError("Filter.LoadSaved",
+                        new InvalidOperationException(
+                            $"Removed {removed} saved filter condition(s) for unknown columns."));
+                }
+
+                return config;
+            }
+            catch (Exception ex) when (ex is System.Text.Json.JsonException or System.IO.IOException)
+            {
+                ReportOperationError("Filter.LoadSaved", ex);
+                return null;
+            }
+        }
+
+        internal void PruneUnknownFilterColumns()
+        {
+            SortFilter.PruneUnknownColumns();
+
+            if (_activeFilter == null)
+                return;
+
+            int removed = _activeFilter.Criteria.RemoveAll(c => !IsKnownFilterColumn(c.ColumnName));
+            if (removed == 0) return;
+
+            if (_activeFilter.Criteria.Count == 0)
+            {
+                _activeFilter = null;
+                _isFiltered = false;
+            }
+        }
+
+        private bool IsKnownFilterColumn(string? columnName)
+        {
+            if (string.IsNullOrWhiteSpace(columnName) ||
+                string.Equals(columnName, "All Columns", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            return Data.Columns.Any(c =>
+                string.Equals(c.ColumnName, columnName, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -553,18 +639,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 try
                 {
-                    var json = System.IO.File.ReadAllText(file);
-                    var config = System.Text.Json.JsonSerializer.Deserialize<FilterConfiguration>(json);
+                    var config = ReadFilterConfiguration(System.IO.File.ReadAllText(file));
                     if (config != null)
-                    {
                         configs.Add(config);
-                    }
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
                 {
-                    // Absorbed: this sits on a UI path where throwing would take the
-                    // window down. Reported, because silently doing nothing here looks
-                    // to the user exactly like success.
                     ReportOperationError("Filter.LoadSaved", ex);
                 }
             }
@@ -577,33 +657,75 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         #region Private Filter Methods
 
         /// <summary>
-        /// Applies filter configuration to grid rows using the generic FilterEngine
+        /// Applies a query to the current rows through the shared pipeline and
+        /// returns the source indices of matching rows.
         /// </summary>
-        private List<int> ApplyFilterToRows(FilterConfiguration config)
+        private List<int> ApplyQueryFilterToRows(GridQuery query)
         {
-            // Convert grid rows to ExpandoObject for generic filtering
-            var wrappers = Data.Rows.Select((row, index) =>
-            {
-                var wrapper = new ExpandoObject() as IDictionary<string, object?>;
-                wrapper["__RowIndex"] = index;
-
-                // Add each cell as a property with column name
-                foreach (var cell in row.Cells)
-                {
-                    wrapper[cell.ColumnName] = cell.CellValue;
-                }
-
-                return (ExpandoObject)wrapper;
-            }).ToList();
-
-            // Create filter engine and apply filter
-            var filterEngine = new FilterEngine<ExpandoObject>(wrappers);
-            return filterEngine.ApplyFilterGetIndices(config);
+            var view = GridView.Build(Data.Rows, Data.Columns, includeHidden: true);
+            view.Apply(query);
+            return view.Rows.Select(r => r.SourceIndex).ToList();
         }
 
-        private void UpdateFilteredDisplay()
+        /// <summary>
+        /// Converts an <see cref="FilterConfiguration"/> into the shared query
+        /// representation so the active filter and quick filter use one engine.
+        /// </summary>
+        internal static GridQuery BuildQuery(FilterConfiguration config)
         {
-            if (!_isFiltered || _filteredRowIndices == null)
+            var query = new GridQuery();
+            var group = new GridFilterGroup { Logic = config.Logic };
+
+            foreach (var criterion in config.Criteria.Where(c => c.IsEnabled))
+            {
+                group.Conditions.Add(new GridFilterCondition
+                {
+                    ColumnName = criterion.ColumnName,
+                    Operator = criterion.Operator,
+                    Value = ToQueryValue(criterion.Value),
+                    Value2 = ToQueryValue(criterion.Value2)
+                });
+            }
+
+            if (group.Conditions.Count > 0)
+                query.Filters.Add(group);
+
+            return query;
+        }
+
+        private static string? ToQueryValue(object? value)
+        {
+            if (value == null) return null;
+            if (value is string text) return text;
+            if (value is IEnumerable enumerable)
+                return string.Join("\u001F", enumerable.Cast<object?>()
+                    .Select(v => Convert.ToString(v, CultureInfo.InvariantCulture)));
+            return Convert.ToString(value, CultureInfo.InvariantCulture);
+        }
+
+        private List<int>? ComputeFilteredRowIndices()
+        {
+            var query = _activeFilter != null
+                ? BuildQuery(_activeFilter)
+                : new GridQuery();
+            SortFilter.AppendQueryConditions(query);
+
+            if (query.Filters.Count == 0)
+                return null;
+
+            return ApplyQueryFilterToRows(query);
+        }
+
+        private void UpdateFilteredDisplay(IReadOnlyList<int>? filteredIndices = null)
+        {
+            Footer.Invalidate();
+
+            var indices = filteredIndices ?? ComputeFilteredRowIndices();
+            ToolbarState.SearchMatchCount = string.IsNullOrWhiteSpace(ToolbarState.SearchText)
+                ? 0
+                : indices?.Count ?? 0;
+
+            if (indices == null)
             {
                 // Show all rows
                 for (int i = 0; i < Data.Rows.Count; i++)
@@ -614,13 +736,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             else
             {
                 // Hide rows that don't match the filter
-                var visibleSet = new HashSet<int>(_filteredRowIndices);
+                var visibleSet = new HashSet<int>(indices);
 
                 for (int i = 0; i < Data.Rows.Count; i++)
                 {
                     Data.Rows[i].IsVisible = visibleSet.Contains(i);
                 }
             }
+
+            Layout.RowMetrics.Invalidate();
 
             // Recalculate layout and refresh display
             Layout.Recalculate();
@@ -632,6 +756,35 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 GroupEngine.ApplyGrouping();
             }
+
+            // A changed query starts at the first visible row, not at row zero,
+            // which may be hidden by the filter.
+            if (Data.Rows.Count > 0)
+            {
+                if (indices == null)
+                {
+                    GoToFirstPage();
+                }
+                else
+                {
+                    int firstVisible = 0;
+                    var visibleSet = new HashSet<int>(indices);
+                    for (int i = 0; i < Data.Rows.Count; i++)
+                    {
+                        if (visibleSet.Contains(i))
+                        {
+                            firstVisible = i;
+                            break;
+                        }
+                    }
+
+                    Selection.SelectCell(firstVisible, Selection.ColumnIndex);
+                    Scroll?.SetVerticalIndex(firstVisible);
+                    SafeInvalidate();
+                }
+            }
+
+            UpdateAccessibleDescription();
         }
 
         private void OnFilterApplied(FilterAppliedEventArgs args)
@@ -645,6 +798,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Versioned envelope for saved filter files. Older files that contain a
+    /// bare <see cref="FilterConfiguration"/> are still accepted by the loader.
+    /// </summary>
+    internal sealed class SavedFilterEnvelope
+    {
+        public int Version { get; set; } = 1;
+        public FilterConfiguration? Filter { get; set; }
     }
 
     /// <summary>

@@ -34,19 +34,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 var font = BeepFontManager.GetCachedFont(familyName, size, style);
                 if (font != null) return font;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // The cache could not produce that family; fall through to the ladder below.
+                GridErrorReporter.FallbackOnce("MaterialNavigationPainter.FontCache", null, "resolve cached navigation font", ex);
             }
 
             // A deliberate cascade: each rung tries a font more likely to exist than the last.
             // ArgumentException is what the Font constructor throws for a family that is missing
             // or unusable, and is the only failure this ladder is meant to absorb - catching
             // everything hid unrelated faults behind a font fallback.
-            try { return new Font(familyName, size, style); } catch (ArgumentException) { }
-            try { return new Font("Segoe UI", size, style); } catch (ArgumentException) { }
-            try { return new Font(FontFamily.GenericSansSerif, size, style); } catch (ArgumentException) { }
-            try { return new Font("Arial", size, style); } catch (ArgumentException) { }
+            try { return new Font(familyName, size, style); } catch (ArgumentException ex) { GridErrorReporter.FallbackOnce("MaterialNavigationPainter.Font", null, "create navigation font", ex); }
+            try { return new Font("Segoe UI", size, style); } catch (ArgumentException ex) { GridErrorReporter.FallbackOnce("MaterialNavigationPainter.Font", null, "create navigation font", ex); }
+            try { return new Font(FontFamily.GenericSansSerif, size, style); } catch (ArgumentException ex) { GridErrorReporter.FallbackOnce("MaterialNavigationPainter.Font", null, "create navigation font", ex); }
+            try { return new Font("Arial", size, style); } catch (ArgumentException ex) { GridErrorReporter.FallbackOnce("MaterialNavigationPainter.Font", null, "create navigation font", ex); }
             return SystemFonts.DefaultFont;
         }
 
@@ -60,7 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Draw background using theme color directly
-            using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var bgBrush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }

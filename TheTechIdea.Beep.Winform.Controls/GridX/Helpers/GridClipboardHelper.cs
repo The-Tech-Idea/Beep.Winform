@@ -109,6 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
+                _grid.ReportOperationError("Clipboard.Copy", ex);
                 NotifyClipboardError($"Error copying to clipboard: {ex.Message}", "grid-copy-error");
             }
         }
@@ -170,6 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
+                _grid.ReportOperationError("Clipboard.Cut", ex);
                 NotifyClipboardError($"Error cutting to clipboard: {ex.Message}", "grid-cut-error");
             }
         }
@@ -201,8 +203,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     ? _grid.Selection.RowIndex 
                     : 0;
                 
-                int startColIndex = _grid.Selection.ColumnIndex >= 0 
-                    ? _grid.Selection.ColumnIndex 
+                int selectedColumnIndex = _grid.Selection.ColumnIndex >= 0
+                    ? _grid.Selection.ColumnIndex
                     : 0;
 
                 // Skip header if it looks like header data
@@ -216,6 +218,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 var visibleColumns = _grid.Data.Columns
                     .Where(c => c.Visible && !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID)
                     .ToList();
+                int startColIndex = visibleColumns.FindIndex(c => c.Index == selectedColumnIndex);
+                if (startColIndex < 0) startColIndex = 0;
 
                 // Paste data
                 int rowsPasted = 0;
@@ -246,36 +250,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                             {
                                 var cell = row.Cells[colIndex];
                                 
-                                switch (pasteOption)
+                                if (pasteOption == PasteOptions.FormattingOnly)
+                                    continue;
+
+                                object? convertedValue = ConvertValue(values[j], column.DataType);
+                                object? appliedValue = convertedValue;
+                                if (_grid.Data.Binding != null &&
+                                    !_grid.Data.Binding.TrySetValue(row.RowData, column.ColumnName,
+                                        convertedValue, out appliedValue, out var error, row.RowIndex))
                                 {
-                                    case PasteOptions.All:
-                                        // Paste both value and formatting
-                                        object convertedValue = ConvertValue(values[j], column.DataType) ?? string.Empty;
-                                        cell.CellValue = convertedValue;
-                                        // Mark row as modified (no State property, just update value)
-                                        break;
-                                        
-                                    case PasteOptions.ValuesOnly:
-                                        // Paste only the value, keep existing formatting
-                                        object value = ConvertValue(values[j], column.DataType) ?? string.Empty;
-                                        cell.CellValue = value;
-                                        break;
-                                        
-                                    case PasteOptions.FormattingOnly:
-                                        // Formatting not supported with plain text clipboard
-                                        break;
+                                    _grid.ReportOperationError("Clipboard.PasteCell", error ??
+                                        new InvalidOperationException("Could not paste the cell value."));
+                                    continue;
                                 }
+
+                                cell.CellValue = appliedValue!;
+                                cell.IsDirty = true;
+                                row.IsDirty = true;
                             }
                         }
                         rowsPasted++;
                     }
                 }
 
-                // Refresh grid
+                _grid.SortFilter.ReapplyView();
+                _grid.UpdateAccessibleDescription();
                 _grid.SafeInvalidate();
             }
             catch (Exception ex)
             {
+                _grid.ReportOperationError("Clipboard.Paste", ex);
                 NotifyClipboardError($"Error pasting from clipboard: {ex.Message}", "grid-paste-error");
             }
         }
@@ -402,8 +406,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 return value;
             }
-            catch
+            catch (Exception ex) when (ex is InvalidCastException or FormatException or OverflowException)
             {
+                _grid?.ReportOperationError("Clipboard.ConvertValue", ex);
                 return value;
             }
         }
@@ -432,6 +437,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
+                _grid.ReportOperationError("Clipboard.CopyCell", ex);
                 NotifyClipboardError($"Error copying cell: {ex.Message}", "grid-copy-cell-error");
             }
         }

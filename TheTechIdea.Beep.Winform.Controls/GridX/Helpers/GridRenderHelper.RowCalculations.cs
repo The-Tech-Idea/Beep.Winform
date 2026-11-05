@@ -47,6 +47,45 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return Math.Max(0, lastPossible);
         }
 
+        internal int GetLastRenderableRowIndex(BindingList<BeepRowConfig> rows, int availableHeight,
+            int startRow, int pixelOffset)
+        {
+            if (rows == null || rows.Count == 0 || startRow >= rows.Count) return startRow;
+
+            int usedHeight = 0;
+            int lastVisible = startRow;
+            int headerHeight = _grid.GroupEngine?.GetHeaderHeight() ?? 0;
+
+            var firstRow = rows[startRow];
+            int firstRowHeight = firstRow.Height > 0 ? firstRow.Height : _grid.RowHeight;
+            int totalOffsetToFirstRow = _grid.Layout.RowMetrics.TopOfRow(startRow);
+            int firstRowVisibleHeight = firstRowHeight - (pixelOffset - totalOffsetToFirstRow);
+            if (firstRowVisibleHeight > 0)
+                usedHeight += firstRowVisibleHeight;
+
+            for (int i = startRow + 1; i < rows.Count && usedHeight < availableHeight; i++)
+            {
+                int newHeaders = (_grid.GroupEngine?.GetHeaderCountBeforeRow(i + 1) ?? 0) -
+                                 (_grid.GroupEngine?.GetHeaderCountBeforeRow(i) ?? 0);
+                if (newHeaders > 0)
+                {
+                    int headerPixels = newHeaders * headerHeight;
+                    if (usedHeight + headerPixels > availableHeight) break;
+                    usedHeight += headerPixels;
+                }
+
+                var row = rows[i];
+                if (!row.IsVisible) continue;
+                int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+                if (usedHeight + rowHeight > availableHeight) break;
+
+                usedHeight += rowHeight;
+                lastVisible = i;
+            }
+
+            return lastVisible;
+        }
+
         /// <summary>
         /// Gets the actual count of visible rows
         /// </summary>

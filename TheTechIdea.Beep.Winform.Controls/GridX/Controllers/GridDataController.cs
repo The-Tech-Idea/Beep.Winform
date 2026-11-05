@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.GridX.Query;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Controllers
 {
@@ -10,6 +11,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Controllers
         internal List<object> FullData { get; set; } = new();
         internal int DataOffset { get; set; }
         internal bool IsInBindComplete { get; private set; }
+
+        /// <summary>
+        /// Builds a fresh view from the current rows and columns. The
+        /// renderer/exporters use this instead of re-deriving visibility and
+        /// order independently.
+        /// </summary>
+        internal GridView BuildView(bool includeHidden = false)
+            => GridView.Build(_grid.Data.Rows, _grid.Data.Columns, includeHidden);
 
         public GridDataController(BeepGridPro grid)
         {
@@ -28,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Controllers
             try
             {
                 _grid.Data.Bind(source);
-                _grid.Navigator.BindTo(source);
+                _grid.Navigator.BindTo(source is BindingSource ? source : _grid.Data.Binding?.NormalizedSource ?? source);
                 SyncFullData();
                 _grid.Layout.Recalculate();
             }
@@ -50,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Controllers
             try
             {
                 _grid.Data.Bind(source, skipRows: true);
-                _grid.Navigator.BindTo(source);
+                _grid.Navigator.BindTo(source is BindingSource ? source : _grid.Data.Binding?.NormalizedSource ?? source);
                 SyncFullData();
             }
             finally
@@ -77,8 +86,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Controllers
 
         internal void RebindSchema()
         {
+            _grid.Data.RefreshBinding();
             _grid.Data.AutoGenerateColumns();
+            _grid.PruneUnknownFilterColumns();
+            _grid.Navigator.BindTo(_grid.DataSource is BindingSource ? _grid.DataSource : _grid.Data.Binding?.NormalizedSource ?? _grid.DataSource);
             SyncFullData();
+            _grid.SortFilter.ReapplyView();
             if (_grid.EnableVirtualization)
             {
                 _grid.RowVirtualizer.Refresh();

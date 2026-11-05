@@ -27,7 +27,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Accessibility
 
         public override AccessibleRole Role => AccessibleRole.Row;
 
-        public override string? Name => $"Row {_rowIndex + 1}";
+        public override string? Name
+        {
+            get
+            {
+                int visibleOrdinal = 0;
+                for (int i = 0; i <= _rowIndex && i < _grid.Data.Rows.Count; i++)
+                {
+                    if (_grid.Data.Rows[i].IsVisible) visibleOrdinal++;
+                }
+                return $"Row {visibleOrdinal}";
+            }
+        }
 
         public override AccessibleObject? Parent => _parent;
 
@@ -84,13 +95,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Accessibility
                 case AccessibleNavigation.LastChild:
                     return GetChild(GetChildCount() - 1);
                 case AccessibleNavigation.Next:
-                    return _parent.GetChild(_rowIndex + 1);
-                case AccessibleNavigation.Previous:
-                    return _parent.GetChild(_rowIndex - 1);
-                case AccessibleNavigation.Up:
-                    return _parent.GetChild(_rowIndex - 1);
                 case AccessibleNavigation.Down:
-                    return _parent.GetChild(_rowIndex + 1);
+                    return (_parent as GridAccessibleObject)?.GetAdjacentVisibleRow(_rowIndex, 1);
+                case AccessibleNavigation.Previous:
+                case AccessibleNavigation.Up:
+                    return (_parent as GridAccessibleObject)?.GetAdjacentVisibleRow(_rowIndex, -1);
                 default:
                     return base.Navigate(navDirection);
             }

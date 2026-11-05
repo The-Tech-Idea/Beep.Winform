@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// Draws the content of a grid cell
         /// </summary>
         private void DrawCellContent(Graphics g, BeepColumnConfig column, BeepCellConfig cell, 
-            Rectangle rect, Color foreColor, Color backColor)
+            Rectangle rect, Color foreColor, Color backColor, FontStyle? fontStyle = null)
         {
             if (g == null || column == null || cell == null || rect.Width <= 0 || rect.Height <= 0)
                 return;
@@ -49,14 +49,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     column.CellEditor == BeepColumnType.NumericUpDown ||
                     column.CellEditor == BeepColumnType.DateTime)
                 {
-                    DrawCellAsText(g, column, cell, rect, foreColor);
+                    DrawCellAsText(g, column, cell, rect, foreColor, fontStyle);
                     return;
                 }
 
                 var drawer = GetDrawerForColumn(column);
                 if (drawer == null)
                 {
-                    DrawCellAsText(g, column, cell, rect, foreColor);
+                    DrawCellAsText(g, column, cell, rect, foreColor, fontStyle);
                     return;
                 }
 
@@ -93,15 +93,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         // The drawer may not accept this column's value type; it then keeps
                         // its previous value and the fallback below still renders the text.
                         try { ic.SetValue(cell.CellValue); }
-                        catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
+                        catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException)
+                        {
+                            _grid?.ReportRenderError($"CellContent.{column.ColumnName}.SetValue", ex);
+                        }
                     }
 
                     drawer.Draw(g, rect);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Fallback to plain text rendering if drawer fails
-                    DrawCellAsText(g, column, cell, rect, foreColor);
+                    _grid?.ReportRenderError($"CellContent.{column.ColumnName}.Drawer", ex);
+                    DrawCellAsText(g, column, cell, rect, foreColor, fontStyle);
                 }
             }
             catch (Exception ex)
@@ -116,12 +120,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// Draws cell value as plain text using TextRenderer
         /// </summary>
         private void DrawCellAsText(Graphics g, BeepColumnConfig column, BeepCellConfig cell, 
-            Rectangle rect, Color foreColor)
+            Rectangle rect, Color foreColor, FontStyle? fontStyle = null)
         {
             string text = cell.CellValue?.ToString() ?? string.Empty;
             if (string.IsNullOrEmpty(text)) return;
 
-            var font = GetSafeCellFont();
+            var font = GetCellFont(fontStyle);
             var textRect = new Rectangle(rect.X + 2, rect.Y + 1, Math.Max(1, rect.Width - 4), 
                 Math.Max(1, rect.Height - 2));
             var flags = GetTextFormatFlagsForAlignment(column.CellTextAlignment, true);

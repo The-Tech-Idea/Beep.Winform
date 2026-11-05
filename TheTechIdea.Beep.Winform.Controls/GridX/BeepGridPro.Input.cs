@@ -17,10 +17,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ScrollBars?.UpdateBars();
             if (e.Button == MouseButtons.Right)
             {
-                ShowGridContextMenu(e);
+                if (ShowNavigator && !NavigatorPainter.NavigationStatusRect.IsEmpty &&
+                    NavigatorPainter.NavigationStatusRect.Contains(e.Location))
+                {
+                    ShowPageSizeMenu(PointToScreen(e.Location));
+                }
+                else if (ShowToolbar && Layout != null && ToolbarState.SearchBoxRect.Contains(e.Location))
+                {
+                    ShowSearchScopeMenu(PointToScreen(e.Location));
+                }
+                else
+                {
+                    ShowGridContextMenu(e);
+                }
                 base.OnMouseDown(e);
                 return;
             }
+            if (e.Button == MouseButtons.Left && ShowNavigator &&
+                !NavigatorPainter.PageSizeRect.IsEmpty &&
+                NavigatorPainter.PageSizeRect.Contains(e.Location))
+            {
+                ShowPageSizeMenu(PointToScreen(e.Location));
+                base.OnMouseDown(e);
+                return;
+            }
+
             bool handledByScrollbar = ScrollBars?.HandleMouseDown(e.Location, e.Button) ?? false;
             if (!handledByScrollbar)
             {
@@ -91,6 +112,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     e.SuppressKeyPress = true;
                     return;
                 }
+                // Ctrl+G / Ctrl+Shift+G  next / previous search match.
+                if (e.Control && e.KeyCode == Keys.G)
+                {
+                    MoveToNextSearchMatch(e.Shift ? -1 : 1);
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    return;
+                }
                 // / and F3 → focus toolbar search (Excel / Sheets convention).
                 // Skip when the editor already has focus so the user can type
                 // a slash or press F3 without having their partial text
@@ -137,11 +166,117 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 }
             }
 
+            if (TryHandleHeaderKeyboard(e))
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+
+            // Ctrl+Page/Home/End navigate pages; unmodified Page/Home/End
+            // keep their data-row meaning.
+            if (e.Control)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.PageUp:
+                        GoToPreviousPage();
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        return;
+                    case Keys.PageDown:
+                        GoToNextPage();
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        return;
+                    case Keys.Home:
+                        GoToFirstPage();
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        return;
+                    case Keys.End:
+                        GoToLastPage();
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        return;
+                }
+            }
+
             if (!ContextMenus.ContextMenuManager.IsAnyMenuActive)
             {
                 Input.HandleKeyDown(e);
             }
             base.OnKeyDown(e);
+        }
+
+        private bool TryHandleHeaderKeyboard(KeyEventArgs e)
+        {
+            if (!ShowColumnHeaders || Layout == null || Layout.HeaderRect.IsEmpty)
+                return false;
+
+            if (e.KeyCode == Keys.F6 && !e.Control && !e.Alt)
+            {
+                FocusedHeaderColumnIndex = _focusedHeaderColumnIndex >= 0
+                    ? -1
+                    : FirstHeaderColumn();
+                return FocusedHeaderColumnIndex >= 0;
+            }
+
+            int index = _focusedHeaderColumnIndex;
+            if (index < 0) return false;
+
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                    FocusedHeaderColumnIndex = FindHeaderColumn(index, -1);
+                    return true;
+                case Keys.Right:
+                    FocusedHeaderColumnIndex = FindHeaderColumn(index, 1);
+                    return true;
+                case Keys.Enter:
+                case Keys.Space:
+                    ToggleColumnSort(index, additive: (Control.ModifierKeys & Keys.Shift) == Keys.Shift);
+                    return true;
+                case Keys.Down when e.Alt:
+                case Keys.Apps:
+                    OpenFocusedHeaderMenu(index);
+                    return true;
+                case Keys.Escape:
+                    FocusedHeaderColumnIndex = -1;
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private int FirstHeaderColumn()
+        {
+            for (int i = 0; i < Data.Columns.Count; i++)
+            {
+                if (Data.Columns[i].Visible && i < Layout.HeaderCellRects.Length &&
+                    !Layout.HeaderCellRects[i].IsEmpty)
+                    return i;
+            }
+            return -1;
+        }
+
+        private int FindHeaderColumn(int from, int delta)
+        {
+            for (int i = from + delta; i >= 0 && i < Data.Columns.Count; i += delta)
+            {
+                if (Data.Columns[i].Visible && i < Layout.HeaderCellRects.Length &&
+                    !Layout.HeaderCellRects[i].IsEmpty)
+                    return i;
+            }
+            return from;
+        }
+
+        private void OpenFocusedHeaderMenu(int index)
+        {
+            if (index < 0 || index >= Layout.HeaderCellRects.Length) return;
+            var rect = Layout.HeaderCellRects[index];
+            if (rect.IsEmpty) return;
+            ShowColumnMenu(index, PointToScreen(new Point(rect.Left, rect.Bottom)));
         }
 
         /// <summary>

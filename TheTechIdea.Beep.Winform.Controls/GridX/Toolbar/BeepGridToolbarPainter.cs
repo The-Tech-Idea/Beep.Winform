@@ -336,9 +336,56 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         {
             // Box first, icon second: the search icon now sits INSIDE the box, so painting it
             // before the box fill would bury it under the background.
-            PaintSearchBox(g, state.SearchBoxRect, state.SearchText, state.SearchHasFocus);
+            PaintSearchBox(g, state.SearchBoxRect, state.SearchText, state.SearchHasFocus, state.SearchTextRightReserve);
             DrawCenteredTintedIcon(g, state, state.SearchIconRect,
                 SvgsUIcons.Common.Search, 0.7f);
+            PaintSearchCount(g, state);
+            PaintSearchNavigation(g, state);
+            PaintSearchClear(g, state);
+        }
+
+        private void PaintSearchNavigation(Graphics g, BeepGridToolbarState state)
+        {
+            if (state.SearchPrevRect.IsEmpty && state.SearchNextRect.IsEmpty) return;
+
+            using var pen = new Pen(_cachedPlaceholderColor, 1.3f);
+            if (!state.SearchPrevRect.IsEmpty)
+                DrawChevron(g, pen, state.SearchPrevRect, pointLeft: true);
+            if (!state.SearchNextRect.IsEmpty)
+                DrawChevron(g, pen, state.SearchNextRect, pointLeft: false);
+        }
+
+        private static void DrawChevron(Graphics g, Pen pen, Rectangle rect, bool pointLeft)
+        {
+            int pad = Math.Max(4, Math.Min(rect.Width, rect.Height) / 4);
+            int x = pointLeft ? rect.Left + pad : rect.Right - pad;
+            int mid = rect.Top + rect.Height / 2;
+            int half = Math.Max(2, rect.Height / 6);
+            int tipX = pointLeft ? x : x;
+            int backX = pointLeft ? x + half : x - half;
+            g.DrawLine(pen, tipX, mid, backX, mid - half);
+            g.DrawLine(pen, tipX, mid, backX, mid + half);
+        }
+
+        private void PaintSearchCount(Graphics g, BeepGridToolbarState state)
+        {
+            if (state.SearchCountRect.IsEmpty || state.SearchMatchCount <= 0) return;
+            TextRenderer.DrawText(g, state.SearchMatchCount.ToString(),
+                state.LabelFont, state.SearchCountRect, _cachedPlaceholderColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
+                TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+        }
+
+        private void PaintSearchClear(Graphics g, BeepGridToolbarState state)
+        {
+            var rect = state.SearchClearRect;
+            if (rect.IsEmpty) return;
+
+            int pad = Math.Max(4, (int)(5 * _cachedDpiScale));
+            var inner = Rectangle.Inflate(rect, -pad, -pad);
+            using var pen = new Pen(_cachedPlaceholderColor, 1.3f);
+            g.DrawLine(pen, inner.Left, inner.Top, inner.Right, inner.Bottom);
+            g.DrawLine(pen, inner.Right, inner.Top, inner.Left, inner.Bottom);
         }
 
         /// <summary>Corner radius of the painted search box, in logical pixels.</summary>
@@ -355,11 +402,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         /// editor stopped short of the arc - so text shifted by a few pixels at the moment the
         /// editor opened or closed.
         /// </remarks>
-        internal static Rectangle SearchTextArea(Rectangle box, int iconInset, float dpiScale)
+        internal static Rectangle SearchTextArea(Rectangle box, int iconInset, float dpiScale, int rightReserve = 0)
         {
             int left = (int)(iconInset * dpiScale);
             int edge = Math.Max(1, (int)Math.Ceiling(SearchBoxBorderWidth * dpiScale));
-            int rightInset = Math.Max(edge, (int)Math.Ceiling(SearchBoxRadius * dpiScale));
+            int rightInset = Math.Max(edge, (int)Math.Ceiling(SearchBoxRadius * dpiScale)) + rightReserve;
 
             int x = box.X + left;
             return new Rectangle(
@@ -372,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         /// <summary>Stroke width of the painted search box border, in logical pixels.</summary>
         internal const int SearchBoxBorderWidth = 1;
 
-        private void PaintSearchBox(Graphics g, Rectangle bounds, string text, bool hasFocus)
+        private void PaintSearchBox(Graphics g, Rectangle bounds, string text, bool hasFocus, int rightReserve)
         {
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
@@ -415,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             // Shared with the editor, so the placeholder, the painted value and the live editor all
             // occupy the same rectangle. Computing it here separately is what let painted text run
             // under the corner arc while edited text stopped short of it.
-            var textRect = SearchTextArea(bounds, _currentSearchIconWidth, _cachedDpiScale);
+            var textRect = SearchTextArea(bounds, _currentSearchIconWidth, _cachedDpiScale, rightReserve);
 
             // While the real editor is up it owns every pixel of the text area, so the painter must
             // not draw the text or placeholder underneath it. This is the same rule commercial grids
@@ -427,7 +474,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             if (!string.IsNullOrEmpty(text))
                 TextRenderer.DrawText(g, text, _grid.Font, textRect, _grid.ToolbarForeColor, flags);
             else
-                TextRenderer.DrawText(g, _grid.SearchPlaceholder, _grid.Font, textRect, _grid.ToolbarPlaceholderColor, flags);
+            {
+                string placeholder = _grid.SearchPlaceholder;
+                if (!string.IsNullOrWhiteSpace(_grid.SearchColumnName))
+                {
+                    var scoped = _grid.GetColumnByName(_grid.SearchColumnName);
+                    if (scoped != null)
+                        placeholder = $"Search {scoped.ColumnCaption ?? scoped.ColumnName}...";
+                }
+                TextRenderer.DrawText(g, placeholder, _grid.Font, textRect, _grid.ToolbarPlaceholderColor, flags);
+            }
         }
 
 

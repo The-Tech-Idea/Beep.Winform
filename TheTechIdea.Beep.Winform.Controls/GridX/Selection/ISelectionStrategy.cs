@@ -114,14 +114,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Selection
             for (int r = 0; r < RowCount; r++)
             {
                 var row = _grid.Data.Rows[r];
+                bool changed = false;
                 for (int c = 0; c < row.Cells.Count; c++)
                 {
                     if (row.Cells[c].IsSelected)
                     {
                         row.Cells[c].IsSelected = false;
+                        changed = true;
                     }
                 }
-                _grid.InvalidateRow(r);
+
+                if (changed)
+                    _grid.InvalidateRow(r);
             }
         }
 

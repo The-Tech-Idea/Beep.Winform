@@ -27,7 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Draw classic Windows background using theme
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }

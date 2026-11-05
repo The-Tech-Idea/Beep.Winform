@@ -75,7 +75,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             int maxOffset = Math.Max(0, (_grid.Data.Rows.Count * _grid.RowHeight) - (_grid.Layout?.RowsRect.Height ?? 0));
             offsetPx = Math.Max(0, Math.Min(offsetPx, maxOffset));
-            if (VerticalOffset == offsetPx) return;
+            if (VerticalOffset == offsetPx)
+            {
+                if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+                    _firstVisibleRowIndex = CalculateRowIndexFromPixelOffset(offsetPx);
+                return;
+            }
 
             VerticalOffset = offsetPx;
 
@@ -120,39 +125,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return pixelOffset / System.Math.Max(1, _grid.RowHeight);
             }
 
-            if (_grid.Data?.Rows == null || pixelOffset <= 0)
+            if (_grid.Data?.Rows == null)
                 return 0;
 
-            int currentOffset = 0;
-            int previousHeaderCount = 0;
-            int headerHeight = _grid.GroupEngine?.GetHeaderHeight() ?? 0;
+            if (pixelOffset <= 0)
+                return _grid.Layout.RowMetrics.FirstVisibleRow(0);
 
-            for (int i = 0; i < _grid.Data.Rows.Count; i++)
-            {
-                // Inject header height for any groups whose first row is at this index
-                int currentHeaderCount = _grid.GroupEngine?.GetHeaderCountBeforeRow(i) ?? 0;
-                int newHeaders = currentHeaderCount - previousHeaderCount;
-                if (newHeaders > 0)
-                {
-                    currentOffset += newHeaders * headerHeight;
-                    previousHeaderCount = currentHeaderCount;
-                }
-
-                var row = _grid.Data.Rows[i];
-                if (!row.IsVisible) continue;
-                int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
-                
-                if (currentOffset + rowHeight > pixelOffset)
-                    return i;
-                
-                currentOffset += rowHeight;
-            }
-
-            for (int i = _grid.Data.Rows.Count - 1; i >= 0; i--)
-            {
-                if (_grid.Data.Rows[i].IsVisible) return i;
-            }
-            return System.Math.Max(0, _grid.Data.Rows.Count - 1);
+            return _grid.Layout.RowMetrics.FirstVisibleRow(pixelOffset);
         }
     }
 }

@@ -27,13 +27,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (font != null) return font;
                 }
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // A theme font naming a family this machine does not have. That is the only
-                // failure worth absorbing here; catching everything hid unrelated faults
-                // behind a font fallback.
+                GridErrorReporter.FallbackOnce("GridRenderHelper.CellFont", _grid, "resolve cell font", ex);
             }
             return CellFallbackFont;
+        }
+
+        // Styled cell fonts are owned by this helper; cached so conditional
+        // formatting does not allocate a Font per cell per paint.
+        private readonly System.Collections.Generic.Dictionary<FontStyle, Font> _styledCellFonts = new();
+
+        private Font GetCellFont(FontStyle? style)
+        {
+            if (style == null || style.Value == FontStyle.Regular)
+                return GetSafeCellFont();
+
+            if (_styledCellFonts.TryGetValue(style.Value, out var cached))
+                return cached;
+
+            var font = new Font(GetSafeCellFont(), style.Value);
+            _styledCellFonts[style.Value] = font;
+            return font;
         }
 
         /// <summary>
@@ -50,11 +65,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (font != null) return font;
                 }
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // A theme font naming a family this machine does not have. That is the only
-                // failure worth absorbing here; catching everything hid unrelated faults
-                // behind a font fallback.
+                GridErrorReporter.FallbackOnce("GridRenderHelper.HeaderFont", _grid, "resolve header font", ex);
             }
             return CellFallbackFont;
         }

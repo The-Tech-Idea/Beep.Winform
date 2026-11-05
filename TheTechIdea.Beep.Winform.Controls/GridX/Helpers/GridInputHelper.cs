@@ -31,7 +31,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private int _pressedRow = -1;
         private int _pressedCol = -1;
 
-        public GridInputHelper(BeepGridPro grid) { _grid = grid; }
+        public GridInputHelper(BeepGridPro grid)
+        {
+            _grid = grid;
+            _resizeMargin = GridX.Chrome.GridChromeMetrics.Resolve(grid).ResizeHandleWidth;
+        }
 
         public void HandleMouseMove(MouseEventArgs e)
         {
@@ -79,6 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 var row = _grid.Data.Rows[_resizingRowIndex];
                 int newHeight = Math.Max(BeepLayoutMetrics.GridRowMinHeight, (row.Height > 0 ? row.Height : _grid.RowHeight) + dy);
                 row.Height = newHeight;
+                _grid.Layout.RowMetrics.Invalidate();
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
                 _grid.ScrollBars?.UpdateBars();
@@ -124,6 +129,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _pressedOnCheckbox = false;
             _pressedRow = _pressedCol = -1;
             _mouseDownHandledByTopFilterPanel = false;
+
+            // Empty-state clear action: "Clear search and filters".
+            if (_grid.Data.Rows.Count == 0 &&
+                !_grid.Render.EmptyStateClearRect.IsEmpty &&
+                _grid.Render.EmptyStateClearRect.Contains(e.Location))
+            {
+                _grid.ClearFilter();
+                _grid.SafeInvalidate();
+                return;
+            }
 
             if (_grid.ShowTopFilterPanel)
             {
@@ -299,6 +314,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     return;
                 }
 
+                // Clicking the chip body edits that condition.
+                int editIndex = HitHeaderIcon(_grid.Render.ActiveFilterChipRects, e.Location);
+                if (editIndex != int.MinValue &&
+                    _grid.ActiveFilter != null &&
+                    editIndex >= 0 && editIndex < _grid.ActiveFilter.Criteria.Count)
+                {
+                    var criterion = _grid.ActiveFilter.Criteria[editIndex];
+                    if (!string.IsNullOrWhiteSpace(criterion.ColumnName))
+                    {
+                        _grid.ShowInlineCriterionEditor(criterion.ColumnName, e.Location);
+                        return;
+                    }
+                }
+
+                string? sortEdit = HitSortFilterChip(_grid.Render.SortFilterChipRects, e.Location);
+                if (sortEdit != null)
+                {
+                    _grid.ShowFilterDialog(preferredColumnName: sortEdit);
+                    return;
+                }
+
                 if (_grid.Render.ActiveFilterClearAllRect.Contains(e.Location))
                 {
                     _grid.ClearFilter();
@@ -364,6 +400,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // to cell selection.
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
             {
+                if (_grid.Layout.HoveredHeaderColumnIndex >= 0)
+                    _grid.FocusedHeaderColumnIndex = _grid.Layout.HoveredHeaderColumnIndex;
                 return;
             }
 
@@ -574,7 +612,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (checkCol >= 0)
             {
                 var cell = row.Cells[checkCol];
-                try { current = Convert.ToBoolean(cell.CellValue); } catch { current = false; }
+                try { current = Convert.ToBoolean(cell.CellValue); }
+                catch (Exception ex) when (ex is FormatException or InvalidCastException)
+                {
+                    _grid.ReportOperationError("Input.RowCheckbox", ex);
+                    current = false;
+                }
             }
             else
             {
@@ -1028,6 +1071,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 case BeepGridToolbarState.KeySearchBox:
                     state.SearchHasFocus = true;
                     _grid.FilterEditor.ActivateSearchEditor(state.SearchBoxRect);
+                    _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+                    return;
+
+                case BeepGridToolbarState.KeySearchClear:
+                    _grid.ClearToolbarSearch();
+                    return;
+
+                case BeepGridToolbarState.KeySearchPrev:
+                    _grid.MoveToNextSearchMatch(-1);
+                    _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+                    return;
+
+                case BeepGridToolbarState.KeySearchNext:
+                    _grid.MoveToNextSearchMatch(1);
                     _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
                     return;
 

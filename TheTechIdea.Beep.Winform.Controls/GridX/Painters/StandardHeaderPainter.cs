@@ -40,7 +40,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             var isDark = (theme?.GridBackColor != null && theme.GridBackColor != Color.Empty ? theme.GridBackColor : Color.White).GetBrightness() < 0.5;
 
             // Fill background
-            using (var brush = new SolidBrush(theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240))))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240)))))
             {
                 g.FillRectangle(brush, headerRect);
             }

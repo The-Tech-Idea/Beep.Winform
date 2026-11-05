@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private BindingSource? _bindingSource;
         private IUnitofWork? _uow;
         private IUnitOfWorkWrapper? _uowWrapper;
+        private bool _suppressPositionSync;
         internal event EventHandler<UnitofWorkParams>? WrapperEventForwarded;
 
         public GridNavigatorHelper(BeepGridPro grid)
@@ -80,6 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _bindingSource.ListChanged -= BindingSource_ListChanged;
                 _bindingSource.DataSourceChanged -= BindingSource_DataSourceChanged;
+                _bindingSource.DataMemberChanged -= BindingSource_DataMemberChanged;
                 _bindingSource.CurrentChanged -= BindingSource_CurrentChanged;
                 _bindingSource.PositionChanged -= BindingSource_PositionChanged;
                 _bindingSource = null;
@@ -135,6 +137,63 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return newBs;
         }
 
+        private int FindGridRowIndexForItem(object? item)
+        {
+            if (item == null || _grid?.Data?.Rows == null) return -1;
+
+            for (int i = 0; i < _grid.Data.Rows.Count; i++)
+            {
+                var rowData = _grid.Data.Rows[i].RowData;
+                if (ReferenceEquals(rowData, item) || Equals(rowData, item))
+                    return i;
+
+                if (rowData is DataRowView gridView && item is DataRowView sourceView &&
+                    ReferenceEquals(gridView.Row, sourceView.Row))
+                    return i;
+
+                if (rowData is DataRow gridRow && item is DataRow sourceRow &&
+                    ReferenceEquals(gridRow, sourceRow))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private int FindSourceIndexForItem(object? item)
+        {
+            var list = _bindingSource?.List;
+            if (item == null || list == null) return -1;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var candidate = list[i];
+                if (ReferenceEquals(candidate, item) || Equals(candidate, item))
+                    return i;
+
+                if (candidate is DataRowView candidateView && item is DataRowView sourceView &&
+                    ReferenceEquals(candidateView.Row, sourceView.Row))
+                    return i;
+
+                if (candidate is DataRow candidateRow && item is DataRow sourceRow &&
+                    ReferenceEquals(candidateRow, sourceRow))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private void SyncBindingSourcePositionToItem(object? item)
+        {
+            if (_bindingSource == null) return;
+
+            int sourceIndex = FindSourceIndexForItem(item);
+            if (sourceIndex < 0) return;
+
+            _suppressPositionSync = true;
+            try { _bindingSource.Position = sourceIndex; }
+            finally { _suppressPositionSync = false; }
+        }
+
         private void Navigator_PositionChanged(object sender, EventArgs e)
         {
             if (_bindingSource == null) return;
@@ -170,6 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Unsubscribe from all events on the old binding source
                 _bindingSource.ListChanged -= BindingSource_ListChanged;
                 _bindingSource.DataSourceChanged -= BindingSource_DataSourceChanged;
+                _bindingSource.DataMemberChanged -= BindingSource_DataMemberChanged;
                 _bindingSource.CurrentChanged -= BindingSource_CurrentChanged;
                 _bindingSource.PositionChanged -= BindingSource_PositionChanged;
             }
@@ -182,12 +242,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _bindingSource.ListChanged += BindingSource_ListChanged;
                 _bindingSource.DataSourceChanged -= BindingSource_DataSourceChanged;
                 _bindingSource.DataSourceChanged += BindingSource_DataSourceChanged;
+                _bindingSource.DataMemberChanged -= BindingSource_DataMemberChanged;
+                _bindingSource.DataMemberChanged += BindingSource_DataMemberChanged;
                 _bindingSource.CurrentChanged -= BindingSource_CurrentChanged;
                 _bindingSource.CurrentChanged += BindingSource_CurrentChanged;
                 _bindingSource.PositionChanged -= BindingSource_PositionChanged;
                 _bindingSource.PositionChanged += BindingSource_PositionChanged;
             }
         }
+
+        private void BindingSource_DataMemberChanged(object? sender, EventArgs e)
+            => BindingSource_DataSourceChanged(sender, e);
 
         /// <summary>
         /// Handles BindingSource.DataSourceChanged - fires when the underlying data source changes.
@@ -204,8 +269,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Layout.Recalculate();
                 _grid.SafeInvalidate();
             }
-            catch
+            catch (Exception ex)
             {
+                _grid.ReportOperationError("Navigator.SourceChanged", ex);
                 _grid.SafeInvalidate();
             }
         }
@@ -216,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         private void SyncSelectionFromPosition()
         {
-            if (_bindingSource == null) return;
+            if (_bindingSource == null || _suppressPositionSync) return;
             try
             {
                 int position = _bindingSource.Position;
@@ -250,6 +316,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // UOW mode is synchronized via UOW binder + explicit UOW refresh methods.
             if (IsUowMode || _grid.DataController.IsInBindComplete)
                 return;
+
+            // GridDataHelper is the single row-refresh owner for lists it
+            // subscribes to. Rebinding here produced a second full rebuild for
+            // every add/remove and a third for item edits.
+            if (_bindingSource?.List != null && _grid.Data.IsSubscribedTo(_bindingSource.List))
+            {
+                if (_grid.Rows.Count == 0)
+                {
+                    _grid.Selection.Clear();
+                }
+                else if (_grid.Selection.HasSelection)
+                {
+                    int rowIndex = Math.Max(0, Math.Min(_grid.Selection.RowIndex, _grid.Rows.Count - 1));
+                    int colIndex = Math.Max(0, Math.Min(_grid.Selection.ColumnIndex, Math.Max(0, _grid.Columns.Count - 1)));
+                    _grid.SelectCell(rowIndex, colIndex);
+                }
+                return;
+            }
 
             try
             {
@@ -310,8 +394,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 _grid.SafeInvalidate();
             }
-            catch
+            catch (Exception ex)
             {
+                _grid.ReportOperationError("Navigator.ListChanged", ex);
                 _grid.SafeInvalidate();
             }
         }
@@ -327,8 +412,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _uowWrapper?.MoveFirst();
                     SyncSelectionFromUow();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _grid.ReportOperationError("Navigator.MoveFirst", ex);
                     _grid.SafeInvalidate();
                 }
                 return;
@@ -349,8 +435,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _uowWrapper?.MovePrevious();
                     SyncSelectionFromUow();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _grid.ReportOperationError("Navigator.MovePrevious", ex);
                     _grid.SafeInvalidate();
                 }
                 return;
@@ -372,8 +459,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _uowWrapper?.MoveNext();
                     SyncSelectionFromUow();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _grid.ReportOperationError("Navigator.MoveNext", ex);
                     _grid.SafeInvalidate();
                 }
                 return;
@@ -396,8 +484,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _uowWrapper?.MoveLast();
                     SyncSelectionFromUow();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _grid.ReportOperationError("Navigator.MoveLast", ex);
                     _grid.SafeInvalidate();
                 }
                 return;
@@ -466,8 +555,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (newIdx >= 0)
                         _grid.OnRowValidated(newIdx, _grid.Data.Rows[newIdx]);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _grid.ReportOperationError("Navigator.InsertNew.Uow", ex);
                     _grid.SafeInvalidate();
                 }
                 return;
@@ -477,18 +567,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 try
                 {
-                    var item = _bindingSource.AddNew();
-                    _bindingSource.EndEdit();
-                    
+                    object? item = null;
+                    try
+                    {
+                        item = _bindingSource.AddNew();
+                        _bindingSource.EndEdit();
+                    }
+                    catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException or ArgumentException)
+                    {
+                    }
+
+                    if (item == null || FindGridRowIndexForItem(item) < 0)
+                    {
+                        if (_grid.Data.Binding?.TryCreateAndAdd(out var created, out _) == true)
+                        {
+                            item = created;
+                            _bindingSource.ResetBindings(false);
+                            _grid.Data.RefreshRows();
+                            _grid.SortFilter.ReapplyView();
+                        }
+                    }
+
                     _grid.Layout.Recalculate();
                     
-                    // Move cursor to the newly created record (last row)
-                    int newRowIndex = _grid.Data.Rows.Count - 1;
+                    // Move cursor to the newly created record.
+                    int newRowIndex = FindGridRowIndexForItem(item);
+                    if (newRowIndex < 0)
+                        newRowIndex = _grid.Data.Rows.Count - 1;
+
                     if (newRowIndex >= 0)
                     {
                         int colIndex = _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0;
                         _grid.SelectCell(newRowIndex, colIndex);
-                        _bindingSource.Position = newRowIndex;
+                        SyncBindingSourcePositionToItem(item);
                         
                         // Ensure the new row is visible
                         _grid.Selection.EnsureVisible();
@@ -501,9 +612,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         _grid.OnRowValidated(newRowIndex, _grid.Data.Rows[newRowIndex]);
                     }
                 }
-                catch 
-                { 
-                    _grid.SafeInvalidate(); // Fallback to full invalidate on error
+                catch (Exception ex)
+                {
+                    _grid.ReportOperationError("Navigator.InsertNew", ex);
+                    _grid.SafeInvalidate();
                 }
                 return;
             }
@@ -538,21 +650,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     object? currentRecord = null;
                     if (_uow != null)
                     {
-                        if (_grid.Selection.HasSelection && _grid.Selection.RowIndex >= 0)
+                        if (_grid.Selection.HasSelection && _grid.Selection.RowIndex >= 0 &&
+                            _grid.Selection.RowIndex < _grid.Data.Rows.Count)
                         {
-                            int target = Math.Min(_grid.Selection.RowIndex, Math.Max(0, _uow.TotalItemCount - 1));
+                            currentRecord = _grid.Data.Rows[_grid.Selection.RowIndex].RowData;
+                            int sourceIndex = FindSourceIndexForItem(currentRecord);
+                            int target = sourceIndex >= 0 ? sourceIndex : _grid.Selection.RowIndex;
+                            target = Math.Min(target, Math.Max(0, _uow.TotalItemCount - 1));
                             _uow.MoveTo(target);
                         }
-                        currentRecord = _uow.CurrentItem;
+                        currentRecord ??= _uow.CurrentItem;
                         ForwardWrapperEvent(EventAction.PreDelete, currentRecord);
                         _uow.Delete();
                     }
                     else if (_uowWrapper != null)
                     {
                         // Always align wrapper cursor to selected grid row before delete.
+                        object? selectedItem = null;
                         if (_grid.Selection.HasSelection && _grid.Selection.RowIndex >= 0 && _uowWrapper.Count > 0)
                         {
-                            int target = Math.Min(_grid.Selection.RowIndex, _uowWrapper.Count - 1);
+                            selectedItem = _grid.Selection.RowIndex < _grid.Data.Rows.Count
+                                ? _grid.Data.Rows[_grid.Selection.RowIndex].RowData
+                                : null;
+                            int sourceIndex = FindSourceIndexForItem(selectedItem);
+                            int target = sourceIndex >= 0 ? sourceIndex : _grid.Selection.RowIndex;
+                            target = Math.Min(target, _uowWrapper.Count - 1);
                             _uowWrapper.MoveTo(target);
                             if (_bindingSource != null && target >= 0 && target < _bindingSource.Count)
                             {
@@ -560,7 +682,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                             }
                         }
 
-                        currentRecord = _bindingSource?.Current ?? _uowWrapper.CurrentItem;
+                        currentRecord = selectedItem ?? _bindingSource?.Current ?? _uowWrapper.CurrentItem;
                         ForwardWrapperEvent(EventAction.PreDelete, currentRecord);
                         if (currentRecord != null)
                         {
@@ -571,8 +693,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     RefreshAfterUowMutation(moveToLast: false);
                     ForwardWrapperEvent(EventAction.PostDelete, currentRecord);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _grid.ReportOperationError("Navigator.DeleteCurrent.Uow", ex);
                     _grid.SafeInvalidate();
                 }
                 return;
@@ -584,15 +707,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     // Sync BindingSource position with the currently selected row in the grid
                     int rowToDelete = -1;
+                    object? targetItem;
                     if (_grid.Selection.HasSelection && _grid.Selection.RowIndex >= 0)
                     {
                         rowToDelete = _grid.Selection.RowIndex;
-                        _bindingSource.Position = rowToDelete;
+                        targetItem = rowToDelete >= 0 && rowToDelete < _grid.Data.Rows.Count
+                            ? _grid.Data.Rows[rowToDelete].RowData
+                            : _bindingSource.Current;
                     }
                     else
                     {
-                        rowToDelete = _bindingSource.Position;
+                        targetItem = _bindingSource.Current;
+                        rowToDelete = FindGridRowIndexForItem(targetItem);
+                        if (rowToDelete < 0)
+                            rowToDelete = _bindingSource.Position;
                     }
+
+                    SyncBindingSourcePositionToItem(targetItem);
 
                     // Store count and column before deletion
                     int countBeforeDelete = _grid.Data.Rows.Count;
@@ -653,10 +784,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         }
                     }
                 }
-                catch 
-                { 
-                    _grid.SafeInvalidate(); // Fallback to full invalidate on error
+                catch (Exception ex)
+                {
+                    _grid.ReportOperationError("Navigator.DeleteCurrent", ex);
+                    _grid.SafeInvalidate();
                 }
+
+                _grid.SortFilter.ReapplyView();
                 return;
             }
         }
@@ -699,9 +833,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _grid.SafeInvalidate(); // Fallback if no specific row is selected
                 }
             }
-            catch 
-            { 
-                _grid.SafeInvalidate(); 
+            catch (Exception ex)
+            {
+                _grid.ReportOperationError("Navigator.Save", ex);
+                _grid.SafeInvalidate();
             }
         }
         
@@ -738,9 +873,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _grid.SafeInvalidate(); // Fallback if no specific row is selected
                 }
             }
-            catch 
-            { 
-                _grid.SafeInvalidate(); 
+            catch (Exception ex)
+            {
+                _grid.ReportOperationError("Navigator.Cancel", ex);
+                _grid.SafeInvalidate();
             }
         }
 

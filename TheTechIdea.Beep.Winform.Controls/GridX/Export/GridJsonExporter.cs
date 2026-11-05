@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
-using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
 {
     /// <summary>
     /// Exports grid data to JSON (array of objects, one per row).
     /// </summary>
-    public sealed class GridJsonExporter : IGridExporter
+    public sealed class GridJsonExporter : IGridExporter, IAsyncGridExporter
     {
         public GridExportFormat Format => GridExportFormat.Json;
         public string Description => "JavaScript Object Notation (JSON)";
@@ -20,25 +20,51 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
 
         public void Export(BeepGridPro grid, Stream output, ExportOptions? options = null)
         {
-            options ??= new ExportOptions();
-            var columns = ResolveColumns(grid, options);
-            var rows = ResolveRows(grid, options);
+            var snapshot = GridExportSnapshot.Capture(grid, options);
+            Write(snapshot, output, null, CancellationToken.None);
+        }
 
-            var data = new List<Dictionary<string, object?>>();
-            foreach (var row in rows)
+        public Task ExportAsync(GridExportSnapshot snapshot, Stream output, ExportOptions? options,
+            IProgress<GridExportProgress>? progress, CancellationToken cancellationToken)
+        {
+            return Task.Run(() => Write(snapshot, output, progress, cancellationToken), cancellationToken);
+        }
+
+        private static void Write(GridExportSnapshot snapshot, Stream output,
+            IProgress<GridExportProgress>? progress, CancellationToken cancellationToken)
+        {
+            var options = snapshot.Options;
+            int total = snapshot.Rows.Count;
+            progress?.Report(new GridExportProgress { RowsProcessed = 0, TotalRows = total, Message = "Starting JSON export" });
+
+            var data = new List<Dictionary<string, object?>>(total);
+            for (int i = 0; i < snapshot.Rows.Count; i++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var row = snapshot.Rows[i];
                 var dict = new Dictionary<string, object?>();
-                foreach (var col in columns)
+                foreach (var column in snapshot.Columns)
                 {
-                    var cell = FindCell(row, col.ColumnName);
-                    dict[col.ColumnName] = NormalizeValue(cell?.CellValue, col.DataType, options);
+                    row.Values.TryGetValue(column.ColumnName, out var value);
+                    dict[column.ColumnName] = GridExportValueFormatter.Normalize(value, column.DataType, options);
                 }
                 data.Add(dict);
+
+                if ((i + 1) % 200 == 0 || i + 1 == total)
+                {
+                    progress?.Report(new GridExportProgress
+                    {
+                        RowsProcessed = i + 1,
+                        TotalRows = total,
+                        Message = $"Exported {i + 1} of {total} rows"
+                    });
+                }
             }
 
             var settings = new JsonSerializerSettings
             {
-                Formatting = options.JsonIndented ? Formatting.Indented : Formatting.None,
+                Formatting = options.JsonIndented ? Newtonsoft.Json.Formatting.Indented : Newtonsoft.Json.Formatting.None,
                 NullValueHandling = NullValueHandling.Include,
                 DateFormatString = options.DateTimeFormat
             };
@@ -46,49 +72,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
             string json = JsonConvert.SerializeObject(data, settings);
             var bytes = Encoding.UTF8.GetBytes(json);
             output.Write(bytes, 0, bytes.Length);
-        }
-
-        private static object? NormalizeValue(object? value, Type? dataType, ExportOptions options)
-        {
-            if (value == null) return null;
-            if (value is DateTime dt)
-                return dt.ToString(options.DateTimeFormat);
-            if (value is DateTimeOffset dto)
-                return dto.ToString(options.DateTimeFormat);
-            return value;
-        }
-
-        private static List<BeepColumnConfig> ResolveColumns(BeepGridPro grid, ExportOptions options)
-        {
-            var cols = grid.Data.Columns
-                .Where(c => c.Visible || !options.VisibleColumnsOnly)
-                .Where(c => !options.ExcludeSystemColumns || !IsSystemColumn(c))
-                .Where(c => options.ColumnWhitelist == null || options.ColumnWhitelist.Contains(c.ColumnName))
-                .Where(c => options.ColumnBlacklist == null || !options.ColumnBlacklist.Contains(c.ColumnName))
-                .ToList();
-
-            if (options.RespectColumnDisplayOrder)
-                cols = cols.OrderBy(c => c.DisplayOrder).ToList();
-
-            return cols;
-        }
-
-        private static IEnumerable<BeepRowConfig> ResolveRows(BeepGridPro grid, ExportOptions options)
-        {
-            var rows = grid.Data.Rows.AsEnumerable();
-            if (options.VisibleRowsOnly)
-                rows = rows.Where(r => r.IsVisible);
-            return rows;
-        }
-
-        private static BeepCellConfig? FindCell(BeepRowConfig row, string columnName)
-        {
-            return row.Cells.FirstOrDefault(c => c.ColumnName == columnName);
-        }
-
-        private static bool IsSystemColumn(BeepColumnConfig col)
-        {
-            return col.IsSelectionCheckBox || col.IsRowNumColumn || col.IsRowID;
         }
     }
 }

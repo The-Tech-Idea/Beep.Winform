@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using TheTechIdea.Beep.Winform.Controls.GridX.Query;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Virtualization
 {
@@ -10,13 +13,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Virtualization
     /// Adapter that makes common in-memory .NET collections virtualizable
     /// by wrapping them as an <see cref="IVirtualDataSource"/>.
     /// </summary>
-    public sealed class GridVirtualDataSource : IVirtualDataSource
+    public sealed class GridVirtualDataSource : IVirtualDataSource, IGridQuerySource
     {
         private readonly Func<long, int, IEnumerable<VirtualRowData>> _getRows;
         private readonly Action<long, int, int> _preload;
         private long _totalRowCount;
 
         public long TotalRowCount => _totalRowCount;
+
+        long IGridQuerySource.TotalCount => _totalRowCount;
+
+        public event EventHandler? QueryResultInvalidated;
 
         private GridVirtualDataSource(long count, Func<long, int, IEnumerable<VirtualRowData>> getRows, Action<long, int, int> preload)
         {
@@ -27,6 +34,33 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Virtualization
 
         public IEnumerable<VirtualRowData> GetRows(long startIndex, int count)
             => _getRows(startIndex, count);
+
+        /// <summary>
+        /// In-memory implementation of the server-side query contract. It
+        /// materializes the source, then runs the same query pipeline a
+        /// remote source would run: filter → group → sort → page.
+        /// </summary>
+        public Task<GridQueryResult> QueryAsync(GridQuery query, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            query ??= new GridQuery();
+
+            int count = (int)Math.Min(_totalRowCount, int.MaxValue);
+            var rows = new List<GridViewRow>(count);
+            foreach (var vr in _getRows(0, count))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                rows.Add(new GridViewRow
+                {
+                    RowId = vr.Index,
+                    SourceIndex = (int)vr.Index,
+                    OriginalItem = vr.OriginalItem,
+                    Values = new Dictionary<string, object?>(vr.Values, StringComparer.OrdinalIgnoreCase)
+                });
+            }
+
+            return Task.FromResult(GridQueryEngine.Execute(rows, query));
+        }
 
         public void PreloadWindow(long startIndex, int visibleCount, int overscan)
             => _preload(startIndex, visibleCount, overscan);
@@ -42,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Virtualization
             {
                 _totalRowCount = count;
                 TotalRowCountChanged?.Invoke(this, EventArgs.Empty);
+                QueryResultInvalidated?.Invoke(this, EventArgs.Empty);
             }
         }
 

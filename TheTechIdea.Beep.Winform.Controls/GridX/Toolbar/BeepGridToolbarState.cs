@@ -38,10 +38,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         public const string KeyFilter = "filter";
         public const string KeyAdvanced = "advanced";
         public const string KeySearchBox = "searchbox";
+        public const string KeySearchClear = "searchclear";
+        public const string KeySearchPrev = "searchprev";
+        public const string KeySearchNext = "searchnext";
 
         // ===== Public mutable state (set by host or renderer pre-paint) =====
         public string SearchText { get; set; } = string.Empty;
         public bool SearchHasFocus { get; set; }
+        public int SearchMatchCount { get; set; }
         public int ActiveFilterCount { get; set; }
         public bool IsFilterActive { get; set; }
         public float DpiScale { get; set; } = 1f;
@@ -99,6 +103,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
         public Rectangle SearchIconRect { get; private set; }
         public Rectangle SearchBoxRect { get; private set; }
+        public Rectangle SearchClearRect { get; private set; }
+        public Rectangle SearchCountRect { get; private set; }
+        public Rectangle SearchPrevRect { get; private set; }
+        public Rectangle SearchNextRect { get; private set; }
+        public int SearchTextRightReserve { get; private set; }
         public Rectangle FilterButtonRect { get; private set; }
         public Rectangle AdvancedButtonRect { get; private set; }
         public Rectangle ClearFilterRect { get; private set; }
@@ -133,6 +142,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             TitleSectionRect = ActionsSectionRect = SearchSectionRect = FilterSectionRect = ExportSectionRect = Rectangle.Empty;
             OverflowButtonRect = Rectangle.Empty;
             SearchIconRect = SearchBoxRect = FilterButtonRect = AdvancedButtonRect = Rectangle.Empty;
+            SearchClearRect = SearchCountRect = Rectangle.Empty;
+            SearchPrevRect = SearchNextRect = Rectangle.Empty;
+            SearchTextRightReserve = 0;
             ClearFilterRect = BadgeRect = Rectangle.Empty;
             Separator1X = Separator2X = Separator3X = 0;
             ResetButtonList(ActionButtons);
@@ -357,6 +369,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 SearchBoxRect = Rectangle.Empty;
                 SearchIconRect = Rectangle.Empty;
                 SearchSectionRect = Rectangle.Empty;
+                SearchClearRect = Rectangle.Empty;
+                SearchCountRect = Rectangle.Empty;
+                SearchTextRightReserve = 0;
             }
             else
             {
@@ -368,6 +383,42 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                     CenterY(bandY, bandHeight, iconSize),
                     iconSize, iconSize);
                 SearchSectionRect = SearchBoxRect;
+
+                // Reserve the right edge for a clear button and a compact
+                // match count. The painter and the live editor both use
+                // SearchTextRightReserve so text never runs under them.
+                bool hasSearchText = !string.IsNullOrEmpty(SearchText);
+                int edge = Math.Max(1, (int)Math.Ceiling(DpiScale));
+                int clearWidth = hasSearchText ? (int)(18 * DpiScale) : 0;
+                int navWidth = hasSearchText ? (int)(36 * DpiScale) : 0; // previous + next
+                int countWidth = hasSearchText && SearchMatchCount > 0 ? (int)(44 * DpiScale) : 0;
+                if (clearWidth + navWidth + countWidth > SearchBoxRect.Width / 2)
+                    countWidth = 0;
+                if (clearWidth + navWidth > SearchBoxRect.Width / 2)
+                    navWidth = 0;
+                SearchTextRightReserve = clearWidth + navWidth + countWidth;
+
+                int controlsRight = SearchBoxRect.Right - edge;
+                SearchClearRect = clearWidth > 0
+                    ? new Rectangle(controlsRight - clearWidth, bandY + edge, clearWidth,
+                        Math.Max(0, bandHeight - edge * 2))
+                    : Rectangle.Empty;
+
+                int nextWidth = navWidth > 0 ? navWidth / 2 : 0;
+                SearchNextRect = nextWidth > 0
+                    ? new Rectangle(SearchClearRect.Left - nextWidth, bandY + edge, nextWidth,
+                        Math.Max(0, bandHeight - edge * 2))
+                    : Rectangle.Empty;
+                SearchPrevRect = nextWidth > 0
+                    ? new Rectangle(SearchNextRect.Left - nextWidth, bandY + edge, nextWidth,
+                        Math.Max(0, bandHeight - edge * 2))
+                    : Rectangle.Empty;
+                SearchCountRect = countWidth > 0
+                    ? new Rectangle(SearchPrevRect.IsEmpty
+                            ? SearchClearRect.Left - countWidth
+                            : SearchPrevRect.Left - countWidth,
+                        bandY + edge, countWidth, Math.Max(0, bandHeight - edge * 2))
+                    : Rectangle.Empty;
             }
         }
 
@@ -585,6 +636,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             if (HitTestAdvancedButton(p)) return KeyAdvanced;
             if (OverflowButtonRect.Contains(p)) return KeyOverflow;
             if (ClearFilterRect.Contains(p) && IsFilterActive) return KeyClearFilter;
+            if (!SearchClearRect.IsEmpty && SearchClearRect.Contains(p)) return KeySearchClear;
+            if (!SearchNextRect.IsEmpty && SearchNextRect.Contains(p)) return KeySearchNext;
+            if (!SearchPrevRect.IsEmpty && SearchPrevRect.Contains(p)) return KeySearchPrev;
             if (HitTestSearchBox(p)) return KeySearchBox;
 
             return null;

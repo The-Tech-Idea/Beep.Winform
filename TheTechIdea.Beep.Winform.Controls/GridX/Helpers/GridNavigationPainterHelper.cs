@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.GridX.Chrome;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
  
 
@@ -29,6 +30,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Painter-based navigation
         private INavigationPainter? _currentPainter;
         private navigationStyle _navigationStyle = navigationStyle.Material;
+        private Rectangle _navigationStatusRect = Rectangle.Empty;
+        private Rectangle _pageSizeRect = Rectangle.Empty;
+
+        /// <summary>Clickable status area painted by the navigator.</summary>
+        public Rectangle NavigationStatusRect => _navigationStatusRect;
+        public Rectangle PageSizeRect => _pageSizeRect;
 
         // Configuration properties
         public bool ShowGridLines { get; set; } = true;
@@ -160,6 +167,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 // Delegate to painter with guaranteed theme
                 _currentPainter.PaintNavigation(g, navRect, _grid, theme);
+
+                // Paint the shared record/filter/selection status in the free
+                // space between the navigation group and the center indicator.
+                DrawNavigationStatus(g, navRect);
             }
             catch (Exception ex)
             {
@@ -187,6 +198,84 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// Simple fallback navigation when the painter throws an exception.
         /// Uses only the safest GDI+ calls to render a basic nav bar.
         /// </summary>
+        private void DrawNavigationStatus(Graphics g, Rectangle navRect)
+        {
+            _navigationStatusRect = Rectangle.Empty;
+            _pageSizeRect = Rectangle.Empty;
+            if (_currentPainter == null) return;
+
+            var layout = _currentPainter.CalculateLayout(navRect, _grid.Data.Rows.Count, true);
+            int left = layout.LastButtonRect.IsEmpty ? navRect.Left + 12 : layout.LastButtonRect.Right + 12;
+            int right = navRect.Right - 12;
+            if (!layout.PreviousButtonRect.IsEmpty && layout.PreviousButtonRect.Left > left)
+                right = Math.Min(right, layout.PreviousButtonRect.Left - 12);
+            if (!layout.FirstButtonRect.IsEmpty && layout.FirstButtonRect.Left > left)
+                right = Math.Min(right, layout.FirstButtonRect.Left - 12);
+            if (!layout.PositionIndicatorRect.IsEmpty && layout.PositionIndicatorRect.Left > left)
+                right = Math.Min(right, layout.PositionIndicatorRect.Left - 12);
+            var rect = Rectangle.FromLTRB(left, navRect.Top + 2, Math.Max(left, right), navRect.Bottom - 2);
+            if (rect.Width < 80) return;
+
+            var chrome = _grid.ChromeState;
+            float dpi = _grid.DeviceDpi / 96f;
+            int pageSizeWidth = (int)(64 * dpi);
+            var statusRect = rect;
+
+            if (rect.Width > pageSizeWidth + 80)
+            {
+                _pageSizeRect = new Rectangle(rect.Right - pageSizeWidth, rect.Top,
+                    pageSizeWidth, rect.Height);
+                statusRect = Rectangle.FromLTRB(rect.Left, rect.Top,
+                    _pageSizeRect.Left - 8, rect.Bottom);
+
+                string pageSizeText = _grid.PageSize > 0 ? _grid.PageSize.ToString() : "Auto";
+                TextRenderer.DrawText(g, $"{pageSizeText} ▾", _grid.Font, _pageSizeRect,
+                    chrome.MutedForeground,
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter |
+                    TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+            }
+
+            _navigationStatusRect = statusRect;
+            string text = GetNavigationStatusText();
+            TextRenderer.DrawText(g, text, _grid.Font, statusRect, chrome.MutedForeground,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
+                TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+        }
+
+        /// <summary>
+        /// Shared status text for the navigator: visible/total, filtered state,
+        /// and selected count. Virtual mode uses the query source's total.
+        /// </summary>
+        internal string GetNavigationStatusText()
+        {
+            bool virtualMode = _grid.EnableVirtualization && _grid.VirtualDataSource != null;
+            long virtualCount = _grid.VirtualRowCount;
+            long total = virtualMode
+                ? (virtualCount > 0 ? virtualCount : 0)
+                : (long)_grid.Data.Rows.Count;
+
+            long visible = total;
+            if (!virtualMode)
+            {
+                visible = 0;
+                foreach (var row in _grid.Data.Rows)
+                {
+                    if (row.IsVisible) visible++;
+                }
+            }
+
+            bool filtered = _grid.IsFiltered || (_grid.SortFilter?.HasActiveFilters ?? false);
+            var metrics = GridChromeMetrics.Resolve(_grid);
+            bool compact = metrics.Breakpoint is GridChromeBreakpoint.Narrow or GridChromeBreakpoint.Medium;
+            string text = filtered
+                ? (compact ? $"{visible:N0}/{total:N0}" : $"{visible:N0} of {total:N0} (filtered)")
+                : (compact ? $"{total:N0}" : $"{total:N0} records");
+
+            int selected = _grid.SelectedRowIndices.Count;
+            if (selected > 0 && !compact) text += $" · {selected} selected";
+            return text;
+        }
+
         private void DrawSimpleFallbackNavigation(Graphics g, Rectangle navRect)
         {
             // Background
@@ -582,11 +671,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (font != null) return font;
                 }
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // A theme font naming a family this machine does not have. That is the only
-                // failure worth absorbing here; catching everything hid unrelated faults behind
-                // a font fallback.
+                GridErrorReporter.FallbackOnce("GridNavigationPainterHelper.Font", null,
+                    "resolve navigation font", ex);
             }
             return SystemFonts.DefaultFont;
         }

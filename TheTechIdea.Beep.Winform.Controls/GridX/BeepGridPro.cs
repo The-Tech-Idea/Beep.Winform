@@ -1,4 +1,4 @@
-﻿
+
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
@@ -153,8 +153,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             // Only setup complex initialization if not in design mode
             if (!DesignMode)
             {
-                // Subscribe to column model changes so designer edits are reflected immediately
-                HookColumnsCollection(Data.Columns);
+                // Column model changes are observed by GridDataHelper, which is
+                // the single subscriber for collection and property changes.
                 // Enable Excel-like filter popup automatically
                 this.EnableExcelFilter();
             }
@@ -171,62 +171,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             AccessibleRole = AccessibleRole.Table;
             AccessibleName = "Data Grid";
             AccessibleDescription = "Data grid with rows and columns";
+
+            // Align the initial visual state with GridStyle's declared default
+            // (Bootstrap), including the matching navigation painter.
+            ApplyGridStyle();
+        }
+
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+            if (Layout == null) return;
+            Layout.RowMetrics.Invalidate();
+            Layout.Recalculate();
+            SafeInvalidate();
         }
         #endregion
 
         #region Column Collection Management
-        private void HookColumnsCollection(BeepGridColumnConfigCollection cols)
-        {
-            if (cols == null) return;
-            cols.ListChanged -= Columns_ListChanged; // avoid duplicates
-            cols.ListChanged += Columns_ListChanged;
-            // Subscribe to existing items
-            foreach (var col in cols)
-            {
-                if (col is INotifyPropertyChanged inpc)
-                {
-                    inpc.PropertyChanged -= Column_PropertyChanged;
-                    inpc.PropertyChanged += Column_PropertyChanged;
-                }
-            }
-        }
-        #endregion
-
-        #region Event Handlers - Column Collection
-        private void Columns_ListChanged(object? sender, ListChangedEventArgs e)
-        {
-            // Skip excessive processing in design mode
-            if (DesignMode) return;
-            
-            // Subscribe to added items
-            if (e.ListChangedType == ListChangedType.ItemAdded && e.NewIndex >= 0 && e.NewIndex < Data.Columns.Count)
-            {
-                var col = Data.Columns[e.NewIndex];
-                if (col is INotifyPropertyChanged inpc)
-                {
-                    inpc.PropertyChanged -= Column_PropertyChanged;
-                    inpc.PropertyChanged += Column_PropertyChanged;
-                }
-            }
-            else if (e.ListChangedType == ListChangedType.Reset)
-            {
-                // Re-hook all
-                HookColumnsCollection(Data.Columns);
-            }
-
-            SafeRecalculate();
-            Invalidate();
-        }
-
-        private void Column_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            // Skip excessive processing in design mode
-            if (DesignMode) return;
-            
-            SafeRecalculate();
-            Invalidate();
-        }
-
         private void SafeRecalculate()
         {
             // Inside a BeginInit/EndInit batch layout is recalculated once, at EndInit
@@ -425,7 +386,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             base.ApplyTheme();
             ThemeHelper.ApplyTheme();
-            ApplyGridStyle(); // Apply grid Style after theme
+            Render?.DisposeFontCache();
+            // GridStyle is structural, not colour. Re-applying it on every
+            // theme change used to overwrite the host's NavigationStyle and
+            // any explicit RowHeight/ColumnHeaderHeight. Theme changes only
+            // need a repaint; style is applied when GridStyle is set.
             Invalidate();
         }
 
@@ -439,6 +404,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (theme == null) return;
 
             // Apply Style-specific customizations (layout and visual effects only, no color changes)
+            // Every branch starts from a clean slate so switching from Card or
+            // Material cannot leave CardStyle/UseElevation behind.
+            Render.UseElevation = false;
+            Render.CardStyle = false;
+
             switch (_gridStyle)
             {
                 case BeepGridStyle.Default:
@@ -661,6 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         public void RefreshGrid()
         {
+            Footer.Invalidate();
             Data.RefreshRows();
             SafeRecalculate();
             ScrollBars?.UpdateBars();
@@ -668,35 +639,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         /// <summary>
-        /// Recalculates all heights (ColumnHeaderHeight, RowHeight, NavigatorHeight) using painter-based calculations
-        /// that account for font sizes and style-specific spacing requirements
+        /// Recalculates the layout so heights reflect the current fonts and
+        /// DPI. Explicit <see cref="RowHeight"/> / <see cref="ColumnHeaderHeight"/>
+        /// values are preserved; pass <paramref name="force"/> to discard them
+        /// and derive both from the painter/font metrics.
         /// </summary>
-        public void RecalculateHeightsFromPainters()
+        public void RecalculateHeightsFromPainters(bool force = false)
         {
-            // Calculate header height from the cached column header painter (font-aware)
-            ColumnHeaderHeight = HeaderPainter?.CalculateHeaderHeight(this) ?? ColumnHeaderHeight;
+            if (Layout == null) return;
 
-            // Calculate row height from data font (font-aware)
-            if (Font != null)
-            {
-                int baseFontHeight = Font.Height;
-                int cellPadding = Render?.HeaderCellPadding ?? 2;
-                RowHeight = baseFontHeight + (cellPadding * 2) + 4; // 4px for comfortable spacing
-            }
+            if (force)
+                Layout.ResetExplicitHeights();
 
-            // Calculate navigator height from navigator painter if enabled (already has font-aware calculation)
-            if (ShowNavigator && NavigatorPainter != null)
-            {
-                Layout.NavigatorHeight = NavigatorPainter.GetRecommendedNavigatorHeight();
-            }
-            else if (!ShowNavigator)
-            {
-                Layout.NavigatorHeight = 0;
-            }
-
-            // Recalculate layout with new heights
-            SafeRecalculate();
-            Invalidate();
+            Layout.Recalculate();
+            SafeInvalidate();
         }
 
         /// <summary>
@@ -958,6 +914,71 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         public string ExportToString(Export.GridExportFormat format, Export.ExportOptions? options = null)
             => ExportEngine.ExportToString(this, format, options);
+
+        /// <summary>
+        /// Export to a file without blocking the UI. The snapshot is taken
+        /// before the first await, and a failed/cancelled export leaves the
+        /// previous file untouched.
+        /// </summary>
+        public System.Threading.Tasks.Task<bool> ExportToFileAsync(
+            string filePath,
+            Export.GridExportFormat format,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportEngine.ExportToFileAsync(this, filePath, format, options, progress, cancellationToken);
+
+        /// <summary>Export to a caller-owned stream without blocking the UI.</summary>
+        public System.Threading.Tasks.Task<bool> ExportToStreamAsync(
+            System.IO.Stream output,
+            Export.GridExportFormat format,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportEngine.ExportToStreamAsync(this, output, format, options, progress, cancellationToken);
+
+        /// <summary>Export to a string without blocking the UI.</summary>
+        public System.Threading.Tasks.Task<string?> ExportToStringAsync(
+            Export.GridExportFormat format,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportEngine.ExportToStringAsync(this, format, options, progress, cancellationToken);
+
+        public System.Threading.Tasks.Task<bool> ExportToCsvAsync(
+            string filePath,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportToFileAsync(filePath, Export.GridExportFormat.Csv, options, progress, cancellationToken);
+
+        public System.Threading.Tasks.Task<bool> ExportToJsonAsync(
+            string filePath,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportToFileAsync(filePath, Export.GridExportFormat.Json, options, progress, cancellationToken);
+
+        public System.Threading.Tasks.Task<bool> ExportToHtmlAsync(
+            string filePath,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportToFileAsync(filePath, Export.GridExportFormat.Html, options, progress, cancellationToken);
+
+        public System.Threading.Tasks.Task<bool> ExportToExcelAsync(
+            string filePath,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportToFileAsync(filePath, Export.GridExportFormat.Excel, options, progress, cancellationToken);
+
+        public System.Threading.Tasks.Task<bool> ExportToPdfAsync(
+            string filePath,
+            Export.ExportOptions? options = null,
+            System.IProgress<Export.GridExportProgress>? progress = null,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ExportToFileAsync(filePath, Export.GridExportFormat.Pdf, options, progress, cancellationToken);
         #endregion
 
         #region Grouping
@@ -1049,12 +1070,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     _enableVirtualization = value;
                     if (value)
                     {
+                        if (QuerySource != null)
+                        {
+                            Data.Rows.Clear();
+                            int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
+                            RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
+                        }
                         // Virtualization mode: clear in-memory rows, virtualizer takes over
-                        if (_regularDataSource != null && VirtualDataSource == null)
+                        else if (_regularDataSource != null && VirtualDataSource == null && QuerySource == null)
                         {
                             Data.Rows.Clear();
                             var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
-                            VirtualDataSource = CreateVirtualDataSource(_regularDataSource, columnNames);
+                            VirtualDataSource = CreateVirtualDataSource(Data.Binding?.NormalizedSource ?? _regularDataSource, columnNames);
                             int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
                             RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
                         }
@@ -1063,6 +1090,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     {
                         // Normal mode: restore full data binding
                         VirtualDataSource = null;
+                        QuerySource = null;
                         if (_regularDataSource != null)
                         {
                             DataController.BindComplete(_regularDataSource);
@@ -1149,6 +1177,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         [Browsable(false)]
         public long VirtualRowCount => RowVirtualizer.TotalRowCount;
+
+        /// <summary>
+        /// Attaches a server-side query source for paging, sorting, and
+        /// filtering. The grid asks it for windows instead of materializing
+        /// the whole data set.
+        /// </summary>
+        [Browsable(false)]
+        public Query.IGridQuerySource? QuerySource
+        {
+            get => RowVirtualizer.QuerySource;
+            set => RowVirtualizer.AttachQuerySource(value);
+        }
         #endregion
 
         // Context menu related methods in BeepGridPro.ContextMenu.cs partial
@@ -1185,6 +1225,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
                 if (VirtualDataSource != null)
                     VirtualDataSource = null;
+
+                _rowVirtualizer?.Dispose();
+                Render?.DisposeRenderCache();
 
                 if (_autoSizeDebounceTimer != null)
                 {

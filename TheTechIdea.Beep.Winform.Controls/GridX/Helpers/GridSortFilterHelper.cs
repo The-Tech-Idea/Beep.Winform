@@ -27,6 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (col == null) return;
 
             col.SortDirection = direction;
+            col.IsSorted = direction != SortDirection.None;
+            if (direction == SortDirection.None)
+                col.SortOrder = 0;
 
             // When grouping is active, do not globally reorder rows — sort within groups instead.
             if (_grid.GroupEngine.IsGrouped)
@@ -47,19 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     // Sorting a non-group column: sort rows inside each group
                     _grid.GroupEngine.SortWithinGroups(columnName, direction);
                 }
-                return;
-            }
-
-            if (TryApplySourceSort(col, direction))
-            {
-                return;
-            }
-
-            // Never reorder local rows in UOW mode when source sort cannot be applied:
-            // grid row index must stay aligned with UOW cursor/index operations.
-            if (_grid.Uow != null)
-            {
-                _grid.SafeInvalidate();
                 return;
             }
 
@@ -151,11 +141,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             UpdateFilteredColumnFlags();
 
-            if (TryClearSourceFilter())
-            {
-                return;
-            }
-
             SetAllRowsVisible();
             RecalculateAndInvalidate();
         }
@@ -190,6 +175,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// active-filter chips row can render them identically to
         /// <see cref="BeepGridPro.ActiveFilter"/> criteria.
         /// </summary>
+        internal void AppendQueryConditions(Query.GridQuery query)
+        {
+            var group = new Query.GridFilterGroup { Logic = FilterLogic.And };
+
+            foreach (var pair in _containsFilters)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Value)) continue;
+                group.Conditions.Add(new Query.GridFilterCondition
+                {
+                    ColumnName = pair.Key,
+                    Operator = FilterOperator.Contains,
+                    Value = pair.Value
+                });
+            }
+
+            foreach (var pair in _inFilters)
+            {
+                if (pair.Value == null || pair.Value.Count == 0) continue;
+                group.Conditions.Add(new Query.GridFilterCondition
+                {
+                    ColumnName = pair.Key,
+                    Operator = FilterOperator.In,
+                    Value = string.Join("\u001F", pair.Value)
+                });
+            }
+
+            if (group.Conditions.Count > 0)
+                query.Filters.Add(group);
+        }
+
         public IReadOnlyList<FilterCriteria> GetActiveColumnCriteria()
         {
             var criteria = new List<FilterCriteria>();
@@ -215,336 +230,42 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void ApplyFilterState()
         {
-            if (TryApplySourceFilter())
-            {
-                return;
-            }
-
             ApplyLocalVisibilityFilter();
         }
 
-        private bool TryApplySourceSort(BeepColumnConfig column, SortDirection direction)
-        {
-            if (column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID || column.IsUnbound)
-            {
-                return false;
-            }
-
-            var bs = _grid.Navigator.GetBindingSource();
-            if (bs == null) return false;
-
-            var descriptor = ResolvePropertyDescriptor(bs, column.ColumnName);
-            if (descriptor != null && bs.List is IBindingList bindingList && bindingList.SupportsSorting)
-            {
-                try
-                {
-                    var listDirection = direction == SortDirection.Descending
-                        ? ListSortDirection.Descending
-                        : ListSortDirection.Ascending;
-
-                    bindingList.ApplySort(descriptor, listDirection);
-                    bs.ResetBindings(false);
-                    RebindFromBindingSource(bs);
-                    return true;
-                }
-                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
-                {
-                    // A source that cannot sort the way this strategy asks throws one of
-                    // these; the next strategy below handles it. Narrowed so an unrelated
-                    // fault is no longer mistaken for "this source does not support it".
-                }
-            }
-
-            if (bs.SupportsSorting)
-            {
-                try
-                {
-                    var expression = direction switch
-                    {
-                        SortDirection.Ascending => $"{EscapeIdentifier(column.ColumnName)} ASC",
-                        SortDirection.Descending => $"{EscapeIdentifier(column.ColumnName)} DESC",
-                        _ => string.Empty
-                    };
-
-                    bs.Sort = string.IsNullOrWhiteSpace(expression) ? null : expression;
-                    RebindFromBindingSource(bs);
-                    return true;
-                }
-                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
-                {
-                    // A source that cannot sort the way this strategy asks throws one of
-                    // these; the next strategy below handles it. Narrowed so an unrelated
-                    // fault is no longer mistaken for "this source does not support it".
-                }
-            }
-
-            // In non-UOW mode, try reordering the underlying list when BindingSource.Sort is unavailable.
-            if (_grid.Uow == null && TrySortUnderlyingList(bs, column.ColumnName, direction))
-            {
-                RebindFromBindingSource(bs);
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool TrySortUnderlyingList(BindingSource bs, string columnName, SortDirection direction)
-        {
-            if (direction != SortDirection.Ascending && direction != SortDirection.Descending)
-            {
-                return false;
-            }
-
-            if (bs.List is not IList list || list.IsReadOnly || list.Count <= 1)
-            {
-                return false;
-            }
-
-            var descriptor = ResolvePropertyDescriptor(bs, columnName);
-            if (descriptor == null)
-            {
-                return false;
-            }
-
-            var items = list.Cast<object>().ToList();
-            IOrderedEnumerable<object> ordered = direction == SortDirection.Ascending
-                ? items.OrderBy(item => descriptor.GetValue(item), SortValueComparer)
-                : items.OrderByDescending(item => descriptor.GetValue(item), SortValueComparer);
-
-            var sortedItems = ordered.ToList();
-            if (sortedItems.Count != list.Count)
-            {
-                return false;
-            }
-
-            list.Clear();
-            foreach (var item in sortedItems)
-            {
-                list.Add(item);
-            }
-
-            bs.ResetBindings(false);
-            return true;
-        }
-
-        private static PropertyDescriptor? ResolvePropertyDescriptor(BindingSource bs, string columnName)
-        {
-            try
-            {
-                var props = bs.GetItemProperties(null);
-                var pd = props?.Find(columnName, true);
-                if (pd != null) return pd;
-            }
-            catch (Exception ex) when (ex is InvalidOperationException
-                                       or NotSupportedException or ArgumentException)
-            {
-                // The source cannot describe its item properties yet - normal before it is
-                // materialised. The reflection fallback below covers it.
-            }
-
-            if (bs.Count > 0 && bs[0] != null)
-            {
-                return TypeDescriptor.GetProperties(bs[0]).Find(columnName, true);
-            }
-
-            return null;
-        }
-
-        private bool TryApplySourceFilter()
-        {
-            var bs = _grid.Navigator.GetBindingSource();
-            if (bs == null)
-            {
-                return false;
-            }
-
-            if (bs.List is IBindingListView bindingListView && bindingListView.SupportsFiltering)
-            {
-                string bindingListExpression = BuildBindingListViewFilterExpression();
-
-                try
-                {
-                    bindingListView.Filter = string.IsNullOrWhiteSpace(bindingListExpression) ? null : bindingListExpression;
-                    bs.ResetBindings(false);
-                    RebindFromBindingSource(bs);
-                    return true;
-                }
-                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
-                {
-                    // This source does not accept an IBindingListView filter expression;
-                    // the DataView path below is tried next.
-                }
-            }
-
-            if (!bs.SupportsFiltering)
-            {
-                return false;
-            }
-
-            string dataViewExpression = BuildDataViewFilterExpression();
-
-            try
-            {
-                bs.Filter = string.IsNullOrWhiteSpace(dataViewExpression) ? null : dataViewExpression;
-                RebindFromBindingSource(bs);
-                return true;
-            }
-            catch (Exception ex) when (ex is NotSupportedException or ArgumentException
-                                       or InvalidOperationException or System.Data.DataException)
-            {
-                // The last strategy on this path. Returning false tells the caller the source
-                // would not do it itself, and the grid falls back to filtering in memory.
-                return false;
-            }
-        }
-
-        private bool TryClearSourceFilter()
-        {
-            var bs = _grid.Navigator.GetBindingSource();
-            if (bs == null)
-            {
-                return false;
-            }
-
-            if (bs.List is IBindingListView bindingListView && bindingListView.SupportsFiltering)
-            {
-                try
-                {
-                    bindingListView.Filter = null;
-                    bs.ResetBindings(false);
-                    RebindFromBindingSource(bs);
-                    return true;
-                }
-                catch (Exception ex) when (ex is NotSupportedException or ArgumentException or InvalidOperationException or System.Data.DataException)
-                {
-                    // Clearing through IBindingListView was refused; fall through to
-                    // BindingSource.Filter.
-                }
-            }
-
-            if (!bs.SupportsFiltering)
-            {
-                return false;
-            }
-
-            try
-            {
-                bs.Filter = null;
-                RebindFromBindingSource(bs);
-                return true;
-            }
-            catch (Exception ex) when (ex is NotSupportedException or ArgumentException
-                                       or InvalidOperationException or System.Data.DataException)
-            {
-                // The last strategy on this path. Returning false tells the caller the source
-                // would not do it itself, and the grid falls back to filtering in memory.
-                return false;
-            }
-        }
-
-        private string BuildBindingListViewFilterExpression()
-        {
-            var clauses = new List<string>();
-
-            foreach (var pair in _containsFilters)
-            {
-                if (string.IsNullOrWhiteSpace(pair.Value)) continue;
-
-                string identifier = pair.Key;
-                string value = EscapeBindingListLikeLiteral(pair.Value);
-                clauses.Add($"{identifier} LIKE '%{value}%'");
-            }
-
-            foreach (var pair in _inFilters)
-            {
-                if (pair.Value == null || pair.Value.Count == 0) continue;
-
-                string identifier = pair.Key;
-                var values = pair.Value
-                    .Select(v => $"{identifier} = '{EscapeBindingListStringLiteral(v)}'")
-                    .ToList();
-
-                if (values.Count > 0)
-                {
-                    clauses.Add($"({string.Join(" OR ", values)})");
-                }
-            }
-
-            return string.Join(" AND ", clauses);
-        }
-
-        private string BuildDataViewFilterExpression()
-        {
-            var clauses = new List<string>();
-
-            foreach (var pair in _containsFilters)
-            {
-                if (string.IsNullOrWhiteSpace(pair.Value)) continue;
-
-                string identifier = EscapeIdentifier(pair.Key);
-                string value = EscapeLikeLiteral(pair.Value);
-                clauses.Add($"CONVERT({identifier}, 'System.String') LIKE '%{value}%'");
-            }
-
-            foreach (var pair in _inFilters)
-            {
-                if (pair.Value == null || pair.Value.Count == 0) continue;
-
-                string identifier = EscapeIdentifier(pair.Key);
-                var values = pair.Value
-                    .Select(v => $"CONVERT({identifier}, 'System.String') = '{EscapeStringLiteral(v)}'")
-                    .ToList();
-
-                if (values.Count > 0)
-                {
-                    clauses.Add($"({string.Join(" OR ", values)})");
-                }
-            }
-
-            return string.Join(" AND ", clauses);
-        }
-
-        private static string EscapeIdentifier(string columnName)
-        {
-            return "[" + (columnName ?? string.Empty).Replace("]", "]]") + "]";
-        }
-
-        private static string EscapeLikeLiteral(string value)
-        {
-            // DataView RowFilter LIKE escaping for literal wildcard chars.
-            return EscapeStringLiteral(value)
-                .Replace("[", "[[]")
-                .Replace("%", "[%]")
-                .Replace("*", "[*]");
-        }
-
-        private static string EscapeStringLiteral(string value)
-        {
-            return (value ?? string.Empty).Replace("'", "''");
-        }
-
-        private static string EscapeBindingListStringLiteral(string value)
-        {
-            // ObservableBindingList filter parser expects raw values inside single quotes.
-            // Do not SQL-escape quotes here.
-            return value ?? string.Empty;
-        }
-
-        private static string EscapeBindingListLikeLiteral(string value)
-        {
-            // ObservableBindingList LIKE parser handles % wildcard directly.
-            return EscapeBindingListStringLiteral(value);
-        }
-
         /// <summary>
-        /// Reorders rows by every sorted column, honouring <see cref="BeepColumnConfig.SortOrder"/>.
+        /// Re-applies the current per-column filters after the grid's active
+        /// search filter was removed. Keeps unrelated column filters intact.
         /// </summary>
-        /// <remarks>
-        /// The column passed in is only the trigger — the sort is rebuilt from the full set of
-        /// sorted columns so shift-click multi-sort actually orders the data. Sorting by the
-        /// triggering column alone made the header's order badges (1, 2, 3…) describe an ordering
-        /// the rows did not have.
-        /// </remarks>
+        internal void ReapplyCurrentFilters() => ApplyFilterState();
+
+        internal void PruneUnknownColumns()
+        {
+            var known = new HashSet<string>(
+                _grid.Data.Columns.Select(c => c.ColumnName),
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var key in _containsFilters.Keys.Where(key => !known.Contains(key)).ToList())
+                _containsFilters.Remove(key);
+
+            foreach (var key in _inFilters.Keys.Where(key => !known.Contains(key)).ToList())
+                _inFilters.Remove(key);
+        }
+
+        internal bool HasActiveSort => _grid.Data.Columns.Any(c => c != null &&
+            c.IsSorted && c.SortDirection != SortDirection.None);
+
+        internal void ReapplyView()
+        {
+            if (HasActiveSort)
+                ApplyLocalSort(string.Empty, SortDirection.None);
+
+            if (HasActiveFilters || (_grid.ActiveFilter?.Criteria.Count > 0))
+                ApplyLocalVisibilityFilter();
+            else
+                RecalculateAndInvalidate();
+        }
+
         private void ApplyLocalSort(string columnName, SortDirection direction)
         {
             var sortedColumns = _grid.Data.Columns
@@ -559,32 +280,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            IOrderedEnumerable<BeepRowConfig>? ordered = null;
+            var query = new Query.GridQuery();
             foreach (var col in sortedColumns)
             {
-                string name = col.ColumnName;
-                Func<BeepRowConfig, object?> key = row => GetColumnValue(row, name);
-
-                if (ordered == null)
+                query.Sorts.Add(new Query.GridSortDescriptor
                 {
-                    ordered = col.SortDirection == SortDirection.Descending
-                        ? _grid.Data.Rows.OrderByDescending(key, SortValueComparer)
-                        : _grid.Data.Rows.OrderBy(key, SortValueComparer);
-                }
-                else
-                {
-                    ordered = col.SortDirection == SortDirection.Descending
-                        ? ordered.ThenByDescending(key, SortValueComparer)
-                        : ordered.ThenBy(key, SortValueComparer);
-                }
+                    ColumnName = col.ColumnName,
+                    Direction = col.SortDirection
+                });
             }
 
-            var result = ordered!.ToList();
+            var sourceRows = _grid.Data.Rows.ToList();
+            var view = Query.GridView.Build(_grid.Data.Rows, _grid.Data.Columns, includeHidden: true);
+            view.Apply(query);
+
             _grid.Data.Rows.Clear();
-            for (int i = 0; i < result.Count; i++)
+            for (int i = 0; i < view.Rows.Count; i++)
             {
-                result[i].DisplayIndex = i;
-                _grid.Data.Rows.Add(result[i]);
+                var row = sourceRows[view.Rows[i].SourceIndex];
+                row.DisplayIndex = i;
+                _grid.Data.Rows.Add(row);
             }
 
             RecalculateAndInvalidate();
@@ -592,148 +307,60 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void ApplyLocalVisibilityFilter()
         {
-            bool hasFilters = _containsFilters.Count > 0 || _inFilters.Count > 0;
+            bool hasFilters = _containsFilters.Count > 0 || _inFilters.Count > 0 ||
+                              (_grid.ActiveFilter?.Criteria.Count > 0);
 
-            for (int i = 0; i < _grid.Data.Rows.Count; i++)
+            if (!hasFilters)
             {
-                var row = _grid.Data.Rows[i];
-                bool visible = !hasFilters || MatchesAllLocalFilters(row);
-                row.IsVisible = visible;
+                for (int i = 0; i < _grid.Data.Rows.Count; i++)
+                    _grid.Data.Rows[i].IsVisible = true;
+            }
+            else
+            {
+                var query = new Query.GridQuery();
+                if (_grid.ActiveFilter is { Criteria.Count: > 0 } activeFilter)
+                {
+                    foreach (var activeGroup in BeepGridPro.BuildQuery(activeFilter).Filters)
+                        query.Filters.Add(activeGroup);
+                }
+
+                var group = new Query.GridFilterGroup { Logic = FilterLogic.And };
+
+                foreach (var pair in _containsFilters)
+                {
+                    if (string.IsNullOrWhiteSpace(pair.Value)) continue;
+                    group.Conditions.Add(new Query.GridFilterCondition
+                    {
+                        ColumnName = pair.Key,
+                        Operator = FilterOperator.Contains,
+                        Value = pair.Value
+                    });
+                }
+
+                foreach (var pair in _inFilters)
+                {
+                    if (pair.Value == null || pair.Value.Count == 0) continue;
+                    group.Conditions.Add(new Query.GridFilterCondition
+                    {
+                        ColumnName = pair.Key,
+                        Operator = FilterOperator.In,
+                        Value = string.Join("\u001F", pair.Value)
+                    });
+                }
+
+                query.Filters.Add(group);
+
+                var view = Query.GridView.Build(_grid.Data.Rows, _grid.Data.Columns, includeHidden: true);
+                view.Apply(query);
+                var visibleSources = new HashSet<int>(view.Rows.Select(r => r.SourceIndex));
+
+                for (int i = 0; i < _grid.Data.Rows.Count; i++)
+                    _grid.Data.Rows[i].IsVisible = visibleSources.Contains(i);
             }
 
+            _grid.Layout.RowMetrics.Invalidate();
             EnsureSelectionVisible();
             RecalculateAndInvalidate();
-        }
-
-        private bool MatchesAllLocalFilters(BeepRowConfig row)
-        {
-            foreach (var pair in _containsFilters)
-            {
-                var value = Convert.ToString(GetColumnValue(row, pair.Key)) ?? string.Empty;
-                if (!value.Contains(pair.Value, StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-            }
-
-            foreach (var pair in _inFilters)
-            {
-                var value = Convert.ToString(GetColumnValue(row, pair.Key)) ?? string.Empty;
-                if (!pair.Value.Contains(value))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private static object? GetColumnValue(BeepRowConfig row, string columnName)
-        {
-            var cell = row.Cells.FirstOrDefault(c => string.Equals(c.ColumnName, columnName, StringComparison.OrdinalIgnoreCase));
-            return cell?.CellValue;
-        }
-
-        private void RebindFromBindingSource(BindingSource bs)
-        {
-            TryCommitPendingEdit();
-
-            object? selectedRowData = null;
-            object? selectedRowIdentity = null;
-            int selectedRow = _grid.Selection.RowIndex;
-            int selectedCol = _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0;
-            int bindingSourcePosition = bs.Position;
-
-            if (_grid.Selection.HasSelection &&
-                selectedRow >= 0 &&
-                selectedRow < _grid.Rows.Count)
-            {
-                selectedRowData = _grid.Rows[selectedRow].RowData;
-                if (selectedRowData is DataRowView selectedView)
-                {
-                    selectedRowIdentity = selectedView.Row;
-                }
-                else if (selectedRowData is DataRow selectedDataRow)
-                {
-                    selectedRowIdentity = selectedDataRow;
-                }
-                else
-                {
-                    selectedRowIdentity = selectedRowData;
-                }
-            }
-
-            // Keep binding intact when unchanged (important for ObservableBindingList/UOW mode).
-            if (!ReferenceEquals(_grid.Data.DataSource, bs))
-            {
-                _grid.Data.Bind(bs, triggerAutoSize: false, skipRows: _grid.EnableVirtualization);
-                _grid.DataController.SyncFullData();
-            }
-            else
-            {
-                _grid.Data.RefreshRows();
-                _grid.DataController.SyncFullData();
-            }
-
-            SetAllRowsVisible();
-
-            if (_grid.Rows.Count > 0)
-            {
-                int newRow = ResolveSelectionRow(selectedRowData, selectedRowIdentity, selectedRow, bindingSourcePosition);
-                int col = Math.Max(0, Math.Min(selectedCol, Math.Max(0, _grid.Columns.Count - 1)));
-                _grid.SelectCell(newRow, col);
-            }
-            else
-            {
-                _grid.Selection.Clear();
-            }
-
-            if (_grid.EnableVirtualization)
-            {
-                _grid.RowVirtualizer.Refresh();
-            }
-
-            RecalculateAndInvalidate();
-        }
-
-        private int ResolveSelectionRow(object? selectedRowData, object? selectedRowIdentity, int fallbackRow, int bindingSourcePosition)
-        {
-            if (selectedRowIdentity is DataRow selectedDataRow)
-            {
-                for (int i = 0; i < _grid.Rows.Count; i++)
-                {
-                    var rowData = _grid.Rows[i].RowData;
-                    if (rowData is DataRowView rowView && ReferenceEquals(rowView.Row, selectedDataRow))
-                    {
-                        return i;
-                    }
-
-                    if (rowData is DataRow row && ReferenceEquals(row, selectedDataRow))
-                    {
-                        return i;
-                    }
-                }
-            }
-
-            if (selectedRowData != null)
-            {
-                for (int i = 0; i < _grid.Rows.Count; i++)
-                {
-                    var rowData = _grid.Rows[i].RowData;
-                    if (ReferenceEquals(rowData, selectedRowData) || Equals(rowData, selectedRowData))
-                    {
-                        return i;
-                    }
-                }
-            }
-
-            if (bindingSourcePosition >= 0)
-            {
-                return Math.Max(0, Math.Min(bindingSourcePosition, _grid.Rows.Count - 1));
-            }
-
-            if (fallbackRow < 0) return 0;
-            return Math.Max(0, Math.Min(fallbackRow, _grid.Rows.Count - 1));
         }
 
         private void SetAllRowsVisible()
@@ -784,6 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void RecalculateAndInvalidate()
         {
+            _grid.Footer.Invalidate();
             _grid.Layout.Recalculate();
             _grid.ScrollBars?.UpdateBars();
             _grid.SafeInvalidate();
@@ -841,6 +469,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 catch (Exception ex) when (ex is ArgumentException or InvalidCastException)
                 {
+                    GridErrorReporter.FallbackOnce("SortFilter.Comparer", null,
+                        "compare mixed-type sort values", ex);
                     // IComparable.CompareTo throws ArgumentException when the other value is a
                     // different type - a mixed-type column. String comparison below still
                     // orders it sensibly.

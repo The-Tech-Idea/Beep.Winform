@@ -21,8 +21,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public BindingList<BeepRowConfig> Rows { get; } = new();
         public BeepGridColumnConfigCollection Columns { get; }
         private readonly Dictionary<INotifyPropertyChanged, PropertyChangedEventHandler> _rowChangeHandlers = new();
+        private readonly Dictionary<(Type Type, string Name), PropertyInfo?> _propertyCache = new();
         private INotifyCollectionChanged? _subscribedCollectionChanged;
         private IBindingList? _subscribedBindingList;
+        private System.Data.DataTable? _subscribedSchemaTable;
+        private string? _boundFieldSignature;
+        private bool _isGeneratingColumns;
+
+        internal TheTechIdea.Beep.Winform.Controls.GridX.Binding.GridDataBinding? Binding { get; private set; }
 
         public GridDataHelper(BeepGridPro grid)
         {
@@ -39,6 +45,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         private void Columns_ColumnPropertyChanged(object sender, ColumnPropertyChangedEventArgs e)
         {
+            if (_grid.IsApplyingLayoutState) return;
+
+            if (e.PropertyName is nameof(BeepColumnConfig.DisplayOrder)
+                or nameof(BeepColumnConfig.Width)
+                or nameof(BeepColumnConfig.Sticked)
+                or nameof(BeepColumnConfig.Visible))
+                _grid.MarkLayoutStateDirty();
+
             // Determine what kind of refresh is needed based on the property that changed
             switch (e.PropertyName)
             {
@@ -47,6 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 case nameof(BeepColumnConfig.MinWidth):
                 case nameof(BeepColumnConfig.MaxWidth):
                 case nameof(BeepColumnConfig.Index):
+                case nameof(BeepColumnConfig.DisplayOrder):
                 case nameof(BeepColumnConfig.Sticked):
                     // These require layout recalculation
                     _grid.Layout?.Recalculate();
@@ -85,18 +100,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         private void Columns_ListChanged(object sender, ListChangedEventArgs e)
         {
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                if (Columns[i].Index != i)
+                    Columns[i].Index = i;
+            }
+
             switch (e.ListChangedType)
             {
                 case ListChangedType.ItemAdded:
                 case ListChangedType.ItemDeleted:
                 case ListChangedType.Reset:
-                    // Column structure changed - need full layout recalculation
+                    if (!_isGeneratingColumns && !_grid.DataController.IsInBindComplete)
+                        SyncRowCellsToColumns();
                     _grid.Layout?.Recalculate();
                     _grid.Invalidate();
                     break;
 
                 case ListChangedType.ItemMoved:
-                    // Column order changed
+                    if (!_isGeneratingColumns && !_grid.DataController.IsInBindComplete)
+                        SyncRowCellsToColumns();
                     _grid.Layout?.Recalculate();
                     _grid.Invalidate();
                     break;
@@ -110,8 +133,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             UnsubscribeRowChangeHandlers();
             UnsubscribeCollectionChanged();
+            _propertyCache.Clear();
             DataSource = null;
             DataMember = null;
+            Binding = null;
+            _boundFieldSignature = null;
+        }
+
+        internal PropertyInfo? GetCachedProperty(Type type, string name)
+        {
+            var key = (type, name);
+            if (_propertyCache.TryGetValue(key, out var cached))
+                return cached;
+
+            var property = type.GetProperty(name,
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            _propertyCache[key] = property;
+            return property;
         }
 
         private void UnsubscribeCollectionChanged()
@@ -127,25 +165,48 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _subscribedBindingList.ListChanged -= OnDataListChanged;
                 _subscribedBindingList = null;
             }
+
+            if (_subscribedSchemaTable != null)
+            {
+                _subscribedSchemaTable.Columns.CollectionChanged -= OnSchemaTableChanged;
+                _subscribedSchemaTable = null;
+            }
         }
 
         private void OnCollectionDataChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            RefreshRows();
-            _grid.Layout?.Recalculate();
-            _grid.SafeInvalidate();
+            RefreshRowsAfterDataChange();
+        }
+
+        internal void RefreshBinding()
+        {
+            if (DataSource == null)
+            {
+                Binding = null;
+                return;
+            }
+
+            Binding = TheTechIdea.Beep.Winform.Controls.GridX.Binding.GridDataBinding.Create(
+                DataSource, _grid.DataMember, _grid);
+            _boundFieldSignature = BuildFieldSignature(Binding);
+            SubscribeCollectionChangedIfNeeded();
         }
 
         public void Bind(object dataSource, bool triggerAutoSize = true, bool skipRows = false)
         {
             DataSource = dataSource;
             DataMember = _grid.DataMember;
+            Binding = TheTechIdea.Beep.Winform.Controls.GridX.Binding.GridDataBinding.Create(dataSource, _grid.DataMember, _grid);
+            string fieldSignature = BuildFieldSignature(Binding);
+            bool schemaChanged = _boundFieldSignature != null && fieldSignature != _boundFieldSignature;
+            _boundFieldSignature = fieldSignature;
 
             SubscribeCollectionChangedIfNeeded();
             EnsureSystemColumns();
             
-            // Only auto-generate columns if none exist beyond system columns
-            if (Columns.Count <= GetSystemColumnCount())
+            // Only auto-generate columns if none exist beyond system columns,
+            // or when the replacement source has a different field signature.
+            if (Columns.Count <= GetSystemColumnCount() || schemaChanged)
             {
                 if (skipRows)
                 {
@@ -185,10 +246,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </remarks>
         private void RepaintAfterBind()
         {
+            _grid.Footer.Invalidate();
             _grid.Layout?.Recalculate();
             _grid.ScrollBars?.UpdateBars();
             _grid.SafeInvalidate();
         }
+
+        private static string BuildFieldSignature(TheTechIdea.Beep.Winform.Controls.GridX.Binding.GridDataBinding binding)
+            => string.Join("|", binding.Fields.Select(field => $"{field.Name}:{field.Type.FullName}"));
 
         private int GetSystemColumnCount()
         {
@@ -220,29 +285,60 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (resolved is IBindingList bindingList)
             {
                 if (ReferenceEquals(_subscribedBindingList, bindingList))
-                    return; // Already subscribed to this same list
+                {
+                    SubscribeSchemaTableIfNeeded();
+                    return;
+                }
 
                 UnsubscribeCollectionChanged();
                 _subscribedBindingList = bindingList;
                 bindingList.ListChanged += OnDataListChanged;
+                SubscribeSchemaTableIfNeeded();
                 return;
             }
 
             if (resolved is INotifyCollectionChanged incc)
             {
                 if (ReferenceEquals(_subscribedCollectionChanged, incc))
-                    return; // Already subscribed to this same collection
+                {
+                    SubscribeSchemaTableIfNeeded();
+                    return;
+                }
 
                 UnsubscribeCollectionChanged();
                 _subscribedCollectionChanged = incc;
                 incc.CollectionChanged += OnCollectionDataChanged;
+                SubscribeSchemaTableIfNeeded();
                 return;
             }
 
-            // Source changed to something that raises neither — release any old subscription
             UnsubscribeCollectionChanged();
+            SubscribeSchemaTableIfNeeded();
         }
 
+        private void SubscribeSchemaTableIfNeeded()
+        {
+            var table = Binding?.SchemaTable;
+            if (ReferenceEquals(_subscribedSchemaTable, table))
+                return;
+
+            if (_subscribedSchemaTable != null)
+            {
+                _subscribedSchemaTable.Columns.CollectionChanged -= OnSchemaTableChanged;
+                _subscribedSchemaTable = null;
+            }
+
+            if (table == null) return;
+            _subscribedSchemaTable = table;
+            table.Columns.CollectionChanged += OnSchemaTableChanged;
+        }
+
+        private void OnSchemaTableChanged(object? sender, CollectionChangeEventArgs e)
+        {
+            _grid.DataController.RebindSchema();
+            _grid.Layout?.Recalculate();
+            _grid.SafeInvalidate();
+        }
         private void OnDataListChanged(object? sender, ListChangedEventArgs e)
         {
             // Column-metadata churn on the bound list is not a row change; everything else
@@ -252,10 +348,97 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 or ListChangedType.PropertyDescriptorDeleted)
                 return;
 
+            // Item edits are the hot path. Update the affected cell in place instead
+            // of rebuilding every row; the Navigator no longer rebinds when this
+            // helper already owns the list.
+            if (e.ListChangedType == ListChangedType.ItemChanged &&
+                e.NewIndex >= 0)
+            {
+                int rowIndex = FindRowIndexForSourceItem(sender, e.NewIndex);
+                if (rowIndex < 0)
+                {
+                    RefreshRowsAfterDataChange();
+                    return;
+                }
+
+                var row = Rows[rowIndex];
+                if (row.RowData is DataRowView drv && e.PropertyDescriptor != null)
+                {
+                    var column = Columns.FirstOrDefault(c =>
+                        string.Equals(c.ColumnName, e.PropertyDescriptor.Name, StringComparison.OrdinalIgnoreCase));
+                    if (column != null &&
+                        drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
+                    {
+                        var cell = row.Cells.FirstOrDefault(c =>
+                            string.Equals(c.ColumnName, column.ColumnName, StringComparison.OrdinalIgnoreCase));
+                        if (cell != null)
+                        {
+                            object? value = drv.Row[column.ColumnName];
+                            if (!Equals(cell.CellValue, value))
+                            {
+                                cell.CellValue = value!;
+                                cell.IsDirty = true;
+                                row.IsDirty = true;
+                                _grid.Footer.Invalidate();
+                                _grid.InvalidateRow(rowIndex);
+                            }
+                        }
+                        return;
+                    }
+                }
+
+                if (row.RowData is INotifyPropertyChanged)
+                {
+                    _grid.InvalidateRow(rowIndex);
+                    return;
+                }
+            }
+
+            RefreshRowsAfterDataChange();
+        }
+
+        private int FindRowIndexForSourceItem(object? source, int sourceIndex)
+        {
+            object? item = source is IList list && sourceIndex >= 0 && sourceIndex < list.Count
+                ? list[sourceIndex]
+                : null;
+
+            if (item != null)
+            {
+                for (int i = 0; i < Rows.Count; i++)
+                {
+                    var rowData = Rows[i].RowData;
+                    if (ReferenceEquals(rowData, item))
+                        return i;
+                    if (rowData is DataRowView existingView && item is DataRowView sourceView &&
+                        ReferenceEquals(existingView.Row, sourceView.Row))
+                        return i;
+                    if (rowData is DataRow existingRow && item is DataRow sourceRow &&
+                        ReferenceEquals(existingRow, sourceRow))
+                        return i;
+                }
+            }
+
+            return sourceIndex >= 0 && sourceIndex < Rows.Count ? sourceIndex : -1;
+        }
+
+        private void RefreshRowsAfterDataChange()
+        {
+            _grid.Footer.Invalidate();
             RefreshRows();
+            _grid.SortFilter.ReapplyView();
             _grid.Layout?.Recalculate();
             _grid.SafeInvalidate();
         }
+
+        /// <summary>
+        /// True when this helper is listening to <paramref name="list"/>. Used by
+        /// the navigator to avoid a second full rebind for the same change.
+        /// </summary>
+        internal bool IsSubscribedTo(object? list)
+            => list != null &&
+               (ReferenceEquals(_subscribedBindingList, list) ||
+                ReferenceEquals(_subscribedCollectionChanged, list));
 
         /// <summary>
         /// Ensures system columns (checkbox, row number, row ID) are present, exactly like BeepSimpleGrid.EnsureDefaultColumns()
@@ -362,14 +545,33 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void AutoGenerateColumns(bool skipRows)
         {
+            _isGeneratingColumns = true;
+            try
+            {
+                AutoGenerateColumnsCore(skipRows);
+            }
+            finally
+            {
+                _isGeneratingColumns = false;
+            }
+        }
+
+        private void AutoGenerateColumnsCore(bool skipRows)
+        {
             Columns.Clear();
 
             EnsureSystemColumns();
 
-            var (enumerable, schemaTable) = GetEffectiveEnumerableWithSchema();
-
-            if (schemaTable != null)
+            if (Binding is { Fields.Count: > 0 } binding)
             {
+                AddColumnsFromBinding(binding);
+            }
+            else
+            {
+                var (enumerable, schemaTable) = GetEffectiveEnumerableWithSchema();
+
+                if (schemaTable != null)
+                {
                 foreach (System.Data.DataColumn dCol in schemaTable.Columns)
                 {
                     if (IsSystemColumn(dCol.ColumnName)) continue;
@@ -434,11 +636,44 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     }
                 }
             }
+            }
+
+            // A rebind regenerates the column set. Re-apply the user's saved
+            // layout by name so widths/order/sticky/visibility survive it.
+            _grid.ApplyPersistedLayoutState();
 
             if (!skipRows)
             {
                 RefreshRows();
                 _grid.RequestAutoSize(AutoSizeTriggerSource.DataBind);
+            }
+        }
+
+        private void AddColumnsFromBinding(TheTechIdea.Beep.Winform.Controls.GridX.Binding.GridDataBinding binding)
+        {
+            if (binding.ItemType != null && binding.ItemType != typeof(object))
+                _grid.SetEntityType(binding.ItemType);
+
+            foreach (var field in binding.Fields)
+            {
+                if (IsSystemColumn(field.Name)) continue;
+
+                var column = new BeepColumnConfig
+                {
+                    ColumnName = field.Name,
+                    ColumnCaption = field.Caption,
+                    PropertyTypeName = field.Type.AssemblyQualifiedName,
+                    Width = 100,
+                    ColumnType = MapDbType(field.Type),
+                    CellEditor = MapColumnType(field.Type),
+                    Visible = true,
+                    ReadOnly = field.IsReadOnly,
+                    Resizable = DataGridViewTriState.True,
+                    SortMode = DataGridViewColumnSortMode.Automatic,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                column.Index = Columns.Count;
+                Columns.Add(column);
             }
         }
 
@@ -484,6 +719,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Resolve the data source honoring BindingSource and the BeepGridPro.DataMember
         private object ResolveDataForBinding()
         {
+            if (Binding != null)
+                return Binding.NormalizedSource;
+
             object data = DataSource;
             if (data == null) return null;
 
@@ -534,6 +772,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (resolved == null)
                 return (Array.Empty<object>(), schema);
+
+            if (Binding != null)
+                return (Binding.Items, Binding.SchemaTable);
 
             // Note: ResolveDataForBinding() already unwraps BindingSource, so no second check needed here.
 

@@ -46,8 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
                 {
                     return fmt.ToString(descriptor.ValueFormat, System.Globalization.CultureInfo.InvariantCulture);
                 }
-                catch (FormatException)
+                catch (FormatException ex)
                 {
+                    GridErrorReporter.FallbackOnce("DefaultGridGrouper.Format", null, "format group key", ex);
                     // ValueFormat does not apply to this value's type; plain ToString below.
                 }
             }

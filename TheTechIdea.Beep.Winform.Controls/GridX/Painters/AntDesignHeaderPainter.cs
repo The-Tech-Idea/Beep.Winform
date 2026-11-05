@@ -41,7 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         /// </summary>
         public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
         {
-            var baseColor = theme?.GridHeaderBackColor ?? Color.FromArgb(250, 250, 250);
+            var baseColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(250, 250, 250));
             using (var brush = new SolidBrush(baseColor))
                 g.FillRectangle(brush, rect);
 

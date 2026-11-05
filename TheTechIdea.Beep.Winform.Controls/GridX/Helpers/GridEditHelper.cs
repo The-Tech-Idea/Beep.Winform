@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private object _originalValue;
         private bool _suppressLostFocus;
         private bool _isEndingEdit;
+        private object? _committedItem;
 
         public GridEditHelper(BeepGridPro grid)
         {
@@ -292,16 +293,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                             _grid.Data.Columns[editedCol]);
                     }
 
-                    if (commit)
+                    if (commit && CommitValueToData(valueToAssign))
                     {
-                        CommitValueToData(valueToAssign);
                         committed = true;
-                        // Fire CellValidated + the legacy CellValueChanged
-                        // from the same raise site.  Both events carry
-                        // the cell reference; CellValidated is the DGV
-                        // name, CellValueChanged is the legacy BeepGridPro
-                        // name.  Keeping both means existing hosts keep
-                        // working and new DGV-style ports use CellValidated.
                         _grid.OnCellValueChanged(editedCell);
                         _grid.OnCellValidated(editedRow, editedCol, editedCell);
                     }
@@ -353,6 +347,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // event still points to the right cell after _editingCell
                 // is nulled out.
                 _grid.OnCellEndEdit(editedRow, editedCol, editedCell, committed);
+                if (_committedItem != null)
+                {
+                    _grid.RefreshViewAfterEdit(_committedItem, editedCol);
+                    _committedItem = null;
+                }
             }
         }
 
@@ -481,17 +480,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // simply would not convert.
                 if (targetType.IsEnum)
                 {
-                    try { return Enum.Parse(targetType, si.Text, true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
+                    try { return Enum.Parse(targetType, si.Text, true); }
+                    catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException)
+                    {
+                        _grid.ReportOperationError("Edit.ParseEnum", ex);
+                    }
                     if (si.Value != null)
                     {
-                        try { return Enum.Parse(targetType, si.Value.ToString(), true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
+                        try { return Enum.Parse(targetType, si.Value.ToString(), true); }
+                        catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException)
+                        {
+                            _grid.ReportOperationError("Edit.ParseEnum", ex);
+                        }
                     }
                     return Activator.CreateInstance(targetType);
                 }
                 if (IsNumericType(targetType))
                 {
                     object candidate = si.Value ?? si.Text;
-                    try { return System.Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
+                    try { return System.Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); }
+                    catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException)
+                    {
+                        _grid.ReportOperationError("Edit.ParseNumber", ex);
+                    }
                     return Activator.CreateInstance(Nullable.GetUnderlyingType(targetType) ?? targetType);
                 }
                 if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))
@@ -517,7 +528,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                    t == typeof(float) || t == typeof(double) || t == typeof(decimal);
         }
 
-        private void CommitValueToData(object newValue)
+        private bool CommitValueToData(object newValue)
         {
             var rowIndex = _grid.Selection.RowIndex;
             var colIndex = _grid.Selection.ColumnIndex;
@@ -527,9 +538,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             try
             {
-                if (dataItem is DataRowView drv)
+                object? appliedValue = newValue;
+                if (col.IsUnbound)
+                {
+                    appliedValue = newValue;
+                }
+                else if (_grid.Data.Binding != null)
+                {
+                    if (!_grid.Data.Binding.TrySetValue(dataItem, col.ColumnName, newValue,
+                            out appliedValue, out var error, rowCfg.RowIndex))
+                    {
+                        _grid.ReportOperationError("Edit.Commit", error ?? new InvalidOperationException(
+                            "Could not write the edited value back to the bound item."));
+                        _editingCell.CellValue = _originalValue;
+                        return false;
+                    }
+                }
+                else if (dataItem is DataRowView drv)
                 {
                     drv[col.ColumnName] = newValue ?? DBNull.Value;
+                }
+                else if (dataItem is DataRow dr)
+                {
+                    dr[col.ColumnName] = newValue ?? DBNull.Value;
                 }
                 else if (dataItem != null && !string.IsNullOrEmpty(col.ColumnName))
                 {
@@ -538,19 +569,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     {
                         var converted = ConvertValue(newValue, pi.PropertyType);
                         pi.SetValue(dataItem, converted);
+                        appliedValue = converted;
                     }
                 }
 
-                _editingCell.CellValue = newValue;
+                _editingCell.CellValue = appliedValue!;
                 _editingCell.IsDirty = true;
-                _grid.OnCellValueChanged(_editingCell);
+                _committedItem = dataItem;
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _grid.ReportOperationError("Edit.Commit", ex);
                 _editingCell.CellValue = _originalValue;
+                return false;
             }
         }
-
         private object ConvertValue(object value, Type targetType)
         {
             if (value == null)
@@ -560,7 +594,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             var underlying = Nullable.GetUnderlyingType(targetType) ?? targetType;
             try { return System.Convert.ChangeType(value, underlying); }
-            catch { return value; }
+            catch (Exception ex) when (ex is InvalidCastException or FormatException or OverflowException)
+            {
+                _grid.ReportOperationError("Edit.ConvertValue", ex);
+                return value;
+            }
         }
 
         /// <summary>

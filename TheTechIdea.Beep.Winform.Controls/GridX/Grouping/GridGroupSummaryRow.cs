@@ -78,11 +78,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
             return cell?.CellValue;
         }
 
-        private static object? ComputeAggregate(List<object?> values, AggregationType type)
+        internal static object? ComputeAggregate(List<object?> values, AggregationType type)
         {
             var nonNullNumeric = values
                 .Where(v => v != null && v != DBNull.Value)
-                .Select(v => Convert.ToDecimal(v, System.Globalization.CultureInfo.InvariantCulture))
+                .Select(v => TryToDecimal(v, out var d) ? (decimal?)d : null)
+                .Where(d => d.HasValue)
+                .Select(d => d!.Value)
                 .ToList();
 
             var nonNullAll = values.Where(v => v != null && v != DBNull.Value).ToList();
@@ -116,6 +118,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
                 case AggregationType.Custom:
                 default:
                     return null;
+            }
+        }
+
+        private static bool TryToDecimal(object value, out decimal result)
+        {
+            try
+            {
+                result = Convert.ToDecimal(value, System.Globalization.CultureInfo.InvariantCulture);
+                return true;
+            }
+            catch (Exception ex) when (ex is FormatException or InvalidCastException or OverflowException)
+            {
+                GridErrorReporter.FallbackOnce("GroupSummary.ToDecimal", null,
+                    "convert aggregate value", ex);
+                result = 0;
+                return false;
             }
         }
     }

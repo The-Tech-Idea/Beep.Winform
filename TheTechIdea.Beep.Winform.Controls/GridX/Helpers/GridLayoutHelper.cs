@@ -16,15 +16,59 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int ScrollbarWidth  { get; internal set; } = BeepLayoutMetrics.GridScrollbarW;
         public int ScrollbarHeight { get; internal set; } = BeepLayoutMetrics.GridScrollbarW;
 
-        public int RowHeight { get; set; } = BeepLayoutMetrics.GridRowHeight;
-        public int ColumnHeaderHeight { get; set; } = BeepLayoutMetrics.GridHeaderHeight;
+        private int _rowHeight = BeepLayoutMetrics.GridRowHeight;
+        private int _columnHeaderHeight = BeepLayoutMetrics.GridHeaderHeight;
+
+        public int RowHeight
+        {
+            get => _rowHeight;
+            set
+            {
+                _rowHeight = value;
+                RowHeightIsExplicit = true;
+            }
+        }
+
+        public bool RowHeightIsExplicit { get; private set; }
+
+        public int ColumnHeaderHeight
+        {
+            get => _columnHeaderHeight;
+            set
+            {
+                _columnHeaderHeight = value;
+                ColumnHeaderHeightIsExplicit = true;
+            }
+        }
+
+        public bool ColumnHeaderHeightIsExplicit { get; private set; }
+
+        internal void ApplyCalculatedRowHeight(int value)
+        {
+            if (!RowHeightIsExplicit) _rowHeight = value;
+        }
+
+        internal void ApplyCalculatedColumnHeaderHeight(int value)
+        {
+            if (!ColumnHeaderHeightIsExplicit) _columnHeaderHeight = value;
+        }
+
+        /// <summary>
+        /// Allows a caller that explicitly wants font/DPI-derived heights to
+        /// discard the current explicit values before the next recalculation.
+        /// </summary>
+        internal void ResetExplicitHeights()
+        {
+            RowHeightIsExplicit = false;
+            ColumnHeaderHeightIsExplicit = false;
+        }
         public bool ShowColumnHeaders { get; set; } = true;
         public Rectangle HeaderRect { get; private set; }
         public Rectangle TopFilterRect { get; private set; } = Rectangle.Empty;
         public Rectangle ToolbarRect { get; private set; } = Rectangle.Empty;
         public int ToolbarHeight { get; set; } = BeepLayoutMetrics.DataNavigator.Height;
         public Rectangle ColumnsHeaderRect { get; private set; }
-        public Rectangle FooterRect { get; private set; }
+        public Rectangle FooterRect { get; private set; } = Rectangle.Empty;
         public Rectangle NavigatorRect { get; private set; } = Rectangle.Empty;
         public Rectangle RowsRect { get; private set; }
         public Rectangle RowsRectWithScrollbars { get; private set; }
@@ -45,7 +89,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private int _lastScrollOffset = -1;
         private int _lastRowCount = -1;
 
-        public GridLayoutHelper(BeepGridPro grid) { _grid = grid; }
+        internal GridRowMetrics RowMetrics { get; }
+
+        public GridLayoutHelper(BeepGridPro grid)
+        {
+            _grid = grid;
+            RowMetrics = new GridRowMetrics(grid);
+        }
 
         public void EnsureCalculated()
         {
@@ -74,6 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (IsCalculating) return;
             IsCalculating = true;
+            _grid.ScrollBars?.MarkDirty();
             _grid.UpdateDrawingRect();
             Rectangle r = Rectangle.Inflate(_grid.DrawingRect, -_grid.BorderThickness, -_grid.BorderThickness); // Account for border thickness
             try
@@ -90,6 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     ActiveFilterBarRect = Rectangle.Empty;
                     RowsRect = Rectangle.Empty;
                     NavigatorRect = Rectangle.Empty;
+                    FooterRect = Rectangle.Empty;
                     HeaderCellRects = System.Array.Empty<Rectangle>();
                     return;
                 }
@@ -104,17 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 else if (_grid.Data?.Rows != null)
                 {
-                    for (int i = 0; i < _grid.Data.Rows.Count; i++)
-                    {
-                        var row = _grid.Data.Rows[i];
-                        if (!row.IsVisible) continue;
-                        totalRowHeight += row.Height > 0 ? row.Height : RowHeight;
-                    }
-                    // Include group header heights when grouping is active
-                    if (_grid.GroupEngine?.IsGrouped == true)
-                    {
-                        totalRowHeight += _grid.GroupEngine.Groups.Count * _grid.GroupEngine.GetHeaderHeight();
-                    }
+                    totalRowHeight = RowMetrics.TotalHeight;
                 }
                 
                 // Check if horizontal scrollbar is needed
@@ -222,6 +264,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 else
                 {
                     NavigatorRect = Rectangle.Empty;
+                }
+
+                // Pinned aggregate footer sits directly above the navigator.
+                int footerHeight = 0;
+                if (_grid.Footer.Visible && _grid.Footer.Height > 0)
+                {
+                    int availableForFooter = Math.Max(0, r.Height - (top - r.Top) - bottomReserve);
+                    footerHeight = Math.Min(_grid.Footer.Height, availableForFooter);
+                    if (footerHeight > 0)
+                    {
+                        int footerWidth = Math.Max(0, r.Width - scrollbarWidth);
+                        FooterRect = new Rectangle(r.Left, r.Bottom - bottomReserve - footerHeight,
+                            footerWidth, footerHeight);
+                        bottomReserve += footerHeight;
+                    }
+                    else
+                    {
+                        FooterRect = Rectangle.Empty;
+                    }
+                }
+                else
+                {
+                    FooterRect = Rectangle.Empty;
                 }
 
                 // Calculate RowsRect with scrollbar space reserved
@@ -372,35 +437,38 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Calculate visible row range with variable row heights
             int availableHeight = RowsRect.Height;
             int startPixelOffset = _grid.Scroll.VerticalOffset;
-            int startRow = _grid.Scroll.FirstVisibleRowIndex;
-            
-            // FIX: Find the actual visible rows based on pixel offset and available height
-            int currentPixelOffset = 0;
-            if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
-                currentPixelOffset = (int)(_grid.RowVirtualizer.WindowStart * RowHeight);
-            int actualStartRow = 0;
-            
-            // Find the first visible row based on pixel offset (accounting for group headers)
-            for (int i = 0; i < _grid.Data.Rows.Count; i++)
-            {
-                var row = _grid.Data.Rows[i];
-                if (!row.IsVisible) continue;
-                int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+            bool virtualMode = _grid.EnableVirtualization && _grid.VirtualDataSource != null;
 
-                // Inject group header height for any groups whose first row is at this index
-                if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+            int currentPixelOffset;
+            int actualStartRow;
+            int startRowPixelOffset;
+
+            if (!virtualMode)
+            {
+                actualStartRow = RowMetrics.FirstVisibleRow(startPixelOffset);
+                currentPixelOffset = RowMetrics.TopOfRow(actualStartRow);
+                startRowPixelOffset = currentPixelOffset;
+            }
+            else
+            {
+                currentPixelOffset = (int)(_grid.RowVirtualizer.WindowStart * RowHeight);
+                actualStartRow = 0;
+                startRowPixelOffset = 0;
+
+                for (int i = 0; i < _grid.Data.Rows.Count; i++)
                 {
-                    int newHeaders = (_grid.GroupEngine?.GetHeaderCountBeforeRow(i + 1) ?? 0) - (_grid.GroupEngine?.GetHeaderCountBeforeRow(i) ?? 0);
-                    if (newHeaders > 0)
-                        currentPixelOffset += newHeaders * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+                    var row = _grid.Data.Rows[i];
+                    if (!row.IsVisible) continue;
+                    int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+
+                    if (currentPixelOffset + rowHeight > startPixelOffset)
+                    {
+                        actualStartRow = i;
+                        startRowPixelOffset = currentPixelOffset;
+                        break;
+                    }
+                    currentPixelOffset += rowHeight;
                 }
-                
-                if (currentPixelOffset + rowHeight > startPixelOffset)
-                {
-                    actualStartRow = i;
-                    break;
-                }
-                currentPixelOffset += rowHeight;
             }
             
             // Calculate how many rows fit in the available height
@@ -447,21 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Calculate the Y position accounting for partial row visibility and group headers
-            int startRowPixelOffset = 0;
-            if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
-                startRowPixelOffset = (int)(_grid.RowVirtualizer.WindowStart * RowHeight);
-            for (int i = 0; i < actualStartRow; i++)
-            {
-                var row = _grid.Data.Rows[i];
-                if (!row.IsVisible) continue;
-                startRowPixelOffset += row.Height > 0 ? row.Height : RowHeight;
-            }
-            if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
-            {
-                startRowPixelOffset += (_grid.GroupEngine?.GetHeaderCountBeforeRow(actualStartRow) ?? 0) * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
-            }
-            
+            // Y position accounting for partial row visibility and group headers
             int y = RowsRect.Top - (startPixelOffset - startRowPixelOffset);
 
             int[] xmap = new int[_grid.Data.Columns.Count];
@@ -522,7 +576,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Calculate column header height from the cached painter (font-aware and DPI-aware).
             // Previously this allocated a GridColumnHeadersPainterHelper on every layout pass just
             // to read one number.
-            ColumnHeaderHeight = _grid.HeaderPainter?.CalculateHeaderHeight(_grid) ?? ColumnHeaderHeight;
+            ApplyCalculatedColumnHeaderHeight(_grid.HeaderPainter?.CalculateHeaderHeight(_grid) ?? _columnHeaderHeight);
 
             // Always calculate filter panel height from painter (DPI-aware)
             // This ensures proper height even when toggling panel visibility
@@ -534,8 +588,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 int baseFontHeight = FontManagement.FontListHelper.GetFontHeightSafe(_grid.Font, _grid);
                 int cellPadding = DpiScalingHelper.ScaleValue(BeepLayoutMetrics.GridCellPadding, dpiScale);
                 int spacing = DpiScalingHelper.ScaleValue(BeepLayoutMetrics.GridCellPadding, dpiScale);
-                RowHeight = System.Math.Max(DpiScalingHelper.ScaleValue(BeepLayoutMetrics.MinTouchTarget, dpiScale),
-                    baseFontHeight + (cellPadding * 2) + spacing);
+                ApplyCalculatedRowHeight(System.Math.Max(DpiScalingHelper.ScaleValue(BeepLayoutMetrics.GridRowMinHeight, dpiScale),
+                    baseFontHeight + (cellPadding * 2) + spacing));
             }
 
             // Calculate navigator height if enabled (font-aware and DPI-aware)

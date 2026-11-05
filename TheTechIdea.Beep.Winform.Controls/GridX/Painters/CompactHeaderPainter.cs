@@ -38,7 +38,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (g == null || grid?.Layout == null || headerRect.IsEmpty) return;
 
             // Compact flat background
-            var bgColor = theme?.GridHeaderBackColor ?? Color.FromArgb(245, 245, 245);
+            var bgColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(245, 245, 245));
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, headerRect);
@@ -167,7 +169,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
             
             // Use TextUtils for efficient text rendering
-            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(60, 60, 60);
+            var textColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : (theme?.GridHeaderForeColor ?? Color.FromArgb(60, 60, 60));
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw compact sort indicator

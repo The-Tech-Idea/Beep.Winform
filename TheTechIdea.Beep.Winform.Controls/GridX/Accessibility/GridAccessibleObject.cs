@@ -24,22 +24,81 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Accessibility
 
         public override string? Name => !string.IsNullOrWhiteSpace(_grid.GridTitle) ? _grid.GridTitle : base.Name;
 
-        public override string? Description => $"{_grid.Data.Rows.Count} rows, {_grid.Data.Columns.Count} columns";
+        public override string? Description => string.IsNullOrWhiteSpace(_grid.AccessibleDescription)
+            ? $"{_grid.Data.Rows.Count} rows, {_grid.Data.Columns.Count} columns"
+            : _grid.AccessibleDescription;
 
         public override int GetChildCount()
-        {
-            return _grid.Data.Rows.Count;
-        }
+            => _grid.Data.Rows.Count(row => row.IsVisible);
 
         public override AccessibleObject? GetChild(int index)
         {
-            if (index < 0 || index >= _grid.Data.Rows.Count) return null;
-            if (!_rowCache.TryGetValue(index, out var rowObj))
+            if (index < 0) return null;
+
+            int visibleIndex = 0;
+            for (int rowIndex = 0; rowIndex < _grid.Data.Rows.Count; rowIndex++)
             {
-                rowObj = new GridRowAccessibleObject(_grid, index, this);
-                _rowCache[index] = rowObj;
+                if (!_grid.Data.Rows[rowIndex].IsVisible) continue;
+                if (visibleIndex == index)
+                {
+                    if (!_rowCache.TryGetValue(rowIndex, out var rowObj))
+                    {
+                        rowObj = new GridRowAccessibleObject(_grid, rowIndex, this);
+                        _rowCache[rowIndex] = rowObj;
+                    }
+                    return rowObj;
+                }
+                visibleIndex++;
+            }
+
+            return null;
+        }
+
+        public override AccessibleObject? GetFocused() => GetSelected();
+
+        public override AccessibleObject? GetSelected()
+        {
+            int rowIndex = _grid.Selection?.RowIndex ?? -1;
+            int columnIndex = _grid.Selection?.ColumnIndex ?? -1;
+            if (rowIndex < 0 || columnIndex < 0) return null;
+            if (rowIndex >= _grid.Data.Rows.Count || columnIndex >= _grid.Data.Columns.Count) return null;
+            if (!_grid.Data.Rows[rowIndex].IsVisible) return null;
+
+            var rowObject = GetRowObject(rowIndex) as GridRowAccessibleObject;
+            if (rowObject == null) return null;
+
+            int visibleColumnIndex = 0;
+            foreach (var column in _grid.Data.Columns
+                         .Select((column, index) => new { column, index })
+                         .Where(item => item.column.Visible)
+                         .OrderBy(item => item.column.DisplayOrder))
+            {
+                if (column.index == columnIndex)
+                    return rowObject.GetChild(visibleColumnIndex);
+                visibleColumnIndex++;
+            }
+
+            return null;
+        }
+
+        internal AccessibleObject? GetRowObject(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= _grid.Data.Rows.Count) return null;
+            if (!_rowCache.TryGetValue(rowIndex, out var rowObj))
+            {
+                rowObj = new GridRowAccessibleObject(_grid, rowIndex, this);
+                _rowCache[rowIndex] = rowObj;
             }
             return rowObj;
+        }
+
+        internal AccessibleObject? GetAdjacentVisibleRow(int rowIndex, int direction)
+        {
+            for (int i = rowIndex + direction; i >= 0 && i < _grid.Data.Rows.Count; i += direction)
+            {
+                if (_grid.Data.Rows[i].IsVisible) return GetRowObject(i);
+            }
+            return null;
         }
 
         public override AccessibleObject? Navigate(AccessibleNavigation navDirection)
@@ -49,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Accessibility
                 case AccessibleNavigation.FirstChild:
                     return GetChild(0);
                 case AccessibleNavigation.LastChild:
-                    return GetChild(_grid.Data.Rows.Count - 1);
+                    return GetChild(GetChildCount() - 1);
                 default:
                     return base.Navigate(navDirection);
             }

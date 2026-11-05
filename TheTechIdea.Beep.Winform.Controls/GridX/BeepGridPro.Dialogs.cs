@@ -62,6 +62,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         public void ShowSearchDialog()
         {
+            // The unified toolbar search is the canonical surface. The legacy
+            // inline panel remains only for hosts that explicitly disable the
+            // toolbar.
+            if (ShowToolbar)
+            {
+                FocusToolbarSearch();
+                return;
+            }
+
             if (_inlineQuickSearchIsLive)
             {
                 // Already live — just focus the text box

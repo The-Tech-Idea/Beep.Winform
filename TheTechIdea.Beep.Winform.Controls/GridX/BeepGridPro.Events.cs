@@ -185,6 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// <param name="cell">The cell that changed.</param>
         internal void OnCellValueChanged(BeepCellConfig cell)
         {
+            Footer.Invalidate();
             CellValueChanged?.Invoke(this, new BeepCellEventArgs(cell));
             RequestAutoSize(AutoSizeTriggerSource.EditCommit);
         }

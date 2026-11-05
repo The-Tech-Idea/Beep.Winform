@@ -27,7 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Minimal background using theme color directly
-            using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var bgBrush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }

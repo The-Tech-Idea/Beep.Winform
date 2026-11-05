@@ -41,7 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         /// </summary>
         public override void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
         {
-            var baseColor = theme?.GridHeaderBackColor ?? Color.FromArgb(243, 243, 243);
+            var baseColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(243, 243, 243));
             using (var brush = new LinearGradientBrush(rect, baseColor, ColorUtils.Lighten(baseColor, 0.02f), LinearGradientMode.Vertical))
                 g.FillRectangle(brush, rect);
 
@@ -65,7 +67,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Fluent acrylic background with subtle gradient
-            var baseColor = theme?.GridHeaderBackColor ?? Color.FromArgb(243, 243, 243);
+            var baseColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(243, 243, 243));
             using (var path = new GraphicsPath())
             {
                 path.AddRectangle(headerRect);

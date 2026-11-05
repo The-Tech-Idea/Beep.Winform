@@ -34,13 +34,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Tests
     }
 
     /// <summary>
-    /// 2.3: Filter with BindingSource uses source filter when supported
+    /// 2.3: Filter with BindingSource is evaluated locally for every source type
     /// </summary>
     public class FilterTests_Stub_BindingSourceFilter
     {
-        // Arrange: bind to DataView (supports IBindingListView.Filter)
+        // Arrange: bind to a POCO, dictionary, or DataView
         // Act: grid.SortFilter.Filter("Name", "Bob")
-        // Assert: DataView.RowFilter is set; grid rows reflect filtered view
+        // Assert: matching grid rows remain visible; no source filter capability is required
     }
 
     /// <summary>

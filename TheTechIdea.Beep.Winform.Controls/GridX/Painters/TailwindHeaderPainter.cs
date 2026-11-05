@@ -38,7 +38,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (g == null || grid?.Layout == null || headerRect.IsEmpty) return;
 
             // Tailwind neutral background
-            var bgColor = theme?.GridHeaderBackColor ?? Color.FromArgb(249, 250, 251);
+            var bgColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(249, 250, 251));
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, headerRect);
@@ -165,7 +167,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) 
                 ?? new Font("Inter", 9f, FontStyle.Regular);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(55, 65, 81);
+            var textColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : (theme?.GridHeaderForeColor ?? Color.FromArgb(55, 65, 81));
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw sort indicator

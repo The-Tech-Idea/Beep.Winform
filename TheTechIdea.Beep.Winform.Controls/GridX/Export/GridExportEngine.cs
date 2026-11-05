@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using TheTechIdea.Beep.Winform.Controls.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
 {
@@ -248,6 +251,204 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Export
         public string GetFileExtension(GridExportFormat format)
         {
             return _exporters.TryGetValue(format, out var ex) ? ex.FileExtension : ".txt";
+        }
+
+        /// <summary>
+        /// Export to a file without blocking the UI. The snapshot is captured
+        /// on the calling thread before the first await; a failure or
+        /// cancellation leaves the previous file untouched.
+        /// </summary>
+        public async Task<bool> ExportToFileAsync(
+            BeepGridPro grid,
+            string filePath,
+            GridExportFormat format,
+            ExportOptions? options = null,
+            IProgress<GridExportProgress>? progress = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (grid == null)
+            {
+                BeepLog.Warn(this, "Export", "A grid is required.");
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                grid.ReportOperationError("Export.Path",
+                    new ArgumentException("File path is required.", nameof(filePath)));
+                return false;
+            }
+
+            string tempPath = filePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            FileStream? output = null;
+            bool success = false;
+
+            try
+            {
+                var exporter = ResolveExporter(format);
+                var snapshot = GridExportSnapshot.Capture(grid, options);
+
+                string? directory = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
+
+                output = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None,
+                    bufferSize: 81920, useAsync: true);
+
+                await WriteToStreamAsync(exporter, grid, snapshot, output, options, progress, cancellationToken)
+                    .ConfigureAwait(false);
+
+                await output.FlushAsync(cancellationToken).ConfigureAwait(false);
+                await output.DisposeAsync().ConfigureAwait(false);
+                output = null;
+
+                File.Move(tempPath, filePath, overwrite: true);
+                success = true;
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                grid.ReportOperationError($"Export.{format}", ex);
+                return false;
+            }
+            finally
+            {
+                if (output != null)
+                {
+                    try { await output.DisposeAsync().ConfigureAwait(false); }
+                    catch (Exception disposeFailure)
+                    {
+                        grid.ReportOperationError("Export.Dispose", disposeFailure);
+                    }
+                }
+
+                if (!success)
+                    TryDeleteFile(tempPath);
+            }
+        }
+
+        /// <summary>
+        /// Export to a caller-owned stream. The caller owns disposal.
+        /// Returns false when the exporter reports a failure; the failure is
+        /// also raised through the grid's OperationError channel.
+        /// </summary>
+        public async Task<bool> ExportToStreamAsync(
+            BeepGridPro grid,
+            Stream output,
+            GridExportFormat format,
+            ExportOptions? options = null,
+            IProgress<GridExportProgress>? progress = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (grid == null)
+            {
+                BeepLog.Warn(this, "Export", "A grid is required.");
+                return false;
+            }
+            if (output == null)
+            {
+                grid.ReportOperationError("Export.Stream",
+                    new ArgumentNullException(nameof(output)));
+                return false;
+            }
+
+            try
+            {
+                var exporter = ResolveExporter(format);
+                var snapshot = GridExportSnapshot.Capture(grid, options);
+
+                await WriteToStreamAsync(exporter, grid, snapshot, output, options, progress, cancellationToken)
+                    .ConfigureAwait(false);
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                grid.ReportOperationError($"Export.{format}", ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Export to a string without blocking the UI. Returns null when the
+        /// export fails or is cancelled; the failure is reported through the
+        /// grid's OperationError channel.
+        /// </summary>
+        public async Task<string?> ExportToStringAsync(
+            BeepGridPro grid,
+            GridExportFormat format,
+            ExportOptions? options = null,
+            IProgress<GridExportProgress>? progress = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (grid == null)
+            {
+                BeepLog.Warn(this, "Export", "A grid is required.");
+                return null;
+            }
+
+            using var ms = new MemoryStream();
+            bool success = await ExportToStreamAsync(grid, ms, format, options, progress, cancellationToken)
+                .ConfigureAwait(false);
+            if (!success) return null;
+
+            try
+            {
+                ms.Position = 0;
+                using var reader = new StreamReader(ms);
+                return await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                grid.ReportOperationError("Export.ToString", ex);
+                return null;
+            }
+        }
+
+        private static async Task WriteToStreamAsync(
+            IGridExporter exporter,
+            BeepGridPro grid,
+            GridExportSnapshot snapshot,
+            Stream output,
+            ExportOptions? options,
+            IProgress<GridExportProgress>? progress,
+            CancellationToken cancellationToken)
+        {
+            if (exporter is IAsyncGridExporter asyncExporter)
+            {
+                await asyncExporter.ExportAsync(snapshot, output, options, progress, cancellationToken)
+                    .ConfigureAwait(false);
+                return;
+            }
+
+            // A legacy IGridExporter needs the live grid, so it cannot be
+            // moved to a worker thread. Keep the sync path intact; plugins
+            // opt in to background export by implementing IAsyncGridExporter.
+            exporter.Export(grid, output, options);
+            progress?.Report(new GridExportProgress
+            {
+                RowsProcessed = snapshot.Rows.Count,
+                TotalRows = snapshot.Rows.Count,
+                Message = "Export complete"
+            });
+        }
+
+        private static void TryDeleteFile(string path)
+        {
+            try
+            {
+                if (File.Exists(path)) File.Delete(path);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                BeepLog.Failure("GridExportEngine.PartialFile",
+                    $"delete partial export '{path}'", ex);
+            }
         }
 
         /// <summary>

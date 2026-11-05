@@ -44,6 +44,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private bool _verticalThumbHovered = false;
         private bool _horizontalThumbHovered = false;
 
+        private bool _metricsDirty = true;
+        private bool _cachedRowHeightValid;
+        private bool _cachedColumnWidthValid;
+        private int _cachedTotalRowHeight;
+
+        /// <summary>
+        /// Marks the cached content metrics stale. UpdateBars recomputes them
+        /// only after data, geometry, filter, or sort changes.
+        /// </summary>
+        public void MarkDirty()
+        {
+            _metricsDirty = true;
+            _cachedRowHeightValid = false;
+            _cachedColumnWidthValid = false;
+        }
+
         // Public property to check if actively dragging (prevents layout recalculation during drag)
         public bool IsDragging => _isVerticalThumbDragging || _isHorizontalThumbDragging;
 
@@ -84,6 +100,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 return;
             }
+
+            if (!_metricsDirty) return;
+            _metricsDirty = false;
 
             UpdateScrollBarsCore();
         }
@@ -585,8 +604,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private int CalculateTotalContentHeightWithVariableRows()
         {
+            if (_cachedRowHeightValid) return _cachedTotalRowHeight;
             if (_grid.Data.Rows == null || _grid.Data.Rows.Count == 0)
+            {
+                _cachedTotalRowHeight = 0;
+                _cachedRowHeightValid = true;
                 return 0;
+            }
 
             // Sum only visible row heights (invisible rows are filtered out)
             int totalHeight = 0;
@@ -595,18 +619,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (!row.IsVisible) continue;  // skip filtered-out rows
                 totalHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
             }
+
+            _cachedTotalRowHeight = totalHeight;
+            _cachedRowHeightValid = true;
             return totalHeight;
         }
 
         private int CalculateTotalContentWidth()
         {
+            if (_cachedColumnWidthValid) return _cachedTotalColumnWidth;
+
             // Column borders are drawn INSIDE each column's width -- GridLayoutHelper advances
             // by `px += w` with no inter-column gap -- so the content width is just the sum of
             // the widths. Adding (n-1) border pixels here used to over-report it, which made
             // AutoSizeColumnsMode.Fill (which distributes exactly RowsRect.Width) look like a
             // few-pixel overflow and raise a phantom horizontal scrollbar whose thumb spanned
             // the whole track -- the grey bar above the navigator.
-            return _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width);
+            _cachedTotalColumnWidth = _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width);
+            _cachedColumnWidthValid = true;
+            return _cachedTotalColumnWidth;
         }
 
         private int CalculateRowIndexForPixelOffset(int pixelOffset)

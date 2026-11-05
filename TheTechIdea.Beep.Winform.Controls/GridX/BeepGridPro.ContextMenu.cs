@@ -38,6 +38,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             items.Add(CreateMenuItem("Filter…", string.Empty, "col_filter"));
             if (column.IsFiltered)
                 items.Add(CreateMenuItem("Clear Filter", string.Empty, "col_filter_clear"));
+            items.Add(CreateMenuSeparator());
+            items.Add(CreateMenuItem("Auto-size Column", string.Empty, "col_autosize"));
+            items.Add(CreateMenuItem(column.Sticked ? "Unpin Column" : "Pin Column", string.Empty, "col_pin"));
+            bool grouped = GroupEngine.Descriptors.Any(d =>
+                string.Equals(d.ColumnName, column.ColumnName, System.StringComparison.OrdinalIgnoreCase));
+            items.Add(CreateMenuItem(grouped ? "Remove Grouping" : "Group by This Column", string.Empty, "col_group"));
+            items.Add(CreateMenuItem("Hide Column", string.Empty, "col_hide"));
+            items.Add(CreateMenuItem("Reset Columns", string.Empty, "col_reset"));
+            items.Add(CreateMenuItem("Copy Column Name", string.Empty, "col_copy_name"));
 
             var selected = ShowContextMenu(items, screenLocation, multiSelect: false);
             if (selected?.Tag == null) return;
@@ -58,14 +67,96 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     SetColumnSort(columnIndex, SortDirection.None);
                     break;
                 case "col_filter":
-                    ShowFilterDialog(preferredColumnName: column.ColumnName);
+                    ShowColumnFilterPopup(columnIndex, screenLocation);
                     break;
                 case "col_filter_clear":
                     SortFilter.Filter(column.ColumnName, string.Empty);
                     SortFilter.FilterIn(column.ColumnName, null);
+                    RemoveFilterCriterion(column.ColumnName);
                     SafeInvalidate();
                     break;
+                case "col_autosize":
+                    BestFitColumn(columnIndex);
+                    break;
+                case "col_pin":
+                    column.Sticked = !column.Sticked;
+                    Layout.Recalculate();
+                    SafeInvalidate();
+                    break;
+                case "col_group":
+                    if (grouped)
+                    {
+                        GroupEngine.SetDescriptors(GroupEngine.Descriptors
+                            .Where(d => !string.Equals(d.ColumnName, column.ColumnName,
+                                System.StringComparison.OrdinalIgnoreCase)));
+                    }
+                    else
+                    {
+                        GroupBy(column.ColumnName);
+                    }
+                    break;
+                case "col_hide":
+                    column.Visible = false;
+                    Layout.Recalculate();
+                    SafeInvalidate();
+                    break;
+                case "col_reset":
+                    ResetColumnLayout();
+                    break;
+                case "col_copy_name":
+                    try { System.Windows.Forms.Clipboard.SetText(column.ColumnName); }
+                    catch (System.Exception ex) { ReportOperationError("Column.CopyName", ex); }
+                    break;
             }
+        }
+
+        private void ShowColumnFilterPopup(int columnIndex, Point screenLocation)
+        {
+            if (columnIndex < 0 || columnIndex >= Data.Columns.Count) return;
+            var column = Data.Columns[columnIndex];
+            if (column == null) return;
+
+            var values = Data.Rows
+                .Select(r => r.Cells.FirstOrDefault(c =>
+                    string.Equals(c.ColumnName, column.ColumnName, System.StringComparison.OrdinalIgnoreCase))?.CellValue)
+                .Where(v => v != null && v != System.DBNull.Value)
+                .Distinct()
+                .ToList();
+
+            var popup = new Filters.BeepGridFilterPopup(column.ColumnCaption ?? column.ColumnName, values);
+            popup.SortRequested += (_, direction) => SetColumnSort(columnIndex, direction);
+            popup.ClearRequested += (_, __) =>
+            {
+                SortFilter.Filter(column.ColumnName, string.Empty);
+                SortFilter.FilterIn(column.ColumnName, null);
+                RemoveFilterCriterion(column.ColumnName);
+                SafeInvalidate();
+            };
+            popup.FilterApplied += (_, args) =>
+            {
+                if (args.SelectedValues == null || args.SelectedValues.Count == 0)
+                    SortFilter.FilterIn(column.ColumnName, null);
+                else
+                    SortFilter.FilterIn(column.ColumnName, args.SelectedValues);
+            };
+            popup.FormClosed += (_, __) => popup.Dispose();
+            popup.Location = screenLocation;
+
+            var owner = FindForm();
+            if (owner != null) popup.Show(owner); else popup.Show();
+        }
+
+        private void ResetColumnLayout()
+        {
+            foreach (var column in Data.Columns)
+            {
+                if (column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID) continue;
+                column.Visible = true;
+                column.Sticked = false;
+                column.DisplayOrder = column.Index;
+            }
+            Layout.Recalculate();
+            SafeInvalidate();
         }
 
         private void ShowGridContextMenu(MouseEventArgs e)
@@ -170,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Layout.Recalculate();
             Invalidate();
         }
-        private void ExportToExcel()
+        private async void ExportToExcel()
         {
             if (!ExportEngine.IsAvailable(Export.GridExportFormat.Excel))
             {
@@ -187,18 +278,37 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             };
             if (dialog.ShowDialog() == DialogResult.OK)
             {
+                using var cancellation = new System.Threading.CancellationTokenSource();
+                using var progressForm = new Export.GridExportProgressForm("Exporting Excel", cancellation);
+                var owner = FindForm();
+                if (owner != null) progressForm.Show(owner); else progressForm.Show();
+
                 try
                 {
-                    ExportToExcel(dialog.FileName);
+                    await ExportToExcelAsync(
+                        dialog.FileName,
+                        progress: new Progress<Export.GridExportProgress>(progressForm.Report),
+                        cancellationToken: cancellation.Token);
+                    progressForm.MarkComplete();
+                }
+                catch (OperationCanceledException)
+                {
+                    // A cancelled export leaves the previous file untouched.
                 }
                 catch (Exception ex)
                 {
+                    ReportOperationError("Export.Excel", ex);
+                    progressForm.Close();
                     MessageBox.Show(ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    progressForm.Close();
                 }
             }
         }
 
-        private void ExportToCsv()
+        private async void ExportToCsv()
         {
             if (!ExportEngine.IsAvailable(Export.GridExportFormat.Csv))
             {
@@ -215,13 +325,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             };
             if (dialog.ShowDialog() == DialogResult.OK)
             {
+                using var cancellation = new System.Threading.CancellationTokenSource();
+                using var progressForm = new Export.GridExportProgressForm("Exporting CSV", cancellation);
+                var owner = FindForm();
+                if (owner != null) progressForm.Show(owner); else progressForm.Show();
+
                 try
                 {
-                    ExportToCsv(dialog.FileName);
+                    await ExportToCsvAsync(
+                        dialog.FileName,
+                        progress: new Progress<Export.GridExportProgress>(progressForm.Report),
+                        cancellationToken: cancellation.Token);
+                    progressForm.MarkComplete();
+                }
+                catch (OperationCanceledException)
+                {
+                    // A cancelled export leaves the previous file untouched.
                 }
                 catch (Exception ex)
                 {
+                    ReportOperationError("Export.Csv", ex);
+                    progressForm.Close();
                     MessageBox.Show(ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    progressForm.Close();
                 }
             }
         }
@@ -232,26 +361,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
             if (selectedCount > 1 && MultiSelect)
             {
-                for (int pass = 0; pass < selectedCount; pass++)
-                {
-                    int target = -1;
-                    for (int i = Data.Rows.Count - 1; i >= 0; i--)
-                    {
-                        if (Data.Rows[i].IsSelected)
-                        {
-                            target = i;
-                            break;
-                        }
-                    }
+                var targets = Data.Rows
+                    .Select((row, index) => new { row, index })
+                    .Where(x => x.row.IsSelected)
+                    .Select(x => x.index)
+                    .OrderByDescending(index => index)
+                    .ToList();
 
-                    if (target < 0) break;
+                foreach (int target in targets)
+                {
+                    if (target < 0 || target >= Data.Rows.Count) continue;
 
                     try
                     {
                         Selection.SelectCell(target, 0);
                         Navigator.DeleteCurrent();
                     }
-                    catch { break; }
+                    catch (Exception ex)
+                    {
+                        ReportOperationError("DeleteSelectedRows", ex);
+                        break;
+                    }
                 }
 
                 ClearSelection();

@@ -44,7 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (g == null || grid?.Layout == null || headerRect.IsEmpty) return;
 
             // Bootstrap flat background
-            var bgColor = theme?.GridHeaderBackColor ?? Color.FromArgb(248, 249, 250);
+            var bgColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.FromArgb(248, 249, 250));
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, headerRect);
@@ -171,7 +173,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Bootstrap typography
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) ?? new Font("Segoe UI", 9f, FontStyle.Bold);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(73, 80, 87);
+            var textColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : (theme?.GridHeaderForeColor ?? Color.FromArgb(73, 80, 87));
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw Bootstrap sort indicator

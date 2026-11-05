@@ -28,7 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Draw background using theme color directly
-            using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var bgBrush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }
@@ -122,7 +124,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Get pagination info
             int currentPage = grid.Render.GetCurrentPage(grid);
-            var (startPage, endPage) = grid.Render.GetVisiblePageRange(grid, 5);
+            int visiblePageButtons = Math.Max(1, layout.PageNumberRects.Length);
+            var (startPage, endPage) = grid.Render.GetVisiblePageRange(grid, visiblePageButtons);
 
             // Paint page numbers with hit areas
             int pageIndex = 0;
@@ -219,8 +222,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 BUTTON_SIZE);
 
             // Center section - pagination
-            int centerX = availableBounds.X + (availableBounds.Width - (layout.VisiblePageButtons * BUTTON_SIZE + 2 * BUTTON_SIZE + SPACING * 6)) / 2;
-            
+            int leftLimit = availableBounds.X + 128;
+            int rightLimit = availableBounds.Right - COMBO_WIDTH - 24;
+            int availableCenter = Math.Max(0, rightLimit - leftLimit);
+            int visiblePageButtons = 5;
+            while (visiblePageButtons > 0 &&
+                   (2 + visiblePageButtons) * BUTTON_SIZE + (visiblePageButtons + 1) * SPACING > availableCenter)
+            {
+                visiblePageButtons--;
+            }
+            layout.VisiblePageButtons = visiblePageButtons;
+
+            int centerWidth = (2 + visiblePageButtons) * BUTTON_SIZE +
+                              (visiblePageButtons + 1) * SPACING;
+            int centerX = leftLimit + Math.Max(0, (availableCenter - centerWidth) / 2);
+
             layout.PreviousButtonRect = new Rectangle(centerX, y, BUTTON_SIZE, BUTTON_SIZE);
             centerX += BUTTON_SIZE + SPACING;
 

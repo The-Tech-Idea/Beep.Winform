@@ -47,7 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Minimal white/light background
-            var bgColor = theme?.GridHeaderBackColor ?? Color.White;
+            var bgColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : (theme?.GridHeaderBackColor ?? Color.White);
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, headerRect);
@@ -168,7 +170,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) 
                 ?? new Font("Segoe UI", 9f, FontStyle.Regular);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(100, 100, 100);
+            var textColor = System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.ControlText
+                : (theme?.GridHeaderForeColor ?? Color.FromArgb(100, 100, 100));
             
             // Use TextUtils for clean text rendering
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);

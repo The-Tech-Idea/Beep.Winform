@@ -28,6 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (rowsRect.Width <= 0 || rowsRect.Height <= 0)
                 return;
 
+            _grid.ConditionalFormatting.BeginFrame();
+            _emptyStateClearRect = Rectangle.Empty;
+
             // Draw background
             var isDark = IsDarkTheme;
             var gridBackColor = Theme?.GridBackColor ?? (isDark ? Color.FromArgb(31, 41, 55) : Color.White);
@@ -144,6 +147,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.ReportRenderError("Rows", ex);
             }
 
+            // Draw pinned aggregate footer if enabled
+            if (_grid.Footer.Visible)
+            {
+                try
+                {
+                    DrawFooter(g);
+                }
+                catch (Exception ex)
+                {
+                    _grid.ReportRenderError("Footer", ex);
+                }
+            }
+
             // Draw navigator if enabled
             if (_grid.ShowNavigator)
             {
@@ -238,14 +254,44 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
+            bool filtered = _grid.IsFiltered ||
+                            (_grid.SortFilter?.HasActiveFilters ?? false) ||
+                            !string.IsNullOrWhiteSpace(_grid.ToolbarState?.SearchText);
+
             string message = !hasColumns
                 ? "No columns defined."
-                : _grid.IsFiltered ? "No rows match the current filter." : "No data.";
+                : filtered ? "No rows match the current search or filter." : "No data.";
 
-            using var font = new Font(_grid.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily,
-                                      Math.Max(8f, (_grid.TextFont?.Size ?? 9f) + 1f), FontStyle.Regular);
-            TextRenderer.DrawText(g, message, font, rowsRect, textColor,
+            var font = GetSafeCellFont();
+            var textRect = filtered
+                ? new Rectangle(rowsRect.Left, rowsRect.Top, rowsRect.Width, Math.Max(0, rowsRect.Height - 52))
+                : rowsRect;
+            TextRenderer.DrawText(g, message, font, textRect, textColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+
+            if (filtered)
+            {
+                const int buttonWidth = 190;
+                const int buttonHeight = 30;
+                var buttonRect = new Rectangle(
+                    rowsRect.Left + (rowsRect.Width - buttonWidth) / 2,
+                    rowsRect.Top + Math.Max(0, (rowsRect.Height / 2) + 16),
+                    buttonWidth, buttonHeight);
+
+                if (buttonRect.Bottom <= rowsRect.Bottom && buttonRect.Width > 0)
+                {
+                    var chrome = _grid.ChromeState;
+                    using var path = CreateChipPath(buttonRect, 6);
+                    using var fill = new SolidBrush(chrome.ActiveBackground);
+                    using var border = new Pen(chrome.FocusRing);
+                    g.FillPath(fill, path);
+                    g.DrawPath(border, path);
+                    TextRenderer.DrawText(g, "Clear search and filters", font, buttonRect, chrome.Foreground,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
+                        TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                    _emptyStateClearRect = buttonRect;
+                }
+            }
         }
 
         /// <summary>
@@ -278,8 +324,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.ShowCheckBox && selColumn != null && _grid.Layout.SelectAllCheckRect != Rectangle.Empty)
             {
                 bool allSelected = _grid.Rows.Count > 0 && _grid.Rows.All(r => r.IsSelected);
-                var chk = new BeepCheckBoxBool { IsChild = true, GridMode = true, HideText = true, Theme = _grid.Theme, CurrentValue = allSelected };
-                chk.Draw(g, _grid.Layout.SelectAllCheckRect);
+                _headerCheck ??= new BeepCheckBoxBool
+                {
+                    IsChild = true,
+                    GridMode = true,
+                    HideText = true,
+                    Theme = _grid.Theme
+                };
+                _headerCheck.CurrentValue = allSelected;
+                _headerCheck.Draw(g, _grid.Layout.SelectAllCheckRect);
             }
 
             var stickyColumns = _grid.Data.Columns.Where(c => c.Sticked && c.Visible).ToList();
@@ -321,6 +374,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
             g.Restore(state2);
+
+            // Header keyboard focus ring (F6 enters the header band)
+            int focusedHeader = _grid.FocusedHeaderColumnIndex;
+            if (focusedHeader >= 0 && focusedHeader < _grid.Layout.HeaderCellRects.Length)
+            {
+                var focusRect = _grid.Layout.HeaderCellRects[focusedHeader];
+                if (!focusRect.IsEmpty)
+                {
+                    var metrics = Chrome.GridChromeMetrics.Resolve(_grid);
+                    var chrome = _grid.ChromeState;
+                    using var focusPen = new Pen(chrome.FocusRing, metrics.FocusRingWidth);
+                    var ring = Rectangle.Inflate(focusRect, -2, -2);
+                    g.DrawRectangle(focusPen, ring);
+                }
+            }
 
             // Vertical separator after sticky section
             if (stickyWidth > 0 && ShowGridLines)
@@ -369,6 +437,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var barRect = _grid.Layout.ActiveFilterBarRect;
             _activeFilterChipClearRects.Clear();
             _sortFilterChipClearRects.Clear();
+            _activeFilterChipRects.Clear();
+            _sortFilterChipRects.Clear();
             _activeFilterClearAllRect = Rectangle.Empty;
 
             if (barRect.Width <= 0 || barRect.Height <= 0) return;
@@ -409,38 +479,83 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 new Point(x, barRect.Top + (barRect.Height - prefixSize.Height) / 2), textColor);
             x += prefixSize.Width + (int)(8 * dpi);
 
+            var chips = new List<(string Label, int ActiveIndex, string? Column)>();
             if (activeCriteria != null)
             {
                 for (int i = 0; i < activeCriteria.Count; i++)
                 {
                     var criterion = activeCriteria[i];
                     if (criterion == null) continue;
-
-                    x = DrawFilterChip(g, criterion.ToString(), font, chipBack, borderColor, textColor,
-                        chipHeight, closeSize, dpi, x, y, chipGap, out var chipClearRect);
-                    _activeFilterChipClearRects[i] = chipClearRect;
+                    chips.Add((criterion.ToString(), i, null));
                 }
             }
 
             if (sortCriteria != null)
             {
                 foreach (var criterion in sortCriteria)
-                {
-                    x = DrawFilterChip(g, criterion.ToString(), font, chipBack, borderColor, textColor,
-                        chipHeight, closeSize, dpi, x, y, chipGap, out var sortChipClearRect);
-                    _sortFilterChipClearRects[criterion.ColumnName] = sortChipClearRect;
-                }
+                    chips.Add((criterion.ToString(), -1, criterion.ColumnName));
             }
 
             const string clearAll = "Clear all";
             var clearSize = TextRenderer.MeasureText(clearAll, font);
-            var clearRect = new Rectangle(x + (int)(4 * dpi), y, clearSize.Width + (int)(8 * dpi), chipHeight);
-            _activeFilterClearAllRect = clearRect;
-            using (var accentBrush = new SolidBrush(accent))
+            int clearAllWidth = clearSize.Width + (int)(12 * dpi);
+            int rightLimit = barRect.Right - paddingX - clearAllWidth;
+
+            int overflow = 0;
+            var clipState = g.Save();
+            g.SetClip(barRect);
+            for (int i = 0; i < chips.Count; i++)
             {
-                TextRenderer.DrawText(g, clearAll, font, clearRect, accent,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                var chip = chips[i];
+                int width = MeasureFilterChip(chip.Label, font, closeSize, dpi);
+                if (x + width + chipGap > rightLimit)
+                {
+                    overflow = chips.Count - i;
+                    break;
+                }
+
+                x = DrawFilterChip(g, chip.Label, font, chipBack, borderColor, textColor,
+                    chipHeight, closeSize, dpi, x, y, chipGap, out var chipClearRect, out var chipBodyRect);
+                if (chip.ActiveIndex >= 0)
+                {
+                    _activeFilterChipClearRects[chip.ActiveIndex] = chipClearRect;
+                    _activeFilterChipRects[chip.ActiveIndex] = chipBodyRect;
+                }
+                else if (chip.Column != null)
+                {
+                    _sortFilterChipClearRects[chip.Column] = chipClearRect;
+                    _sortFilterChipRects[chip.Column] = chipBodyRect;
+                }
             }
+
+            if (overflow > 0 && x + MeasureFilterChip($"+{overflow} more", font, closeSize, dpi) <= barRect.Right - paddingX)
+            {
+                x = DrawFilterChip(g, $"+{overflow} more", font, chipBack, borderColor, textColor,
+                    chipHeight, closeSize, dpi, x, y, chipGap, out _, out _, showClose: false);
+            }
+
+            var clearRect = new Rectangle(x + (int)(4 * dpi), y, clearSize.Width + (int)(8 * dpi), chipHeight);
+            if (clearRect.Right <= barRect.Right - paddingX)
+            {
+                _activeFilterClearAllRect = clearRect;
+                using (var accentBrush = new SolidBrush(accent))
+                {
+                    TextRenderer.DrawText(g, clearAll, font, clearRect, accent,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                }
+            }
+            else
+            {
+                _activeFilterClearAllRect = Rectangle.Empty;
+            }
+
+            g.Restore(clipState);
+        }
+
+        private static int MeasureFilterChip(string label, Font font, int closeSize, float dpi)
+        {
+            var size = TextRenderer.MeasureText(label, font);
+            return size.Width + closeSize + (int)(16 * dpi);
         }
 
         /// <summary>
@@ -449,12 +564,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// <paramref name="clearRect"/> for hit-testing.
         /// </summary>
         private int DrawFilterChip(Graphics g, string label, Font font, Color chipBack, Color borderColor,
-            Color textColor, int chipHeight, int closeSize, float dpi, int x, int y, int chipGap, out Rectangle clearRect)
+            Color textColor, int chipHeight, int closeSize, float dpi, int x, int y, int chipGap,
+            out Rectangle clearRect, out Rectangle chipRect, bool showClose = true)
         {
             var textSize = TextRenderer.MeasureText(label, font);
-            int chipWidth = textSize.Width + closeSize + (int)(16 * dpi);
+            int chipWidth = textSize.Width + (showClose ? closeSize : 0) + (int)(16 * dpi);
 
-            var chipRect = new Rectangle(x, y, chipWidth, chipHeight);
+            chipRect = new Rectangle(x, y, chipWidth, chipHeight);
 
             using (var path = CreateChipPath(chipRect, chipHeight / 2))
             using (var chipBrush = new SolidBrush(chipBack))
@@ -466,15 +582,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             var labelRect = new Rectangle(
                 chipRect.X + (int)(7 * dpi), chipRect.Y,
-                chipRect.Width - closeSize - (int)(10 * dpi), chipRect.Height);
+                chipRect.Width - (showClose ? closeSize : 0) - (int)(10 * dpi), chipRect.Height);
             TextRenderer.DrawText(g, label, font, labelRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            clearRect = new Rectangle(
-                chipRect.Right - closeSize - (int)(3 * dpi),
-                chipRect.Y + (chipRect.Height - closeSize) / 2,
-                closeSize, closeSize);
-            DrawCloseGlyph(g, clearRect, textColor);
+            if (showClose)
+            {
+                clearRect = new Rectangle(
+                    chipRect.Right - closeSize - (int)(3 * dpi),
+                    chipRect.Y + (chipRect.Height - closeSize) / 2,
+                    closeSize, closeSize);
+                DrawCloseGlyph(g, clearRect, textColor);
+            }
+            else
+            {
+                clearRect = Rectangle.Empty;
+            }
 
             return chipRect.Right + chipGap;
         }
@@ -568,7 +691,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var color = Theme?.GridHeaderForeColor ?? (IsDarkTheme ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
             float size = Math.Max(6f, sortRect.Height * 0.45f);
 
-            using var font = new Font(GetSafeHeaderFont().FontFamily, size, FontStyle.Bold, GraphicsUnit.Pixel);
+            var font = GetSortBadgeFont(size);
             var badgeRect = new Rectangle(sortRect.Right - 2, sortRect.Top, sortRect.Width, sortRect.Height);
             TextRenderer.DrawText(g, order.ToString(), font, badgeRect, color,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
@@ -827,24 +950,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             int currentY = rowsRect.Top;
             int firstVisibleRowIndex = _grid.Scroll.FirstVisibleRowIndex;
-            int totalRowsHeight = 0;
-           
-            for (int i = 0; i < firstVisibleRowIndex && i < _grid.Data.Rows.Count; i++)
-            {
-                var row = _grid.Data.Rows[i];
-                if (!row.IsVisible) continue;  // skip filtered-out rows
-                totalRowsHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
-            }
+            int totalRowsHeight;
+
             if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
             {
-                totalRowsHeight += (int)(_grid.RowVirtualizer.WindowStart * _grid.RowHeight);
+                totalRowsHeight = (int)(_grid.RowVirtualizer.WindowStart * _grid.RowHeight);
+                for (int i = 0; i < firstVisibleRowIndex && i < _grid.Data.Rows.Count; i++)
+                {
+                    var row = _grid.Data.Rows[i];
+                    if (!row.IsVisible) continue;
+                    totalRowsHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
+                }
             }
             else
             {
-                // Account for group headers before the first visible row
-                totalRowsHeight += (_grid.GroupEngine?.GetHeaderCountBeforeRow(firstVisibleRowIndex) ?? 0) * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+                totalRowsHeight = _grid.Layout.RowMetrics.TopOfRow(firstVisibleRowIndex);
             }
-            
+
             int pixelOffset = _grid.Scroll.VerticalOffset;
             currentY = rowsRect.Top - (pixelOffset - totalRowsHeight);
 
@@ -861,7 +983,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             else
             {
                 visibleRowEnd = Math.Min(_grid.Data.Rows.Count - 1,
-                    visibleRowStart + GetVisibleRowCount(_grid.Data.Rows, rowsRect.Height, visibleRowStart, pixelOffset));
+                    GetLastRenderableRowIndex(_grid.Data.Rows, rowsRect.Height, visibleRowStart, pixelOffset));
             }
 
             Rectangle stickyRegion = new Rectangle(rowsRect.Left, rowsRect.Top, stickyWidth, rowsRect.Height);
@@ -923,6 +1045,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                                 Color fore = sc.Col.HasCustomForeColor && sc.Col.UseCustomColors ? sc.Col.ColumnForeColor : gridForeColor;
 
+                                var (cfBack, cfFore, cfFontStyle) = ApplyConditionalFormatting(row, r, sc.Col, cell, back, fore, isSelectedRow, isActiveRow);
+                                back = cfBack;
+                                fore = cfFore;
+
                                 using (var bg = new SolidBrush(back)) 
                                     g.FillRectangle(bg, rect);
 
@@ -943,7 +1069,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                 }
                                 else
                                 {
-                                    DrawCellContent(g, sc.Col, cell, rect, fore, back);
+                                    DrawCellContent(g, sc.Col, cell, rect, fore, back, cfFontStyle);
                                 }
 
                                 if (ShowGridLines)
@@ -1000,6 +1126,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                             Color fore = st.Col.HasCustomForeColor && st.Col.UseCustomColors ? st.Col.ColumnForeColor : gridForeColor;
 
+                            var (cfBack, cfFore, cfFontStyle) = ApplyConditionalFormatting(row, r, st.Col, cell, back, fore, isSelectedRow, isActiveRow);
+                            back = cfBack;
+                            fore = cfFore;
+
                             using (var bg = new SolidBrush(back)) 
                                 g.FillRectangle(bg, rect);
 
@@ -1020,13 +1150,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                             }
                             else if (st.Col.IsRowNumColumn)
                             {
-                                var font = GetSafeCellFont();
+                                var font = GetCellFont(cfFontStyle);
                                 TextRenderer.DrawText(g, cell.CellValue?.ToString() ?? string.Empty, font, rect, fore,
                                     TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                             }
                             else
                             {
-                                DrawCellContent(g, st.Col, cell, rect, fore, back);
+                                DrawCellContent(g, st.Col, cell, rect, fore, back, cfFontStyle);
                             }
 
                             if (ShowGridLines)

@@ -17,50 +17,63 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             var normalizedValue = NormalizeEditorValue(newValue, column, cell);
 
+            if (cell.RowIndex >= 0 && cell.RowIndex < Rows.Count)
+            {
+                var row = Rows[cell.RowIndex];
+                if (!column.IsUnbound && row.RowData != null && !string.IsNullOrEmpty(column.ColumnName))
+                {
+                    if (Binding != null)
+                    {
+                        if (!Binding.TrySetValue(row.RowData, column.ColumnName, normalizedValue,
+                                out var appliedValue, out var error, row.RowIndex))
+                        {
+                            _grid?.ReportOperationError("Data.UpdateCellValue",
+                                error ?? new InvalidOperationException("Could not update the bound value."));
+                            return;
+                        }
+
+                        normalizedValue = appliedValue;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if (row.RowData is DataRowView drv)
+                            {
+                                if (drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
+                                    drv.Row[column.ColumnName] = normalizedValue ?? DBNull.Value;
+                            }
+                            else if (row.RowData is DataRow dr)
+                            {
+                                if (dr.Table?.Columns.Contains(column.ColumnName) == true)
+                                    dr[column.ColumnName] = normalizedValue ?? DBNull.Value;
+                            }
+                            else
+                            {
+                                var prop = GetCachedProperty(row.RowData.GetType(), column.ColumnName);
+                                if (prop != null && prop.CanWrite)
+                                {
+                                    var convertedValue = ConvertValue(normalizedValue, prop.PropertyType);
+                                    prop.SetValue(row.RowData, convertedValue);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _grid?.ReportOperationError("Data.UpdateCellValue", ex);
+                            return;
+                        }
+                    }
+                }
+
+                row.IsDirty = true;
+            }
+
             cell.CellValue = normalizedValue!;
             cell.IsDirty = true;
 
             if (cell.RowIndex >= 0 && cell.RowIndex < Rows.Count)
-            {
-                var row = Rows[cell.RowIndex];
-                row.IsDirty = true;
-
-                if (row.RowData != null && !string.IsNullOrEmpty(column.ColumnName))
-                {
-                    try
-                    {
-                        if (row.RowData is DataRowView drv)
-                        {
-                            if (drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
-                            {
-                                drv.Row[column.ColumnName] = normalizedValue ?? DBNull.Value;
-                            }
-                        }
-                        else if (row.RowData is DataRow dr)
-                        {
-                            if (dr.Table?.Columns.Contains(column.ColumnName) == true)
-                            {
-                                dr[column.ColumnName] = normalizedValue ?? DBNull.Value;
-                            }
-                        }
-                        else
-                        {
-                            var prop = row.RowData.GetType().GetProperty(column.ColumnName);
-                            if (prop != null && prop.CanWrite)
-                            {
-                                var convertedValue = ConvertValue(normalizedValue, prop.PropertyType);
-                                prop.SetValue(row.RowData, convertedValue);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-#if DEBUG
-                        System.Diagnostics.Debug.WriteLine($"Error updating cell value: {ex.Message}");
-#endif
-                    }
-                }
-            }
+                _grid.RefreshViewAfterEdit(Rows[cell.RowIndex].RowData, cell.ColumnIndex);
         }
 
         private object? NormalizeEditorValue(object rawValue, BeepColumnConfig column, BeepCellConfig cell)
@@ -109,17 +122,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // simply would not convert.
                 if (targetType.IsEnum)
                 {
-                    try { return Enum.Parse(targetType, si.Text, true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
+                    try { return Enum.Parse(targetType, si.Text, true); }
+                    catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException)
+                    {
+                        _grid?.ReportOperationError("Data.ParseEnum", ex);
+                    }
                     if (si.Value != null)
                     {
-                        try { return Enum.Parse(targetType, si.Value!.ToString()!, true); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
+                        try { return Enum.Parse(targetType, si.Value!.ToString()!, true); }
+                        catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException)
+                        {
+                            _grid?.ReportOperationError("Data.ParseEnum", ex);
+                        }
                     }
                     return Activator.CreateInstance(targetType);
                 }
                 if (IsNumericType(targetType))
                 {
                     object candidate = si.Value ?? si.Text;
-                    try { return Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException) { }
+                    try { return Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); }
+                    catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException or InvalidCastException)
+                    {
+                        _grid?.ReportOperationError("Data.ParseNumber", ex);
+                    }
                     return Activator.CreateInstance(Nullable.GetUnderlyingType(targetType) ?? targetType);
                 }
                 if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))
@@ -158,8 +183,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 return Convert.ChangeType(value, underlying);
             }
-            catch
+            catch (Exception ex) when (ex is InvalidCastException or FormatException or OverflowException)
             {
+                _grid?.ReportOperationError("Data.ConvertValue", ex);
                 return value;
             }
         }

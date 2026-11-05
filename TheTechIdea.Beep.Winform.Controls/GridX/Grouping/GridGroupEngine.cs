@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.GridX.Query;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
@@ -11,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
     public sealed class GridGroupEngine
     {
         private readonly BeepGridPro _grid;
-        private readonly List<GroupDescriptor> _descriptors = new();
+        private readonly GridQuery _query = new();
         private readonly List<GridGroup> _groups = new();
         private IGridGrouper _grouper = DefaultGridGrouper.Instance;
 
@@ -21,9 +22,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         }
 
         /// <summary>
+        /// Grouping input for the shared query pipeline. The engine owns the
+        /// materialized <see cref="GridGroup"/> list, not a second descriptor
+        /// store.
+        /// </summary>
+        public GridQuery Query => _query;
+
+        /// <summary>
         /// Currently active group descriptors (in nesting order).
         /// </summary>
-        public IReadOnlyList<GroupDescriptor> Descriptors => _descriptors;
+        public IReadOnlyList<GroupDescriptor> Descriptors => _query.Groups;
 
         /// <summary>
         /// Computed groups from the last <see cref="ApplyGrouping()"/> call.
@@ -33,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         /// <summary>
         /// Whether grouping is currently active (at least one descriptor is registered).
         /// </summary>
-        public bool IsGrouped => _descriptors.Count > 0;
+        public bool IsGrouped => _query.Groups.Count > 0;
 
         /// <summary>
         /// The grouper implementation used to extract keys and labels. Default: <see cref="DefaultGridGrouper"/>.
@@ -50,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         public void AddDescriptor(GroupDescriptor descriptor)
         {
             if (descriptor == null) throw new ArgumentNullException(nameof(descriptor));
-            _descriptors.Add(descriptor);
+            _query.Groups.Add(descriptor);
             ApplyGrouping();
         }
 
@@ -59,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         /// </summary>
         public void ClearDescriptors()
         {
-            _descriptors.Clear();
+            _query.Groups.Clear();
             _groups.Clear();
             RestoreAllRowsVisible();
         }
@@ -69,8 +77,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         /// </summary>
         public void SetDescriptors(IEnumerable<GroupDescriptor> descriptors)
         {
-            _descriptors.Clear();
-            _descriptors.AddRange(descriptors ?? throw new ArgumentNullException(nameof(descriptors)));
+            _query.Groups.Clear();
+            _query.Groups.AddRange(descriptors ?? throw new ArgumentNullException(nameof(descriptors)));
             ApplyGrouping();
         }
 
@@ -112,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         {
             _groups.Clear();
 
-            if (_descriptors.Count == 0 || _grid.Data.Rows.Count == 0)
+            if (_query.Groups.Count == 0 || _grid.Data.Rows.Count == 0)
             {
                 RestoreAllRowsVisible();
                 return;
@@ -153,10 +161,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
 
         private void BuildGroups(int descriptorIndex, List<int> rowIndices, int level)
         {
-            if (descriptorIndex >= _descriptors.Count)
+            if (descriptorIndex >= _query.Groups.Count)
                 return;
 
-            var descriptor = _descriptors[descriptorIndex];
+            var descriptor = _query.Groups[descriptorIndex];
             var column = _grid.Data.Columns.FirstOrDefault(c => c.ColumnName == descriptor.ColumnName);
             if (column == null)
                 return;
@@ -190,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
                 };
 
                 // Recurse for nested descriptors
-                if (descriptorIndex + 1 < _descriptors.Count)
+                if (descriptorIndex + 1 < _query.Groups.Count)
                 {
                     BuildGroups(descriptorIndex + 1, group.RowIndices, level + 1);
                 }
@@ -201,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
 
         private void SortGroupsAndRows()
         {
-            foreach (var descriptor in _descriptors)
+            foreach (var descriptor in _query.Groups)
             {
                 // Sort rows inside each group according to descriptor.SortDirection
                 var colIndex = _grid.Data.Columns
@@ -209,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
                     .FirstOrDefault(x => x.c.ColumnName == descriptor.ColumnName)?.i ?? -1;
                 if (colIndex < 0) continue;
 
-                foreach (var group in _groups.Where(g => g.Level == _descriptors.IndexOf(descriptor)))
+                foreach (var group in _groups.Where(g => g.Level == _query.Groups.IndexOf(descriptor)))
                 {
                     group.RowIndices.Sort((a, b) =>
                     {
@@ -247,6 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
                 }
             }
 
+            _grid.Layout.RowMetrics.Invalidate();
             _grid.Layout.Recalculate();
             _grid.ScrollBars?.UpdateBars();
             _grid.SafeInvalidate();
@@ -262,6 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
                 _grid.Data.Rows[i].IsVisible = !isFiltered || (filteredSet != null && filteredSet.Contains(i));
             }
 
+            _grid.Layout.RowMetrics.Invalidate();
             _grid.Layout.Recalculate();
             _grid.ScrollBars?.UpdateBars();
             _grid.SafeInvalidate();
@@ -309,10 +319,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         /// </summary>
         public void SortGroupsByColumn(string columnName, GroupSortDirection direction)
         {
-            var descriptorIndex = _descriptors.FindIndex(d => d.ColumnName == columnName);
+            var descriptorIndex = _query.Groups.FindIndex(d => d.ColumnName == columnName);
             if (descriptorIndex < 0) return;
 
-            var descriptor = _descriptors[descriptorIndex];
+            var descriptor = _query.Groups[descriptorIndex];
             descriptor.SortDirection = direction;
 
             // Recompute so groups reflect the new sort direction
@@ -325,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
         /// </summary>
         private void ApplyActiveColumnSortsWithinGroups()
         {
-            var groupColumns = new HashSet<string>(_descriptors.Select(d => d.ColumnName), StringComparer.OrdinalIgnoreCase);
+            var groupColumns = new HashSet<string>(_query.Groups.Select(d => d.ColumnName), StringComparer.OrdinalIgnoreCase);
 
             foreach (var column in _grid.Data.Columns)
             {

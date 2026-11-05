@@ -27,7 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Professional background using theme color directly
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
@@ -63,14 +65,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.AddHitArea(icon, bounds, null, action);
 
             // Button background using theme colors directly
-            Color bgColor = isPrimary ? theme.AccentColor : theme.GridHeaderBackColor;
+            bool highContrast = System.Windows.Forms.SystemInformation.HighContrast;
+            Color bgColor = highContrast
+                ? (isPrimary ? SystemColors.Highlight : SystemColors.Control)
+                : (isPrimary ? theme.AccentColor : theme.GridHeaderBackColor);
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
             // Border using theme colors
-            Color borderColor = isPrimary ? theme.AccentColor : theme.GridHeaderBorderColor;
+            Color borderColor = highContrast
+                ? SystemColors.ControlText
+                : (isPrimary ? theme.AccentColor : theme.GridHeaderBorderColor);
             using (var pen = new Pen(borderColor, 1))
             {
                 g.DrawRectangle(pen, bounds);
@@ -85,7 +92,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Icon using theme colors
-            Color iconColor = isPrimary ? theme.GridHeaderBackColor : theme.GridHeaderForeColor;
+            Color iconColor = highContrast
+                ? (isPrimary ? SystemColors.HighlightText : SystemColors.ControlText)
+                : (isPrimary ? theme.GridHeaderBackColor : theme.GridHeaderForeColor);
             using (var font = new Font("Segoe UI", 11, FontStyle.Regular))
             {
                 DrawCenteredText(g, icon, font, iconColor, bounds);
@@ -97,7 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (bounds.IsEmpty || grid?.Data?.Rows == null) return;
 
             // Professional info display using theme color directly
-            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var brush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }

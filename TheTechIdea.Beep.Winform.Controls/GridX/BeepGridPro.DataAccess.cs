@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
@@ -53,7 +54,127 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
         #endregion
 
+        #region Two-Way Binding
+        public bool SetCellValue(int rowIndex, int columnIndex, object? value)
+        {
+            if (rowIndex < 0 || rowIndex >= Data.Rows.Count ||
+                columnIndex < 0 || columnIndex >= Data.Columns.Count)
+                return false;
+
+            var column = Data.Columns[columnIndex];
+            if (ReadOnly || column.ReadOnly || column.IsSelectionCheckBox ||
+                column.IsRowNumColumn || column.IsRowID)
+                return false;
+
+            var row = Data.Rows[rowIndex];
+            object? appliedValue = value;
+            if (!column.IsUnbound)
+            {
+                if (Data.Binding == null)
+                {
+                    ReportOperationError("Binding.SetCellValue",
+                        new InvalidOperationException("The grid is not bound to a writable data source."));
+                    return false;
+                }
+
+                if (!Data.Binding.TrySetValue(row.RowData, column.ColumnName, value,
+                        out appliedValue, out var error))
+                {
+                    ReportOperationError("Binding.SetCellValue",
+                        error ?? new InvalidOperationException("Could not set the cell value."));
+                    return false;
+                }
+            }
+
+            var cell = row.Cells.FirstOrDefault(c =>
+                string.Equals(c.ColumnName, column.ColumnName, StringComparison.OrdinalIgnoreCase));
+            if (cell != null)
+            {
+                cell.CellValue = appliedValue!;
+                cell.IsDirty = true;
+                OnCellValueChanged(cell);
+            }
+
+            row.IsDirty = true;
+            Footer.Invalidate();
+            if (GroupEngine?.IsGrouped == true)
+                GroupEngine.ApplyGrouping();
+            RefreshViewAfterEdit(row.RowData, columnIndex);
+            InvalidateRow(rowIndex);
+            return true;
+        }
+
+        internal void RefreshViewAfterEdit(object? item, int columnIndex)
+        {
+            if (!SortFilter.HasActiveSort && !SortFilter.HasActiveFilters &&
+                (_activeFilter?.Criteria.Count ?? 0) == 0)
+                return;
+
+            SortFilter.ReapplyView();
+
+            int targetRow = -1;
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                if (ReferenceEquals(Rows[i].RowData, item) || Equals(Rows[i].RowData, item))
+                {
+                    if (Rows[i].IsVisible) targetRow = i;
+                    break;
+                }
+            }
+
+            if (targetRow < 0)
+            {
+                for (int i = 0; i < Rows.Count; i++)
+                {
+                    if (Rows[i].IsVisible)
+                    {
+                        targetRow = i;
+                        break;
+                    }
+                }
+            }
+
+            if (targetRow >= 0)
+            {
+                int column = Math.Max(0, Math.Min(columnIndex,
+                    Math.Max(0, Data.Columns.Count - 1)));
+                Selection.SelectCell(targetRow, column);
+                Scroll?.SetVerticalIndex(targetRow);
+            }
+            else
+            {
+                Selection.Clear();
+            }
+
+            SafeInvalidate();
+            UpdateAccessibleDescription();
+        }
+
+        public bool SetCellValue(int rowIndex, string columnName, object? value)
+        {
+            var column = GetColumnByName(columnName);
+            return column != null && SetCellValue(rowIndex, column.Index, value);
+        }
+
+        public object? GetCellValue(int rowIndex, int columnIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= Data.Rows.Count ||
+                columnIndex < 0 || columnIndex >= Data.Rows[rowIndex].Cells.Count)
+                return null;
+
+            return Data.Rows[rowIndex].Cells[columnIndex].CellValue;
+        }
+        #endregion
+
         #region Data Synchronization
+        /// <summary>
+        /// The current ordered/visible view of the grid. Exporters and hosts
+        /// should read this instead of walking <see cref="Data.Rows"/> and
+        /// filtering on <c>IsVisible</c> themselves.
+        /// </summary>
+        [Browsable(false)]
+        public Query.GridView View => DataController.BuildView();
+
         /// <summary>
         /// Syncs changes from the row's RowDataObject back to the cell values and updates the grid display.
         /// Call this after modifying properties on the RowDataObject to reflect changes in the grid.
@@ -79,7 +200,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     {
                         object? newValue = null;
 
-                        if (row.RowDataObject is System.Data.DataRowView drv)
+                        if (Data.Binding != null)
+                        {
+                            newValue = Data.Binding.GetValue(row.RowDataObject, column.ColumnName);
+                        }
+                        else if (row.RowDataObject is System.Data.DataRowView drv)
                         {
                             if (drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
                                 newValue = drv[column.ColumnName];
@@ -110,9 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     }
                     catch (Exception ex)
                     {
-#if DEBUG
-                        System.Diagnostics.Debug.WriteLine($"Error syncing row data to grid: {ex.Message}");
-#endif
+                        GridErrorReporter.Operation(this, "Data.SyncRow", ex);
                     }
                 }
             }

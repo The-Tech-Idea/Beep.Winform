@@ -134,56 +134,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             return panel;
         }
-
-        private Panel CreateSearchPanel()
-        {
-            var panel = new Panel
-            {
-                Size = new Size(400, 150),
-                BorderStyle = BorderStyle.None
-            };
-
-            var searchLabel = new Label
-            {
-                Text = "Search for:",
-                Location = new Point(10, 15),
-                Size = new Size(80, 20)
-            };
-
-            var searchTextBox = new TextBox
-            {
-                Location = new Point(100, 12),
-                Size = new Size(200, 25),
-                Name = "SearchTextBox"
-            };
-
-            var searchButton = new Button
-            {
-                Text = "Search",
-                Location = new Point(100, 50),
-                Size = new Size(80, 30)
-            };
-
-            var searchNextButton = new Button
-            {
-                Text = "Find Next",
-                Location = new Point(190, 50),
-                Size = new Size(80, 30)
-            };
-
-            searchButton.Click += (s, e) => PerformSearch(searchTextBox.Text, true);
-            searchNextButton.Click += (s, e) => PerformSearch(searchTextBox.Text, false);
-
-            panel.Controls.AddRange(new Control[]
-            {
-                searchLabel, searchTextBox, searchButton, searchNextButton
-            });
-
-            ApplyThemeToContainer(panel);
-
-            return panel;
-        }
-
         private Panel CreateColumnConfigPanel()
         {
             var panel = new Panel
@@ -292,38 +242,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             return dialog;
         }
-
-        private Form CreateSearchDialog(Panel searchPanel)
-        {
-            var dialog = new Form
-            {
-                Text = "Search Data",
-                Size = new Size(420, 200),
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                MaximizeBox = false,
-                MinimizeBox = false,
-                ShowInTaskbar = false
-            };
-
-            searchPanel.Location = new Point(10, 10);
-            dialog.Controls.Add(searchPanel);
-
-            var closeButton = new Button
-            {
-                Text = "Close",
-                DialogResult = DialogResult.OK,
-                Location = new Point(320, 130),
-                Size = new Size(75, 25)
-            };
-
-            dialog.Controls.Add(closeButton);
-            dialog.AcceptButton = closeButton;
-
-            ApplyThemeToContainer(dialog);
-
-            return dialog;
-        }
-
         private Form CreateColumnConfigDialog(Panel configPanel)
         {
             var dialog = new Form
@@ -552,98 +470,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             _grid.SafeInvalidate();
         }
-
-        private void PerformSearch(string searchText, bool fromStart)
-        {
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                return;
-            }
-
-            string query = searchText.Trim();
-            if (query.Length == 0)
-            {
-                return;
-            }
-
-            // Save the current search filter for persistence 
-            _currentSearchFilter = query;
-
-            // Apply quick filter to actually filter rows based on search text
-            // This shows only rows that match the search, stored as an active filter chip
-            _grid.ApplyQuickFilter(query, null);
-            
-            // Now find and select the first matching cell in the filtered results
-            int rowCount = _grid.Rows.Count;
-            int colCount = _grid.Columns.Count;
-            if (rowCount == 0 || colCount == 0)
-            {
-                return;
-            }
-
-            if (!string.Equals(_lastSearchQuery, query, StringComparison.OrdinalIgnoreCase))
-            {
-                fromStart = true;
-            }
-
-            int startRow = fromStart ? 0 : Math.Max(0, _lastSearchRow);
-            int startCol = fromStart ? 0 : Math.Max(0, _lastSearchCol + 1);
-
-            bool found = false;
-            int foundRow = -1;
-            int foundCol = -1;
-
-            for (int pass = 0; pass < 2 && !found; pass++)
-            {
-                int rowFrom = pass == 0 ? startRow : 0;
-                int rowTo = pass == 0 ? rowCount : startRow;
-
-                for (int rowIndex = rowFrom; rowIndex < rowTo && !found; rowIndex++)
-                {
-                    if (!_grid.Rows[rowIndex].IsVisible)
-                    {
-                        continue;
-                    }
-
-                    int colFrom = (pass == 0 && rowIndex == startRow) ? startCol : 0;
-                    for (int colIndex = colFrom; colIndex < colCount; colIndex++)
-                    {
-                        if (!_grid.Columns[colIndex].Visible || _grid.Columns[colIndex].IsSelectionCheckBox)
-                        {
-                            continue;
-                        }
-
-                        var cell = _grid.Rows[rowIndex].Cells[colIndex];
-                        string text = cell?.CellValue?.ToString() ?? string.Empty;
-                        if (text.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            found = true;
-                            foundRow = rowIndex;
-                            foundCol = colIndex;
-                            break;
-                        }
-                    }
-                }
-
-                startCol = 0;
-            }
-
-            _lastSearchQuery = query;
-
-            if (!found)
-            {
-                _lastSearchRow = -1;
-                _lastSearchCol = -1;
-                return;
-            }
-
-            _lastSearchRow = foundRow;
-            _lastSearchCol = foundCol;
-            _grid.Selection.SelectCell(foundRow, foundCol);
-            _grid.Selection.EnsureVisible();
-            _grid.SafeInvalidate();
-        }
-
         private void ApplyColumnChanges(Panel configPanel)
         {
             var columnListBox = configPanel.Controls.OfType<CheckedListBox>().FirstOrDefault(c => c.Name == "ColumnListBox");

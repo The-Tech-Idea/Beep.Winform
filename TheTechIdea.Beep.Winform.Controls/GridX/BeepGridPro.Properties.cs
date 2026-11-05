@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         DataController.BindVirtualized(value);
                         Data.Rows.Clear();
                         var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
-                        VirtualDataSource = CreateVirtualDataSource(value, columnNames);
+                        VirtualDataSource = CreateVirtualDataSource(Data.Binding?.NormalizedSource ?? value, columnNames);
                         int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
                         RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
                         Layout.Recalculate();
@@ -221,9 +221,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (_dataMember != value)
                 {
                     _dataMember = value ?? string.Empty;
-                    if (Data.DataSource != null)
+                    // UOW is authoritative; changing a display member must not
+                    // rebind the unit-of-work's Units as a regular source.
+                    if (_typedUow == null && _uowWrapper == null && _regularDataSource != null)
                     {
-                        DataController.BindComplete(Data.DataSource);
+                        DataController.RebindSchema();
                         SafeInvalidate();
                     }
                 }
@@ -250,10 +252,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             get => Layout.RowHeight;
             set
             {
-                int min = BeepLayoutMetrics.MinTouchTarget.ScaleValue(this);
+                int min = BeepLayoutMetrics.GridRowMinHeight.ScaleValue(this);
                 if (Layout.RowHeight != System.Math.Max(min, value))
                 {
                     Layout.RowHeight = System.Math.Max(min, value);
+                    Layout.RowMetrics.Invalidate();
                     if (!DesignMode) SafeInvalidate();
                 }
             }
@@ -266,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             get => Layout.ColumnHeaderHeight;
             set
             {
-                int min = BeepLayoutMetrics.MinTouchTarget.ScaleValue(this);
+                int min = BeepLayoutMetrics.GridHeaderMinH.ScaleValue(this);
                 if (Layout.ColumnHeaderHeight != System.Math.Max(min, value))
                 {
                     Layout.ColumnHeaderHeight = System.Math.Max(min, value);
@@ -427,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The visual Style preset for the grid, inspired by popular JavaScript frameworks.")]
-        [DefaultValue(BeepGridStyle.Default)]
+        [DefaultValue(BeepGridStyle.Bootstrap)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [RefreshProperties(RefreshProperties.Repaint)]
         public BeepGridStyle GridStyle
@@ -1094,12 +1097,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         Layout.ShowTopFilterPanel = false;
                         HideInlineQuickSearch();
                     }
-                    // When toolbar is hidden, optionally show the legacy filter panel.
-                    if (!value && !Layout.ShowTopFilterPanel)
-                    {
-                        Layout.ShowTopFilterPanel = true;
-                        EnsureInlineQuickSearchVisible();
-                    }
+                    // Hiding the toolbar does not silently enable the legacy
+                    // filter panel; hosts that want it set ShowTopFilterPanel.
                     // Tear down the search editor when the toolbar disappears
                     // so the editor (a child control) doesn't stay visible
                     // after its painted host is gone.

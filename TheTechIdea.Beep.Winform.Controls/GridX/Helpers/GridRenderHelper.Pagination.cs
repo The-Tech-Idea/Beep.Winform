@@ -20,9 +20,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (grid?.Selection == null || grid.Data?.Rows == null) return 1;
             if (grid.Data.Rows.Count == 0) return 1;
             
-            int pageSize = GetVisibleRowCapacity();
+            int pageSize = GetCurrentPageSize();
             if (pageSize <= 0) pageSize = 10;
-            
+
+            if (grid.IsFiltered)
+            {
+                int ordinal = GetVisibleOrdinal(grid, grid.Selection.RowIndex);
+                return ordinal <= 0 ? 1 : ((ordinal - 1) / pageSize) + 1;
+            }
+
             int currentRow = System.Math.Max(0, System.Math.Min(grid.Selection.RowIndex, grid.Data.Rows.Count - 1));
             return (currentRow / pageSize) + 1;
         }
@@ -36,10 +42,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (grid?.Data?.Rows == null) return 1;
             
-            int totalRecords = grid.Data.Rows.Count;
+            int totalRecords = grid.IsFiltered ? grid.FilteredRowCount : grid.Data.Rows.Count;
             if (totalRecords == 0) return 1;
             
-            int pageSize = GetVisibleRowCapacity();
+            int pageSize = GetCurrentPageSize();
             if (pageSize <= 0) pageSize = 10;
             
             return System.Math.Max(1, (int)System.Math.Ceiling(totalRecords / (double)pageSize));
@@ -54,10 +60,37 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (totalRecords <= 0) return 1;
             
-            int pageSize = GetVisibleRowCapacity();
+            int pageSize = GetCurrentPageSize();
             if (pageSize <= 0) pageSize = 10;
             
             return System.Math.Max(1, (int)System.Math.Ceiling(totalRecords / (double)pageSize));
+        }
+
+        internal static int GetVisibleOrdinal(BeepGridPro grid, int rowIndex)
+        {
+            if (grid?.Data?.Rows == null || rowIndex < 0) return 0;
+
+            int ordinal = 0;
+            int limit = Math.Min(rowIndex, grid.Data.Rows.Count - 1);
+            for (int i = 0; i <= limit; i++)
+            {
+                if (grid.Data.Rows[i].IsVisible) ordinal++;
+            }
+            return ordinal;
+        }
+
+        internal static int GetDataRowForVisibleOrdinal(BeepGridPro grid, int ordinal)
+        {
+            if (grid?.Data?.Rows == null || ordinal <= 0) return 0;
+
+            int seen = 0;
+            for (int i = 0; i < grid.Data.Rows.Count; i++)
+            {
+                if (!grid.Data.Rows[i].IsVisible) continue;
+                seen++;
+                if (seen == ordinal) return i;
+            }
+            return Math.Max(0, grid.Data.Rows.Count - 1);
         }
 
         /// <summary>
@@ -95,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (pageNumber < 1) pageNumber = 1;
             
-            int pageSize = GetVisibleRowCapacity();
+            int pageSize = GetCurrentPageSize();
             if (pageSize <= 0) pageSize = 10;
             
             return (pageNumber - 1) * pageSize;
@@ -107,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int GetPageEndRow(int pageNumber, int totalRecords)
         {
             int startRow = GetPageStartRow(pageNumber);
-            int pageSize = GetVisibleRowCapacity();
+            int pageSize = GetCurrentPageSize();
             if (pageSize <= 0) pageSize = 10;
             
             int endRow = startRow + pageSize - 1;
@@ -134,7 +167,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int totalPages = GetTotalPages(grid);
             pageNumber = System.Math.Max(1, System.Math.Min(pageNumber, totalPages));
             
-            int targetRow = GetPageStartRow(pageNumber);
+            int targetRow = grid.IsFiltered
+                ? GetDataRowForVisibleOrdinal(grid, GetPageStartRow(pageNumber) + 1)
+                : GetPageStartRow(pageNumber);
             targetRow = System.Math.Max(0, System.Math.Min(targetRow, grid.Data.Rows.Count - 1));
             
             int currentColumn = Math.Max(0, grid.Selection.ColumnIndex);
@@ -142,6 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             
             grid.Scroll?.SetVerticalIndex(targetRow);
             grid.SafeInvalidate();
+            grid.UpdateAccessibleDescription();
         }
 
         /// <summary>
@@ -260,7 +296,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         public int GetCurrentPageSize()
         {
-            return 10;
+            if (_grid.PageSize > 0) return _grid.PageSize;
+            int capacity = GetVisibleRowCapacity();
+            return capacity > 0 ? capacity : 10;
         }
 
         /// <summary>

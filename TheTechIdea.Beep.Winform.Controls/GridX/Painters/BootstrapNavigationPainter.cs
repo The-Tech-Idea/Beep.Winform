@@ -29,7 +29,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             grid.ClearHitList();
 
             // Draw background using theme
-            using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
+            using (var bgBrush = new SolidBrush(System.Windows.Forms.SystemInformation.HighContrast
+                ? SystemColors.Control
+                : theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }
@@ -66,8 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 NavigationButtonState.Normal, null, theme);
 
             // Paint record info (right side)
-            PaintRecordInfo(g, layout.RecordCountRect, grid.Selection.RowIndex + 1, 
-                grid.Data.Rows.Count, theme);
+            PaintRecordInfo(g, layout.RecordCountRect, grid, theme);
         }
 
         public override void PaintButton(Graphics g, Rectangle bounds, NavigationButtonType buttonType, 
@@ -139,11 +140,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
         }
 
-        private void PaintRecordInfo(Graphics g, Rectangle bounds, int current, int total, IBeepTheme theme)
+        private void PaintRecordInfo(Graphics g, Rectangle bounds, BeepGridPro grid, IBeepTheme theme)
         {
             if (bounds.IsEmpty) return;
 
-            string text = $"Showing {current} to {Math.Min(current + 9, total)} of {total}";
+            var (start, end, total) = GetVisibleRange(grid);
+            string text = $"Showing {start} to {end} of {total}";
             using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
             using (var brush = new SolidBrush(GetInfoTextColor(theme)))
             using (var format = new StringFormat
